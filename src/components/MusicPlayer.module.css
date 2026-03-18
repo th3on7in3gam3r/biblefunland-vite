@@ -1,0 +1,157 @@
+.player {
+  position: fixed; bottom: 24px; left: 20px; z-index: 350;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Bubble */
+.bubble {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; cursor: pointer; border: none;
+  position: relative; transition: all 0.25s;
+}
+.bubble:hover { transform: scale(1.08); }
+
+.pulseRing {
+  position: absolute; inset: -4px; border-radius: 50%;
+  border: 2.5px solid rgba(99, 102, 241, 0.4);
+  opacity: 0; transition: opacity 0.3s;
+}
+.playing .pulseRing {
+  opacity: 1;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(1.12); opacity: 1; }
+}
+
+/* Panel */
+.panel {
+  width: 300px;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--sh-lg);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.header {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.headerLeft { display: flex; align-items: center; gap: 10px; }
+.headerIcon { font-size: 1.2rem; }
+.headerTitle { font-size: 0.8rem; font-weight: 700; color: white; }
+.headerSub { font-size: 0.65rem; color: rgba(255,255,255,0.6); font-weight: 500; }
+.collapseBtn {
+  background: none; border: none; color: rgba(255,255,255,0.7);
+  cursor: pointer; font-size: 0.9rem; padding: 4px;
+  transition: color 0.2s;
+}
+.collapseBtn:hover { color: white; }
+
+.nowPlaying { padding: 14px 16px 8px; }
+.trackName {
+  font-size: 0.87rem; font-weight: 700; color: var(--ink);
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.artist { font-size: 0.7rem; color: var(--ink3); font-weight: 500; margin-bottom: 11px; }
+
+.progressWrap { margin-bottom: 4px; }
+.progressBar {
+  width: 100%; height: 4px; border-radius: 100px;
+  background: var(--bg3); cursor: pointer; position: relative; overflow: hidden;
+}
+.progressFill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg, #6366F1, #8B5CF6);
+  transition: width 0.5s linear; pointer-events: none;
+}
+.timeRow {
+  display: flex; justify-content: space-between;
+  font-size: 0.62rem; color: var(--ink3); font-weight: 600; margin-top: 4px;
+}
+
+.controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; padding: 6px 16px 10px;
+}
+.ctrlBtn {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink2); font-size: 1rem; padding: 6px;
+  transition: color 0.2s; line-height: 1;
+}
+.ctrlBtn:hover { color: var(--violet); }
+.playBtn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white; font-size: 1rem; border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  transition: all 0.25s; display: flex; align-items: center; justify-content: center;
+}
+.playBtn:hover { transform: scale(1.08); }
+
+.volumeRow {
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 16px 12px;
+}
+.volIcon { font-size: 0.82rem; color: var(--ink3); }
+.volSlider {
+  flex: 1; -webkit-appearance: none; height: 3px;
+  border-radius: 100px; background: var(--bg3); outline: none; cursor: pointer;
+}
+.volSlider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--violet); cursor: pointer;
+}
+
+.tracklist {
+  border-top: 1px solid var(--border);
+  max-height: 168px; overflow-y: auto;
+}
+.track {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 16px; cursor: pointer; width: 100%;
+  background: none; border: none; text-align: left;
+  transition: background 0.15s; border-bottom: 1px solid var(--border);
+}
+.track:last-child { border-bottom: none; }
+.track:hover { background: var(--bg2); }
+.activeTrack { background: var(--violet-bg); }
+
+.trackNum {
+  font-size: 0.68rem; font-weight: 700; color: var(--ink3);
+  width: 16px; text-align: center; flex-shrink: 0;
+}
+.activeTrack .trackNum { color: var(--violet); }
+.trackInfo { flex: 1; overflow: hidden; }
+.trackTitle {
+  display: block; font-size: 0.76rem; font-weight: 700; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.activeTrack .trackTitle { color: var(--violet); }
+.trackArtist { display: block; font-size: 0.63rem; color: var(--ink3); font-weight: 500; }
+.trackDur { font-size: 0.63rem; color: var(--ink3); font-weight: 600; flex-shrink: 0; }
+
+/* EQ Animation */
+.eq {
+  display: inline-flex; align-items: flex-end; gap: 2px; height: 14px;
+}
+.eqBar {
+  width: 3px; height: var(--h, 8px); background: var(--violet);
+  border-radius: 2px; display: block;
+  animation: eqBounce 0.6s ease-in-out var(--delay, 0s) infinite alternate;
+}
+@keyframes eqBounce {
+  from { transform: scaleY(0.3); }
+  to   { transform: scaleY(1); }
+}

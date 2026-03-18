@@ -1,0 +1,63 @@
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg3) 25%,
+    var(--bg2) 50%,
+    var(--bg3) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  display: block;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.textBlock {
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+}
+.cardBody { padding: 20px; }
+
+.gameCard {
+  background: var(--surface);
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  padding: 24px;
+}
+
+.prayerCard {
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  padding: 20px;
+}
+
+.hero {
+  background: #05050F;
+  min-height: 70vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px;
+}
+.hero .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.06) 25%,
+    rgba(255,255,255,.1)  50%,
+    rgba(255,255,255,.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerDark 1.5s infinite linear;
+}
+@keyframes shimmerDark {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

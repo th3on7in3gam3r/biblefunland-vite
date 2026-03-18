@@ -1,0 +1,99 @@
+.page { background: var(--bg); min-height: 100vh; }
+
+.hero {
+  background: linear-gradient(135deg, #0F0F1A, #1E1B4B);
+  padding: 72px 36px 52px; text-align: center;
+}
+.heroH1 {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; letter-spacing: -1px;
+  background: linear-gradient(90deg, #FCD34D, #FB923C, #F472B6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 10px;
+}
+.heroSub { font-size: .95rem; color: rgba(255,255,255,.5); font-weight: 500; max-width: 440px; margin: 0 auto 24px; }
+
+.toggle {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+}
+.toggleLabel { font-size: .84rem; font-weight: 600; color: rgba(255,255,255,.4); transition: color .2s; }
+.toggleLabel.active { color: white; }
+.toggleBtn {
+  width: 48px; height: 26px; border-radius: 13px;
+  background: var(--violet); border: none; cursor: pointer; position: relative;
+  transition: background .3s;
+}
+.toggleBtn::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%; background: white;
+  transition: transform .3s;
+}
+.toggleBtn.annual::after { transform: translateX(22px); }
+.saveBadge {
+  font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: 100px;
+  background: var(--green); color: white;
+}
+
+.grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px; max-width: 1000px; margin: 0 auto; padding: 52px 36px 68px;
+}
+
+.card {
+  border-radius: var(--r-xl); padding: 32px 28px;
+  border: 2px solid var(--border); background: var(--surface);
+  position: relative; transition: all .28s;
+}
+.card:hover { transform: translateY(-5px); box-shadow: var(--sh-lg); }
+.popular { border-color: var(--violet); box-shadow: 0 0 0 4px rgba(139,92,246,.1), var(--sh-lg); }
+.popularBadge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white;
+  font-size: .7rem; font-weight: 700; padding: 5px 18px; border-radius: 100px;
+  white-space: nowrap;
+}
+.planName { font-family: 'Baloo 2', cursive; font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+.planPrice { font-family: 'Baloo 2', cursive; font-size: 3rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.planPeriod { font-size: .78rem; color: var(--ink3); font-weight: 500; margin-bottom: 22px; }
+
+.featureList { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 26px; }
+.featureItem {
+  display: flex; align-items: center; gap: 9px;
+  font-size: .82rem; font-weight: 500; color: var(--ink2);
+}
+.disabled { color: var(--ink3); }
+.check { font-size: .9rem; color: var(--green); }
+.x { font-size: .9rem; color: var(--ink3); }
+
+.planBtn {
+  width: 100%; padding: 13px; border-radius: var(--r-md);
+  font-weight: 700; font-size: .88rem; cursor: pointer;
+  border: 2px solid var(--border); background: var(--bg2);
+  color: var(--ink2); transition: all .25s;
+  display: flex; align-items: center; justify-content: center;
+}
+.planBtn:hover { transform: translateY(-1px); }
+.main {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white; border: none;
+  box-shadow: 0 5px 20px rgba(99,102,241,.3);
+}
+.orange { background: linear-gradient(135deg, #F97316, #EF4444); color: white; border: none; }
+.btnSpinner {
+  display: inline-block; width: 18px; height: 18px; border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,.4); border-top-color: white;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.trust {
+  display: flex; align-items: center; justify-content: center;
+  gap: 32px; padding: 0 36px 60px; flex-wrap: wrap;
+}
+.trustItem {
+  display: flex; align-items: center; gap: 7px;
+  font-size: .8rem; font-weight: 600; color: var(--ink3);
+}
+.trustItem span { font-size: 1rem; }
+
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; padding: 36px 18px; } }

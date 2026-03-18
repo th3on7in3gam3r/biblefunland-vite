@@ -1,0 +1,112 @@
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 36px; height: 64px;
+  transition: background 0.3s;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 9px;
+  cursor: pointer; user-select: none;
+}
+.logoIcon {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem;
+}
+.logoText {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.2rem; font-weight: 800; color: var(--ink);
+}
+.logoText span { color: var(--blue); }
+
+.links {
+  display: flex; align-items: center; gap: 2px; list-style: none;
+}
+.links a {
+  font-size: 0.78rem; font-weight: 600; color: var(--ink2);
+  text-decoration: none; padding: 6px 11px; border-radius: 9px;
+  transition: all 0.2s; white-space: nowrap;
+}
+.links a:hover { background: var(--bg2); color: var(--ink); }
+.active { color: var(--blue) !important; background: var(--blue-bg) !important; }
+
+.right {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.streakBadge {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--orange-bg);
+  border: 1.5px solid rgba(249, 115, 22, 0.2);
+  border-radius: 20px; padding: 4px 11px;
+  font-size: 0.76rem; font-weight: 800; color: var(--orange);
+  text-decoration: none; transition: all 0.2s;
+}
+.streakBadge:hover { transform: scale(1.04); }
+
+/* Dark mode toggle */
+.darkToggle {
+  width: 40px; height: 22px; border-radius: 11px;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  cursor: pointer; position: relative; transition: background 0.3s;
+}
+.darkToggle.dark { background: linear-gradient(135deg, #3B82F6, #8B5CF6); }
+.darkToggleThumb {
+  display: block; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--ink3); transition: transform 0.3s, background 0.3s;
+}
+.darkToggle.dark .darkToggleThumb {
+  transform: translateX(18px); background: white;
+}
+
+/* Hamburger */
+.hamburger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; width: 36px; height: 36px;
+  border: none; background: none; cursor: pointer; padding: 6px;
+}
+.hamburger span {
+  display: block; width: 20px; height: 2px;
+  background: var(--ink); border-radius: 2px;
+  transition: all 0.3s; transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Backdrop */
+.backdrop {
+  position: fixed; inset: 64px 0 0;
+  background: rgba(0, 0, 0, 0.4); z-index: 180;
+}
+
+/* Drawer */
+.drawer {
+  position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+  background: var(--surface); z-index: 190;
+  padding: 20px; display: flex; flex-direction: column; gap: 4px;
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+.drawerOpen { transform: translateX(0); }
+.drawer a, .drawer button {
+  font-size: 0.95rem; font-weight: 600; color: var(--ink2);
+  text-decoration: none; padding: 13px 16px; border-radius: 12px;
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  transition: background 0.2s; background: none; border: none; text-align: left;
+}
+.drawer a:hover, .drawer button:hover { background: var(--bg2); }
+
+@media (max-width: 900px) {
+  .links { display: none; }
+  .hamburger { display: flex; }
+  .streakBadge { display: none; }
+}
