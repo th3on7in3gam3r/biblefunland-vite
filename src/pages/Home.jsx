@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStreak } from '../context/StreakContext'
 import { AdBanner, AdInContent } from '../components/AdUnit'
-import { useKidsMode, KIDS_HIDDEN_ROUTES } from '../context/KidsModeContext'
 
 // ── Reveal-on-scroll hook ──────────────────────────────
 function useReveal() {
@@ -103,51 +102,8 @@ function SectionHeader({ pill, pillColor, pillBg, title, sub }) {
 
 export default function Home() {
   useReveal()
-  const { kidsMode } = useKidsMode()
   const { streak, checkedToday, checkIn } = useStreak()
   const todayVerse = DAILY_VERSES[new Date().getDay()]
-
-  const filterFeatures = (arr) => arr.filter(f => !kidsMode || !KIDS_HIDDEN_ROUTES.includes(f.to))
-
-  const filteredNew = filterFeatures(NEW_FEATURES)
-  const filteredGames = filterFeatures(GAMES)
-  const filteredAI = filterFeatures(AI_TOOLS)
-  const filteredSoul = filterFeatures(SOUL_TOOLS)
-  const filteredLearning = filterFeatures(LEARNING_TOOLS)
-  const filteredCommunity = filterFeatures(COMMUNITY)
-
-  const quickAccess = [
-    { e:'🎮',n:'Trivia',to:'/trivia' },
-    { e:'🙏',n:'Devotional',to:'/devotional' },
-    { e:'🗺️',n:'Bible Map',to:'/map' },
-    { e:'🧠',n:'Flashcards',to:'/flashcards' },
-    { e:'📝',n:'Sermon Notes',to:'/notes' },
-    { e:'🏹',n:'David & Goliath',to:'/game/david-goliath' },
-    { e:'🏃',n:'Runner',to:'/game/runner' },
-    { e:'🧩',n:'Escape Room',to:'/game/escape-room' },
-    { e:'🎰',n:'Spin Verse',to:'/game/spin-the-verse' },
-    { e:'📅',n:'Daily Challenge',to:'/challenge' },
-    { e:'💬',n:'Chat w/ Moses',to:'/chat/characters' },
-    { e:'🎵',n:'Bible Rap',to:'/ai/rap-generator' },
-    { e:'🖼️',n:'Miracle Art',to:'/ai/miracle-art' },
-    { e:'🧬',n:'What Character?',to:'/quiz/character' },
-    { e:'🎙️',n:'Voice Reader',to:'/voice-reader' },
-    { e:'🌍',n:'Prayer Map',to:'/prayer-map' },
-    { e:'📿',n:'Prayer Beads',to:'/prayer-beads' },
-    { e:'🗣️',n:'Encourage Wall',to:'/encouragement' },
-    { e:'🎓',n:'Certification',to:'/certification' },
-    { e:'🔗',n:'Share Cards',to:'/share' },
-    { e:'🎥',n:'Videos',to:'/videos' },
-    { e:'📰',n:'Blog',to:'/blog' },
-    { e:'🙏',n:'Prayer Wall',to:'/prayer' },
-    { e:'👨‍👩‍👧',n:'Family Groups',to:'/community/family' },
-    { e:'⛪',n:'Church Events',to:'/community/events' },
-    { e:'💬',n:'Chat Rooms',to:'/community/chat' },
-    { e:'🖨️',n:'Activity Sheets',to:'/activity-sheets' },
-    { e:'📊',n:'Dashboard',to:'/dashboard' },
-    { e:'👤',n:'My Profile',to:'/profile' },
-    { e:'💎',n:'Go Pro',to:'/premium' },
-  ].filter(f => !kidsMode || !KIDS_HIDDEN_ROUTES.includes(f.to))
   const [heroParticles] = useState(() =>
     Array.from({ length: 22 }, (_, i) => ({
       left: Math.random() * 100,
@@ -231,7 +187,7 @@ export default function Home() {
           STATS BAR
       ═══════════════════════════════════════════════ */}
       <div style={{ background: 'linear-gradient(90deg,#0F0F1A,#1A0A2E,#0D1B2A)', borderTop: '1px solid rgba(255,255,255,.07)', borderBottom: '1px solid rgba(255,255,255,.07)', padding: '22px 24px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'clamp(8px, 2vw, 20px)' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
           {STATS.map((s, i) => (
             <div key={i} className="reveal" style={{ textAlign: 'center', transitionDelay: `${i * .07}s` }}>
               <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 800, color: s.color, lineHeight: 1, marginBottom: 3 }}>{s.n}</div>
@@ -244,8 +200,8 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════
           STREAK + VERSE — Side by side
       ═══════════════════════════════════════════════ */}
-      <section style={{ padding: 'clamp(40px, 8vw, 64px) 24px', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(16px, 3vw, 24px)', alignItems: 'stretch' }}>
+      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 20, alignItems: 'stretch' }}>
           {/* Streak card */}
           <div className="reveal" style={{ background: 'linear-gradient(135deg,#1C1305,#2D1E00)', borderRadius: 24, border: '1.5px solid rgba(249,115,22,.2)', padding: '32px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 1px rgba(249,115,22,.05), 0 20px 60px rgba(249,115,22,.08)' }}>
             <div style={{ fontSize: '3.5rem', lineHeight: 1, marginBottom: 8, filter: 'drop-shadow(0 0 16px rgba(251,191,36,.5))', animation: streak > 0 ? 'flame 1.5s ease-in-out infinite' : 'none' }}>🔥</div>
@@ -285,8 +241,8 @@ export default function Home() {
             title="Features That Have Never Existed"
             sub="We built things no Christian website has ever shipped. These are genuinely new."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-            {filteredNew.map((f, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+            {NEW_FEATURES.map((f, i) => (
               <Link key={i} to={f.to} className="reveal" style={{ textDecoration: 'none', display: 'block', transitionDelay: `${i * .07}s` }}>
                 <div style={{ borderRadius: 22, border: `1.5px solid ${f.color}33`, background: `linear-gradient(135deg,${f.color}10,${f.color}05,transparent)`, padding: '28px 26px', height: '100%', transition: 'all .3s', position: 'relative', overflow: 'hidden' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 20px 60px ${f.glow}`; e.currentTarget.style.borderColor = f.color + '66'; e.currentTarget.style.transform = 'translateY(-4px)' }}
@@ -320,8 +276,8 @@ export default function Home() {
             title="Play Your Way Through Scripture"
             sub="6 fully-built games — from action to puzzle to endless runner. All rooted in the Bible."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-            {filteredGames.map((g, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {GAMES.map((g, i) => (
               <Link key={i} to={g.to} className="reveal" style={{ textDecoration: 'none', display: 'block', transitionDelay: `${i * .06}s` }}>
                 <div style={{ background: 'var(--surface)', borderRadius: 20, border: '1.5px solid var(--border)', padding: '22px 20px', height: '100%', transition: 'all .28s', cursor: 'pointer', borderTop: `3px solid ${g.color}` }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${g.color}18` }}
@@ -358,8 +314,8 @@ export default function Home() {
             title="Scripture Comes Alive with AI"
             sub="Claude AI writes devotionals, creates songs, generates art descriptions, and talks with you as your favorite Bible characters."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-            {filteredAI.map((t, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}>
+            {AI_TOOLS.map((t, i) => (
               <Link key={i} to={t.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .07}s` }}>
                 <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start', padding: '22px 24px', borderRadius: 20, background: 'rgba(255,255,255,.03)', border: '1.5px solid rgba(255,255,255,.07)', transition: 'all .28s' }}
                   onMouseEnter={e => { e.currentTarget.style.background = `${t.color}08`; e.currentTarget.style.borderColor = t.color + '44'; e.currentTarget.style.transform = 'translateY(-3px)' }}
@@ -389,8 +345,8 @@ export default function Home() {
             title="For the Quiet Moments With God"
             sub="Features designed to move you — breathe, confess, certify, and see the global church praying together."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-            {filteredSoul.map((t, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}>
+            {SOUL_TOOLS.map((t, i) => (
               <Link key={i} to={t.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .07}s` }}>
                 <div style={{ borderRadius: 22, border: `1.5px solid ${t.color}22`, background: `linear-gradient(135deg,${t.color}08,transparent)`, padding: '26px 24px', transition: 'all .28s' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 12px 40px ${t.color}18`; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = t.color + '44' }}
@@ -423,8 +379,8 @@ export default function Home() {
             title="Study Smarter. Remember Longer."
             sub="Maps, flashcards, voice reading, notes, share cards, and printables — everything you need to go deeper."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-            {filteredLearning.map((t, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+            {LEARNING_TOOLS.map((t, i) => (
               <Link key={i} to={t.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .06}s` }}>
                 <div style={{ background: 'var(--surface)', borderRadius: 18, border: '1.5px solid var(--border)', padding: '20px', display: 'flex', gap: 14, alignItems: 'flex-start', transition: 'all .25s', borderLeft: `3px solid ${t.color}` }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(3px)'; e.currentTarget.style.boxShadow = `0 6px 24px ${t.color}15` }}
@@ -453,8 +409,8 @@ export default function Home() {
             title="You're Not Alone in This"
             sub="Real-time prayer, family groups, church events, and rooms where the body of Christ connects."
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
-            {filteredCommunity.map((c, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+            {COMMUNITY.map((c, i) => (
               <Link key={i} to={c.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .07}s` }}>
                 <div style={{ background: 'var(--surface)', borderRadius: 20, border: '1.5px solid var(--border)', padding: '24px 18px', textAlign: 'center', transition: 'all .28s' }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = c.color + '55'; e.currentTarget.style.boxShadow = `0 12px 32px ${c.color}15` }}
@@ -480,8 +436,39 @@ export default function Home() {
             pillBg="rgba(168,85,247,.1)"
             title="Every Feature, Right Here"
           />
-          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-            {quickAccess.map((item, i) => (
+          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
+            {[
+              { e:'🎮',n:'Trivia',to:'/trivia' },
+              { e:'🙏',n:'Devotional',to:'/devotional' },
+              { e:'🗺️',n:'Bible Map',to:'/map' },
+              { e:'🧠',n:'Flashcards',to:'/flashcards' },
+              { e:'📝',n:'Sermon Notes',to:'/notes' },
+              { e:'🏹',n:'David & Goliath',to:'/game/david-goliath' },
+              { e:'🏃',n:'Runner',to:'/game/runner' },
+              { e:'🧩',n:'Escape Room',to:'/game/escape-room' },
+              { e:'🎰',n:'Spin Verse',to:'/game/spin-the-verse' },
+              { e:'📅',n:'Daily Challenge',to:'/challenge' },
+              { e:'💬',n:'Chat w/ Moses',to:'/chat/characters' },
+              { e:'🎵',n:'Bible Rap',to:'/ai/rap-generator' },
+              { e:'🖼️',n:'Miracle Art',to:'/ai/miracle-art' },
+              { e:'🧬',n:'What Character?',to:'/quiz/character' },
+              { e:'🎙️',n:'Voice Reader',to:'/voice-reader' },
+              { e:'🌍',n:'Prayer Map',to:'/prayer-map' },
+              { e:'📿',n:'Prayer Beads',to:'/prayer-beads' },
+              { e:'🗣️',n:'Encourage Wall',to:'/encouragement' },
+              { e:'🎓',n:'Certification',to:'/certification' },
+              { e:'🔗',n:'Share Cards',to:'/share' },
+              { e:'🎥',n:'Videos',to:'/videos' },
+              { e:'📰',n:'Blog',to:'/blog' },
+              { e:'🙏',n:'Prayer Wall',to:'/prayer' },
+              { e:'👨‍👩‍👧',n:'Family Groups',to:'/community/family' },
+              { e:'⛪',n:'Church Events',to:'/community/events' },
+              { e:'💬',n:'Chat Rooms',to:'/community/chat' },
+              { e:'🖨️',n:'Activity Sheets',to:'/activity-sheets' },
+              { e:'📊',n:'Dashboard',to:'/dashboard' },
+              { e:'👤',n:'My Profile',to:'/profile' },
+              { e:'💎',n:'Go Pro',to:'/premium' },
+            ].map((item, i) => (
               <Link key={i} to={item.to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '14px 8px', borderRadius: 14, background: 'var(--surface)', border: '1.5px solid var(--border)', transition: 'all .2s', textAlign: 'center' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'var(--violet)'; e.currentTarget.style.background = 'var(--violet-bg)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)' }}>
@@ -496,31 +483,29 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════
           PRO CTA
       ═══════════════════════════════════════════════ */}
-      {!kidsMode && (
-        <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0533,#0A1A0F)' }}>
-          <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-            <div className="reveal" style={{ background: 'linear-gradient(135deg,rgba(99,102,241,.12),rgba(168,85,247,.08))', borderRadius: 32, border: '1.5px solid rgba(139,92,246,.2)', padding: '52px 44px', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: -30, right: -30, fontSize: '10rem', opacity: .04 }}>💎</div>
-              <div style={{ fontSize: '3rem', marginBottom: 14 }}>💎</div>
-              <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.6rem,4vw,2.6rem)', fontWeight: 800, color: 'white', marginBottom: 10 }}>Go Pro — Remove Ads Forever</h2>
-              <p style={{ fontSize: '.9rem', color: 'rgba(255,255,255,.5)', fontWeight: 500, lineHeight: 1.75, marginBottom: 28, maxWidth: 460, margin: '0 auto 28px' }}>
-                Ad-free experience, priority AI access, exclusive games, family dashboard, and full Bible certification courses. From $3.99/month.
-              </p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link to="/premium" style={{ padding: '14px 32px', borderRadius: 14, background: 'linear-gradient(135deg,#8B5CF6,#6366F1)', color: 'white', fontFamily: 'Poppins,sans-serif', fontWeight: 800, fontSize: '.9rem', textDecoration: 'none', boxShadow: '0 8px 28px rgba(139,92,246,.35)', transition: 'all .2s' }}>
-                  ✨ See Pro Plans
-                </Link>
-                <Link to="/auth" style={{ padding: '14px 28px', borderRadius: 14, background: 'rgba(255,255,255,.07)', color: 'rgba(255,255,255,.7)', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.9rem', textDecoration: 'none', border: '1px solid rgba(255,255,255,.12)', transition: 'all .2s' }}>
-                  🔐 Free Account
-                </Link>
-              </div>
-              <p style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.25)', marginTop: 18, fontWeight: 500 }}>
-                30+ features always free · Pro removes ads & unlocks premium tools
-              </p>
+      <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0533,#0A1A0F)' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
+          <div className="reveal" style={{ background: 'linear-gradient(135deg,rgba(99,102,241,.12),rgba(168,85,247,.08))', borderRadius: 32, border: '1.5px solid rgba(139,92,246,.2)', padding: '52px 44px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: -30, right: -30, fontSize: '10rem', opacity: .04 }}>💎</div>
+            <div style={{ fontSize: '3rem', marginBottom: 14 }}>💎</div>
+            <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.6rem,4vw,2.6rem)', fontWeight: 800, color: 'white', marginBottom: 10 }}>Go Pro — Remove Ads Forever</h2>
+            <p style={{ fontSize: '.9rem', color: 'rgba(255,255,255,.5)', fontWeight: 500, lineHeight: 1.75, marginBottom: 28, maxWidth: 460, margin: '0 auto 28px' }}>
+              Ad-free experience, priority AI access, exclusive games, family dashboard, and full Bible certification courses. From $3.99/month.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/premium" style={{ padding: '14px 32px', borderRadius: 14, background: 'linear-gradient(135deg,#8B5CF6,#6366F1)', color: 'white', fontFamily: 'Poppins,sans-serif', fontWeight: 800, fontSize: '.9rem', textDecoration: 'none', boxShadow: '0 8px 28px rgba(139,92,246,.35)', transition: 'all .2s' }}>
+                ✨ See Pro Plans
+              </Link>
+              <Link to="/auth" style={{ padding: '14px 28px', borderRadius: 14, background: 'rgba(255,255,255,.07)', color: 'rgba(255,255,255,.7)', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.9rem', textDecoration: 'none', border: '1px solid rgba(255,255,255,.12)', transition: 'all .2s' }}>
+                🔐 Free Account
+              </Link>
             </div>
+            <p style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.25)', marginTop: 18, fontWeight: 500 }}>
+              30+ features always free · Pro removes ads & unlocks premium tools
+            </p>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       <style>{`
         @keyframes floatP {
@@ -556,7 +541,11 @@ export default function Home() {
         .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
         .reveal.in { opacity: 1; transform: none; }
         @media (max-width: 768px) {
-          /* General mobile spacing overrides if needed */
+          section > div > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: repeat(2,1fr) !important; }
+          section > div > div[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(2,1fr) !important; }
+          section > div > div[style*="grid-template-columns: repeat(5"] { grid-template-columns: repeat(3,1fr) !important; }
+          section > div > div[style*="grid-template-columns: 1fr 1.6fr"] { grid-template-columns: 1fr !important; }
+          section > div > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

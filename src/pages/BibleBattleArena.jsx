@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
 import { useBadges } from '../context/BadgeContext'
-import { useAuth } from '../context/AuthContext'
 
 const QUESTIONS = [
   { q:'How many days did Jesus fast in the wilderness?', options:['30','40','50','7'], correct:1 },
@@ -49,10 +49,16 @@ export default function BibleBattleArena() {
     setPhase('lobby')
     setWaitingForOpponent(true)
 
-    // Real-time broadcasting disabled for Turso migration
-    alert('Multiplayer is currently undergoing maintenance. Solo mode coming soon! 🙏')
-    setPhase('menu')
-    setWaitingForOpponent(false)
+    channelRef.current = supabase.channel(`battle-${code}`)
+      .on('broadcast', { event: 'join' }, () => {
+        setOpponentJoined(true)
+        setWaitingForOpponent(false)
+        setTimeout(startGame, 1500)
+      })
+      .on('broadcast', { event: 'answer' }, ({ payload }) => {
+        setTheirAnswer(payload.answer)
+      })
+      .subscribe()
   }
 
   function joinRoom() {
@@ -62,9 +68,23 @@ export default function BibleBattleArena() {
     setMode('join')
     setPhase('lobby')
 
-    // Real-time broadcasting disabled for Turso migration
-    alert('Multiplayer is currently undergoing maintenance. Solo mode coming soon! 🙏')
-    setPhase('menu')
+    channelRef.current = supabase.channel(`battle-${code}`)
+      .on('broadcast', { event: 'question' }, ({ payload }) => {
+        setQuestion(payload.question)
+        setMyAnswer(null); setTheirAnswer(null); setRoundResult(null)
+        setTimeLeft(8)
+        setPhase('playing')
+      })
+      .on('broadcast', { event: 'result' }, ({ payload }) => {
+        setScore(payload.score)
+        setRoundResult(payload.result)
+        setRound(payload.round)
+        if (payload.round >= TOTAL_ROUNDS) setTimeout(() => setPhase('done'), 2000)
+      })
+      .subscribe()
+
+    channelRef.current.send({ type: 'broadcast', event: 'join', payload: {} })
+    setOpponentJoined(true)
   }
 
   function startGame() {
@@ -121,7 +141,7 @@ export default function BibleBattleArena() {
     return () => clearInterval(timerRef.current)
   }, [phase, question, myAnswer])
 
-  useEffect(() => () => { clearInterval(timerRef.current) }, [])
+  useEffect(() => () => { channelRef.current?.unsubscribe(); clearInterval(timerRef.current) }, [])
 
   const myWon = score.me > score.them
   const tied = score.me === score.them

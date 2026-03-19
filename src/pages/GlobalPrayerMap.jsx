@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
 
 const DEMO_PINS = [
   { id:1, lat:40.71, lng:-74.01, country:'🇺🇸', city:'New York', prayer:'Lord, heal my family', time:2 },
@@ -35,7 +36,16 @@ export default function GlobalPrayerMap() {
   const channelRef = useRef(null)
 
   useEffect(() => {
-    // Real-time broadcasting disabled for Turso migration
+    // Try Supabase real-time
+    try {
+      channelRef.current = supabase.channel('prayer-map')
+        .on('broadcast', { event: 'new-pin' }, ({ payload }) => {
+          setPins(prev => [payload, ...prev].slice(0, 50))
+          setLiveCount(c => c + 1)
+          setTimeout(() => setLiveCount(c => Math.max(0, c - 1)), 5000)
+        })
+        .subscribe()
+    } catch {}
 
     // Simulate new prayer pins appearing
     const interval = setInterval(() => {
@@ -46,7 +56,7 @@ export default function GlobalPrayerMap() {
       setTimeout(() => setLiveCount(c => Math.max(0, c - 1)), 4000)
     }, 12000)
 
-    return () => { clearInterval(interval) }
+    return () => { clearInterval(interval); channelRef.current?.unsubscribe() }
   }, [])
 
   function submitPrayer() {
@@ -62,6 +72,7 @@ export default function GlobalPrayerMap() {
       time: 0,
     }
     setPins(prev => [pin, ...prev])
+    try { supabase.channel('prayer-map').send({ type: 'broadcast', event: 'new-pin', payload: pin }) } catch {}
     setForm({ country:'', city:'', prayer:'', category:'General' })
     setShowForm(false)
     setSubmitted(true)

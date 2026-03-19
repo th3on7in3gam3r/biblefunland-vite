@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { generateAIContent } from '../lib/ai'
 
 const STYLES = [
   { id: 'rap',        label: '🎤 Scripture Rap',    icon: '🎤', desc: 'Hard-hitting bars rooted in the Word' },
@@ -28,6 +27,7 @@ export default function BibleRapGenerator() {
   const [style, setStyle] = useState('rap')
   const [verse, setVerse] = useState('')
   const [topic, setTopic] = useState('')
+  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -35,15 +35,26 @@ export default function BibleRapGenerator() {
 
   async function generate() {
     if (!verse.trim() && !topic.trim()) { setError('Enter a Bible verse or topic first!'); return }
+    if (!apiKey) { setError('Enter your Anthropic API key to generate.'); return }
     setError(''); setLoading(true); setResult(null)
+    sessionStorage.setItem('bfl_key', apiKey)
     const prompt = verse.trim()
       ? `Write a ${style} based on this Bible verse: "${verse}"`
       : `Write a ${style} about this Christian topic: "${topic}"`
     try {
-      const text = await generateAIContent(prompt, SYSTEM_PROMPTS[style])
-      if (text) setResult(text)
-      else setError('AI generation failed. Please try again.')
-    } catch(err) { setError(err.message || 'Connection failed. Please try again.') }
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514', max_tokens: 900,
+          system: SYSTEM_PROMPTS[style],
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+      const data = await res.json()
+      if (data.content?.[0]?.text) setResult(data.content[0].text)
+      else setError(data.error?.message || 'Generation failed. Check your API key.')
+    } catch { setError('Connection failed. Check your API key and internet.') }
     setLoading(false)
   }
 
@@ -101,7 +112,7 @@ export default function BibleRapGenerator() {
             ))}
           </div>
 
-          <input className="input-field" placeholder={"Bible verse e.g. \"Philippians 4:13\"..."} value={verse} onChange={e => { setVerse(e.target.value); setTopic('') }} style={{ marginBottom: 10 }} />
+          <input className="input-field" placeholder='Bible verse e.g. "Philippians 4:13"...' value={verse} onChange={e => { setVerse(e.target.value); setTopic('') }} style={{ marginBottom: 10 }} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
@@ -109,14 +120,11 @@ export default function BibleRapGenerator() {
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
-          <input className="input-field" placeholder={"Topic e.g. \"overcoming fear\", \"God's love\", \"forgiveness\"..."} value={topic} onChange={e => { setTopic(e.target.value); setVerse('') }} style={{ marginBottom: 16 }} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--blue-bg)', borderRadius: 14, padding: '14px 18px', marginBottom: 20, fontSize: '.78rem', color: 'var(--ink2)', fontWeight: 500, lineHeight: 1.6, border: '1px solid var(--blue-border)' }}>
-            <span style={{ fontSize: '1.2rem' }}>✨</span>
-            <span>Our AI is ready to rhyme! No API key required.</span>
-          </div>
+          <input className="input-field" placeholder='Topic e.g. "overcoming fear", "God\'s love", "forgiveness"...' value={topic} onChange={e => { setTopic(e.target.value); setVerse('') }} style={{ marginBottom: 16 }} />
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>API Key:</span>
+            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.78rem' }} />
             <button className="btn btn-violet" onClick={generate} disabled={loading} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
               {loading ? '...' : `✨ Generate ${selectedStyle?.icon}`}
             </button>

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getPrayers, insertPrayer, incrementPrayCount } from '../lib/db'
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
 import { useT } from '../i18n/useT'
 import { SkeletonPrayerCard } from '../components/Skeleton'
 
@@ -30,20 +30,60 @@ export default function PrayerWallRealtime() {
   const { t } = useT()
   const [prayers, setPrayers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [usingSupabase, setUsingSupabase] = useState(false)
   const [form, setForm] = useState({ name: '', category: 'General', text: '', anon: false })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [prayedIds, setPrayedIds] = useState(new Set())
+  const [liveCount, setLiveCount] = useState(0)
+  const channelRef = useRef(null)
 
   useEffect(() => {
     loadPrayers()
+    return () => { channelRef.current?.unsubscribe() }
   }, [])
 
   async function loadPrayers() {
     setLoading(true)
-    const { data, error } = await getPrayers()
-    if (data) setPrayers(data)
-    else console.error('Error loading prayers:', error)
+    try {
+      const { data, error } = await supabase
+        .from('prayers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+      if (error || !data) throw error
+
+      setPrayers(data)
+      setUsingSupabase(true)
+
+      // ── Subscribe to real-time inserts ──
+      channelRef.current = supabase
+        .channel('prayers-live')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'prayers',
+        }, payload => {
+          setPrayers(prev => [payload.new, ...prev])
+          setLiveCount(c => c + 1)
+          // Flash live indicator
+          setTimeout(() => setLiveCount(c => Math.max(0, c - 1)), 4000)
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'prayers',
+        }, payload => {
+          setPrayers(prev => prev.map(p => p.id === payload.new.id ? payload.new : p))
+        })
+        .subscribe()
+
+    } catch {
+      // Supabase not connected — use local fallback
+      setPrayers(FALLBACK)
+      setUsingSupabase(false)
+    }
     setLoading(false)
   }
 
@@ -51,21 +91,25 @@ export default function PrayerWallRealtime() {
     if (!form.text.trim()) { alert(t('prayer.text')); return }
     setSubmitting(true)
     const name = form.anon ? 'Anonymous' : (form.name.trim() || 'Anonymous')
-    
-    const { error } = await insertPrayer({
+    const newPrayer = {
       name,
       category: form.category,
-      text: form.text
-    })
-
-    if (!error) {
-      setForm({ name: '', category: 'General', text: '', anon: false })
-      setSubmitted(true)
-      setTimeout(() => setSubmitted(false), 3000)
-      loadPrayers() // Refresh list
-    } else {
-      console.error('Prayer insert error:', error)
+      text: form.text,
+      pray_count: 0,
     }
+
+    if (usingSupabase) {
+      const { error } = await supabase.from('prayers').insert(newPrayer)
+      if (error) console.error('Prayer insert error:', error)
+      // Real-time subscription handles adding to list
+    } else {
+      // Local fallback
+      setPrayers(prev => [{ ...newPrayer, id: Date.now(), created_at: new Date().toISOString() }, ...prev])
+    }
+
+    setForm({ name: '', category: 'General', text: '', anon: false })
+    setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 3000)
     setSubmitting(false)
   }
 
@@ -73,8 +117,9 @@ export default function PrayerWallRealtime() {
     if (prayedIds.has(prayer.id)) return
     setPrayedIds(prev => new Set([...prev, prayer.id]))
 
-    const { error } = await incrementPrayCount(prayer.id)
-    if (!error) {
+    if (usingSupabase) {
+      await supabase.rpc('increment_pray_count', { prayer_id: prayer.id })
+    } else {
       setPrayers(prev => prev.map(p =>
         p.id === prayer.id ? { ...p, pray_count: p.pray_count + 1 } : p
       ))
@@ -92,12 +137,17 @@ export default function PrayerWallRealtime() {
           {t('prayer.subtitle')}
         </p>
 
-        {/* Live indicator removed for Turso migration */}
+        {/* Live indicator */}
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 100, padding: '5px 14px' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <span style={{ fontSize: '.72rem', fontWeight: 700, color: '#34D399' }}>
-            {t('prayer.live')} — Powered by Turso
+            {usingSupabase ? t('prayer.live') + ' — Real-time Supabase' : 'Local Mode — Connect Supabase for live updates'}
           </span>
+          {liveCount > 0 && (
+            <span style={{ background: '#34D399', color: '#064E3B', fontSize: '.65rem', fontWeight: 800, padding: '1px 7px', borderRadius: 100, animation: 'popIn .3s ease' }}>
+              +{liveCount} new
+            </span>
+          )}
         </div>
       </div>
 
@@ -184,7 +234,7 @@ export default function PrayerWallRealtime() {
               return (
                 <div
                   key={p.id}
-                  style={{ background: 'var(--surface)', borderRadius: 20, padding: 20, border: '1.5px solid var(--border)', transition: 'all .25s' }}
+                  style={{ background: 'var(--surface)', borderRadius: 20, padding: 20, border: '1.5px solid var(--border)', transition: 'all .25s', animation: idx === 0 && liveCount > 0 ? 'popIn .4s ease' : 'none' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                     <div style={{ width: 34, height: 34, borderRadius: '50%', background: catBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>

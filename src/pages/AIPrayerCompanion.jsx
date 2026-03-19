@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { generateAIContent } from '../lib/ai'
 
 const SYSTEM_PROMPT = `You are a compassionate, scripture-grounded prayer companion. You pray WITH people, not at them.
 
@@ -41,6 +40,8 @@ export default function AIPrayerCompanion() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
+  const [showKey, setShowKey] = useState(!sessionStorage.getItem('bfl_key'))
   const [phase, setPhase] = useState('welcome')
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
@@ -52,6 +53,7 @@ export default function AIPrayerCompanion() {
   async function send(text) {
     const userText = text || input.trim()
     if (!userText || loading) return
+    if (!apiKey) { setShowKey(true); return }
 
     setInput('')
     setPhase('typing')
@@ -60,16 +62,30 @@ export default function AIPrayerCompanion() {
     setLoading(true)
 
     try {
-      const text = await generateAIContent(userText, SYSTEM_PROMPT)
-      if (text) {
-        setMessages([...newMessages, { role: 'assistant', content: text }])
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 600,
+          system: SYSTEM_PROMPT,
+          messages: newMessages,
+        }),
+      })
+      const data = await res.json()
+      if (data.content?.[0]?.text) {
+        setMessages([...newMessages, { role: 'assistant', content: data.content[0].text }])
         setPhase('conversation')
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: "I'm sorry — there was an issue connecting. Please try again later." }])
+        setMessages([...newMessages, { role: 'assistant', content: "I'm sorry — there was an issue connecting. Please check your API key and try again." }])
         setPhase('conversation')
       }
-    } catch(err) {
-      setMessages([...newMessages, { role: 'assistant', content: err.message || "Connection failed. Please try again later." }])
+    } catch {
+      setMessages([...newMessages, { role: 'assistant', content: "Connection failed. Please check your internet and API key." }])
     }
     setLoading(false)
   }
@@ -96,6 +112,16 @@ export default function AIPrayerCompanion() {
         </p>
       </div>
 
+      {/* API Key bar */}
+      {showKey && (
+        <div style={{ background: 'var(--orange-bg)', borderBottom: '1px solid rgba(249,115,22,.2)', padding: '12px 24px', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--orange)', whiteSpace: 'nowrap' }}>🔑 Anthropic API Key:</span>
+          <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey}
+            onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }}
+            style={{ flex: 1, minWidth: 200, fontSize: '.8rem' }} />
+          <button className="btn btn-orange btn-sm" onClick={() => setShowKey(false)}>Save</button>
+        </div>
+      )}
 
       {/* Chat area */}
       <div style={{ flex: 1, maxWidth: 720, width: '100%', margin: '0 auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto' }}>
@@ -192,7 +218,8 @@ export default function AIPrayerCompanion() {
           </button>
         </div>
         <div style={{ maxWidth: 720, margin: '6px auto 0', fontSize: '.68rem', color: 'var(--ink3)', fontWeight: 500, textAlign: 'center' }}>
-          Press Enter to send · Shift+Enter for new line · AI Prayer Companion is here to pray with you
+          Press Enter to send · Shift+Enter for new line · Nothing is saved or stored
+          {!showKey && <button onClick={() => setShowKey(true)} style={{ marginLeft: 8, background: 'none', border: 'none', color: 'var(--blue)', cursor: 'pointer', fontSize: '.68rem', fontWeight: 700 }}>Change API key</button>}
         </div>
       </div>
 

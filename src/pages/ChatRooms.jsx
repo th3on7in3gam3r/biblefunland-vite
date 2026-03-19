@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getMessages, insertMessage } from '../lib/db'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 
@@ -34,47 +34,37 @@ export default function ChatRooms() {
   const bottomRef = useRef(null)
 
   useEffect(() => {
-    loadMessages()
-    const interval = setInterval(loadMessages, 5000) // Poll every 5s
-    return () => clearInterval(interval)
+    setMessages(LOCAL_MSGS[room] || [])
+    channelRef.current?.unsubscribe()
+    // Try Supabase realtime
+    try {
+      channelRef.current = supabase.channel(`chat-${room}`)
+        .on('broadcast', { event: 'message' }, ({ payload }) => {
+          setMessages(prev => [...prev, payload])
+          setUsingSupabase(true)
+        })
+        .subscribe()
+    } catch { setUsingSupabase(false) }
+    return () => channelRef.current?.unsubscribe()
   }, [room])
-
-  async function loadMessages() {
-    const { data } = await getMessages(room)
-    if (data && data.length > 0) {
-      // Reverse to show oldest first in chat window
-      setMessages(data.reverse())
-      setUsingSupabase(true) // Reusing this flag for "Connected to DB"
-    } else {
-      setMessages(LOCAL_MSGS[room] || [])
-    }
-  }
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
-  async function send() {
+  function send() {
     const text = input.trim()
     if (!text) return
     if (!user) { alert('Please sign in to chat!'); return }
     const clean = text.toLowerCase()
     if (BANNED_WORDS.some(w => clean.includes(w))) { alert('Please keep the conversation kind and respectful 🙏'); return }
 
-    const msg = {
-      id: Date.now(),
-      user: user.display_name || user.email?.split('@')[0] || 'Friend',
-      text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-    
-    // Add locally for instant feedback
+    const msg = { id: Date.now(), user: user.email?.split('@')[0] || 'Friend', text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
     setMessages(prev => [...prev, msg])
     setInput('')
 
+    // Broadcast via Supabase if connected
     try {
-      await insertMessage(user.id, room, text, msg.user)
-    } catch (err) {
-      console.error('Error sending message:', err)
-    }
+      supabase.channel(`chat-${room}`).send({ type: 'broadcast', event: 'message', payload: msg })
+    } catch {}
   }
 
   const curRoom = ROOMS.find(r => r.id === room)
@@ -112,7 +102,7 @@ export default function ChatRooms() {
               <span style={{ fontSize: '1.3rem' }}>{curRoom?.emoji}</span>
               <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: curRoom?.color }}>{curRoom?.name}</div>
               <span style={{ fontSize: '.72rem', color: 'var(--ink3)', fontWeight: 500, marginLeft: 4 }}>— {curRoom?.desc}</span>
-              {usingSupabase && <div style={{ marginLeft: 'auto', fontSize: '.65rem', fontWeight: 700, color: 'var(--green)', background: 'var(--green-bg)', padding: '2px 8px', borderRadius: 100 }}>● Turso Connected</div>}
+              {usingSupabase && <div style={{ marginLeft: 'auto', fontSize: '.65rem', fontWeight: 700, color: 'var(--green)', background: 'var(--green-bg)', padding: '2px 8px', borderRadius: 100 }}>🔴 Live</div>}
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {messages.map((m, i) => (

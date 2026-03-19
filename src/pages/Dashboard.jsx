@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useStreak } from '../context/StreakContext'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
-import PushNotifications from '../components/PushNotifications'
 const BADGES=[
   {id:'streak-3',name:'On Fire',desc:'3 day streak',emoji:'🔥',color:'#F97316',earned:false},
   {id:'streak-7',name:'Week Warrior',desc:'7 day streak',emoji:'⚡',color:'#F59E0B',earned:false},
@@ -31,19 +30,14 @@ export default function Dashboard(){
   const earnedCount=badges.filter(b=>b.earned).length
   return(
     <div style={{background:'var(--bg)',minHeight:'100vh',fontFamily:'Poppins,sans-serif'}}>
-      <div style={{background:'linear-gradient(135deg,#0A0A1A,#1E1B4B)',padding:'clamp(40px, 8vw, 60px) 24px 36px',textAlign:'center'}}>
-        <h1 style={{fontFamily:"'Baloo 2',cursive",fontSize:'clamp(1.8rem, 4vw, 3.2rem)',fontWeight:800,color:'white',marginBottom:8}}>My Progress 📊</h1>
-        {user && (
-          <div style={{ marginTop: 12 }}>
-            <span style={{ color: 'rgba(255,255,255,.5)', fontSize: '.88rem', fontWeight: 500 }}>Welcome back, {user.email?.split('@')[0]} 🙏</span>
-            <Link to="/profile" style={{ marginLeft: 12, color: '#60A5FA', fontSize: '.78rem', fontWeight: 700, textDecoration: 'none', border: '1px solid rgba(96,165,250,.3)', padding: '4px 12px', borderRadius: 100 }}>👤 Edit Profile</Link>
-          </div>
-        )}
+      <div style={{background:'linear-gradient(135deg,#0A0A1A,#1E1B4B)',padding:'52px 36px 36px',textAlign:'center'}}>
+        <h1 style={{fontFamily:"'Baloo 2',cursive",fontSize:'clamp(2rem,4vw,3.2rem)',fontWeight:800,color:'white',marginBottom:8}}>My Progress 📊</h1>
+        {user&&<p style={{color:'rgba(255,255,255,.5)',fontSize:'.88rem',fontWeight:500}}>Welcome back, {user.email?.split('@')[0]} 🙏</p>}
         {!user&&<p style={{color:'rgba(255,255,255,.4)',fontSize:'.84rem',fontWeight:500}}><Link to="/auth" style={{color:'#60A5FA',fontWeight:700}}>Sign in</Link> to sync your progress across all devices!</p>}
       </div>
-      <div style={{maxWidth:1060,margin:'0 auto',padding:'clamp(20px, 6vw, 36px) 16px'}}>
+      <div style={{maxWidth:1060,margin:'0 auto',padding:'36px 24px'}}>
         {/* Top stats */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))',gap:18,marginBottom:24}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18,marginBottom:24}}>
           {[['🔥',streak,'Day Streak','linear-gradient(135deg,#F97316,#EF4444)'],['📅',thisMonthRead,'Days Read This Month','var(--green)'],['🏆',earnedCount,'Badges Earned','var(--yellow)']].map(([e,n,l,c],i)=>(
             <div key={i} style={{background:'var(--surface)',borderRadius:20,padding:24,border:'1.5px solid var(--border)',textAlign:'center',boxShadow:'var(--sh)'}}>
               <span style={{fontSize:'2.2rem',display:'block',marginBottom:8}}>{e}</span>
@@ -52,7 +46,7 @@ export default function Dashboard(){
             </div>
           ))}
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))',gap:20}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
           {/* Calendar */}
           <div style={{background:'var(--surface)',borderRadius:24,padding:28,border:'1.5px solid var(--border)',boxShadow:'var(--sh)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:18}}>
@@ -89,18 +83,14 @@ export default function Dashboard(){
           {/* Badges */}
           <div style={{background:'var(--surface)',borderRadius:24,padding:28,border:'1.5px solid var(--border)',boxShadow:'var(--sh)'}}>
             <div style={{fontFamily:"'Baloo 2',cursive",fontSize:'1.1rem',fontWeight:800,color:'var(--ink)',marginBottom:18}}>🏆 Your Badges</div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(100px, 1fr))',gap:10,marginBottom:28}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
               {badges.map(b=>(
                 <div key={b.id} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:'14px 8px',borderRadius:14,border:`1.5px solid ${b.earned?b.color:'var(--border)'}`,background:b.earned?'var(--surface)':'var(--bg2)',textAlign:'center',cursor:'pointer',transition:'all .25s',boxShadow:b.earned?`0 3px 14px ${b.color}25`:'none',filter:b.earned?'none':'grayscale(.8)',opacity:b.earned?1:.45,transform:b.earned?'none':'scale(.98)'}}>
-                  <span style={{fontSize:'1.8rem'}}>{b.emoji}</span>
+                  <span style={{fontSize:'1.9rem'}}>{b.emoji}</span>
                   <span style={{fontSize:'.65rem',fontWeight:700,color:'var(--ink)'}}>{b.name}</span>
                   {!b.earned&&<span style={{fontSize:'.55rem',color:'var(--ink3)',fontWeight:500}}>{b.desc}</span>}
                 </div>
               ))}
-            </div>
-
-            <div style={{ borderTop: '1.5px solid var(--border)', paddingTop: 28 }}>
-               <PushNotifications />
             </div>
           </div>
         </div>

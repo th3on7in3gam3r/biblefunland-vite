@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useBadges } from '../context/BadgeContext'
 import { useAuth } from '../context/AuthContext'
-import { getReadingProgress, updateReadingProgress } from '../lib/db'
+import { supabase } from '../lib/supabase'
 
 // ── Reading Plans ──────────────────────────────────────────────────────
 const PLANS = [
@@ -103,43 +103,17 @@ export default function BibleReadingPlan() {
   const { user } = useAuth()
   const { awardBadge } = useBadges()
   const [activePlan, setActivePlan] = useState(null)
-  const [progress, setProgress] = useState({})
-  const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('bfl_reading_progress') || '{}') } catch { return {} }
+  })
   const [view, setView] = useState('home') // home | reading
   const [activeDay, setActiveDay] = useState(null)
-
-  // Load from Turso
-  useEffect(() => {
-    if (!user) {
-      // Fallback to local for guests
-      try { 
-        setProgress(JSON.parse(localStorage.getItem('bfl_reading_progress') || '{}')) 
-      } catch { setProgress({}) }
-      return
-    }
-
-    setLoading(true)
-    getReadingProgress(user.id).then(({ data }) => {
-      if (data) {
-        const progMap = {}
-        data.forEach(row => {
-          progMap[`${row.plan_id}-day${row.day}`] = !!row.completed
-        })
-        setProgress(progMap)
-      }
-      setLoading(false)
-    })
-  }, [user])
 
   function saveProgress(planId, day, checked) {
     const key = `${planId}-day${day}`
     const newProg = { ...progress, [key]: checked }
     setProgress(newProg)
     localStorage.setItem('bfl_reading_progress', JSON.stringify(newProg))
-
-    if (user) {
-      updateReadingProgress(user.id, planId, day, checked).catch(console.error)
-    }
 
     // Check for plan completion
     const plan = PLANS.find(p => p.id === planId)

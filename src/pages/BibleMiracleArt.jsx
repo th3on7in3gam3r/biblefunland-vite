@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { generateAIContent } from '../lib/ai'
 
 const SCENES = [
   'Moses parting the Red Sea at midnight with a pillar of fire behind him',
@@ -15,6 +14,7 @@ const SCENES = [
 export default function BibleMiracleArt() {
   const [scene, setScene] = useState('')
   const [style, setStyle] = useState('renaissance')
+  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -40,10 +40,17 @@ export default function BibleMiracleArt() {
 
   async function generate() {
     if (!scene.trim()) { setError('Please describe or select a Bible scene first.'); return }
+    if (!apiKey) { setError('Enter your Anthropic API key to generate.'); return }
     setError(''); setLoading(true); setResult(null)
+    sessionStorage.setItem('bfl_key', apiKey)
 
     try {
-      const systemPrompt = `You are a master art director specializing in Biblical artwork. When given a Bible scene and style, write a rich, detailed visual description that functions as:
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514', max_tokens: 800,
+          system: `You are a master art director specializing in Biblical artwork. When given a Bible scene and style, write a rich, detailed visual description that functions as:
 1. A vivid painting description (colors, light, composition, figures, mood)
 2. A prompt ready to copy into Midjourney, DALL-E, or Stable Diffusion
 3. A reflection on the biblical meaning of the scene
@@ -51,12 +58,14 @@ export default function BibleMiracleArt() {
 Format your response with these three clearly labeled sections:
 🎨 PAINTING DESCRIPTION (3-4 paragraphs of rich visual prose)
 🤖 AI IMAGE PROMPT (one detailed technical prompt for image generators)
-📖 BIBLICAL REFLECTION (2 paragraphs on the spiritual meaning)`
-
-      const text = await generateAIContent(`Style: ${STYLE_PROMPTS[style]}\n\nScene: ${scene}`, systemPrompt)
-      if (text) setResult(text)
-      else setError('AI generation failed. Please try again.')
-    } catch(err) { setError(err.message || 'Connection failed. Please try again.') }
+📖 BIBLICAL REFLECTION (2 paragraphs on the spiritual meaning)`,
+          messages: [{ role: 'user', content: `Style: ${STYLE_PROMPTS[style]}\n\nScene: ${scene}` }]
+        })
+      })
+      const data = await res.json()
+      if (data.content?.[0]?.text) setResult(data.content[0].text)
+      else setError(data.error?.message || 'Generation failed. Check your API key.')
+    } catch { setError('Connection failed. Check your API key.') }
     setLoading(false)
   }
 
@@ -110,7 +119,8 @@ Format your response with these three clearly labeled sections:
           </div>
           <textarea className="textarea-field" rows={3} placeholder='Or describe your own scene — e.g. "Shadrach, Meshach and Abednego in the furnace with the fourth figure..."' value={scene} onChange={e => setScene(e.target.value)} style={{ marginBottom: 14 }} />
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>✨ BibleFunLand AI is painting your scene</span>
+            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>API Key:</span>
+            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.78rem' }} />
             <button className="btn btn-orange" onClick={generate} disabled={loading} style={{ flexShrink: 0 }}>
               {loading ? '...' : '🎨 Generate Art'}
             </button>

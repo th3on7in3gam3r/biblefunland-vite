@@ -5,8 +5,10 @@
  */
 
 export async function generateAIContent(topic, systemPrompt, model = 'claude-3-5-sonnet-20240620') {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+  
   try {
-    const response = await fetch('http://localhost:3001/api/ai/chat', {
+    const response = await fetch(`${API_URL}/api/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getTestimonies, insertTestimony, prayForTestimony } from '../lib/db'
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 const CATEGORIES = ['All','Healing','Salvation','Provision','Restoration','Answered Prayer','Breakthrough','Family']
 const CATEGORY_COLORS = { Healing:'#10B981',Salvation:'#3B82F6',Provision:'#F59E0B',Restoration:'#EC4899',['Answered Prayer']:'#8B5CF6',Breakthrough:'#F97316',Family:'#14B8A6' }
@@ -14,8 +14,7 @@ const DEMO = [
 ]
 
 export default function TestimonyArchive() {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [posts, setPosts] = useState(DEMO)
   const [cat, setCat] = useState('All')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name:'', category:'Salvation', title:'', text:'' })
@@ -24,44 +23,23 @@ export default function TestimonyArchive() {
   const [expanded, setExpanded] = useState(new Set())
   const [monthCount] = useState(Math.floor(3200 + Math.random() * 400))
 
-  useEffect(() => {
-    loadTestimonies()
-  }, [cat])
+  const filtered = cat === 'All' ? posts : posts.filter(p => p.category === cat)
 
-  async function loadTestimonies() {
-    setLoading(true)
-    const { data, error } = await getTestimonies(cat)
-    if (data) {
-      // Merge with demo if db is empty for now, or just show db
-      setPosts(data.length > 0 ? data : DEMO)
-    }
-    setLoading(false)
-  }
-
-  async function submitTestimony() {
+  function submitTestimony() {
     if (!form.title.trim() || !form.text.trim()) return
-    const { error } = await insertTestimony({
-      name: form.name,
-      category: form.category,
-      title: form.title,
-      text: form.text
-    })
-
-    if (!error) {
-      setForm({ name:'', category:'Salvation', title:'', text:'' })
-      setShowForm(false)
-      setSubmitted(true)
-      setTimeout(() => setSubmitted(false), 3000)
-    }
+    const newPost = { id: Date.now(), name: form.name || 'Anonymous', category: form.category, title: form.title, date: new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'}), prayer_count: 0, text: form.text, verified: false }
+    setPosts(p => [newPost, ...p])
+    setForm({ name:'', category:'Salvation', title:'', text:'' })
+    setShowForm(false)
+    setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 3000)
+    try { supabase.from('testimonies').insert({ ...newPost, status: 'pending' }) } catch {}
   }
 
-  async function pray(id) {
+  function pray(id) {
     if (prayed.has(id)) return
     setPrayed(s => new Set([...s, id]))
-    const { error } = await prayForTestimony(id)
-    if (!error) {
-      setPosts(p => p.map(post => post.id === id ? { ...post, prayer_count: post.prayer_count + 1 } : post))
-    }
+    setPosts(p => p.map(post => post.id === id ? { ...post, prayer_count: post.prayer_count + 1 } : post))
   }
 
   return (
@@ -110,11 +88,7 @@ export default function TestimonyArchive() {
         )}
 
         <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-          {loading ? (
-            <div style={{ textAlign:'center', color:'var(--ink3)', padding:40 }}>Loading testimonies...</div>
-          ) : posts.length === 0 ? (
-            <div style={{ textAlign:'center', color:'var(--ink3)', padding:40 }}>No testimonies found in this category.</div>
-          ) : posts.map(post => {
+          {filtered.map(post => {
             const color = CATEGORY_COLORS[post.category] || '#6B7280'
             const isExpanded = expanded.has(post.id)
             const isPrayed = prayed.has(post.id)

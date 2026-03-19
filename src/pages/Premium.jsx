@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { STRIPE_PRICES, redirectToCheckout } from '../lib/stripe'
-import { getSubscription } from '../lib/db'
 import styles from './Premium.module.css'
 
 const PLANS = [
@@ -70,17 +69,8 @@ const PLANS = [
 export default function Premium() {
   const [annual, setAnnual] = useState(false)
   const [loading, setLoading] = useState(null)
-  const [subscription, setSubscription] = useState(null)
   const { user } = useAuth()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) {
-      getSubscription(user.id).then(({ data }) => {
-        if (data) setSubscription(data)
-      })
-    }
-  }, [user])
 
   async function handleSubscribe(plan) {
     if (!plan.priceId) { navigate('/') ; return }
@@ -93,7 +83,7 @@ export default function Premium() {
     setLoading(plan.name)
     try {
       const priceId = annual ? plan.priceId.annual : plan.priceId.monthly
-      await redirectToCheckout(priceId, user.id, user.primaryEmailAddress?.emailAddress || user.email)
+      await redirectToCheckout(priceId, user.id, user.email)
     } catch (e) {
       console.error('Stripe error:', e)
       alert('Payment failed. Please try again or contact support.')
@@ -155,13 +145,11 @@ export default function Premium() {
             <button
               className={`${styles.planBtn} ${styles[plan.ctaStyle] || ''}`}
               onClick={() => handleSubscribe(plan)}
-              disabled={loading === plan.name || subscription?.plan?.toLowerCase() === plan.name.toLowerCase()}
+              disabled={loading === plan.name}
             >
               {loading === plan.name
                 ? <span className={styles.btnSpinner} />
-                : subscription?.plan?.toLowerCase() === plan.name.toLowerCase()
-                  ? 'Current Plan'
-                  : plan.cta}
+                : plan.cta}
             </button>
           </div>
         ))}

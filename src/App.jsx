@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
 import Nav from './components/Nav'
 import Footer from './components/Footer'
 import MusicPlayer from './components/MusicPlayer'
@@ -21,7 +21,7 @@ import { StreakProvider } from './context/StreakContext'
 import { LanguageProvider } from './i18n/LanguageContext'
 import { AdsProvider } from './context/AdsContext'
 import { BadgeProvider } from './context/BadgeContext'
-import { KidsModeProvider, useKidsMode, KIDS_HIDDEN_ROUTES } from './context/KidsModeContext'
+import { KidsModeProvider } from './context/KidsModeContext'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 
@@ -80,22 +80,21 @@ const ScriptureMemoryLeague=lazy_(()=>import('./pages/ScriptureMemoryLeague'))
 const BibleBattleArena=lazy_(()=>import('./pages/BibleBattleArena'))
 const BibleSearch=lazy_(()=>import('./pages/BibleSearch'))
 
+// ── v11 Features ──────────────────────────────────────────────────────────────
+const BibleWordle=lazy_(()=>import('./pages/BibleWordle'))
+const PrayerJournal=lazy_(()=>import('./pages/PrayerJournal'))
+const BiblePromises=lazy_(()=>import('./pages/BiblePromises'))
+const SermonIllustrations=lazy_(()=>import('./pages/SermonIllustrations'))
+const KidsBibleStories=lazy_(()=>import('./pages/KidsBibleStories'))
+const ReadingStats=lazy_(()=>import('./pages/ReadingStats'))
+const ProphecyFulfillment=lazy_(()=>import('./pages/ProphecyFulfillment'))
+
 const SP = ({c:C}) => <Suspense fallback={<PageLoader/>}><C/></Suspense>
 
 export default function App() {
   return (
     <ThemeProvider><LanguageProvider><AuthProvider><StreakProvider><MusicProvider>
     <BadgeProvider><KidsModeProvider><AdsProvider>
-      <AppContent />
-    </AdsProvider></KidsModeProvider></BadgeProvider>
-    </MusicProvider></StreakProvider></AuthProvider></LanguageProvider></ThemeProvider>
-  )
-}
-
-function AppContent() {
-  const { kidsMode } = useKidsMode()
-  return (
-    <Suspense fallback={<PageLoader/>}>
       <div className="app-shell">
         <Nav/>
         <PwaInstallBanner/>
@@ -107,57 +106,86 @@ function AppContent() {
             <Route path="/auth" element={<Auth/>}/>
             <Route path="/admin/login" element={<AdminLogin/>}/>
 
-            {[
-              { path: '/trivia', element: <SP c={Trivia}/> },
-              { path: '/devotional', element: <SP c={Devotional}/> },
-              { path: '/map', element: <SP c={BibleMap}/> },
-              { path: '/flashcards', element: <SP c={Flashcards}/> },
-              { path: '/notes', element: <SP c={SermonNotes}/> },
-              { path: '/share', element: <SP c={ShareCards}/> },
-              { path: '/videos', element: <SP c={Videos}/> },
-              { path: '/blog', element: <SP c={Blog}/> },
-              { path: '/activity-sheets', element: <SP c={ActivitySheets}/> },
-              { path: '/bible', element: <SP c={BibleBookExplorer}/> },
-              { path: '/reading-plan', element: <SP c={BibleReadingPlan}/> },
-              { path: '/game/david-goliath', element: <SP c={DavidGoliath}/> },
-              { path: '/game/runner', element: <SP c={ScriptureRunner}/> },
-              { path: '/game/escape-room', element: <SP c={ParableEscapeRoom}/> },
-              { path: '/game/spin-the-verse', element: <SP c={SpinTheVerse}/> },
-              { path: '/challenge', element: <SP c={DailyChallenge}/> },
-              { path: '/chat/characters', element: <SP c={BibleCharacterChat}/> },
-              { path: '/ai/rap-generator', element: <SP c={BibleRapGenerator}/> },
-              { path: '/ai/miracle-art', element: <SP c={BibleMiracleArt}/> },
-              { path: '/quiz/character', element: <SP c={BibleCharacterQuiz}/> },
-              { path: '/voice-reader', element: <SP c={VoiceBibleReader}/> },
-              { path: '/prayer-map', element: <SP c={GlobalPrayerMap}/> },
-              { path: '/prayer', element: <SP c={PrayerWall}/> },
-              { path: '/prayer-beads', element: <SP c={DigitalPrayerBeads}/> },
-              { path: '/encouragement', element: <SP c={EncouragementWall}/> },
-              { path: '/certification', element: <SP c={BibleCertification}/> },
-              { path: '/community/chat', element: <SP c={ChatRooms}/> },
-              { path: '/community/family', element: <SP c={FamilyGroups}/> },
-              { path: '/community/events', element: <SP c={ChurchCalendar}/> },
-              { path: '/ai/prayer-companion', element: <SP c={AIPrayerCompanion}/> },
-              { path: '/pray-for-world', element: <SP c={PrayForTheWorld}/> },
-              { path: '/ai/study-generator', element: <SP c={BibleStudyGenerator}/> },
-              { path: '/language-explorer', element: <SP c={OriginalLanguageExplorer}/> },
-              { path: '/cross-reference', element: <SP c={ScriptureCrossReference}/> },
-              { path: '/timeline', element: <SP c={BibleTimeline}/> },
-              { path: '/bible-search', element: <SP c={BibleSearch}/> },
-              { path: '/testimony', element: <SP c={TestimonyArchive}/> },
-              { path: '/wallpaper', element: <SP c={WallpaperMaker}/> },
-              { path: '/game/memory-league', element: <SP c={ScriptureMemoryLeague}/> },
-              { path: '/game/battle-arena', element: <SP c={BibleBattleArena}/> },
-              { path: '/privacy', element: <SP c={PrivacyPolicy}/> },
-              { path: '/terms', element: <SP c={TermsOfService}/> },
-              { path: '/contact', element: <SP c={Contact}/> },
-              { path: '/premium', element: <SP c={Premium}/> },
-            ].map((r, i) => (
-              (!kidsMode || !KIDS_HIDDEN_ROUTES.includes(r.path)) && (
-                <Route key={i} path={r.path} element={r.element} />
-              )
-            ))}
+            {/* Learning */}
+            <Route path="/trivia"          element={<SP c={Trivia}/>}/>
+            <Route path="/devotional"      element={<SP c={Devotional}/>}/>
+            <Route path="/map"             element={<SP c={BibleMap}/>}/>
+            <Route path="/flashcards"      element={<SP c={Flashcards}/>}/>
+            <Route path="/notes"           element={<SP c={SermonNotes}/>}/>
+            <Route path="/share"           element={<SP c={ShareCards}/>}/>
+            <Route path="/videos"          element={<SP c={Videos}/>}/>
+            <Route path="/blog"            element={<SP c={Blog}/>}/>
+            <Route path="/activity-sheets" element={<SP c={ActivitySheets}/>}/>
 
+            {/* Bible reference */}
+            <Route path="/bible"           element={<SP c={BibleBookExplorer}/>}/>
+            <Route path="/reading-plan"    element={<SP c={BibleReadingPlan}/>}/>
+
+            {/* Games */}
+            <Route path="/game/david-goliath"  element={<SP c={DavidGoliath}/>}/>
+            <Route path="/game/runner"         element={<SP c={ScriptureRunner}/>}/>
+            <Route path="/game/escape-room"    element={<SP c={ParableEscapeRoom}/>}/>
+            <Route path="/game/spin-the-verse" element={<SP c={SpinTheVerse}/>}/>
+            <Route path="/challenge"           element={<SP c={DailyChallenge}/>}/>
+
+            {/* AI */}
+            <Route path="/chat/characters"  element={<SP c={BibleCharacterChat}/>}/>
+            <Route path="/ai/rap-generator" element={<SP c={BibleRapGenerator}/>}/>
+            <Route path="/ai/miracle-art"   element={<SP c={BibleMiracleArt}/>}/>
+
+            {/* Never Done Before */}
+            <Route path="/quiz/character"   element={<SP c={BibleCharacterQuiz}/>}/>
+            <Route path="/voice-reader"     element={<SP c={VoiceBibleReader}/>}/>
+            <Route path="/prayer-map"       element={<SP c={GlobalPrayerMap}/>}/>
+
+            {/* Soul */}
+            <Route path="/prayer"           element={<SP c={PrayerWall}/>}/>
+            <Route path="/prayer-beads"     element={<SP c={DigitalPrayerBeads}/>}/>
+            <Route path="/encouragement"    element={<SP c={EncouragementWall}/>}/>
+            <Route path="/certification"    element={<SP c={BibleCertification}/>}/>
+
+            {/* Community */}
+            <Route path="/community/chat"   element={<SP c={ChatRooms}/>}/>
+            <Route path="/community/family" element={<SP c={FamilyGroups}/>}/>
+            <Route path="/community/events" element={<SP c={ChurchCalendar}/>}/>
+
+            {/* v10 — AI & Prayer */}
+            <Route path="/ai/prayer-companion"  element={<SP c={AIPrayerCompanion}/>}/>
+            <Route path="/pray-for-world"       element={<SP c={PrayForTheWorld}/>}/>
+            <Route path="/ai/study-generator"   element={<SP c={BibleStudyGenerator}/>}/>
+
+            {/* v10 — Bible Tools */}
+            <Route path="/language-explorer"    element={<SP c={OriginalLanguageExplorer}/>}/>
+            <Route path="/cross-reference"      element={<SP c={ScriptureCrossReference}/>}/>
+            <Route path="/timeline"             element={<SP c={BibleTimeline}/>}/>
+            <Route path="/bible-search"         element={<SP c={BibleSearch}/>}/>
+
+            {/* v10 — Community */}
+            <Route path="/testimony"            element={<SP c={TestimonyArchive}/>}/>
+
+            {/* v10 — Create */}
+            <Route path="/wallpaper"            element={<SP c={WallpaperMaker}/>}/>
+
+            {/* v10 — Games */}
+            <Route path="/game/memory-league"   element={<SP c={ScriptureMemoryLeague}/>}/>
+            <Route path="/game/battle-arena"    element={<SP c={BibleBattleArena}/>}/>
+
+            {/* Legal */}
+            <Route path="/privacy"  element={<SP c={PrivacyPolicy}/>}/>
+            <Route path="/terms"    element={<SP c={TermsOfService}/>}/>
+            <Route path="/contact"  element={<SP c={Contact}/>}/>
+            <Route path="/premium"  element={<SP c={Premium}/>}/>
+
+            {/* v11 — Daily & Discovery */}
+            <Route path="/wordle"              element={<SP c={BibleWordle}/>}/>
+            <Route path="/prayer-journal"      element={<SP c={PrayerJournal}/>}/>
+            <Route path="/promises"             element={<SP c={BiblePromises}/>}/>
+            <Route path="/sermon-illustrations" element={<SP c={SermonIllustrations}/>}/>
+            <Route path="/kids-stories"         element={<SP c={KidsBibleStories}/>}/>
+            <Route path="/reading-stats"        element={<SP c={ReadingStats}/>}/>
+            <Route path="/prophecy"             element={<SP c={ProphecyFulfillment}/>}/>
+
+            {/* Protected */}
             <Route element={<PrivateRoute/>}>
               <Route path="/dashboard"    element={<SP c={Dashboard}/>}/>
               <Route path="/profile"      element={<SP c={Profile}/>}/>
@@ -167,11 +195,13 @@ function AppContent() {
               <Route path="/admin" element={<SP c={Admin}/>}/>
             </Route>
 
+            {/* 404 */}
             <Route path="*" element={<NotFound/>}/>
           </Routes>
         </main>
         <Footer/><MusicPlayer/><BibleRadio/>
       </div>
-    </Suspense>
+    </AdsProvider></KidsModeProvider></BadgeProvider>
+    </MusicProvider></StreakProvider></AuthProvider></LanguageProvider></ThemeProvider>
   )
 }
