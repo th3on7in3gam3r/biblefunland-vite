@@ -5,7 +5,7 @@ const SITUATIONS = [
     id:'anxiety', label:'Anxiety & Worry', icon:'😰', color:'#8B5CF6',
     desc:'When fear is louder than faith.',
     verses:[
-      { ref:'Phil 4:6-7',  text:'Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.',       why:'Paul wrote this from prison. If he found peace there, it's available anywhere.' },
+      { ref:'Phil 4:6-7',  text:'Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.',       why:"Paul wrote this from prison. If he found peace there, it's available anywhere." },
       { ref:'Matt 6:34',   text:'Do not worry about tomorrow, for tomorrow will worry about itself. Each day has enough trouble of its own.',                              why:'Jesus gives permission to live in today. The future is not yours to carry yet.' },
       { ref:'1 Pet 5:7',   text:'Cast all your anxiety on him because he cares for you.',                                                                                  why:'Not some of it. Cast ALL of it. He specifically chose the word "all."' },
       { ref:'Isa 41:10',   text:'Do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you.',                              why:'God doesn\'t say "stop being afraid." He says "I\'m already here."' },
@@ -173,7 +173,7 @@ export default function BiblePromises() {
             <div style={{ display:'grid', gridTemplateColumns: selected ? '1fr' : 'repeat(auto-fill,minmax(200px,1fr))', gap:10 }}>
               {filtered.map(s => (
                 <div key={s.id} onClick={() => setSelected(selected === s.id ? null : s.id)}
-                  style={{ background:'var(--surface)', borderRadius:16, border:`1.5px solid ${selected===s.id?s.color:'var(--border)'}`, padding:'16px 18px', cursor:'pointer', transition:'all .2s', background: selected===s.id ? s.color+'12' : 'var(--surface)' }}
+                  style={{ borderRadius:16, border:`1.5px solid ${selected===s.id?s.color:'var(--border)'}`, padding:'16px 18px', cursor:'pointer', transition:'all .2s', background: selected===s.id ? s.color+'12' : 'var(--surface)' }}
                   onMouseEnter={e=>{ if(selected!==s.id){ e.currentTarget.style.borderColor=s.color; e.currentTarget.style.boxShadow=`0 4px 16px ${s.color}22` }}}
                   onMouseLeave={e=>{ if(selected!==s.id){ e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.boxShadow='none' }}}>
                   <div style={{ display:'flex', gap:10, alignItems:'center' }}>

@@ -1,0 +1,728 @@
+/* ── Bedtime Page Styles ───────────────────────────────────────────── */
+
+/* Container */
+.bedtimeContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: all 0.5s ease;
+}
+
+.bedtimeActive {
+  filter: brightness(0.8) contrast(0.9);
+}
+
+/* Header */
+.header {
+  padding: 40px 20px 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.headerContent {
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: linear-gradient(135deg, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.moonIcon {
+  font-size: 2rem;
+  animation: gentle-float 3s ease-in-out infinite;
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+/* Status Section */
+.statusSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.statusBadge.active {
+  background: rgba(159, 122, 234, 0.3);
+  border: 1px solid rgba(159, 122, 234, 0.5);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.statusBadge.active .statusDot {
+  background: #9f7aea;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.toggleButton {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.toggleButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.toggleButton.active {
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+  border-color: #9f7aea;
+  box-shadow: 0 4px 15px rgba(159, 122, 234, 0.4);
+}
+
+/* Main Content */
+.mainContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.tabButton {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.tabButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.tabButton.active {
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+  border-color: #9f7aea;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(159, 122, 234, 0.3);
+}
+
+/* Tab Content */
+.tabContent {
+  animation: fade-in 0.5s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Story Section */
+.storySection {
+  display: flex;
+  justify-content: center;
+}
+
+.storyCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.storyHeader {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storyTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.storyVerse {
+  font-size: 1rem;
+  color: #9f7aea;
+  font-style: italic;
+}
+
+.storyContent {
+  line-height: 1.7;
+}
+
+.storyText {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.storyMoral {
+  background: rgba(159, 122, 234, 0.1);
+  border-left: 4px solid #9f7aea;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.storyMoral h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #9f7aea;
+}
+
+.storyMoral p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.storyPrayer {
+  text-align: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storyPrayer h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.prayerText {
+  font-size: 1.1rem;
+  font-style: italic;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.prayerButton {
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+  border: none;
+  border-radius: 25px;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.prayerButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(159, 122, 234, 0.4);
+}
+
+/* Activities Section */
+.activitiesSection {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.activitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.activityCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.activityCard:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.activityIcon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.activityTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #ffffff;
+}
+
+.activityDuration {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10px;
+}
+
+.activityType {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(159, 122, 234, 0.2);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #9f7aea;
+  text-transform: capitalize;
+}
+
+/* Active Activity */
+.activeActivity {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activityIconLarge {
+  font-size: 3rem;
+}
+
+.activityHeader h3 {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+  color: #ffffff;
+}
+
+.activityHeader p {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.closeButton {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Prayer Content */
+.prayerContent p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.prayerSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.prayerStep {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+}
+
+.prayerStep span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Reflection Content */
+.gratitudeList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.gratitudeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.gratitudeItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gratitudeItem span {
+  font-size: 2rem;
+}
+
+.gratitudeItem p {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* Music Content */
+.musicPlayer {
+  margin-top: 20px;
+}
+
+.musicControls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+}
+
+.playButton {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9f7aea, #7c3aed);
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+}
+
+.musicInfo p:first-child {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+.musicInfo p:last-child {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+/* Story Options */
+.storyOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.storyOption {
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.storyOption:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #9f7aea;
+}
+
+/* Meditation Content */
+.breathingExercise {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.breathingCircle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #9f7aea, #7c3aed);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.breathingInstruction {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+/* Settings Section */
+.settingsSection {
+  display: flex;
+  justify-content: center;
+}
+
+.settingsCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.settingsCard h3 {
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.settingGroup {
+  margin-bottom: 20px;
+}
+
+.settingGroup label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settingGroup label:hover {
+  color: #ffffff;
+}
+
+.settingGroup input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #9f7aea;
+}
+
+.timeSettings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 25px 0;
+}
+
+.timeInput {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeInput label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.timeInput input[type="time"] {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.timeInput input[type="time"]:focus {
+  outline: none;
+  border-color: #9f7aea;
+  box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.2);
+}
+
+.timeInput span {
+  font-size: 0.9rem;
+  color: #9f7aea;
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 40px;
+}
+
+.footer p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 30px 15px 15px;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .statusSection {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .tabNavigation {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tabButton {
+    width: 200px;
+  }
+  
+  .storyCard,
+  .settingsCard {
+    padding: 25px;
+  }
+  
+  .activitiesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  .activityCard {
+    padding: 20px;
+  }
+  
+  .timeSettings {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .activeActivity {
+    padding: 20px;
+  }
+  
+  .activityHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .closeButton {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .moonIcon {
+    font-size: 1.5rem;
+  }
+  
+  .storyTitle {
+    font-size: 1.4rem;
+  }
+  
+  .activitiesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gratitudeList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

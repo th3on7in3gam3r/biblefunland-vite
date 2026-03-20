@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect } from 'react'
-import { useUser, useClerk, formatUser } from '../lib/clerk'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { useUser, useClerk } from '@clerk/clerk-react'
+import { formatUser } from '../lib/clerk'
 import * as db from '../lib/db'
 
 const AuthContext = createContext(null)
@@ -7,43 +8,31 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const { user: clerkUser, isLoaded } = useUser()
   const { signOut: clerkSignOut } = useClerk()
-  
+  const [profile, setProfile] = useState(null)
+
   const user = isLoaded ? formatUser(clerkUser) : null
   const loading = !isLoaded
 
-  // Auto-sync profile to record user in Turso
   useEffect(() => {
     if (user?.id) {
-      ensureProfile()
+      db.getProfile(user.id).then(({ data }) => setProfile(data)).catch(() => {})
+    } else {
+      setProfile(null)
     }
   }, [user?.id])
 
-  async function ensureProfile() {
-    try {
+  const refreshProfile = async () => {
+    if (user?.id) {
       const { data } = await db.getProfile(user.id)
-      if (!data) {
-        // First time? Create it from Clerk data
-        await db.upsertProfile(user.id, {
-          display_name: user.user_metadata.full_name || user.email.split('@')[0],
-          avatar_url: 'david', // Default avatar
-          bio: ''
-        })
-      }
-    } catch (e) { console.error('Error syncing profile:', e) }
+      setProfile(data)
+      return data
+    }
   }
 
-  const signOut = async () => {
-    await clerkSignOut()
-  }
-
-  // Note: SignIn and SignUp are handled by Clerk's components 
-  // or redirected to Clerk's managed pages, so we don't need manual logic here
-  // but we keep the placeholders to prevent crashes if used.
-  const signIn = () => { console.warn('Use Clerk SignIn component') }
-  const signUp = () => { console.warn('Use Clerk SignUp component') }
+  const signOut = () => clerkSignOut()
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )

@@ -247,3 +247,20 @@ img, video { max-width: 100%; }
   font-size: 1rem !important;
   border-radius: 16px !important;
 }
+
+/* ── Mobile: stack sidebar layouts ── */
+@media (max-width: 680px) {
+  /* BibleMap, ScriptureCrossReference, any page using clamp sidebar */
+  [style*="clamp("] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Contact page grids */
+  .contact-wrap,
+  .contact-name-row {
+    grid-template-columns: 1fr !important;
+  }
+  /* ParentTeacherHub plan row */
+  [style*="1fr auto auto"] {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -13,18 +13,30 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { useAuth } from './AuthContext'
 
 const KidsModeContext = createContext(null)
 const STORAGE_KEY = 'bfl_kids_mode'
 const PIN_KEY = 'bfl_kids_pin'
-const DEFAULT_PIN = '1234'
+const DEFAULT_PIN = '4318'
 
 export function KidsModeProvider({ children }) {
+  const { profile } = useAuth()
   const [kidsMode, setKidsMode] = useState(() =>
     localStorage.getItem(STORAGE_KEY) === 'true'
   )
   const [showPinModal, setShowPinModal] = useState(false)
   const [pinAction, setPinAction] = useState(null) // 'enable' | 'disable'
+
+  // Global Enforcer: If age < 13, Force Kids Mode
+  useEffect(() => {
+    if (profile?.age && parseInt(profile.age) < 13) {
+      if (!kidsMode) {
+        setKidsMode(true)
+        localStorage.setItem(STORAGE_KEY, 'true')
+      }
+    }
+  }, [profile, kidsMode])
 
   // Apply CSS variables when kids mode changes
   useEffect(() => {
@@ -43,8 +55,12 @@ export function KidsModeProvider({ children }) {
   }, [kidsMode])
 
   function requestToggle(action) {
-    // Disabling requires PIN; enabling is immediate
     if (action === 'disable') {
+      // Check if mandatory
+      if (profile?.age && parseInt(profile.age) < 13) {
+        alert("Kids Mode is mandatory for users under 13. 🙏")
+        return
+      }
       setPinAction('disable')
       setShowPinModal(true)
     } else {
@@ -180,4 +196,6 @@ export const KIDS_HIDDEN_ROUTES = [
   '/community/chat', '/encouragement', '/ai/rap-generator',
   '/ai/miracle-art', '/chat/characters', '/notes', '/blog',
   '/community/family', '/community/events', '/premium',
+  '/worship', '/fasting', '/couples-devotional', '/sermon-writer',
+  '/sermon-illustrations', '/study-generator', '/parent-hub',
 ]

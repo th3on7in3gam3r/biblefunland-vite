@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useT } from '../i18n/useT'
 import styles from './GlobalSearch.module.css'
@@ -47,18 +47,45 @@ const TYPE_COLORS = {
   blog:  { bg: 'var(--orange-bg)', color: 'var(--orange)', label: 'Blog' },
 }
 
+// Debounce hook for search
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => clearTimeout(handler)
+  }, [value, delay])
+
+  return debouncedValue
+}
+
 export default function GlobalSearch() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [highlighted, setHighlighted] = useState(0)
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('globalSearchHistory') || '[]')
+    } catch {
+      return []
+    }
+  })
   const inputRef = useRef(null)
   const navigate = useNavigate()
   const { t } = useT()
+  const debouncedQuery = useDebounce(query, 200)
 
-  // CMD+K / CTRL+K to open
+  // CMD+K / CTRL+K to open, CTRL+/ to open
   useEffect(() => {
     function onKey(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setOpen(o => !o)
+      }
+      if ((e.ctrlKey) && e.key === '/') {
         e.preventDefault()
         setOpen(o => !o)
       }
@@ -81,18 +108,30 @@ export default function GlobalSearch() {
     setQuery('')
   }
 
-  const results = query.length < 2
-    ? SEARCH_DATA.slice(0, 8)
-    : SEARCH_DATA.filter(item => {
-        const q = query.toLowerCase()
-        return (
-          item.title.toLowerCase().includes(q) ||
-          item.desc.toLowerCase().includes(q) ||
-          item.tags.some(tag => tag.includes(q))
-        )
-      }).slice(0, 10)
+  function addToHistory(item) {
+    const updated = [
+      { ...item, timestamp: Date.now() },
+      ...recentSearches.filter(s => s.title !== item.title)
+    ].slice(0, 10)
+    setRecentSearches(updated)
+    localStorage.setItem('globalSearchHistory', JSON.stringify(updated))
+  }
+
+  // Memoized search results with debounce
+  const results = useMemo(() => {
+    if (debouncedQuery.length < 2) {
+      return SEARCH_DATA.slice(0, 8)
+    }
+    const q = debouncedQuery.toLowerCase()
+    return SEARCH_DATA.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      item.desc.toLowerCase().includes(q) ||
+      item.tags.some(tag => tag.includes(q))
+    ).slice(0, 10)
+  }, [debouncedQuery])
 
   function go(item) {
+    addToHistory(item)
     navigate(item.to)
     close()
   }
@@ -195,6 +234,7 @@ export default function GlobalSearch() {
               <span>↑↓ Navigate</span>
               <span>↵ Select</span>
               <span>Esc Close</span>
+              <span>⌘K / Ctrl+K</span>
             </div>
           </div>
         </div>

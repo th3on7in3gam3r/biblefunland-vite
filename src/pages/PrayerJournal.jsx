@@ -4,8 +4,8 @@ const CATEGORIES = ['All','Personal','Family','Health','Work','Relationships','W
 const CAT_COLORS  = { Personal:'#8B5CF6',Family:'#EC4899',Health:'#10B981',Work:'#3B82F6',Relationships:'#F59E0B',World:'#14B8A6',Church:'#6366F1',Finances:'#F97316',Gratitude:'#FCD34D' }
 
 const SAMPLE = [
-  { id:'s1', title:'Healing for Mom', category:'Family', verse:'Jer 17:14', verseText:'Heal me, Lord, and I will be healed; save me and I will be saved.', text:'Lord, please heal my mom. She's been fighting this for months. I trust you.', answered:false, answeredNote:'', date:'2026-02-14', tags:['healing','family'] },
-  { id:'s2', title:'New Job',          category:'Work',   verse:'Jer 29:11', verseText:'For I know the plans I have for you...', text:'God I need provision. I've sent 20 applications. I trust your timing.', answered:true,  answeredNote:'Got the call on March 3rd. He provided exactly what I needed.', date:'2026-01-08', tags:['provision','work'] },
+  { id:'s1', title:'Healing for Mom', category:'Family', verse:'Jer 17:14', verseText:'Heal me, Lord, and I will be healed; save me and I will be saved.', text:"Lord, please heal my mom. She's been fighting this for months. I trust you.", answered:false, answeredNote:'', date:'2026-02-14', tags:['healing','family'] },
+  { id:'s2', title:'New Job',          category:'Work',   verse:'Jer 29:11', verseText:'For I know the plans I have for you...', text:'God I need provision. I\'ve sent 20 applications. I trust your timing.', answered:true,  answeredNote:'Got the call on March 3rd. He provided exactly what I needed.', date:'2026-01-08', tags:['provision','work'] },
 ]
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2) }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { insertTestimony } from '../lib/db'
 
 const CATEGORIES = ['All','Healing','Salvation','Provision','Restoration','Answered Prayer','Breakthrough','Family']
 const CATEGORY_COLORS = { Healing:'#10B981',Salvation:'#3B82F6',Provision:'#F59E0B',Restoration:'#EC4899',['Answered Prayer']:'#8B5CF6',Breakthrough:'#F97316',Family:'#14B8A6' }
@@ -33,7 +33,7 @@ export default function TestimonyArchive() {
     setShowForm(false)
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
-    try { supabase.from('testimonies').insert({ ...newPost, status: 'pending' }) } catch {}
+    try { insertTestimony({ name: newPost.name, category: newPost.category, title: newPost.title, text: newPost.text }) } catch {}
   }
 
   function pray(id) {

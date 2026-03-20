@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 
 const STATIONS = [
-  { name: 'Air1 Radio', genre: 'Contemporary Christian', url: 'https://rfcmedia.streamguys1.com/MasterAudio.mp3', emoji: '📻', color: '#3B82F6' },
+  { name: 'Air1 Radio', genre: 'Contemporary Christian', url: 'https://maestro.emfcdn.com/stream_for/air1/web/aac', emoji: '📻', color: '#3B82F6' },
   { name: 'K-LOVE', genre: 'Christian Hits', url: 'https://maestro.emfcdn.com/stream_for/k-love/web/aac', emoji: '🎵', color: '#8B5CF6' },
-  { name: 'Moody Radio', genre: 'Bible Teaching', url: 'https://stream.moodyradio.org/moodyradio-chicago-mp3', emoji: '📖', color: '#10B981' },
-  { name: 'Way FM', genre: 'Worship & Praise', url: 'https://wayfm-wbfj.streamguys1.com/wbfj-fm-mp3', emoji: '🙏', color: '#F97316' },
+  { name: 'Moody Radio', genre: 'Bible Teaching', url: 'https://primary.moodyradio.org/moody-chicago-mp3', emoji: '📖', color: '#10B981' },
+  { name: 'Way FM', genre: 'Worship & Praise', url: 'https://ais-sa8.cdnstream1.com/3144_64.aac', emoji: '🙏', color: '#F97316' },
 ]
 
 export default function BibleRadio() {

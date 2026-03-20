@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const STORIES = ['Noah and the Ark','David and Goliath','The Birth of Jesus','Jonah and the Whale','The Good Samaritan','Daniel in the Lions Den','Moses and the Red Sea','The Prodigal Son','Joseph and his Brothers','Jesus Feeds 5000','The Creation Story','Zacchaeus in the Tree','The Fiery Furnace','Queen Esther','The Christmas Story','Palm Sunday','Easter Sunday']
 const AGES   = [{ value:'4', label:'Ages 3–5', desc:'Very simple. Short sentences. Basic words.' }, { value:'7', label:'Ages 6–8', desc:'Simple story. Fun details. One big lesson.' }, { value:'10', label:'Ages 9–12', desc:'Richer story. Character depth. Application.' }]
@@ -31,29 +32,25 @@ Keep the entire response warm, exciting, and wonder-filled. Bible stories are ad
 export default function KidsBibleStories() {
   const [story,   setStory]   = useState('')
   const [age,     setAge]     = useState('7')
-  const [apiKey,  setApiKey]  = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result,  setResult]  = useState(null)
   const [error,   setError]   = useState('')
   const [reading, setReading] = useState(false)
 
   async function generate() {
-    if (!story.trim()) { setError('Choose a story first.'); return }
-    if (!apiKey)       { setError('Enter your API key.'); return }
+    if (!story.trim()) { setError('Choose a story first!'); return }
     setError(''); setLoading(true); setResult(null)
-    sessionStorage.setItem('bfl_key', apiKey)
     const ageLabel = AGES.find(a => a.value === age)?.label || 'Ages 6-8'
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01' },
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1500, system:SYSTEM, messages:[{ role:'user', content:`Story: "${story}"\nAge Group: ${ageLabel}\nMake it wonderful.` }] })
+      const text = await generateAIContent({
+        system: SYSTEM,
+        messages: [{ role:'user', content:`Story: "${story}"\nAge Group: ${ageLabel}\nMake it wonderful.` }],
+        max_tokens: 1500
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) setResult(data.content[0].text)
-      else setError(data.error?.message || 'Generation failed.')
-    } catch { setError('Connection failed.') }
+      if (text) setResult(text)
+      else setError('Generation failed. Please try again.')
+    } catch (err) { setError(err.message || 'Connection failed.') }
     setLoading(false)
   }
 
@@ -63,7 +60,6 @@ export default function KidsBibleStories() {
     const utterance = new SpeechSynthesisUtterance(result.replace(/[📖🌟🙏❓🎯]/g, ''))
     utterance.rate  = 0.88
     utterance.pitch = 1.05
-    // Pick a friendly voice
     const voices = window.speechSynthesis.getVoices()
     const friendly = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Moira')) || voices[0]
     if (friendly) utterance.voice = friendly
@@ -93,7 +89,6 @@ export default function KidsBibleStories() {
 
       <div style={{ maxWidth:780, margin:'0 auto', padding:'32px 20px' }}>
         <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:'28px 32px', marginBottom:20 }}>
-          {/* Age selector */}
           <div style={{ marginBottom:20 }}>
             <label style={{ fontSize:'.72rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:.5, display:'block', marginBottom:10 }}>👶 Child's Age</label>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
@@ -106,7 +101,6 @@ export default function KidsBibleStories() {
             </div>
           </div>
 
-          {/* Story picker */}
           <div style={{ marginBottom:20 }}>
             <label style={{ fontSize:'.72rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:.5, display:'block', marginBottom:10 }}>📖 Choose a Story</label>
             <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginBottom:10 }}>
@@ -116,8 +110,9 @@ export default function KidsBibleStories() {
           </div>
 
           <div style={{ display:'flex', gap:10, alignItems:'center', paddingTop:16, borderTop:'1px solid var(--border)' }}>
-            <span style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:600, whiteSpace:'nowrap' }}>🔑 API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex:1, fontSize:'.78rem' }} />
+            <div style={{ flex:1, fontSize:'.78rem', color:'var(--ink3)', fontWeight:500 }}>
+              ✨ Powered by advanced AI to bring Bible stories to life for your children.
+            </div>
             <button className="btn btn-green" onClick={generate} disabled={loading||!story.trim()} style={{ whiteSpace:'nowrap', flexShrink:0 }}>
               {loading ? '⏳ Telling...' : '📖 Tell the Story'}
             </button>

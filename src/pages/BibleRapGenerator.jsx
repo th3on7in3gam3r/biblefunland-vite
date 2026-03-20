@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const STYLES = [
   { id: 'rap',        label: '🎤 Scripture Rap',    icon: '🎤', desc: 'Hard-hitting bars rooted in the Word' },
@@ -27,7 +28,6 @@ export default function BibleRapGenerator() {
   const [style, setStyle] = useState('rap')
   const [verse, setVerse] = useState('')
   const [topic, setTopic] = useState('')
-  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -35,26 +35,19 @@ export default function BibleRapGenerator() {
 
   async function generate() {
     if (!verse.trim() && !topic.trim()) { setError('Enter a Bible verse or topic first!'); return }
-    if (!apiKey) { setError('Enter your Anthropic API key to generate.'); return }
     setError(''); setLoading(true); setResult(null)
-    sessionStorage.setItem('bfl_key', apiKey)
     const prompt = verse.trim()
       ? `Write a ${style} based on this Bible verse: "${verse}"`
       : `Write a ${style} about this Christian topic: "${topic}"`
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514', max_tokens: 900,
-          system: SYSTEM_PROMPTS[style],
-          messages: [{ role: 'user', content: prompt }]
-        })
+      const text = await generateAIContent({
+        system: SYSTEM_PROMPTS[style],
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 900
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) setResult(data.content[0].text)
-      else setError(data.error?.message || 'Generation failed. Check your API key.')
-    } catch { setError('Connection failed. Check your API key and internet.') }
+      if (text) setResult(text)
+      else setError('Generation failed. Please try again.')
+    } catch (err) { setError(err.message || 'Connection failed.') }
     setLoading(false)
   }
 
@@ -62,7 +55,6 @@ export default function BibleRapGenerator() {
 
   const selectedStyle = STYLES.find(s => s.id === style)
 
-  // Format result into sections
   function renderResult(text) {
     const lines = text.split('\n')
     return lines.map((line, i) => {
@@ -88,7 +80,6 @@ export default function BibleRapGenerator() {
       </div>
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 20px' }}>
-        {/* Style picker */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 28 }}>
           {STYLES.map(s => (
             <div key={s.id} onClick={() => setStyle(s.id)} style={{ borderRadius: 18, padding: '16px 14px', cursor: 'pointer', border: `2px solid ${style === s.id ? 'var(--violet)' : 'var(--border)'}`, background: style === s.id ? 'var(--violet-bg)' : 'var(--surface)', textAlign: 'center', transition: 'all .2s' }}>
@@ -99,11 +90,9 @@ export default function BibleRapGenerator() {
           ))}
         </div>
 
-        {/* Input card */}
         <div style={{ background: 'var(--surface)', borderRadius: 24, border: '1.5px solid var(--border)', boxShadow: 'var(--sh)', padding: 32, marginBottom: 22 }}>
           <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 8 }}>Bible Verse or Topic</div>
 
-          {/* Quick verse buttons */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
             {QUICK_VERSES.map(v => (
               <button key={v} onClick={() => setVerse(v)} style={{ fontSize: '.7rem', fontWeight: 700, padding: '4px 11px', borderRadius: 100, border: `1.5px solid ${verse === v ? 'var(--violet)' : 'var(--border)'}`, background: verse === v ? 'var(--violet-bg)' : 'var(--surface)', color: verse === v ? 'var(--violet)' : 'var(--ink2)', cursor: 'pointer' }}>
@@ -120,11 +109,12 @@ export default function BibleRapGenerator() {
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
-          <input className="input-field" placeholder='Topic e.g. "overcoming fear", "God\'s love", "forgiveness"...' value={topic} onChange={e => { setTopic(e.target.value); setVerse('') }} style={{ marginBottom: 16 }} />
+          <input className="input-field" placeholder="Topic e.g. 'overcoming fear', 'God's love', 'forgiveness'..." value={topic} onChange={e => { setTopic(e.target.value); setVerse('') }} style={{ marginBottom: 16 }} />
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', paddingTop: 14, borderTop: '1px solid var(--border)' }}>
-            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.78rem' }} />
+            <div style={{ flex: 1, fontSize: '.78rem', color: 'var(--ink3)', fontWeight: 500 }}>
+              ✨ AI transforms God's Word into music and poetry for you.
+            </div>
             <button className="btn btn-violet" onClick={generate} disabled={loading} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
               {loading ? '...' : `✨ Generate ${selectedStyle?.icon}`}
             </button>
@@ -133,7 +123,6 @@ export default function BibleRapGenerator() {
           {error && <div style={{ marginTop: 12, background: 'var(--red-bg)', color: 'var(--red)', borderRadius: 10, padding: '9px 14px', fontSize: '.82rem', fontWeight: 600 }}>⚠️ {error}</div>}
         </div>
 
-        {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <div style={{ fontSize: '3rem', marginBottom: 12, animation: 'bounce 1s ease-in-out infinite' }}>{selectedStyle?.icon}</div>
@@ -142,7 +131,6 @@ export default function BibleRapGenerator() {
           </div>
         )}
 
-        {/* Result */}
         {result && !loading && (
           <div style={{ background: 'var(--surface)', borderRadius: 24, border: '1.5px solid var(--border)', boxShadow: 'var(--sh)', overflow: 'hidden' }}>
             <div style={{ background: 'linear-gradient(135deg,#4C1D95,#6D28D9)', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>

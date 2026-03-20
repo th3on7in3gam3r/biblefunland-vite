@@ -11,7 +11,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useAuth } from './AuthContext'
-import { getBadges, awardBadge as awardBadgeDB } from '../lib/db'
+import * as db from '../lib/db'
 
 // ── Badge definitions ─────────────────────────────────────────────────
 export const BADGE_DEFS = {
@@ -71,13 +71,13 @@ export function BadgeProvider({ children }) {
   // Load from Turso when user logs in
   useEffect(() => {
     if (!user) return
-    getBadges(user.id).then(({ data }) => {
+    db.getBadges(user.id).then(({ data }) => {
       if (data?.length) {
         const ids = new Set(data.map(b => b.badge_id))
         setEarned(ids)
         localStorage.setItem('bfl_badges', JSON.stringify([...ids]))
       }
-    })
+    }).catch(() => {})
   }, [user])
 
   const awardBadge = useCallback((badgeId) => {
@@ -96,7 +96,7 @@ export function BadgeProvider({ children }) {
 
     // Sync to Turso
     if (user) {
-      awardBadgeDB(user.id, badgeId).catch(() => {})
+      db.awardBadge(user.id, badgeId).catch(() => {})
     }
   }, [earned, user])
 

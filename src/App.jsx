@@ -7,6 +7,7 @@ import PwaInstallBanner from './components/PwaInstallBanner'
 import EmailPopup from './components/EmailPopup'
 import BibleRadio from './components/BibleRadio'
 import CookieConsent from './components/CookieConsent'
+import ErrorBoundary from './components/ErrorBoundary'
 import { PageLoader } from './components/Skeleton'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
@@ -22,8 +23,18 @@ import { LanguageProvider } from './i18n/LanguageContext'
 import { AdsProvider } from './context/AdsContext'
 import { BadgeProvider } from './context/BadgeContext'
 import { KidsModeProvider } from './context/KidsModeContext'
+import { ParentalControlsProvider } from './context/ParentalControlsContext'
+import { ChildSwitcherProvider } from './context/ChildSwitcherContext'
+import { ScriptureMemoryProvider } from './context/ScriptureMemoryContext'
+import { EmailDigestProvider } from './context/EmailDigestContext'
+import { TeacherClassroomProvider } from './context/TeacherClassroomContext'
+import { BedtimeModeProvider } from './context/BedtimeModeContext'
+import { ActivityDashboardProvider } from './context/ActivityDashboardContext'
+import { AdvancedAnalyticsProvider } from './context/AdvancedAnalyticsContext'
+import { FamilyChallengesProvider } from './context/FamilyChallengesContext'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
+import ParentalProtectedRoute from './components/ParentalProtectedRoute'
 
 // Lazy pages
 const lazy_ = (fn) => lazy(fn)
@@ -79,6 +90,17 @@ const WallpaperMaker=lazy_(()=>import('./pages/WallpaperMaker'))
 const ScriptureMemoryLeague=lazy_(()=>import('./pages/ScriptureMemoryLeague'))
 const BibleBattleArena=lazy_(()=>import('./pages/BibleBattleArena'))
 const BibleSearch=lazy_(()=>import('./pages/BibleSearch'))
+const Bedtime=lazy_(()=>import('./pages/Bedtime'))
+const BedtimeSettings=lazy_(()=>import('./pages/BedtimeSettings'))
+
+// ── v12 Features ──────────────────────────────────────────────────────────────
+const SermonWriter=lazy_(()=>import('./pages/SermonWriter'))
+const CouplesDevotional=lazy_(()=>import('./pages/CouplesDevotional'))
+const ScriptureTyping=lazy_(()=>import('./pages/ScriptureTyping'))
+const FastingTracker=lazy_(()=>import('./pages/FastingTracker'))
+const BibleFamilyTree=lazy_(()=>import('./pages/BibleFamilyTree'))
+const WorshipDiscovery=lazy_(()=>import('./pages/WorshipDiscovery'))
+const ParentTeacherHub=lazy_(()=>import('./pages/ParentTeacherHub'))
 
 // ── v11 Features ──────────────────────────────────────────────────────────────
 const BibleWordle=lazy_(()=>import('./pages/BibleWordle'))
@@ -93,8 +115,11 @@ const SP = ({c:C}) => <Suspense fallback={<PageLoader/>}><C/></Suspense>
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <ThemeProvider><LanguageProvider><AuthProvider><StreakProvider><MusicProvider>
-    <BadgeProvider><KidsModeProvider><AdsProvider>
+    <BadgeProvider><KidsModeProvider><ParentalControlsProvider><ChildSwitcherProvider>
+    <ScriptureMemoryProvider><EmailDigestProvider><TeacherClassroomProvider><BedtimeModeProvider>
+    <ActivityDashboardProvider><AdvancedAnalyticsProvider><FamilyChallengesProvider><AdsProvider>
       <div className="app-shell">
         <Nav/>
         <PwaInstallBanner/>
@@ -107,7 +132,7 @@ export default function App() {
             <Route path="/admin/login" element={<AdminLogin/>}/>
 
             {/* Learning */}
-            <Route path="/trivia"          element={<SP c={Trivia}/>}/>
+            <Route path="/trivia"          element={<ParentalProtectedRoute featureId="trivia"><SP c={Trivia}/></ParentalProtectedRoute>}/>
             <Route path="/devotional"      element={<SP c={Devotional}/>}/>
             <Route path="/map"             element={<SP c={BibleMap}/>}/>
             <Route path="/flashcards"      element={<SP c={Flashcards}/>}/>
@@ -130,8 +155,8 @@ export default function App() {
 
             {/* AI */}
             <Route path="/chat/characters"  element={<SP c={BibleCharacterChat}/>}/>
-            <Route path="/ai/rap-generator" element={<SP c={BibleRapGenerator}/>}/>
-            <Route path="/ai/miracle-art"   element={<SP c={BibleMiracleArt}/>}/>
+            <Route path="/ai/rap-generator" element={<ParentalProtectedRoute featureId="rap"><SP c={BibleRapGenerator}/></ParentalProtectedRoute>}/>
+            <Route path="/ai/miracle-art"   element={<ParentalProtectedRoute featureId="art"><SP c={BibleMiracleArt}/></ParentalProtectedRoute>}/>
 
             {/* Never Done Before */}
             <Route path="/quiz/character"   element={<SP c={BibleCharacterQuiz}/>}/>
@@ -143,6 +168,7 @@ export default function App() {
             <Route path="/prayer-beads"     element={<SP c={DigitalPrayerBeads}/>}/>
             <Route path="/encouragement"    element={<SP c={EncouragementWall}/>}/>
             <Route path="/certification"    element={<SP c={BibleCertification}/>}/>
+            <Route path="/bedtime"          element={<SP c={Bedtime}/>}/>
 
             {/* Community */}
             <Route path="/community/chat"   element={<SP c={ChatRooms}/>}/>
@@ -150,9 +176,9 @@ export default function App() {
             <Route path="/community/events" element={<SP c={ChurchCalendar}/>}/>
 
             {/* v10 — AI & Prayer */}
-            <Route path="/ai/prayer-companion"  element={<SP c={AIPrayerCompanion}/>}/>
+            <Route path="/ai/prayer-companion"  element={<ParentalProtectedRoute featureId="prayer"><SP c={AIPrayerCompanion}/></ParentalProtectedRoute>}/>
             <Route path="/pray-for-world"       element={<SP c={PrayForTheWorld}/>}/>
-            <Route path="/ai/study-generator"   element={<SP c={BibleStudyGenerator}/>}/>
+            <Route path="/ai/study-generator"   element={<ParentalProtectedRoute featureId="study"><SP c={BibleStudyGenerator}/></ParentalProtectedRoute>}/>
 
             {/* v10 — Bible Tools */}
             <Route path="/language-explorer"    element={<SP c={OriginalLanguageExplorer}/>}/>
@@ -176,6 +202,15 @@ export default function App() {
             <Route path="/contact"  element={<SP c={Contact}/>}/>
             <Route path="/premium"  element={<SP c={Premium}/>}/>
 
+            {/* v12 — New Features */}
+            <Route path="/sermon-writer"       element={<SP c={SermonWriter}/>}/>
+            <Route path="/couples-devotional"  element={<SP c={CouplesDevotional}/>}/>
+            <Route path="/scripture-typing"    element={<SP c={ScriptureTyping}/>}/>
+            <Route path="/fasting"             element={<SP c={FastingTracker}/>}/>
+            <Route path="/family-tree"         element={<SP c={BibleFamilyTree}/>}/>
+            <Route path="/worship"             element={<SP c={WorshipDiscovery}/>}/>
+            <Route path="/parent-hub"          element={<SP c={ParentTeacherHub}/>}/>
+
             {/* v11 — Daily & Discovery */}
             <Route path="/wordle"              element={<SP c={BibleWordle}/>}/>
             <Route path="/prayer-journal"      element={<SP c={PrayerJournal}/>}/>
@@ -189,6 +224,7 @@ export default function App() {
             <Route element={<PrivateRoute/>}>
               <Route path="/dashboard"    element={<SP c={Dashboard}/>}/>
               <Route path="/profile"      element={<SP c={Profile}/>}/>
+              <Route path="/bedtime-settings" element={<SP c={BedtimeSettings}/>}/>
               <Route path="/achievements" element={<SP c={Achievements}/>}/>
             </Route>
             <Route element={<AdminRoute/>}>
@@ -201,7 +237,10 @@ export default function App() {
         </main>
         <Footer/><MusicPlayer/><BibleRadio/>
       </div>
-    </AdsProvider></KidsModeProvider></BadgeProvider>
+    </AdsProvider></FamilyChallengesProvider></AdvancedAnalyticsProvider></ActivityDashboardProvider></BedtimeModeProvider></TeacherClassroomProvider>
+    </EmailDigestProvider></ScriptureMemoryProvider></ChildSwitcherProvider>
+    </ParentalControlsProvider></KidsModeProvider></BadgeProvider>
     </MusicProvider></StreakProvider></AuthProvider></LanguageProvider></ThemeProvider>
+    </ErrorBoundary>
   )
 }

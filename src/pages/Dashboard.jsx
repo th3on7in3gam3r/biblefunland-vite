@@ -1,33 +1,27 @@
 import { useState } from 'react'
 import { useStreak } from '../context/StreakContext'
 import { useAuth } from '../context/AuthContext'
+import { useBadges, BADGE_DEFS } from '../context/BadgeContext'
 import { Link } from 'react-router-dom'
-const BADGES=[
-  {id:'streak-3',name:'On Fire',desc:'3 day streak',emoji:'🔥',color:'#F97316',earned:false},
-  {id:'streak-7',name:'Week Warrior',desc:'7 day streak',emoji:'⚡',color:'#F59E0B',earned:false},
-  {id:'streak-30',name:'Month Master',desc:'30 day streak',emoji:'👑',color:'#8B5CF6',earned:false},
-  {id:'first-game',name:'First Victory',desc:'Win your first game',emoji:'🎮',color:'#3B82F6',earned:false},
-  {id:'giant-slayer',name:'Giant Slayer',desc:'Beat David & Goliath',emoji:'🏹',color:'#EC4899',earned:false},
-  {id:'navigator',name:"Navigator",desc:"Complete Noah's Voyage",emoji:'🚢',color:'#14B8A6',earned:false},
-  {id:'prayer-warrior',name:'Prayer Warrior',desc:'Post a prayer request',emoji:'🙏',color:'#6366F1',earned:false},
-  {id:'ai-seeker',name:'Seeker',desc:'Generate 5 devotionals',emoji:'🎙️',color:'#A855F7',earned:false},
-  {id:'lumina',name:'Lumina User',desc:'Open Lumina Bible',emoji:'💡',color:'#EAB308',earned:false},
-]
 function todayStr(){return new Date().toISOString().split('T')[0]}
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
 export default function Dashboard(){
   const{streak,readDays,checkedToday,checkIn}=useStreak()
   const{user}=useAuth()
+  const { earned } = useBadges()
   const[calDate,setCalDate]=useState(new Date())
-  const[markingDay,setMarkingDay]=useState(false)
   const now=new Date()
   const y=calDate.getFullYear(),m=calDate.getMonth()
   const firstDay=new Date(y,m,1).getDay()
   const days=daysInMonth(y,m)
   const thisMonthRead=readDays.filter(d=>d.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)).length
-  const earnedBadges=JSON.parse(localStorage.getItem('bfl_state')||'{}').earnedBadges||[]
-  const badges=BADGES.map(b=>({...b,earned:earnedBadges.includes(b.id)||(b.id==='streak-3'&&streak>=3)||(b.id==='streak-7'&&streak>=7)||(b.id==='streak-30'&&streak>=30)}))
-  const earnedCount=badges.filter(b=>b.earned).length
+
+  // Build badge display from BadgeContext
+  const RARITY_COLORS = { common:'#6B7280', uncommon:'#10B981', rare:'#3B82F6', legendary:'#F59E0B' }
+  const badges = Object.entries(BADGE_DEFS).slice(0, 9).map(([id, b]) => ({
+    id, ...b, color: RARITY_COLORS[b.rarity] || '#6B7280', earned: earned.has(id)
+  }))
+  const earnedCount = earned.size
   return(
     <div style={{background:'var(--bg)',minHeight:'100vh',fontFamily:'Poppins,sans-serif'}}>
       <div style={{background:'linear-gradient(135deg,#0A0A1A,#1E1B4B)',padding:'52px 36px 36px',textAlign:'center'}}>

@@ -27,17 +27,17 @@ export function StreakProvider({ children }) {
   const [checkedToday, setCheckedToday] = useState(false)
   const [checkinCount, setCheckinCount] = useState(0)
 
-  // Load from Supabase (if logged in) or localStorage
+  // Load from Turso (if logged in) or localStorage
   useEffect(() => {
     if (user) {
       getStreak(user.id).then(({ data }) => {
         if (data) {
           setStreak(data.streak ?? 0)
-          setReadDays(data.read_days ?? [])
+          setReadDays(data.read_days ? data.read_days.split(',') : [])
           setCheckinCount(data.checkin_count ?? 0)
           setCheckedToday(data.last_checkin === todayStr())
         }
-      })
+      }).catch(() => {})
     } else {
       const s = getLocalState()
       setStreak(s.streak ?? 0)
@@ -77,9 +77,9 @@ export function StreakProvider({ children }) {
       await upsertStreak(user.id, {
         streak: newStreak,
         last_checkin: today,
-        read_days: newReadDays,
+        read_days: newReadDays.join(','),
         checkin_count: newCheckinCount,
-      })
+      }).catch(() => {})
     }
 
     return newStreak
@@ -93,7 +93,7 @@ export function StreakProvider({ children }) {
     setReadDays(newReadDays)
     const updated = { ...getLocalState(), readDays: newReadDays }
     setLocalState(updated)
-    if (user) await upsertStreak(user.id, { read_days: newReadDays })
+    if (user) await upsertStreak(user.id, { read_days: newReadDays.join(',') }).catch(() => {})
   }
 
   return (

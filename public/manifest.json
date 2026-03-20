@@ -1,0 +1,17 @@
+{
+  "name": "BibleFunLand",
+  "short_name": "BibleFunLand",
+  "description": "Bible games, AI devotionals, prayer wall and more — for families who love God's Word.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E0E18",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/cross.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const PASSAGE_SUGGESTIONS = ['John 3:16','Romans 8:28','Philippians 4:13','Psalm 23','Matthew 5:1-12','Ephesians 6:10-18','Genesis 1:1','Isaiah 53','Luke 15:11-32','Revelation 21:1-5']
 const THEMES = ['Grace','Faith','Hope','Forgiveness','Prayer','Identity in Christ','The Cross','Resurrection','The Holy Spirit','Community','Generosity','Suffering','Courage','Love']
@@ -31,7 +32,6 @@ export default function SermonIllustrations() {
   const [theme,      setTheme]      = useState('')
   const [types,      setTypes]      = useState([])
   const [audience,   setAudience]   = useState('general')
-  const [apiKey,     setApiKey]     = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading,    setLoading]    = useState(false)
   const [result,     setResult]     = useState(null)
   const [error,      setError]      = useState('')
@@ -41,24 +41,21 @@ export default function SermonIllustrations() {
   async function generate() {
     const subject = mode === 'passage' ? passage : theme
     if (!subject.trim()) { setError('Enter a passage or theme.'); return }
-    if (!apiKey)         { setError('Enter your API key.'); return }
     setError(''); setLoading(true); setResult(null)
-    sessionStorage.setItem('bfl_key', apiKey)
 
     const typeNote = types.length > 0 ? `Preferred illustration types: ${types.join(', ')}.` : ''
     const audienceNote = { general:'Mixed congregation', youth:'Youth group (teens)', kids:'Children (ages 6-12)', mens:"Men's group", womens:"Women's group" }[audience]
     const prompt = `Generate 4 sermon illustrations for: "${subject}"\nAudience: ${audienceNote}\n${typeNote}\nMake them fresh, unexpected, and memorable.`
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'x-api-key':apiKey, 'anthropic-version':'2023-06-01' },
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2500, system:SYSTEM, messages:[{ role:'user', content:prompt }] })
+      const text = await generateAIContent({
+        system: SYSTEM,
+        messages: [{ role:'user', content:prompt }],
+        max_tokens: 2500
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) setResult(data.content[0].text)
-      else setError(data.error?.message || 'Generation failed.')
-    } catch { setError('Connection failed.') }
+      if (text) setResult(text)
+      else setError('Generation failed. Please try again.')
+    } catch (err) { setError(err.message || 'Connection failed.') }
     setLoading(false)
   }
 
@@ -90,7 +87,6 @@ export default function SermonIllustrations() {
 
       <div style={{ maxWidth:860, margin:'0 auto', padding:'32px 20px' }}>
         <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:'28px 32px', marginBottom:20 }}>
-          {/* Mode toggle */}
           <div style={{ display:'flex', gap:10, marginBottom:20 }}>
             {[['passage','📖 By Passage'],['theme','✨ By Theme']].map(([id,label]) => (
               <button key={id} onClick={() => setMode(id)} style={{ flex:1, padding:11, borderRadius:12, border:`2px solid ${mode===id?'var(--orange)':'var(--border)'}`, background:mode===id?'var(--orange-bg)':'var(--surface)', color:mode===id?'var(--orange)':'var(--ink3)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer', transition:'all .2s' }}>{label}</button>
@@ -115,7 +111,6 @@ export default function SermonIllustrations() {
             </div>
           )}
 
-          {/* Audience */}
           <div style={{ marginBottom:16 }}>
             <label style={{ fontSize:'.72rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:.5, display:'block', marginBottom:8 }}>Audience</label>
             <div style={{ display:'flex', gap:7, flexWrap:'wrap' }}>
@@ -125,7 +120,6 @@ export default function SermonIllustrations() {
             </div>
           </div>
 
-          {/* Illustration types */}
           <div style={{ marginBottom:20 }}>
             <label style={{ fontSize:'.72rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:.5, display:'block', marginBottom:8 }}>Preferred Types (optional)</label>
             <div style={{ display:'flex', gap:7, flexWrap:'wrap' }}>
@@ -134,9 +128,8 @@ export default function SermonIllustrations() {
           </div>
 
           <div style={{ display:'flex', gap:10, alignItems:'center', paddingTop:16, borderTop:'1px solid var(--border)' }}>
-            <span style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:600, whiteSpace:'nowrap' }}>🔑 API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex:1, fontSize:'.78rem' }} />
-            <button className="btn btn-orange" onClick={generate} disabled={loading} style={{ whiteSpace:'nowrap', flexShrink:0 }}>
+            <span style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:600 }}>✨ Powered by secure AI proxy. Premium illustration engine active.</span>
+            <button className="btn btn-orange" onClick={generate} disabled={loading} style={{ marginLeft:'auto', whiteSpace:'nowrap', flexShrink:0 }}>
               {loading ? '⏳ Writing...' : '🎤 Generate Illustrations'}
             </button>
           </div>
@@ -166,7 +159,6 @@ export default function SermonIllustrations() {
           </div>
         )}
 
-        {/* Saved library */}
         {saved.length > 0 && (
           <div style={{ marginTop:24 }}>
             <div style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1rem', fontWeight:800, color:'var(--ink)', marginBottom:12 }}>💾 Saved Illustrations ({saved.length})</div>

@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
+
+// Realtime broadcast stub — replace with a real WS solution if needed
+const createChannel = (name) => ({
+  on: () => ({ on: () => ({ subscribe: () => {} }) }),
+  send: () => {},
+  unsubscribe: () => {},
+})
 
 const ROOMS = [
   { id:'general', name:'#general', emoji:'💬', desc:'General faith conversation', color:'var(--blue)', bg:'var(--blue-bg)' },
@@ -29,22 +35,22 @@ export default function ChatRooms() {
   const [messages, setMessages] = useState(LOCAL_MSGS[room] || [])
   const [input, setInput] = useState('')
   const [onlineCount] = useState(Math.floor(Math.random() * 40) + 12)
-  const [usingSupabase, setUsingSupabase] = useState(false)
+  const [usingRealtime, setUsingRealtime] = useState(false)
   const channelRef = useRef(null)
   const bottomRef = useRef(null)
 
   useEffect(() => {
     setMessages(LOCAL_MSGS[room] || [])
     channelRef.current?.unsubscribe()
-    // Try Supabase realtime
+    // Try realtime broadcast
     try {
-      channelRef.current = supabase.channel(`chat-${room}`)
+      channelRef.current = createChannel(`chat-${room}`)
         .on('broadcast', { event: 'message' }, ({ payload }) => {
           setMessages(prev => [...prev, payload])
-          setUsingSupabase(true)
+          setUsingRealtime(true)
         })
         .subscribe()
-    } catch { setUsingSupabase(false) }
+    } catch { setUsingRealtime(false) }
     return () => channelRef.current?.unsubscribe()
   }, [room])
 
@@ -61,9 +67,8 @@ export default function ChatRooms() {
     setMessages(prev => [...prev, msg])
     setInput('')
 
-    // Broadcast via Supabase if connected
     try {
-      supabase.channel(`chat-${room}`).send({ type: 'broadcast', event: 'message', payload: msg })
+      createChannel(`chat-${room}`).send({ type: 'broadcast', event: 'message', payload: msg })
     } catch {}
   }
 
@@ -102,7 +107,7 @@ export default function ChatRooms() {
               <span style={{ fontSize: '1.3rem' }}>{curRoom?.emoji}</span>
               <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: curRoom?.color }}>{curRoom?.name}</div>
               <span style={{ fontSize: '.72rem', color: 'var(--ink3)', fontWeight: 500, marginLeft: 4 }}>— {curRoom?.desc}</span>
-              {usingSupabase && <div style={{ marginLeft: 'auto', fontSize: '.65rem', fontWeight: 700, color: 'var(--green)', background: 'var(--green-bg)', padding: '2px 8px', borderRadius: 100 }}>🔴 Live</div>}
+              {usingRealtime && <div style={{ marginLeft: 'auto', fontSize: '.65rem', fontWeight: 700, color: 'var(--green)', background: 'var(--green-bg)', padding: '2px 8px', borderRadius: 100 }}>🔴 Live</div>}
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {messages.map((m, i) => (

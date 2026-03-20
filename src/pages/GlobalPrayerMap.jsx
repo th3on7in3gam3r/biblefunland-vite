@@ -1,5 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
+
+// Realtime broadcast stub for local testing
+const realtimeChannel = {
+  channel: (name) => {
+    const ch = {
+      on: () => ch,
+      subscribe: () => ch,
+      send: () => {},
+      unsubscribe: () => {},
+    }
+    return ch
+  }
+}
 
 const DEMO_PINS = [
   { id:1, lat:40.71, lng:-74.01, country:'🇺🇸', city:'New York', prayer:'Lord, heal my family', time:2 },
@@ -36,9 +48,9 @@ export default function GlobalPrayerMap() {
   const channelRef = useRef(null)
 
   useEffect(() => {
-    // Try Supabase real-time
+    // Try realtime broadcast
     try {
-      channelRef.current = supabase.channel('prayer-map')
+      channelRef.current = realtimeChannel.channel('prayer-map')
         .on('broadcast', { event: 'new-pin' }, ({ payload }) => {
           setPins(prev => [payload, ...prev].slice(0, 50))
           setLiveCount(c => c + 1)
@@ -72,7 +84,7 @@ export default function GlobalPrayerMap() {
       time: 0,
     }
     setPins(prev => [pin, ...prev])
-    try { supabase.channel('prayer-map').send({ type: 'broadcast', event: 'new-pin', payload: pin }) } catch {}
+    try { realtimeChannel.channel('prayer-map').send({ type: 'broadcast', event: 'new-pin', payload: pin }) } catch {}
     setForm({ country:'', city:'', prayer:'', category:'General' })
     setShowForm(false)
     setSubmitted(true)

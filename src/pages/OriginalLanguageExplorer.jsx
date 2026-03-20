@@ -73,7 +73,7 @@ export default function OriginalLanguageExplorer() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {dataset.map((word, i) => (
                 <div key={i} onClick={() => setSelected(selected?.strongs === word.strongs ? null : word)}
-                  style={{ background: 'var(--surface)', borderRadius: 16, border: `1.5px solid ${selected?.strongs === word.strongs ? 'var(--violet)' : 'var(--border)'}`, padding: '16px 18px', cursor: 'pointer', transition: 'all .22s', background: selected?.strongs === word.strongs ? 'var(--violet-bg)' : 'var(--surface)' }}
+                  style={{ borderRadius: 16, border: `1.5px solid ${selected?.strongs === word.strongs ? 'var(--violet)' : 'var(--border)'}`, padding: '16px 18px', cursor: 'pointer', transition: 'all .22s', background: selected?.strongs === word.strongs ? 'var(--violet-bg)' : 'var(--surface)' }}
                   onMouseEnter={e => { if (selected?.strongs !== word.strongs) e.currentTarget.style.borderColor = 'var(--blue)' }}
                   onMouseLeave={e => { if (selected?.strongs !== word.strongs) e.currentTarget.style.borderColor = 'var(--border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>

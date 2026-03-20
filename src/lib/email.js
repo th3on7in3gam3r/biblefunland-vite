@@ -1,10 +1,11 @@
 /**
- * email.js — Client helper for sending emails via Resend proxy
+ * BibleFunLand Email Proxy Helper
+ * Proxies calls to the secure backend to protect the Resend API key.
  */
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
 export async function sendEmail({ to, subject, html, text }) {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-  
   try {
     const response = await fetch(`${API_URL}/api/email/send`, {
       method: 'POST',
@@ -12,12 +13,14 @@ export async function sendEmail({ to, subject, html, text }) {
       body: JSON.stringify({ to, subject, html, text })
     });
 
-    const data = await response.json();
-    if (data.error) throw new Error(data.error);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Email Proxy Error');
+    }
 
-    return data;
-  } catch (err) {
-    console.error('Email Proxy Error:', err);
-    throw err;
+    return await response.json();
+  } catch (error) {
+    console.error('Email Helper Error:', error);
+    throw error;
   }
 }

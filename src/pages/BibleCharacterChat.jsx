@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const CHARACTERS = [
   {
@@ -74,7 +75,6 @@ export default function BibleCharacterChat() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [askCount, setAskCount] = useState(0)
   const messagesEndRef = useRef(null)
 
@@ -89,10 +89,9 @@ export default function BibleCharacterChat() {
   }
 
   async function sendMessage() {
-    if (!input.trim() || loading) return
-    if (!apiKey) { alert('Please enter your Anthropic API key at the bottom to chat!'); return }
-
     const userMsg = input.trim()
+    if (!userMsg || loading) return
+
     setInput('')
     setMessages(prev => [...prev, { role: 'user', text: userMsg }])
     setLoading(true)
@@ -102,30 +101,19 @@ export default function BibleCharacterChat() {
       .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }))
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 200,
-          system: selectedChar.systemPrompt,
-          messages: [...history, { role: 'user', content: userMsg }],
-        }),
+      const text = await generateAIContent({
+        system: selectedChar.systemPrompt,
+        messages: [...history, { role: 'user', content: userMsg }],
+        max_tokens: 200
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) {
-        setMessages(prev => [...prev, { role: 'assistant', text: data.content[0].text }])
+      if (text) {
+        setMessages(prev => [...prev, { role: 'assistant', text: text }])
         setAskCount(c => c + 1)
-        sessionStorage.setItem('bfl_key', apiKey)
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', text: `I cannot speak at this moment. Please check your API key and try again.` }])
+        setMessages(prev => [...prev, { role: 'assistant', text: `I cannot speak at this moment. Please try again later.` }])
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', text: 'Connection failed. Check your API key and try again.' }])
+      setMessages(prev => [...prev, { role: 'assistant', text: 'Connection failed. Please try again later.' }])
     }
     setLoading(false)
   }
@@ -244,8 +232,7 @@ export default function BibleCharacterChat() {
                 </button>
               </div>
               <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-                <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>API Key:</span>
-                <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.76rem' }}/>
+                <span style={{ fontSize: '.72rem', color: 'var(--ink3)', fontWeight: 600 }}>✨ Character wisdom powered by AI. No sign-in required.</span>
               </div>
             </div>
           </div>

@@ -1,29 +1,27 @@
 /**
- * ai.js — Client helper for AI features
- *
- * Calls our secure backend proxy instead of calling Anthropic directly.
+ * BibleFunLand AI Proxy Helper
+ * Proxies calls to the secure backend to protect the Anthropic API key.
  */
 
-export async function generateAIContent(topic, systemPrompt, model = 'claude-3-5-sonnet-20240620') {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
-  
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
+export async function generateAIContent({ system, messages, model = 'claude-3-5-sonnet-20240620', max_tokens = 500 }) {
   try {
     const response = await fetch(`${API_URL}/api/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: topic }],
-        system: systemPrompt,
-        model
-      })
+      body: JSON.stringify({ system, messages, model, max_tokens })
     });
 
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'AI Proxy Error');
+    }
+
     const data = await response.json();
-    if (data.error) throw new Error(data.error);
-    
     return data.content?.[0]?.text || '';
-  } catch (err) {
-    console.error('AI Proxy Error:', err);
-    throw err;
+  } catch (error) {
+    console.error('AI Helper Error:', error);
+    throw error;
   }
 }

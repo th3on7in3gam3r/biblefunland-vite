@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { incrementWorldPrayer } from '../lib/db'
 
 // 60-country rotation — day-of-year picks one
 const COUNTRIES = [
@@ -83,7 +83,7 @@ export default function PrayForTheWorld() {
     setPrayed(true)
     setTodayPrayers(c => c + 1)
     try {
-      await supabase.from('world_prayers').upsert({ country: country.name, date: new Date().toISOString().split('T')[0], count: todayPrayers + 1 })
+      await incrementWorldPrayer(country.name)
     } catch {}
   }
 

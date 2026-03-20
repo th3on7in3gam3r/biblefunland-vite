@@ -1,6 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
 import { useBadges } from '../context/BadgeContext'
+
+// Realtime broadcast stub for local testing
+const realtimeChannel = {
+  channel: (name) => {
+    const handlers = {}
+    const ch = {
+      on: (type, opts, cb) => { handlers[opts?.event || type] = cb; return ch },
+      subscribe: () => ch,
+      send: () => {},
+      unsubscribe: () => {},
+    }
+    return ch
+  }
+}
 
 const QUESTIONS = [
   { q:'How many days did Jesus fast in the wilderness?', options:['30','40','50','7'], correct:1 },
@@ -49,7 +62,7 @@ export default function BibleBattleArena() {
     setPhase('lobby')
     setWaitingForOpponent(true)
 
-    channelRef.current = supabase.channel(`battle-${code}`)
+    channelRef.current = realtimeChannel.channel(`battle-${code}`)
       .on('broadcast', { event: 'join' }, () => {
         setOpponentJoined(true)
         setWaitingForOpponent(false)
@@ -68,7 +81,7 @@ export default function BibleBattleArena() {
     setMode('join')
     setPhase('lobby')
 
-    channelRef.current = supabase.channel(`battle-${code}`)
+    channelRef.current = realtimeChannel.channel(`battle-${code}`)
       .on('broadcast', { event: 'question' }, ({ payload }) => {
         setQuestion(payload.question)
         setMyAnswer(null); setTheirAnswer(null); setRoundResult(null)

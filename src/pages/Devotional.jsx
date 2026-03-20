@@ -1,22 +1,24 @@
 import { useState } from 'react'
+import { generateAIContent } from '../lib/ai'
 const TOPICS=['😌 Anxiety & Peace','💪 Strength & Courage','🤝 Forgiveness','🙏 Gratitude','👨‍👩‍👧 Parenting','⭐ Hope & Faith','🎯 Purpose & Calling','✝️ Prayer']
 export default function Devotional(){
   const[topic,setTopic]=useState('')
-  const[apiKey,setApiKey]=useState(sessionStorage.getItem('bfl_key')||'')
   const[loading,setLoading]=useState(false)
   const[result,setResult]=useState(null)
   const[error,setError]=useState('')
   const[copied,setCopied]=useState(false)
   async function generate(){
     if(!topic.trim()){setError('Please enter or select a topic!');return}
-    if(!apiKey){setError('Please enter your Anthropic API key below.');return}
     setError('');setLoading(true);setResult(null)
-    sessionStorage.setItem('bfl_key',apiKey)
     try{
-      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,system:`You are a warm devotional writer for BibleFunLand. Write a personal scripture-rich devotional. Use exactly these labels on their own lines: TITLE: SCRIPTURE: REFLECTION: APPLICATION: PRAYER: Under APPLICATION write 3 bullet points starting with •. Keep it ~380 words, warm and conversational.`,messages:[{role:'user',content:`Write a daily devotional for: "${topic}"`}]})})
-      const data=await res.json()
-      if(data.content?.[0]?.text){
-        const t=data.content[0].text
+      const text = await generateAIContent({
+        system: `You are a warm devotional writer for BibleFunLand. Write a personal scripture-rich devotional. Use exactly these labels on their own lines: TITLE: SCRIPTURE: REFLECTION: APPLICATION: PRAYER: Under APPLICATION write 3 bullet points starting with •. Keep it ~380 words, warm and conversational.`,
+        messages: [{role:'user',content:`Write a daily devotional for: "${topic}"`}],
+        max_tokens: 900
+      })
+      
+      if(text){
+        const t=text
         setResult({
           title:(t.match(/TITLE:\s*(.+)/i)?.[1]||`Devotional: ${topic}`).trim(),
           scripture:(t.match(/SCRIPTURE:\s*([\s\S]+?)(?=REFLECTION:|$)/i)?.[1]||'').trim(),
@@ -25,8 +27,8 @@ export default function Devotional(){
           prayer:(t.match(/PRAYER:\s*([\s\S]+?)$/i)?.[1]||'').trim(),
           raw:t
         })
-      } else setError(`API Error: ${data.error?.message||'Unknown error'}`)
-    }catch{setError('Connection failed. Check your API key and try again.')}
+      } else setError('AI returned an empty response. Please try again.')
+    }catch(err){setError(err.message || 'Connection failed. Please try again later.')}
     setLoading(false)
   }
   function copy(){navigator.clipboard.writeText(result?.raw||'');setCopied(true);setTimeout(()=>setCopied(false),2000)}
@@ -40,9 +42,9 @@ export default function Devotional(){
         <p style={{color:'rgba(255,255,255,.5)',fontSize:'.9rem',fontWeight:500,maxWidth:440,margin:'0 auto'}}>Type a topic and receive a personalized devotional with scripture, reflection, and prayer — in seconds.</p>
       </div>
       <div style={{maxWidth:800,margin:'0 auto',padding:'44px 24px'}}>
-        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'var(--orange-bg)',borderRadius:14,padding:'14px 18px',marginBottom:20,fontSize:'.78rem',color:'var(--ink2)',fontWeight:500,lineHeight:1.6}}>
-          <span style={{fontSize:'1.2rem'}}>💡</span>
-          <span>Powered by Claude AI. Enter your Anthropic API key below. Get one free at <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{color:'var(--blue)',fontWeight:700}}>console.anthropic.com</a></span>
+        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'var(--violet-bg)',borderRadius:14,padding:'14px 18px',marginBottom:20,fontSize:'.78rem',color:'var(--violet)',fontWeight:500,lineHeight:1.6}}>
+          <span style={{fontSize:'1.2rem'}}>✨</span>
+          <span>This tool uses advanced AI to craft a personalized devotional just for you based on God's Word.</span>
         </div>
         <div style={{background:'var(--surface)',borderRadius:24,border:'1.5px solid var(--border)',boxShadow:'0 8px 32px rgba(0,0,0,.08)',padding:32,marginBottom:24}}>
           <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--ink3)',letterSpacing:'.5px',textTransform:'uppercase',marginBottom:10}}>Quick Topics</div>
@@ -50,13 +52,9 @@ export default function Devotional(){
             {TOPICS.map(t=>{const label=t.replace(/^.{2}\s/,'');return(<button key={t} onClick={()=>setTopic(label)} style={{fontSize:'.76rem',fontWeight:700,padding:'6px 14px',borderRadius:100,border:`1.5px solid ${topic===label?'var(--violet)':'var(--border)'}`,background:topic===label?'var(--violet-bg)':'var(--surface)',color:topic===label?'var(--violet)':'var(--ink2)',cursor:'pointer',transition:'all .2s'}}>{t}</button>)})}
           </div>
           <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--ink3)',letterSpacing:'.5px',textTransform:'uppercase',marginBottom:8}}>Or type your own</div>
-          <div style={{display:'flex',gap:11,alignItems:'center',marginBottom:14}}>
+          <div style={{display:'flex',gap:11,alignItems:'center'}}>
             <input className="input-field" placeholder="e.g. dealing with loneliness, trusting God..." value={topic} onChange={e=>setTopic(e.target.value)} onKeyDown={e=>e.key==='Enter'&&generate()} style={{flex:1}}/>
             <button className="btn btn-violet" onClick={generate} disabled={loading} style={{whiteSpace:'nowrap'}}>{loading?'...':'✨ Generate'}</button>
-          </div>
-          <div style={{display:'flex',gap:10,alignItems:'center',paddingTop:14,borderTop:'1px solid var(--border)'}}>
-            <span style={{fontSize:'.7rem',color:'var(--ink3)',fontWeight:600,whiteSpace:'nowrap'}}>API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e=>{setApiKey(e.target.value);sessionStorage.setItem('bfl_key',e.target.value)}} style={{flex:1,fontSize:'.78rem'}}/>
           </div>
         </div>
         {error&&<div style={{background:'var(--red-bg)',color:'var(--red)',borderRadius:12,padding:'10px 14px',fontSize:'.82rem',fontWeight:600,marginBottom:16}}>⚠️ {error}</div>}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const SCENES = [
   'Moses parting the Red Sea at midnight with a pillar of fire behind him',
@@ -14,7 +15,6 @@ const SCENES = [
 export default function BibleMiracleArt() {
   const [scene, setScene] = useState('')
   const [style, setStyle] = useState('renaissance')
-  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
@@ -40,17 +40,11 @@ export default function BibleMiracleArt() {
 
   async function generate() {
     if (!scene.trim()) { setError('Please describe or select a Bible scene first.'); return }
-    if (!apiKey) { setError('Enter your Anthropic API key to generate.'); return }
     setError(''); setLoading(true); setResult(null)
-    sessionStorage.setItem('bfl_key', apiKey)
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514', max_tokens: 800,
-          system: `You are a master art director specializing in Biblical artwork. When given a Bible scene and style, write a rich, detailed visual description that functions as:
+      const text = await generateAIContent({
+        system: `You are a master art director specializing in Biblical artwork. When given a Bible scene and style, write a rich, detailed visual description that functions as:
 1. A vivid painting description (colors, light, composition, figures, mood)
 2. A prompt ready to copy into Midjourney, DALL-E, or Stable Diffusion
 3. A reflection on the biblical meaning of the scene
@@ -59,13 +53,12 @@ Format your response with these three clearly labeled sections:
 🎨 PAINTING DESCRIPTION (3-4 paragraphs of rich visual prose)
 🤖 AI IMAGE PROMPT (one detailed technical prompt for image generators)
 📖 BIBLICAL REFLECTION (2 paragraphs on the spiritual meaning)`,
-          messages: [{ role: 'user', content: `Style: ${STYLE_PROMPTS[style]}\n\nScene: ${scene}` }]
-        })
+        messages: [{ role: 'user', content: `Style: ${STYLE_PROMPTS[style]}\n\nScene: ${scene}` }],
+        max_tokens: 800
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) setResult(data.content[0].text)
-      else setError(data.error?.message || 'Generation failed. Check your API key.')
-    } catch { setError('Connection failed. Check your API key.') }
+      if (text) setResult(text)
+      else setError('Generation failed. Please try again.')
+    } catch (err) { setError(err.message || 'Connection failed.') }
     setLoading(false)
   }
 
@@ -74,10 +67,10 @@ Format your response with these three clearly labeled sections:
   function renderResult(text) {
     const parts = text.split(/(🎨 PAINTING DESCRIPTION|🤖 AI IMAGE PROMPT|📖 BIBLICAL REFLECTION)/)
     return parts.map((part, i) => {
-      if (['🎨 PAINTING DESCRIPTION','🤖 AI IMAGE PROMPT','📖 BIBLICAL REFLECTION'].includes(part)) {
+      if (part === '🎨 PAINTING DESCRIPTION' || part === '🤖 AI IMAGE PROMPT' || part === '📖 BIBLICAL REFLECTION') {
         return <div key={i} style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'var(--violet)', margin: '22px 0 8px' }}>{part}</div>
       }
-      if (!part.trim()) return null
+      if (!part || !part.trim()) return null
       return <p key={i} style={{ fontSize: '.9rem', color: 'var(--ink2)', lineHeight: 1.8, fontWeight: 500, marginBottom: 12 }}>{part.trim()}</p>
     })
   }
@@ -97,7 +90,6 @@ Format your response with these three clearly labeled sections:
       </div>
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 20px' }}>
-        {/* Style picker */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 }}>
           {STYLES.map(s => (
             <div key={s.id} onClick={() => setStyle(s.id)} style={{ borderRadius: 16, padding: '14px 12px', cursor: 'pointer', border: `2px solid ${style === s.id ? 'var(--orange)' : 'var(--border)'}`, background: style === s.id ? 'var(--orange-bg)' : 'var(--surface)', textAlign: 'center', transition: 'all .2s' }}>
@@ -107,7 +99,6 @@ Format your response with these three clearly labeled sections:
           ))}
         </div>
 
-        {/* Input */}
         <div style={{ background: 'var(--surface)', borderRadius: 22, border: '1.5px solid var(--border)', boxShadow: 'var(--sh)', padding: 28, marginBottom: 20 }}>
           <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 10 }}>Quick Scenes</div>
           <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 16 }}>
@@ -119,9 +110,8 @@ Format your response with these three clearly labeled sections:
           </div>
           <textarea className="textarea-field" rows={3} placeholder='Or describe your own scene — e.g. "Shadrach, Meshach and Abednego in the furnace with the fourth figure..."' value={scene} onChange={e => setScene(e.target.value)} style={{ marginBottom: 14 }} />
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.78rem' }} />
-            <button className="btn btn-orange" onClick={generate} disabled={loading} style={{ flexShrink: 0 }}>
+            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600 }}>✨ Powered by secure AI proxy. Advanced art director active.</span>
+            <button className="btn btn-orange" onClick={generate} disabled={loading} style={{ marginLeft:'auto', flexShrink: 0 }}>
               {loading ? '...' : '🎨 Generate Art'}
             </button>
           </div>
@@ -132,7 +122,6 @@ Format your response with these three clearly labeled sections:
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <div style={{ fontSize: '3rem', marginBottom: 10, animation: 'float 2s ease-in-out infinite' }}>🎨</div>
             <p style={{ fontSize: '.9rem', color: 'var(--ink2)', fontWeight: 600 }}>Painting your Bible scene...</p>
-            <p style={{ fontSize: '.78rem', color: 'var(--ink3)', fontWeight: 500, marginTop: 5 }}>Creating {selectedStyle?.label} description</p>
           </div>
         )}
 

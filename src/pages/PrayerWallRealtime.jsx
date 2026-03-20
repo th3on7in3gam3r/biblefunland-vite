@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
 import { useT } from '../i18n/useT'
 import { SkeletonPrayerCard } from '../components/Skeleton'
+import { getPrayers, insertPrayer, incrementPrayCount } from '../lib/db'
 
 const CATS = ['General','Healing','Family','Provision','Guidance','Salvation','Praise']
 const CCOLORS = { Healing:'var(--green)', Guidance:'var(--blue)', Praise:'var(--orange)', Family:'var(--pink)', Salvation:'var(--violet)', General:'var(--yellow)', Provision:'var(--teal)' }
 const CBGS = { Healing:'var(--green-bg)', Guidance:'var(--blue-bg)', Praise:'var(--orange-bg)', Family:'var(--pink-bg)', Salvation:'var(--violet-bg)', General:'var(--yellow-bg)', Provision:'var(--teal-bg)' }
 const EMOJIS = ['🙏','👩','👨','👧','👦','🤲','✝️','💝','🌟']
 
-// Fallback local data when Supabase not connected
+// Fallback local data when backend not connected
 const FALLBACK = [
   { id: 1, name: 'Sarah M.', category: 'Healing', text: "Please pray for my mother's recovery from surgery. We believe God is the ultimate healer!", created_at: new Date(Date.now() - 2 * 3600000).toISOString(), pray_count: 14 },
   { id: 2, name: 'Anonymous', category: 'Guidance', text: "I'm at a crossroads in my career and need wisdom. Praying God would make the path clear.", created_at: new Date(Date.now() - 5 * 3600000).toISOString(), pray_count: 22 },
@@ -30,7 +30,7 @@ export default function PrayerWallRealtime() {
   const { t } = useT()
   const [prayers, setPrayers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [usingSupabase, setUsingSupabase] = useState(false)
+  const [usingBackend, setUsingBackend] = useState(false)
   const [form, setForm] = useState({ name: '', category: 'General', text: '', anon: false })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -46,43 +46,13 @@ export default function PrayerWallRealtime() {
   async function loadPrayers() {
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('prayers')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50)
-
+      const { data, error } = await getPrayers()
       if (error || !data) throw error
-
       setPrayers(data)
-      setUsingSupabase(true)
-
-      // ── Subscribe to real-time inserts ──
-      channelRef.current = supabase
-        .channel('prayers-live')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'prayers',
-        }, payload => {
-          setPrayers(prev => [payload.new, ...prev])
-          setLiveCount(c => c + 1)
-          // Flash live indicator
-          setTimeout(() => setLiveCount(c => Math.max(0, c - 1)), 4000)
-        })
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'prayers',
-        }, payload => {
-          setPrayers(prev => prev.map(p => p.id === payload.new.id ? payload.new : p))
-        })
-        .subscribe()
-
+      setUsingBackend(true)
     } catch {
-      // Supabase not connected — use local fallback
       setPrayers(FALLBACK)
-      setUsingSupabase(false)
+      setUsingBackend(false)
     }
     setLoading(false)
   }
@@ -98,10 +68,10 @@ export default function PrayerWallRealtime() {
       pray_count: 0,
     }
 
-    if (usingSupabase) {
-      const { error } = await supabase.from('prayers').insert(newPrayer)
-      if (error) console.error('Prayer insert error:', error)
-      // Real-time subscription handles adding to list
+    if (usingBackend) {
+      await insertPrayer({ name, category: form.category, text: form.text })
+      const { data } = await getPrayers()
+      if (data) setPrayers(data)
     } else {
       // Local fallback
       setPrayers(prev => [{ ...newPrayer, id: Date.now(), created_at: new Date().toISOString() }, ...prev])
@@ -117,8 +87,8 @@ export default function PrayerWallRealtime() {
     if (prayedIds.has(prayer.id)) return
     setPrayedIds(prev => new Set([...prev, prayer.id]))
 
-    if (usingSupabase) {
-      await supabase.rpc('increment_pray_count', { prayer_id: prayer.id })
+    if (usingBackend) {
+      await incrementPrayCount(prayer.id)
     } else {
       setPrayers(prev => prev.map(p =>
         p.id === prayer.id ? { ...p, pray_count: p.pray_count + 1 } : p
@@ -141,7 +111,7 @@ export default function PrayerWallRealtime() {
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 100, padding: '5px 14px' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#34D399', animation: 'pulse 1.5s ease-in-out infinite' }} />
           <span style={{ fontSize: '.72rem', fontWeight: 700, color: '#34D399' }}>
-            {usingSupabase ? t('prayer.live') + ' — Real-time Supabase' : 'Local Mode — Connect Supabase for live updates'}
+            {usingBackend ? t('prayer.live') + ' — Real-time Backend' : 'Local Mode — Connect backend for live updates'}
           </span>
           {liveCount > 0 && (
             <span style={{ background: '#34D399', color: '#064E3B', fontSize: '.65rem', fontWeight: 800, padding: '1px 7px', borderRadius: 100, animation: 'popIn .3s ease' }}>

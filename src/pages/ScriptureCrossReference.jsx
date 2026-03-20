@@ -121,7 +121,7 @@ export default function ScriptureCrossReference() {
           {selected && <button onClick={() => setSelected(null)} style={{ marginLeft: 'auto', fontSize: '.72rem', fontWeight: 700, padding: '5px 12px', borderRadius: 100, background: 'var(--surface)', border: '1.5px solid var(--border)', color: 'var(--ink3)', cursor: 'pointer' }}>Clear selection ✕</button>}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr clamp(220px,28%,280px)', gap: 16, alignItems: 'start' }}>
           {/* SVG Graph */}
           <div style={{ background: '#0B1525', borderRadius: 22, border: '1.5px solid rgba(255,255,255,.08)', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
             <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', cursor: dragging ? 'grabbing' : 'default', display: 'block' }}

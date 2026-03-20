@@ -77,7 +77,7 @@ export default function PrivacyPolicy() {
           <p style={s.p}>We collect information you provide directly and information collected automatically when you use our site.</p>
           <p style={{ ...s.p, fontWeight: 700, color: 'var(--ink)' }}>Information you provide:</p>
           <ul style={s.ul}>
-            <li style={s.li}><strong>Account information</strong> — email address and password when you create an account via Supabase Auth</li>
+            <li style={s.li}><strong>Account information</strong> — email address and password when you create an account via Clerk Auth</li>
             <li style={s.li}><strong>Profile information</strong> — display name, chosen avatar, and optional bio</li>
             <li style={s.li}><strong>Prayer requests</strong> — text you submit to the Prayer Wall (may be public)</li>
             <li style={s.li}><strong>Sermon notes</strong> — private notes stored in your account</li>
@@ -153,7 +153,7 @@ export default function PrivacyPolicy() {
           <h2 style={s.h2}>5. Third-Party Services</h2>
           <p style={s.p}>We use the following third-party services which may collect data:</p>
           <ul style={s.ul}>
-            <li style={s.li}><strong>Supabase</strong> — Database and authentication provider. <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer" style={s.link}>Privacy Policy</a></li>
+            <li style={s.li}><strong>Turso</strong> — SQLite database provider. <a href="https://turso.tech/privacy" target="_blank" rel="noreferrer" style={s.link}>Privacy Policy</a></li>
             <li style={s.li}><strong>Google Analytics</strong> — Website analytics. <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" style={s.link}>Privacy Policy</a></li>
             <li style={s.li}><strong>Google AdSense</strong> — Advertising platform. <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" style={s.link}>Privacy Policy</a></li>
             <li style={s.li}><strong>Stripe</strong> — Payment processing for Pro subscriptions. <a href="https://stripe.com/privacy" target="_blank" rel="noreferrer" style={s.link}>Privacy Policy</a></li>
@@ -230,7 +230,7 @@ export default function PrivacyPolicy() {
         <div id="sec-9" style={s.section}>
           <h2 style={s.h2}>10. Security</h2>
           <p style={s.p}>
-            We take reasonable measures to protect your personal information, including SSL/TLS encryption, Supabase Row Level Security policies, and hashed password storage. However, no method of internet transmission is 100% secure, and we cannot guarantee absolute security.
+            We take reasonable measures to protect your personal information, including SSL/TLS encryption, database security policies, and hashed password storage. However, no method of internet transmission is 100% secure, and we cannot guarantee absolute security.
           </p>
         </div>
 

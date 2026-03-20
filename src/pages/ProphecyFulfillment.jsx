@@ -151,7 +151,7 @@ export default function ProphecyFulfillment() {
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {filtered.map(p => (
               <div key={p.id} onClick={() => setSelected(selected===p.id?null:p.id)}
-                style={{ background:'var(--surface)', borderRadius:16, border:`1.5px solid ${selected===p.id?p.color:'var(--border)'}`, padding:'16px 18px', cursor:'pointer', transition:'all .22s', background:selected===p.id?p.color+'10':'var(--surface)' }}>
+                style={{ borderRadius:16, border:`1.5px solid ${selected===p.id?p.color:'var(--border)'}`, padding:'16px 18px', cursor:'pointer', transition:'all .22s', background:selected===p.id?p.color+'10':'var(--surface)' }}>
                 <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                   <div style={{ flexShrink:0, marginTop:2 }}>
                     <div style={{ width:10, height:10, borderRadius:'50%', background:p.color }} />

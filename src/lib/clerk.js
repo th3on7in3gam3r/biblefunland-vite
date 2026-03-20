@@ -21,9 +21,9 @@ export {
   SignIn,
   SignUp,
   UserButton,
+  SignedIn,
+  SignedOut,
 } from '@clerk/clerk-react'
-
-export { Show } from '../components/ClerkShow'
 
 /**
  * formatUser(clerkUser)

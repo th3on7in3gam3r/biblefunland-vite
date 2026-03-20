@@ -22,7 +22,7 @@ export function AdsProvider({ children }) {
   const [isProUser, setIsProUser] = useState(false)
   const [proChecked, setProChecked] = useState(false)
 
-  // Check Pro status from Turso
+  // Check Pro status from server
   useEffect(() => {
     if (!user) { setIsProUser(false); setProChecked(true); return }
     checkProStatus()
@@ -30,17 +30,14 @@ export function AdsProvider({ children }) {
 
   async function checkProStatus() {
     try {
-      const { data, error } = await getSubscription(user.id)
-
-      if (data && (!data.expires_at || new Date(data.expires_at) > new Date())) {
+      const { data } = await getSubscription(user.id)
+      if (data?.status === 'active' && new Date(data.expires_at) > new Date()) {
         setIsProUser(true)
       } else {
-        // Fallback: check localStorage for offline Pro flag
         const localPro = localStorage.getItem('bfl_pro_status')
         setIsProUser(localPro === 'active')
       }
-    } catch (err) {
-      console.error('Error checking pro status:', err)
+    } catch {
       const localPro = localStorage.getItem('bfl_pro_status')
       setIsProUser(localPro === 'active')
     }

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { generateAIContent } from '../lib/ai'
 
 const TOPICS = ['The Life of Jesus','Forgiveness','Prayer','Faith vs. Fear','Identity in Christ','The Holy Spirit','Money & Generosity','Marriage & Relationships','Suffering & Hope','The Armor of God','Fruits of the Spirit','Grace & Works']
 const BOOKS = ['Genesis','Psalms','Proverbs','Isaiah','Matthew','John','Romans','Ephesians','Philippians','James','Revelation']
@@ -41,34 +42,32 @@ export default function BibleStudyGenerator() {
   const [topic, setTopic] = useState('')
   const [book, setBook] = useState('')
   const [length, setLength] = useState('4 weeks (small group standard)')
-  const [apiKey, setApiKey] = useState(sessionStorage.getItem('bfl_key') || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const resultRef = useRef(null)
 
-  const weeks = parseInt(length)
-
   async function generate() {
     const subject = mode === 'topic' ? topic : `the book of ${book}`
     if (!subject.trim()) { setError('Please enter a topic or select a book.'); return }
-    if (!apiKey) { setError('Enter your Anthropic API key.'); return }
     setError(''); setLoading(true); setResult(null)
-    sessionStorage.setItem('bfl_key', apiKey)
 
     const prompt = `Create a ${length} small group Bible study on: "${subject}". Make it practical, engaging, and deeply scriptural. Each week should build on the last.`
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 3000, system: SYSTEM, messages: [{ role: 'user', content: prompt }] })
+      const text = await generateAIContent({
+        system: SYSTEM,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 3000
       })
-      const data = await res.json()
-      if (data.content?.[0]?.text) { setResult(data.content[0].text); setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100) }
-      else setError(data.error?.message || 'Generation failed.')
-    } catch { setError('Connection failed. Check API key.') }
+      if (text) {
+        setResult(text)
+        setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+      } else {
+        setError('Generation failed. Please try again.')
+      }
+    } catch (err) { setError(err.message || 'Connection failed.') }
     setLoading(false)
   }
 
@@ -95,7 +94,6 @@ export default function BibleStudyGenerator() {
 
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '36px 20px' }}>
         <div style={{ background: 'var(--surface)', borderRadius: 24, border: '1.5px solid var(--border)', boxShadow: 'var(--sh)', padding: '28px 32px', marginBottom: 20 }}>
-          {/* Mode */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
             {[['topic','💡 By Topic'],['book','📖 By Book']].map(([id,label]) => (
               <button key={id} onClick={() => setMode(id)} style={{ flex: 1, padding: '11px', borderRadius: 12, border: `2px solid ${mode === id ? 'var(--violet)' : 'var(--border)'}`, background: mode === id ? 'var(--violet-bg)' : 'var(--surface)', color: mode === id ? 'var(--violet)' : 'var(--ink3)', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.86rem', cursor: 'pointer', transition: 'all .2s' }}>{label}</button>
@@ -127,9 +125,8 @@ export default function BibleStudyGenerator() {
           </div>
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600, whiteSpace: 'nowrap' }}>🔑 API Key:</span>
-            <input type="password" className="input-field" placeholder="sk-ant-api03-..." value={apiKey} onChange={e => { setApiKey(e.target.value); sessionStorage.setItem('bfl_key', e.target.value) }} style={{ flex: 1, fontSize: '.78rem' }} />
-            <button className="btn btn-violet" onClick={generate} disabled={loading} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+            <span style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 600 }}>✨ Powered by secure AI proxy. Advanced study engine active.</span>
+            <button className="btn btn-violet" onClick={generate} disabled={loading} style={{ marginLeft: 'auto', whiteSpace: 'nowrap', flexShrink: 0 }}>
               {loading ? '⏳ Generating...' : '📖 Generate Study'}
             </button>
           </div>

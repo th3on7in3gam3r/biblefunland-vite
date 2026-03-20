@@ -42,9 +42,7 @@ export default function ScriptureRunner() {
     s.collected = []; s.running = true; s.dead = false
     s.bgX = 0; s.cloudX = 0
     setPhase('playing'); setScore(0); setCollected([])
-    
-    // Wait for React to render the canvas before starting the loop
-    setTimeout(loop, 10)
+    loop()
   }
 
   function loop() {
@@ -131,7 +129,7 @@ export default function ScriptureRunner() {
     ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H)
 
     // Clouds
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
     [[s.cloudX + 80, 50], [s.cloudX + 280, 40], [s.cloudX + 500, 60], [s.cloudX + 700, 45], [s.cloudX + 900, 55]].forEach(([cx, cy]) => {
       const x = ((cx % W) + W) % W
       ctx.beginPath(); ctx.ellipse(x, cy, 50, 25, 0, 0, Math.PI*2); ctx.fill()

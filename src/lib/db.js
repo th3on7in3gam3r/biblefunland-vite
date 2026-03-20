@@ -110,7 +110,71 @@ export async function deleteNote(id) {
   return execute(`DELETE FROM sermon_notes WHERE id = ?`, [id])
 }
 
-// ─── Badges ───────────────────────────────────────────────────────────────────
+export async function deleteChildProfile(id, parentId) {
+  return execute(`DELETE FROM child_profiles WHERE id = ? AND parent_id = ?`, [id, parentId])
+}
+
+// ── Parental Controls ─────────────────────────────────────────────────────────
+
+export async function getParentalControls(parentId) {
+  const { data } = await queryOne(
+    `SELECT * FROM parental_controls WHERE parent_id = ? LIMIT 1`,
+    [parentId]
+  )
+  if (data && data.ai_toggles) {
+    try { data.ai_toggles = JSON.parse(data.ai_toggles) } catch { data.ai_toggles = {} }
+  }
+  return { data: data || { parent_id: parentId, ai_toggles: {}, daily_limit: 0, parent_pin: '4318' } }
+}
+
+export async function upsertParentalControls(parentId, data) {
+  const { ai_toggles, daily_limit, parent_pin } = data
+  const togglesStr = JSON.stringify(ai_toggles || {})
+  const { data: existing } = await queryOne(`SELECT parent_id FROM parental_controls WHERE parent_id = ?`, [parentId])
+
+  if (existing) {
+    return execute(
+      `UPDATE parental_controls
+       SET ai_toggles = ?, daily_limit = ?, parent_pin = ?, updated_at = ?
+       WHERE parent_id = ?`,
+      [togglesStr, daily_limit ?? 0, parent_pin ?? '4318', now(), parentId]
+    )
+  } else {
+    return execute(
+      `INSERT INTO parental_controls (parent_id, ai_toggles, daily_limit, parent_pin, updated_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [parentId, togglesStr, daily_limit ?? 0, parent_pin ?? '4318', now()]
+    )
+  }
+}
+
+// ── Family Devotional Tracking ───────────────────────────────────────────────
+
+export async function getFamilyProgress(planId) {
+  return query(`SELECT * FROM family_devotional_progress WHERE plan_id = ?`, [planId])
+}
+
+export async function updateFamilyProgress(planId, childId, day, status) {
+  const completed_at = status === 'completed' ? now() : null
+  const { data: existing } = await queryOne(
+    `SELECT plan_id FROM family_devotional_progress WHERE plan_id = ? AND child_id = ? AND day_number = ?`,
+    [planId, childId, day]
+  )
+
+  if (existing) {
+    return execute(
+      `UPDATE family_devotional_progress SET status = ?, completed_at = ?
+       WHERE plan_id = ? AND child_id = ? AND day_number = ?`,
+      [status, completed_at, planId, childId, day]
+    )
+  } else {
+    return execute(
+      `INSERT INTO family_devotional_progress (plan_id, child_id, day_number, status, completed_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      [planId, childId, day, status, completed_at]
+    )
+  }
+}
 
 export async function getBadges(userId) {
   return query(
@@ -220,48 +284,402 @@ export async function getProfile(userId) {
 }
 
 export async function upsertProfile(userId, data) {
-  const { display_name, avatar_url, bio } = data
+  const { display_name, avatar_url, bio, favorite_verse, age, role, is_age_locked } = data
   const { data: existing } = await getProfile(userId)
+
+  // Turso only accepts: null, string, number, bigint, ArrayBuffer
+  // Sanitize every value — never pass undefined, NaN, or objects
+  const safeAge = (age !== null && age !== undefined && !isNaN(age)) ? Number(age) : null
 
   if (existing) {
     return execute(
-      `UPDATE profiles SET display_name = ?, avatar_url = ?, bio = ?, updated_at = ? WHERE id = ?`,
-      [display_name, avatar_url, bio, now(), userId]
+      `UPDATE profiles
+       SET display_name = ?, avatar_url = ?, bio = ?, favorite_verse = ?,
+           age = ?, role = ?, is_age_locked = ?, updated_at = ?
+       WHERE id = ?`,
+      [
+        display_name ?? existing.display_name ?? '',
+        avatar_url ?? existing.avatar_url ?? 'david',
+        bio ?? existing.bio ?? '',
+        favorite_verse ?? existing.favorite_verse ?? '',
+        safeAge ?? existing.age ?? null,
+        role ?? existing.role ?? 'General',
+        is_age_locked ?? existing.is_age_locked ?? 0,
+        now(),
+        userId
+      ]
     )
   } else {
     return execute(
-      `INSERT INTO profiles (id, display_name, avatar_url, bio, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [userId, display_name, avatar_url, bio, now(), now()]
+      `INSERT INTO profiles (id, display_name, avatar_url, bio, favorite_verse, age, role, is_age_locked, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        display_name || '',
+        avatar_url || 'david',
+        bio || '',
+        favorite_verse || '',
+        safeAge,
+        role || 'General',
+        is_age_locked != null ? Number(is_age_locked) : 0,
+        now(),
+        now()
+      ]
     )
   }
 }
 
-// ─── Reading Plans ────────────────────────────────────────────────────────────
+// ─── Child Profiles ───────────────────────────────────────────────────────────
 
-export async function getReadingProgress(userId) {
-  return query(`SELECT * FROM reading_progress WHERE user_id = ?`, [userId])
+export async function getChildProfiles(parentId) {
+  try {
+    return await query(
+      `SELECT * FROM child_profiles WHERE parent_id = ? ORDER BY created_at DESC`,
+      [parentId]
+    )
+  } catch (error) {
+    // Handle missing table or other database errors
+    if (error.message?.includes('no such table') || error.message?.includes('child_profiles')) {
+      console.warn('Child profiles table not found, returning empty array')
+      return { data: [] }
+    }
+    throw error
+  }
 }
 
-export async function updateReadingProgress(userId, planId, day, completed) {
-  // SQLite INSERT OR REPLACE pattern
-  return execute(
-    `INSERT OR REPLACE INTO reading_progress (id, user_id, plan_id, day, completed, updated_at)
-     VALUES ((SELECT id FROM reading_progress WHERE user_id = ? AND plan_id = ? AND day = ?), ?, ?, ?, ?, ?)`,
-    [userId, planId, day, userId, planId, day, completed ? 1 : 0, now()]
+export async function upsertChildProfile(parentId, data) {
+  const { display_name, avatar_url, age } = data
+  const { data: existing } = await queryOne(`SELECT id FROM child_profiles WHERE parent_id = ? AND display_name = ?`, [parentId, display_name])
+
+  if (existing) {
+    return execute(
+      `UPDATE child_profiles
+       SET display_name = ?, avatar_url = ?, age = ?, updated_at = ?
+       WHERE id = ? AND parent_id = ?`,
+      [display_name, avatar_url, age || null, now(), existing.id, parentId]
+    )
+  } else {
+    return execute(
+      `INSERT INTO child_profiles (id, parent_id, display_name, avatar_url, age, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [uid(), parentId, display_name, avatar_url || 'david', age || null, now(), now()]
+    )
+  }
+}
+
+// ─── Child Activity Tracking ───────────────────────────────────────────────────
+
+export async function getChildActivity(childId, limit = 50) {
+  return query(
+    `SELECT * FROM child_activity WHERE child_id = ? ORDER BY completed_at DESC LIMIT ?`,
+    [childId, limit]
   )
 }
 
-// ─── Community Chat ───────────────────────────────────────────────────────────
-
-export async function getMessages(room, limit = 50) {
-  return query(`SELECT * FROM messages WHERE room = ? ORDER BY created_at DESC LIMIT ?`, [room, limit])
+export async function addChildActivity(childId, activityType, activityData = null, duration = 0) {
+  try {
+    return await execute(
+      `INSERT INTO child_activity (id, child_id, activity_type, activity_data, duration, completed_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [uid(), childId, activityType, activityData ? JSON.stringify(activityData) : null, duration, now()]
+    )
+  } catch (error) {
+    // Handle missing table or other database errors
+    if (error.message?.includes('no such table') || error.message?.includes('child_activity')) {
+      console.warn('Child activity table not found, skipping activity tracking')
+      return { success: false }
+    }
+    throw error
+  }
 }
 
-export async function insertMessage(userId, room, text, userDisplayName) {
-  return execute(
-    `INSERT INTO messages (id, user_id, room, text, user_name, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [uid(), userId, room, text, userDisplayName, now()]
+export async function getChildActivityStats(childId, days = 7) {
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - days)
+  const cutoffStr = cutoff.toISOString().split('T')[0]
+  
+  return query(
+    `SELECT 
+      activity_type,
+      COUNT(*) as count,
+      SUM(duration) as total_duration,
+      DATE(completed_at) as date
+    FROM child_activity 
+    WHERE child_id = ? AND completed_at >= ?
+    GROUP BY activity_type, DATE(completed_at)
+    ORDER BY date DESC, activity_type`,
+    [childId, cutoffStr]
   )
+}
+
+// ─── Scripture Memory Verses ──────────────────────────────────────────────────
+
+export async function getMemoryVerses(userId, userType = 'parent') {
+  return query(
+    `SELECT * FROM memory_verses 
+     WHERE assigned_to = ? AND user_type = ? 
+     ORDER BY assigned_date DESC`,
+    [userId, userType]
+  )
+}
+
+export async function addMemoryVerse(verseData) {
+  const {
+    reference, text, category, difficulty, assigned_by, 
+    assigned_to, user_type, status, assigned_date, progress = 0
+  } = verseData
+
+  return execute(
+    `INSERT INTO memory_verses (
+      id, reference, text, category, difficulty, assigned_by,
+      assigned_to, user_type, status, assigned_date, progress, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      uid(), reference, text, category, difficulty, assigned_by,
+      assigned_to, user_type, status, assigned_date, progress, now()
+    ]
+  )
+}
+
+export async function updateMemoryVerse(verseId, updates) {
+  const fields = []
+  const values = []
+
+  Object.entries(updates).forEach(([key, value]) => {
+    fields.push(`${key} = ?`)
+    values.push(value)
+  })
+
+  values.push(verseId)
+
+  return execute(
+    `UPDATE memory_verses SET ${fields.join(', ')}, updated_at = ? WHERE id = ?`,
+    [...values, now()]
+  )
+}
+
+export async function deleteMemoryVerse(verseId) {
+  return execute(`DELETE FROM memory_verses WHERE id = ?`, [verseId])
+}
+
+export async function getMemoryVerseStats(userId, userType = 'parent') {
+  return query(
+    `SELECT 
+      status,
+      difficulty,
+      category,
+      COUNT(*) as count,
+      AVG(progress) as avg_progress
+    FROM memory_verses 
+    WHERE assigned_to = ? AND user_type = ?
+    GROUP BY status, difficulty, category`,
+    [userId, userType]
+  )
+}
+
+// ─── Family Devotional Plans ──────────────────────────────────────────────────
+
+export async function getFamilyPlans(parentId) {
+  return query(
+    `SELECT * FROM family_devotional_progress 
+     WHERE parent_id = ? 
+     ORDER BY created_at DESC`,
+    [parentId]
+  )
+}
+
+export async function upsertFamilyPlan(parentId, data) {
+  const { title, total_days } = data
+  const { data: existing } = await queryOne(
+    `SELECT id FROM family_devotional_progress WHERE parent_id = ? AND title = ?`,
+    [parentId, title]
+  )
+
+  if (existing) {
+    return execute(
+      `UPDATE family_devotional_progress 
+       SET total_days = ?, updated_at = ? 
+       WHERE id = ? AND parent_id = ?`,
+      [total_days, now(), existing.id, parentId]
+    )
+  } else {
+    return execute(
+      `INSERT INTO family_devotional_progress (id, parent_id, title, total_days, current_day, completed_days, created_at, updated_at)
+       VALUES (?, ?, ?, ?, 0, '[]', ?, ?)`,
+      [uid(), parentId, title, total_days, now(), now()]
+    )
+  }
+}
+
+// ─── Teacher Classroom System ───────────────────────────────────────────────────
+
+export async function getTeacherClassrooms(teacherId) {
+  return query(
+    `SELECT c.*, 
+            (SELECT COUNT(*) FROM classroom_students WHERE classroom_id = c.id) as student_count
+     FROM classrooms c 
+     WHERE c.teacher_id = ? 
+     ORDER BY c.created_at DESC`,
+    [teacherId]
+  )
+}
+
+export async function createClassroom(classroomData) {
+  const {
+    teacher_id, name, grade_level, subject, description, max_students, settings
+  } = classroomData
+
+  return execute(
+    `INSERT INTO classrooms (
+      id, teacher_id, name, grade_level, subject, description, 
+      max_students, settings, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      uid(), teacher_id, name, grade_level, subject, description,
+      max_students, JSON.stringify(settings), now(), now()
+    ]
+  )
+}
+
+export async function getClassroomWithStudents(classroomId) {
+  return query(
+    `SELECT c.*, 
+            JSON_GROUP_ARRAY(
+              JSON_OBJECT(
+                'id', s.id,
+                'student_name', s.student_name,
+                'parent_email', s.parent_email,
+                'grade', s.grade,
+                'age', s.age,
+                'notes', s.notes,
+                'joined_at', s.joined_at
+              )
+            ) as students
+     FROM classrooms c
+     LEFT JOIN classroom_students s ON c.id = s.classroom_id
+     WHERE c.id = ?
+     GROUP BY c.id`,
+    [classroomId]
+  )
+}
+
+export async function addStudentToClassroom(studentData) {
+  const {
+    classroom_id, student_name, parent_email, grade, age, notes
+  } = studentData
+
+  return execute(
+    `INSERT INTO classroom_students (
+      id, classroom_id, student_name, parent_email, grade, age, notes, joined_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [uid(), classroom_id, student_name, parent_email, grade, age, notes, now()]
+  )
+}
+
+export async function removeStudentFromClassroom(studentId) {
+  return execute(`DELETE FROM classroom_students WHERE id = ?`, [studentId])
+}
+
+export async function assignActivityToClassroom(activityData) {
+  const {
+    classroom_id, title, description, type, content, due_date, points, difficulty
+  } = activityData
+
+  return execute(
+    `INSERT INTO classroom_activities (
+      id, classroom_id, title, description, type, content, 
+      due_date, points, difficulty, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      uid(), classroom_id, title, description, type, content,
+      due_date, points, difficulty, now()
+    ]
+  )
+}
+
+export async function getClassroomProgress(classroomId) {
+  return query(
+    `SELECT 
+        c.id as classroom_id,
+        c.name as classroom_name,
+        COUNT(s.id) as total_students,
+        COUNT(DISTINCT a.id) as total_activities,
+        COUNT(DISTINCT sub.id) as completed_submissions,
+        AVG(CASE WHEN sub.completed_at IS NOT NULL THEN sub.points_earned END) as avg_score
+     FROM classrooms c
+     LEFT JOIN classroom_students s ON c.id = s.classroom_id
+     LEFT JOIN classroom_activities a ON c.id = a.classroom_id
+     LEFT JOIN classroom_submissions sub ON a.id = sub.activity_id
+     WHERE c.id = ?
+     GROUP BY c.id`,
+    [classroomId]
+  )
+}
+
+export async function updateClassroomSettings(classroomId, settings) {
+  return execute(
+    `UPDATE classrooms 
+     SET settings = ?, updated_at = ? 
+     WHERE id = ?`,
+    [JSON.stringify(settings), now(), classroomId]
+  )
+}
+
+// ─── Family Challenges System ───────────────────────────────────────────────────
+
+export async function createFamilyChallenge(challengeData) {
+  const {
+    id, family_id, challenge_id, participants, start_date, end_date, progress, status
+  } = challengeData
+
+  return execute(
+    `INSERT INTO family_challenges (
+      id, family_id, challenge_id, participants, start_date, end_date, 
+      progress, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id, family_id, challenge_id, JSON.stringify(participants), start_date, end_date,
+      JSON.stringify(progress), status, now(), now()
+    ]
+  )
+}
+
+export async function updateFamilyChallengeProgress(challengeData) {
+  const { id, progress, status, completed_date } = challengeData
+
+  return execute(
+    `UPDATE family_challenges 
+     SET progress = ?, status = ?, completed_date = ?, updated_at = ? 
+     WHERE id = ?`,
+    [JSON.stringify(progress), status, completed_date, now(), id]
+  )
+}
+
+export async function getFamilyChallenges(familyId) {
+  return query(
+    `SELECT * FROM family_challenges 
+     WHERE family_id = ? 
+     ORDER BY created_at DESC`,
+    [familyId]
+  )
+}
+
+export async function addBadge(userId, badgeName, badgeIcon) {
+  return execute(
+    `INSERT INTO badges (id, user_id, badge_id, icon, earned_at) 
+     VALUES (?, ?, ?, ?, ?)`,
+    [uid(), userId, badgeName, badgeIcon, now()]
+  )
+}
+
+export async function updatePoints(userId, points) {
+  // This would update a user points table
+  console.log(`Adding ${points} points to user ${userId}`)
+  return { success: true }
+}
+
+export async function unlockContent(userId, contentId) {
+  // This would unlock premium content for the user
+  console.log(`Unlocking content ${contentId} for user ${userId}`)
+  return { success: true }
 }

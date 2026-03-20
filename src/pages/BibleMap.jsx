@@ -20,7 +20,7 @@ export default function BibleMap(){
         <p style={{color:'rgba(255,255,255,.6)',fontSize:'.9rem',fontWeight:500}}>Click any location to explore Bible stories, history, and key scriptures.</p>
       </div>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'44px 24px'}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:24,alignItems:'start'}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr clamp(240px,30%,340px)',gap:24,alignItems:'start'}}>
           {/* Map SVG */}
           <div style={{background:'var(--surface)',borderRadius:24,border:'1.5px solid var(--border)',boxShadow:'0 8px 32px rgba(0,0,0,.08)',overflow:'hidden'}}>
             <svg viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg" style={{width:'100%',height:'auto',display:'block',background:'linear-gradient(180deg,#87CEEB 0%,#E0F4FF 30%,#C8E6C9 45%,#A5D6A7 60%,#81C784 75%,#B8860B 100%)'}}>

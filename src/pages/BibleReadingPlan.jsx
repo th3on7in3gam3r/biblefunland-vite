@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useBadges } from '../context/BadgeContext'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
 
 // ── Reading Plans ──────────────────────────────────────────────────────
 const PLANS = [

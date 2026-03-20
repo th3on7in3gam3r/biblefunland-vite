@@ -4,6 +4,8 @@ import { useStreak } from '../context/StreakContext'
 import { useBadges, BADGE_DEFS, RARITY_COLORS } from '../context/BadgeContext'
 import { useT }      from '../i18n/useT'
 import { Link }      from 'react-router-dom'
+import { useKidsMode } from '../context/KidsModeContext'
+import { useBedtimeMode } from '../context/BedtimeModeContext'
 import * as db       from '../lib/db'
 
 // ── Avatar roster ─────────────────────────────────────────────────────────────
@@ -57,9 +59,11 @@ function getMemberSince(user) {
 }
 
 export default function Profile() {
-  const { user }   = useAuth()
+  const { user, signOut } = useAuth()
   const { streak, readDays, checkinCount, checkedToday, checkIn } = useStreak()
-  const { earned, hasBadge } = useBadges()
+  const { earned } = useBadges()
+  const { kidsMode, requestToggle } = useKidsMode()
+  const { bedtimeMode, bedtimeSettings, toggleBedtimeMode, updateBedtimeSettings, isBedtime } = useBedtimeMode()
   const { t } = useT()
 
   // ── Profile form ─────────────────────────────────────────────────────────
@@ -68,10 +72,17 @@ export default function Profile() {
     displayName:  '',
     bio:          '',
     favoriteVerse:'',
+    age:          '',
+    role:         'General',
+    is_age_locked: 0,
     ...getLocal('bfl_profile', {}),
   }))
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
+  const [saveError, setSaveError] = useState(null)
+  const [kidsModal, setKidsModal] = useState(false)
+  const [children, setChildren] = useState([])
+  const [childForm, setChildForm] = useState({ name:'', age:'', avatar:'david' }) // Default avatar for child
 
   // ── UI state ─────────────────────────────────────────────────────────────
   const [tab,          setTab]          = useState('profile')
@@ -99,27 +110,99 @@ export default function Profile() {
   const bestDayIdx = dayCount.indexOf(Math.max(...dayCount))
 
   // ── Load Turso profile + subscription ────────────────────────────────────
+  const [profileLoaded, setProfileLoaded] = useState(false)
+
   useEffect(() => {
     if (!user?.id) return
     db.getProfile(user.id).then(({ data }) => {
       if (data) {
-        const p = { avatar: data.avatar_url||'david', displayName: data.display_name||'', bio: data.bio||'', favoriteVerse: data.favorite_verse||'' }
-        setProfile(p); saveLocal('bfl_profile', p)
+        const p = {
+          avatar: data.avatar_url || 'david',
+          displayName: data.display_name || '',
+          bio: data.bio || '',
+          favoriteVerse: data.favorite_verse || '',
+          age: data.age || '',
+          role: data.role || 'General',
+          is_age_locked: data.is_age_locked || 0
+        }
+        setProfile(p)
+        saveLocal('bfl_profile', p)
       }
-    }).catch(() => {})
+      setProfileLoaded(true)
+    }).catch(() => { setProfileLoaded(true) })
+
+    db.getChildProfiles(user.id).then(({ data }) => {
+      if (data) setChildren(data)
+    }).catch((err) => {
+      if (err.message?.includes('no such table')) {
+        console.warn('Child profiles table not available')
+      }
+      setChildren([])
+    })
     db.getSubscription(user.id).then(({ data }) => {
       if (data?.status === 'active') setIsPro(true)
     }).catch(() => {})
-  }, [user?.id])
+  }, [user?.id]) // only runs once when user loads — does NOT re-run on typing
 
   async function save() {
-    saveLocal('bfl_profile', profile)
+    // If age is set and not previously locked, lock it now
+    const willLockAge = profile.age && !profile.is_age_locked
+    const updatedProfile = {
+      ...profile,
+      is_age_locked: willLockAge ? 1 : profile.is_age_locked
+    }
+
+    // Auto Kids Mode logic
+    if (updatedProfile.age && parseInt(updatedProfile.age) < 13 && !kidsMode) {
+      requestToggle('enable')
+    }
+
+    setProfile(updatedProfile)
+    saveLocal('bfl_profile', updatedProfile)
+
     if (user?.id) {
       setSaving(true)
-      await db.upsertProfile(user.id, { display_name: profile.displayName, avatar_url: profile.avatar, bio: profile.bio, favorite_verse: profile.favoriteVerse }).catch(() => {})
+      setSaveError(null)
+      const { error } = await db.upsertProfile(user.id, {
+        display_name: updatedProfile.displayName,
+        avatar_url: updatedProfile.avatar,
+        bio: updatedProfile.bio,
+        favorite_verse: updatedProfile.favoriteVerse,
+        age: updatedProfile.age !== '' && updatedProfile.age != null ? parseInt(updatedProfile.age) || null : null,
+        role: updatedProfile.role,
+        is_age_locked: updatedProfile.is_age_locked
+      })
       setSaving(false)
+      if (error) {
+        console.error('[Profile save]', error)
+        setSaveError(error.message || 'Failed to save — check console')
+        return
+      }
     }
     setSaved(true); setTimeout(() => setSaved(false), 2500)
+  }
+
+  async function addChild() {
+    if (!childForm.name.trim() || !user?.id) return
+    try {
+      await db.upsertChildProfile(user.id, { 
+        display_name: childForm.name, 
+        age: childForm.age ? parseInt(childForm.age) : null,
+        avatar_url: childForm.avatar
+      })
+      const { data } = await db.getChildProfiles(user.id)
+      setChildren(data || [])
+      setChildForm({ name:'', age:'', avatar:'david' }) // Reset to default avatar
+    } catch (e) {
+      alert(e.message)
+    }
+  }
+
+  async function deleteChild(id) {
+    if (!user?.id || !window.confirm("Remove this child profile?")) return
+    await db.deleteChildProfile(id, user.id)
+    const { data } = await db.getChildProfiles(user.id)
+    setChildren(data || [])
   }
 
   function copyShareCard() {
@@ -225,7 +308,7 @@ export default function Profile() {
             {/* Info fields */}
             <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:24, boxShadow:'var(--sh)' }}>
               <div style={{ fontSize:'.68rem', fontWeight:800, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:1, marginBottom:16 }}>Profile Info</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:12, marginBottom:12 }}>
                 <div>
                   <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Display Name</label>
                   <input className="input-field" placeholder={user?.email?.split('@')[0]||'Your name...'} value={profile.displayName} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} />
@@ -233,6 +316,44 @@ export default function Profile() {
                 <div>
                   <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Favorite Verse</label>
                   <input className="input-field" placeholder="e.g. Jer 29:11 or Phil 4:13..." value={profile.favoriteVerse} onChange={e=>setProfile(p=>({...p,favoriteVerse:e.target.value}))} />
+                </div>
+              </div>
+
+              <div style={{ display:'grid', gridTemplateColumns:'120px 1fr', gap:12, marginBottom:16 }}>
+                <div>
+                  <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Age {profile.is_age_locked ? '🔒' : ''}</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    placeholder="Years"
+                    value={profile.age}
+                    onChange={e=>setProfile(p=>({...p,age:e.target.value}))}
+                    disabled={profile.is_age_locked === 1}
+                    style={{ background: profile.is_age_locked ? 'var(--bg2)' : 'var(--surface)', cursor: profile.is_age_locked ? 'not-allowed' : 'text' }}
+                  />
+                  {profile.is_age_locked === 0 && profile.age && (
+                    <div style={{ fontSize:'.55rem', color:'var(--red)', fontWeight:600, marginTop:4 }}>⚠️ Locked after first save</div>
+                  )}
+                </div>
+                <div>
+                  <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Account Role</label>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {['General', 'Parent', 'Teacher'].map(r => (
+                      <button
+                        key={r}
+                        onClick={() => setProfile(p => ({ ...p, role: r }))}
+                        style={{
+                          flex: 1, padding: '8px', borderRadius: 10,
+                          border: `1.5px solid ${profile.role === r ? 'var(--blue)' : 'var(--border)'}`,
+                          background: profile.role === r ? 'var(--blue-bg)' : 'var(--surface)',
+                          color: profile.role === r ? 'var(--blue)' : 'var(--ink3)',
+                          fontSize: '.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all .2s'
+                        }}
+                      >
+                        {r === 'Parent' ? '👨‍👩‍👧 Parent' : r === 'Teacher' ? '🏫 Teacher' : '👤 User'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div style={{ marginBottom:20 }}>
@@ -243,8 +364,119 @@ export default function Profile() {
                 <button className="btn btn-blue" onClick={save} disabled={saving}>
                   {saving?'⏳ Saving...':saved?'✅ Saved!':'💾 Save Profile'}
                 </button>
+                {saveError && <p style={{ fontSize:'.76rem', color:'var(--red)', fontWeight:600, margin:0 }}>⚠️ {saveError}</p>}
                 {!user && <p style={{ fontSize:'.76rem', color:'var(--ink3)', fontWeight:500, margin:0 }}><Link to="/auth" style={{ color:'var(--blue)', fontWeight:700 }}>Sign in</Link> to sync across devices</p>}
-                {user && !saving && <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:'.7rem', fontWeight:600, color:'var(--green)' }}><div style={{ width:7, height:7, borderRadius:'50%', background:'var(--green)', animation:'pulse 2s ease-in-out infinite' }} /> Cloud Sync Active</div>}
+                {user && !saving && !saveError && <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:'.7rem', fontWeight:600, color:'var(--green)' }}><div style={{ width:7, height:7, borderRadius:'50%', background:'var(--green)', animation:'pulse 2s ease-in-out infinite' }} /> Cloud Sync Active</div>}
+              </div>
+            </div>
+
+            {/* ── Bedtime Mode card ─────────────────────────────────────── */}
+            <div style={{
+              borderRadius:24,
+              border:`1.5px solid ${bedtimeMode ? 'rgba(159,122,234,.4)' : 'var(--border)'}`,
+              padding:'20px 24px',
+              boxShadow:'var(--sh)',
+              background: bedtimeMode
+                ? 'linear-gradient(135deg,rgba(159,122,234,.06),rgba(139,92,246,.04))'
+                : 'var(--surface)'
+            }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:10 }}>
+                <div>
+                  <div style={{ fontSize:'.68rem', fontWeight:800, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>🌙 Bedtime Mode</div>
+                  <div style={{ fontSize:'.8rem', color:'var(--ink2)', fontWeight:500 }}>
+                    {bedtimeMode ? 'Active — calm mode is on' : 'Peaceful late-night devotionals'}
+                  </div>
+                </div>
+                {/* Master toggle — plain button, no label wrapper */}
+                <button
+                  onClick={toggleBedtimeMode}
+                  style={{
+                    display:'flex', alignItems:'center', gap:10,
+                    background:'none', border:'none', cursor:'pointer', padding:0
+                  }}
+                >
+                  <span style={{ fontSize:'.8rem', fontWeight:700, color: bedtimeMode ? '#9F7AEA' : 'var(--ink3)' }}>
+                    {bedtimeMode ? 'ON' : 'OFF'}
+                  </span>
+                  <div style={{
+                    width:52, height:28, borderRadius:14,
+                    background: bedtimeMode ? 'linear-gradient(135deg,#9F7AEA,#8B5CF6)' : 'var(--bg3)',
+                    border:`2px solid ${bedtimeMode ? '#9F7AEA' : 'var(--border)'}`,
+                    position:'relative', transition:'all .3s',
+                    boxShadow: bedtimeMode ? '0 0 12px rgba(159,122,234,.3)' : 'none'
+                  }}>
+                    <div style={{
+                      position:'absolute', top:3, left: bedtimeMode ? 26 : 3,
+                      width:18, height:18, borderRadius:'50%',
+                      background: bedtimeMode ? 'white' : 'var(--ink3)',
+                      transition:'left .3s', boxShadow:'0 2px 4px rgba(0,0,0,.2)'
+                    }} />
+                  </div>
+                </button>
+              </div>
+
+              {/* Quick settings row */}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:16 }}>
+                {[
+                  { key:'dimUI',            label:'Dim UI',           icon:'🌑' },
+                  { key:'calmContent',      label:'Calm Colors',      icon:'🎨' },
+                  { key:'showBedtimeStory', label:'Bedtime Stories',  icon:'📖' },
+                  { key:'quietSounds',      label:'Ambient Sounds',   icon:'🎵' },
+                ].map(({ key, label, icon }) => (
+                  <div
+                    key={key}
+                    onClick={() => updateBedtimeSettings({ [key]: !bedtimeSettings[key] })}
+                    style={{
+                      display:'flex', alignItems:'center', gap:10, padding:'10px 14px',
+                      borderRadius:12, cursor:'pointer', transition:'all .2s',
+                      border:`1.5px solid ${bedtimeSettings[key] ? 'rgba(159,122,234,.4)' : 'var(--border)'}`,
+                      background: bedtimeSettings[key] ? 'rgba(159,122,234,.08)' : 'var(--bg2)',
+                    }}
+                  >
+                    <span style={{ fontSize:'1.1rem' }}>{icon}</span>
+                    <span style={{ fontSize:'.78rem', fontWeight:700, color: bedtimeSettings[key] ? '#9F7AEA' : 'var(--ink3)' }}>{label}</span>
+                    <div style={{
+                      marginLeft:'auto', width:14, height:14, borderRadius:'50%',
+                      background: bedtimeSettings[key] ? '#9F7AEA' : 'var(--bg3)',
+                      border:`2px solid ${bedtimeSettings[key] ? '#9F7AEA' : 'var(--border)'}`,
+                      transition:'all .2s', flexShrink:0
+                    }} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Schedule row */}
+              <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 14px', borderRadius:12, background:'var(--bg2)', border:'1.5px solid var(--border)', marginBottom:14 }}>
+                <span style={{ fontSize:'1.1rem' }}>⏰</span>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:'.75rem', fontWeight:700, color:'var(--ink)', marginBottom:2 }}>Auto Schedule</div>
+                  <div style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:500 }}>
+                    {bedtimeSettings.autoEnable && bedtimeSettings.enabled
+                      ? `${bedtimeSettings.bedtime} → ${bedtimeSettings.wakeTime}`
+                      : 'Not scheduled'}
+                  </div>
+                </div>
+                {isBedtime && (
+                  <div style={{ fontSize:'.65rem', fontWeight:800, padding:'3px 8px', borderRadius:100, background:'rgba(159,122,234,.15)', color:'#9F7AEA', border:'1px solid rgba(159,122,234,.3)' }}>
+                    🌙 Active Now
+                  </div>
+                )}
+              </div>
+
+              {/* Links */}
+              <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                <Link
+                  to="/bedtime-settings"
+                  style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'10px 16px', borderRadius:12, background:'linear-gradient(135deg,rgba(159,122,234,.15),rgba(139,92,246,.1))', border:'1.5px solid rgba(159,122,234,.3)', color:'#9F7AEA', fontWeight:700, fontSize:'.8rem', textDecoration:'none' }}
+                >
+                  ⚙️ Full Settings
+                </Link>
+                <Link
+                  to="/bedtime"
+                  style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'10px 16px', borderRadius:12, background:'linear-gradient(135deg,rgba(30,58,95,.8),rgba(45,27,105,.8))', border:'1.5px solid rgba(165,180,252,.2)', color:'#A5B4FC', fontWeight:700, fontSize:'.8rem', textDecoration:'none' }}
+                >
+                  🌙 Open Sleep Mode
+                </Link>
               </div>
             </div>
 
@@ -257,13 +489,19 @@ export default function Profile() {
                     <div style={{ fontSize:'.82rem', fontWeight:600, color:'var(--ink2)' }}>{user.email}</div>
                     <div style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:500, marginTop:2 }}>{getMemberSince(user)}</div>
                   </div>
-                  {isPro
-                    ? <div style={{ background:'linear-gradient(135deg,rgba(245,158,11,.15),rgba(249,115,22,.1))', border:'1px solid rgba(245,158,11,.3)', borderRadius:100, padding:'6px 14px', fontSize:'.72rem', fontWeight:800, color:'#F59E0B' }}>💎 Pro Member</div>
-                    : <Link to="/premium" className="btn btn-orange btn-sm">💎 Upgrade to Pro</Link>
-                  }
+                  <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                    {isPro
+                      ? <div style={{ background:'linear-gradient(135deg,rgba(245,158,11,.15),rgba(249,115,22,.1))', border:'1px solid rgba(245,158,11,.3)', borderRadius:100, padding:'6px 14px', fontSize:'.72rem', fontWeight:800, color:'#F59E0B' }}>💎 Pro Member</div>
+                      : <Link to="/premium" className="btn btn-orange btn-sm">💎 Upgrade to Pro</Link>
+                    }
+                    <button onClick={signOut} className="btn btn-red btn-sm" style={{ fontSize:'.72rem', fontWeight:700 }}>
+                      🚪 Log Out
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
+
           </div>
         )}
 
