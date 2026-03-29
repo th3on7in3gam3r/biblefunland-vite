@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 
 router.post('/send', async (req, res) => {
   const { from, to, subject, html, text } = req.body;
