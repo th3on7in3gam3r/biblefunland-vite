@@ -151,6 +151,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend listening at http://localhost:${PORT}`);
-});
+// Only start HTTP server when running locally — Vercel handles this in serverless mode
+if (process.env.NODE_ENV !== 'production' || require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend listening at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
