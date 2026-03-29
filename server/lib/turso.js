@@ -7,23 +7,22 @@ const { createClient } = require('@libsql/client');
 const path = require('path');
 require('dotenv').config();
 
+const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
+// Local fallback ONLY in development
 const localDbPath = path.join(__dirname, '../local.db');
 const localUrl = `file:${localDbPath}`;
 
 if (!url || !authToken) {
-  console.warn(
-    '⚠️  Turso environment variables not set.\n' +
-    'Add to your server/.env file:\n' +
-    '  TURSO_DATABASE_URL=libsql://your-db.turso.io\n' +
-    '  TURSO_AUTH_TOKEN=your-token\n' +
-    'Get both from: turso.tech → your database → Connect button'
-  );
+  if (isProd) {
+    console.error('❌ CRITICAL ERROR: Turso environment variables are MISSING in production!');
+  } else {
+    console.warn('⚠️  Turso environment variables not set. Falling back to local DB.');
+  }
 }
 
-console.log('🚀 Turso connecting to:', url || localUrl);
 const client = createClient({
   url: url || localUrl,
   authToken: authToken || undefined,
