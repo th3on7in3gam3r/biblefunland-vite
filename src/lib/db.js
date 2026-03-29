@@ -348,7 +348,7 @@ export async function getChildProfiles(parentId, skipCache = false) {
     if (skipCache) {
       // Bypass cache by calling the API directly
       const API_URL =
-        import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+        import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
       const response = await fetch(`${API_URL}/db/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -539,7 +539,7 @@ export async function getFamilyPlans(parentId, skipCache = false) {
   if (skipCache) {
     // Bypass cache by calling the API directly
     const API_URL =
-      import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+      import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
     const response = await fetch(`${API_URL}/db/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

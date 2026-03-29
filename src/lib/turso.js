@@ -9,7 +9,7 @@
  */
 
 const API_URL =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
 
 /**
  * Make a database API call to the backend - direct execution without queuing
