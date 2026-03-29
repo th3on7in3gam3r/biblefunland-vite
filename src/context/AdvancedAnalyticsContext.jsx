@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { useChildSwitcher } from './ChildSwitcherContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const AdvancedAnalyticsContext = createContext(null)
 
@@ -67,7 +68,12 @@ export function AdvancedAnalyticsProvider({ children }) {
   // Analyze learning patterns
   const analyzeLearningPatterns = async (userId) => {
     try {
-      const { data: activities } = await db.getChildActivity(userId, 200)
+      const result = await requestQueue.execute(
+        `learning-patterns:${userId}`,
+        () => db.getChildActivity(userId, 200),
+        { priority: 5, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      const activities = result?.data
       if (!activities || activities.length === 0) return []
 
       const patterns = []
@@ -268,9 +274,27 @@ export function AdvancedAnalyticsProvider({ children }) {
   // Generate progress insights
   const generateProgressInsights = async (userId) => {
     try {
-      const { data: activities } = await db.getChildActivity(userId, 100)
-      const { data: memoryVerses } = await db.getMemoryVerses(userId, 'child')
-      const { data: badges } = await db.getBadges(userId)
+      const [activitiesResult, versesResult, badgesResult] = await Promise.all([
+        requestQueue.execute(
+          `progress-activities:${userId}`,
+          () => db.getChildActivity(userId, 100),
+          { priority: 5, cacheable: true, ttl: 10 * 60 * 1000 }
+        ),
+        requestQueue.execute(
+          `progress-verses:${userId}`,
+          () => db.getMemoryVerses(userId, 'child'),
+          { priority: 6, cacheable: true, ttl: 15 * 60 * 1000 }
+        ),
+        requestQueue.execute(
+          `progress-badges:${userId}`,
+          () => db.getBadges(userId),
+          { priority: 6, cacheable: true, ttl: 15 * 60 * 1000 }
+        )
+      ])
+
+      const activities = activitiesResult?.data
+      const memoryVerses = versesResult?.data
+      const badges = badgesResult?.data
 
       const insights = {}
 
@@ -302,7 +326,12 @@ export function AdvancedAnalyticsProvider({ children }) {
   // Calculate performance metrics
   const calculatePerformanceMetrics = async (userId) => {
     try {
-      const { data: activities } = await db.getChildActivity(userId, 200)
+      const result = await requestQueue.execute(
+        `perf-metrics-activities:${userId}`,
+        () => db.getChildActivity(userId, 200),
+        { priority: 5, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      const activities = result?.data
       
       const metrics = {}
 
@@ -379,7 +408,12 @@ export function AdvancedAnalyticsProvider({ children }) {
   // Analyze trends
   const analyzeTrends = async (userId) => {
     try {
-      const { data: activities } = await db.getChildActivity(userId, 200)
+      const result = await requestQueue.execute(
+        `trends-activities:${userId}`,
+        () => db.getChildActivity(userId, 200),
+        { priority: 5, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      const activities = result?.data
       
       const trends = {}
 
@@ -608,8 +642,12 @@ export function AdvancedAnalyticsProvider({ children }) {
 
   const getSharedActivities = async (userId) => {
     try {
-      const { data } = await db.getChildActivity(userId, 50)
-      return data?.filter(a => a.activity_data?.shared)?.length || 0
+      const result = await requestQueue.execute(
+        `shared-activities:${userId}`,
+        () => db.getChildActivity(userId, 50),
+        { priority: 7, cacheable: true, ttl: 5 * 60 * 1000 }
+      )
+      return result?.data?.filter(a => a.activity_data?.shared)?.length || 0
     } catch { return 0 }
   }
 
@@ -623,15 +661,23 @@ export function AdvancedAnalyticsProvider({ children }) {
 
   const getPrayerFrequency = async (userId) => {
     try {
-      const { data } = await db.getChildActivity(userId, 100)
-      return data?.filter(a => a.activity_type === 'prayer')?.length || 0
+      const result = await requestQueue.execute(
+        `prayer-frequency:${userId}`,
+        () => db.getChildActivity(userId, 100),
+        { priority: 7, cacheable: true, ttl: 5 * 60 * 1000 }
+      )
+      return result?.data?.filter(a => a.activity_type === 'prayer')?.length || 0
     } catch { return 0 }
   }
 
   const getScriptureEngagement = async (userId) => {
     try {
-      const { data } = await db.getChildActivity(userId, 100)
-      return data?.filter(a => ['bible_reading', 'memory_verse', 'devotional'].includes(a.activity_type))?.length || 0
+      const result = await requestQueue.execute(
+        `scripture-engagement:${userId}`,
+        () => db.getChildActivity(userId, 100),
+        { priority: 7, cacheable: true, ttl: 5 * 60 * 1000 }
+      )
+      return result?.data?.filter(a => ['bible_reading', 'memory_verse', 'devotional'].includes(a.activity_type))?.length || 0
     } catch { return 0 }
   }
 

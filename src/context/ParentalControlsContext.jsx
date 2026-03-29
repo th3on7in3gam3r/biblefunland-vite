@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const ParentalControlsContext = createContext(null)
 
@@ -13,7 +14,11 @@ export function ParentalControlsProvider({ children }) {
   // Fetch controls when user/profile changes
   useEffect(() => {
     if (user?.id) {
-      db.getParentalControls(user.id).then(({ data }) => {
+      requestQueue.execute(
+        `parental-controls:${user.id}`,
+        () => db.getParentalControls(user.id),
+        { priority: 3, cacheable: true, ttl: 15 * 60 * 1000 }
+      ).then(({ data }) => {
         if (data) setControls(data)
       }).catch(() => {})
     }
@@ -28,6 +33,7 @@ export function ParentalControlsProvider({ children }) {
           if (next >= controls.daily_limit) {
             setIsTimeUp(true)
             clearInterval(interval)
+            return next
           }
           return next
         })

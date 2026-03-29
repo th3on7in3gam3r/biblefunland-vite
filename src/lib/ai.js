@@ -5,7 +5,7 @@
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
-export async function generateAIContent({ system, messages, model = 'claude-3-5-sonnet-20240620', max_tokens = 500 }) {
+export async function generateAIContent({ system, messages, model = 'claude-3-5-sonnet-20241022', max_tokens = 500 }) {
   try {
     const response = await fetch(`${API_URL}/api/ai/chat`, {
       method: 'POST',

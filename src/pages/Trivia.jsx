@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { addChildActivity } from '../lib/db'
 
 const QUESTIONS = {
   beginner:[
@@ -41,6 +43,7 @@ const QUESTIONS = {
 }
 
 export default function Trivia(){
+  const { user } = useAuth()
   const[phase,setPhase]=useState('lobby')
   const[difficulty,setDiff]=useState('intermediate')
   const[questions,setQs]=useState([])
@@ -66,7 +69,10 @@ export default function Trivia(){
   function answer(i,qs,idx){
     clearInterval(tid);const q=qs[idx];setSelected(i);setHint(q.verse)
     if(i===q.correct){setScore(s=>s+100);setCorrect(c=>c+1)}else setWrong(w=>w+1)
-    setTimeout(()=>{const n=idx+1;if(n>=qs.length)setPhase('results');else{setQi(n);setSelected(null);setHint('');tick(qs,n)}},1800)
+    setTimeout(()=>{const n=idx+1;if(n>=qs.length){
+      if(user?.id){addChildActivity(user.id,'quiz',{score,correct,difficulty},0).catch(err=>console.warn('Activity tracking failed:',err))}
+      setPhase('results')
+    }else{setQi(n);setSelected(null);setHint('');tick(qs,n)}},1800)
   }
 
   const letters=['A','B','C','D'];const q=questions[qi]

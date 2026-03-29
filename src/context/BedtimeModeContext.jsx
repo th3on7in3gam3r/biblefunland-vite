@@ -5,8 +5,13 @@ import { useChildSwitcher } from './ChildSwitcherContext'
 const BedtimeModeContext = createContext(null)
 
 export function BedtimeModeProvider({ children }) {
-  const { profile } = useAuth()
-  const { isChildSession, activeChild } = useChildSwitcher()
+  const auth = useAuth()
+  const childSwitcher = useChildSwitcher()
+  
+  // Safety check for context availability
+  const profile = auth?.profile
+  const isChildSession = childSwitcher?.isChildSession || false
+  const activeChild = childSwitcher?.activeChild
   const [bedtimeMode, setBedtimeMode] = useState(false)
   const [manualOverride, setManualOverride] = useState(false)
   const [bedtimeSettings, setBedtimeSettings] = useState({
@@ -207,50 +212,25 @@ export const useBedtimeMode = () => {
   return ctx
 }
 
-// Bedtime Mode Toggle Component — opens the SleepMode overlay
+// Bedtime Mode Toggle Component
 export function BedtimeModeToggle() {
-  const { bedtimeMode, toggleBedtimeMode, isBedtime } = useBedtimeMode()
-  const [showSleep, setShowSleep] = useState(false)
-
-  // Lazy-load SleepMode to avoid circular deps
-  const [SleepMode, setSleepMode] = useState(null)
-  useEffect(() => {
-    import('../components/SleepMode').then(m => setSleepMode(() => m.default))
-  }, [])
-
-  function handleClick() {
-    if (bedtimeMode) {
-      // If already active, toggle off
-      toggleBedtimeMode()
-    } else {
-      setShowSleep(true)
-    }
-  }
-
-  function handleClose() {
-    setShowSleep(false)
-  }
+  const { bedtimeMode, toggleBedtimeMode } = useBedtimeMode()
 
   return (
-    <>
-      <button
-        onClick={handleClick}
-        title={bedtimeMode ? 'Exit Bedtime Mode' : 'Enter Bedtime Mode'}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '6px 12px', borderRadius: 100,
-          border: `2px solid ${bedtimeMode ? '#9F7AEA' : 'var(--border)'}`,
-          background: bedtimeMode ? 'rgba(159, 122, 234, 0.15)' : 'transparent',
-          color: bedtimeMode ? '#9F7AEA' : 'var(--ink3)',
-          cursor: 'pointer', fontFamily: 'Poppins,sans-serif',
-          fontSize: '.72rem', fontWeight: 700, transition: 'all .2s',
-        }}
-      >
-        🌙 {bedtimeMode ? 'Bedtime ON' : 'Bedtime'}
-      </button>
-      {showSleep && SleepMode && (
-        <SleepMode onClose={handleClose} onEnter={() => { toggleBedtimeMode(); setShowSleep(false) }} />
-      )}
-    </>
+    <button
+      onClick={toggleBedtimeMode}
+      title={bedtimeMode ? 'Exit Bedtime Mode' : 'Enter Bedtime Mode'}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 6,
+        padding: '6px 12px', borderRadius: 100,
+        border: `2px solid ${bedtimeMode ? '#9F7AEA' : 'var(--border)'}`,
+        background: bedtimeMode ? 'rgba(159, 122, 234, 0.15)' : 'transparent',
+        color: bedtimeMode ? '#9F7AEA' : 'var(--ink3)',
+        cursor: 'pointer', fontFamily: 'Poppins,sans-serif',
+        fontSize: '.72rem', fontWeight: 700, transition: 'all .2s',
+      }}
+    >
+      🌙 {bedtimeMode ? 'Bedtime ON' : 'Bedtime'}
+    </button>
   )
 }

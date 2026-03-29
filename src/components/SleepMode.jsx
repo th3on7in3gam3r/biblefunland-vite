@@ -186,7 +186,7 @@ export default function SleepMode({ onClose, onEnter }) {
         <div style={S.card}>
           <button style={S.closeBtn} onClick={onClose} aria-label="Close">✕</button>
           <div style={S.moon}>🌙</div>
-          <h2 style={S.title}>Sleep &amp; Focus Mode</h2>
+          <h2 style={S.title}>Bedtime Bible</h2>
           <p style={S.desc}>
             A calm, distraction-free space for late-night devotionals and meditation.
             Gentle scripture rotation, ambient sounds, and warm amber tones.
@@ -199,7 +199,7 @@ export default function SleepMode({ onClose, onEnter }) {
                 if (onEnter) onEnter()
               }}
             >
-              🌙 Enter Sleep Mode
+              🌙 Open Bedtime Bible
             </button>
             <button style={S.cancelBtn} onClick={onClose}>Cancel</button>
           </div>

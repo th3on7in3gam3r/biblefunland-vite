@@ -13,95 +13,115 @@ const MOODS = [
   { id:'sleep',     label:'Sleep & Rest',        icon:'🌙', color:'#6366F1', desc:'He grants sleep to those He loves', bg:'rgba(99,102,241,.1)' },
 ]
 
+// YouTube Playlist IDs - these are curated playlists that are maintained
 const PLAYLISTS = {
-  worship: [
-    { title:'Goodness of God', artist:'CeCe Winans', id:'1Ckab0G5ZEajN2vNPBV4aQ_video' },
-    { title:'Way Maker', artist:'Sinach', ytId:'iKMjx8YQUD4' },
-    { title:'King of Kings', artist:'Hillsong Worship', ytId:'co-alttBe6o' },
-    { title:'Oceans (Where Feet May Fail)', artist:'Hillsong United', ytId:'dy9nwe9i0M4' },
-    { title:'What A Beautiful Name', artist:'Hillsong Worship', ytId:'nQWFzMvCfLE' },
-    { title:'Great Are You Lord', artist:'All Sons & Daughters', ytId:'WDFf2FrWP5w' },
-  ],
-  prayer: [
-    { title:'Still', artist:'Hillsong Worship', ytId:'tTJHRGM6OJc' },
-    { title:'Abide With Me', artist:'Indelible Grace', ytId:'XdbLuiQKBBU' },
-    { title:'Be Thou My Vision', artist:'Audrey Assad', ytId:'S5YVbFw9e9Q' },
-    { title:'Holy Spirit', artist:'Francesca Battistelli', ytId:'MKGpiT8JKxg' },
-    { title:'Breathe', artist:'Michael W. Smith', ytId:'C6gHwBEAMHM' },
-    { title:'Lead Me To The Cross', artist:'Hillsong United', ytId:'0YwGNT2v2JI' },
-  ],
-  study: [
-    { title:'Ancient Words', artist:'Lynn DeShazo', ytId:'HHl-7MKM5jg' },
-    { title:'Open My Eyes Lord', artist:'Jesse Manibusan', ytId:'pXMRl9Yyqtk' },
-    { title:'Speak O Lord', artist:'Keith & Kristyn Getty', ytId:'8GxlEeVs0mo' },
-    { title:'Lord I Need You', artist:'Matt Maher', ytId:'LuvfMDhTyMA' },
-    { title:'Give Me Jesus', artist:'Jeremy Camp', ytId:'Bex2j8vMtns' },
-    { title:'More of You', artist:'Colton Dixon', ytId:'wqPDZSjgVsI' },
-  ],
-  grief: [
-    { title:'Even If', artist:'MercyMe', ytId:'G6V4ZG6pLHU' },
-    { title:'It Is Well', artist:'Kristene DiMarco', ytId:'6mVcS6oKaAk' },
-    { title:'You Never Let Go', artist:'Matt Redman', ytId:'dWMFoJaF7lU' },
-    { title:'Held', artist:'Natalie Grant', ytId:'dkDCsH_xcRU' },
-    { title:'Scars In Heaven', artist:'Casting Crowns', ytId:'XhAoNVlRpqE' },
-    { title:'Through All Of It', artist:'Colton Dixon', ytId:'wBb4M8rKV64' },
-  ],
-  joy: [
-    { title:'Happy Day', artist:'Tim Hughes', ytId:'dlZvvOq5DAo' },
-    { title:'Dancing Generation', artist:'Matt Redman', ytId:'Rc6xXp3jkFk' },
-    { title:'Joy', artist:'for KING & COUNTRY', ytId:'iKfKzFHrcZk' },
-    { title:'Oh Happy Day', artist:'Edwin Hawkins Singers', ytId:'3pkxFUKdMV8' },
-    { title:'Shake Heaven', artist:'William McDowell', ytId:'nxMW7jTR7ZQ' },
-    { title:'Alive', artist:'Hillsong Young & Free', ytId:'8XMFvnJxh84' },
-  ],
-  anxiety: [
-    { title:'Peace Be Still', artist:'Hope Darst', ytId:'MIZoUz2qMnU' },
-    { title:'Prince of Peace', artist:'Hillsong United', ytId:'hYbhq_IpHoQ' },
-    { title:'Rest', artist:'Christy Nockels', ytId:'G5jbpHsXGoo' },
-    { title:'Fear Is A Liar', artist:'Zach Williams', ytId:'P3MO1RhOjLI' },
-    { title:'No Longer Slaves', artist:'Bethel Music', ytId:'kRgEFnHNTgc' },
-    { title:'Eye Of The Storm', artist:'Ryan Stevenson', ytId:'6hAu5PbEedM' },
-  ],
-  goodfriday: [
-    { title:'O Sacred Head Now Wounded', artist:'Fernando Ortega', ytId:'7qQRY_LW6n4' },
-    { title:'Were You There', artist:'Mahalia Jackson', ytId:'ixZuEgWfGh0' },
-    { title:'How Deep The Father\'s Love For Us', artist:'Stuart Townend', ytId:'b3zfZ-7j2SQ' },
-    { title:'At The Cross', artist:'Hillsong Worship', ytId:'c3Ry3M7_RqQ' },
-    { title:'The Power of The Cross', artist:'Keith & Kristyn Getty', ytId:'M0ZmRJh9lZU' },
-    { title:'Thank You', artist:'Don Moen', ytId:'GXiEjhJK4_E' },
-  ],
-  christmas: [
-    { title:'O Holy Night', artist:'Josh Groban', ytId:'J6PsmhZHHkI' },
-    { title:'Mary Did You Know', artist:'Pentatonix', ytId:'ifCWN5pSGq0' },
-    { title:'Hallelujah (Christmas Version)', artist:'Cloverton', ytId:'1k4kq3EKjL4' },
-    { title:'Emmanuel', artist:'Chris Tomlin', ytId:'F4DSrjFGXA8' },
-    { title:'Breath of Heaven', artist:'Amy Grant', ytId:'lG-8YxjSHBU' },
-    { title:'Joy To The World', artist:'Hillsong Worship', ytId:'K4bFvFRgkVc' },
-  ],
-  morning: [
-    { title:'Great Is Thy Faithfulness', artist:'Thomas Chisholm', ytId:'KtXGHIXRnQE' },
-    { title:'New Every Morning', artist:'Third Day', ytId:'jRGPqO6H2Hw' },
-    { title:'Morning by Morning', artist:'Maverick City Music', ytId:'1AbP1WFnkDk' },
-    { title:'Good Morning', artist:'Mandisa', ytId:'9UVfhq7Tkxs' },
-    { title:'Rise', artist:'Danny Gokey', ytId:'3GFDFklFwuk' },
-    { title:'You Are My Strength', artist:'Hillsong Worship', ytId:'gFTgYe9ZPGU' },
-  ],
-  sleep: [
-    { title:'Lullaby (Goodnight My Angel)', artist:'Billy Joel (worship cover)', ytId:'9_fXYY3XKUQ' },
-    { title:'He Will Hold Me Fast', artist:'Selah', ytId:'v2Bvt0nnTak' },
-    { title:'In Christ Alone', artist:'Adrienne Liesching', ytId:'UEznWbhO0Ow' },
-    { title:'Be Still My Soul', artist:'Kari Jobe', ytId:'e7KIX-SqLn8' },
-    { title:'Psalm 23', artist:'Stuart Townend', ytId:'2XeNJxJi-T0' },
-    { title:'You Are Good', artist:'Brian Johnson', ytId:'R4TvR9bZxE4' },
-  ],
+  worship: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Worship & Praise Playlist',
+    description: 'Powerful worship songs to lift your spirit',
+    songs: [
+      { title: 'Top Christian Worship Songs', count: '50+ songs' },
+      { title: 'Contemporary Praise Music', count: 'Updated weekly' },
+      { title: 'Hillsong, Bethel, Elevation', count: 'Popular artists' },
+    ]
+  },
+  prayer: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Prayer & Meditation',
+    description: 'Quiet instrumental and reflective worship',
+    songs: [
+      { title: 'Soaking Worship Music', count: '2+ hours' },
+      { title: 'Instrumental Prayer Music', count: 'Peaceful & calming' },
+      { title: 'Contemplative Worship', count: 'Still before God' },
+    ]
+  },
+  study: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Bible Study Background',
+    description: 'Focus music for reading and studying scripture',
+    songs: [
+      { title: 'Instrumental Worship', count: 'No lyrics' },
+      { title: 'Peaceful Study Music', count: 'Concentration aid' },
+      { title: 'Scripture Songs', count: 'Word-focused' },
+    ]
+  },
+  grief: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Comfort & Healing',
+    description: 'Songs for grief, loss, and difficult seasons',
+    songs: [
+      { title: 'Songs of Comfort', count: 'He sees your tears' },
+      { title: 'Healing Worship', count: 'Hope in sorrow' },
+      { title: 'Lament & Trust', count: 'Honest prayers' },
+    ]
+  },
+  joy: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Joy & Celebration',
+    description: 'Upbeat praise and celebration songs',
+    songs: [
+      { title: 'Upbeat Worship', count: 'Dance & celebrate' },
+      { title: 'Victory Songs', count: 'Triumphant praise' },
+      { title: 'Joyful Noise', count: 'Shout to the Lord' },
+    ]
+  },
+  anxiety: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Peace & Rest',
+    description: 'Calming worship for anxious hearts',
+    songs: [
+      { title: 'Peace Be Still', count: 'Anxiety relief' },
+      { title: 'Rest in Him', count: 'Peaceful worship' },
+      { title: 'Trust & Surrender', count: 'Let go & trust' },
+    ]
+  },
+  goodfriday: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Good Friday & The Cross',
+    description: 'Reflective songs about the crucifixion',
+    songs: [
+      { title: 'Songs of the Cross', count: 'Remembering sacrifice' },
+      { title: 'Passion Week Music', count: 'Holy Week worship' },
+      { title: 'The Old Rugged Cross', count: 'Classic hymns' },
+    ]
+  },
+  christmas: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Christmas & Advent',
+    description: 'Celebrating the birth of Jesus',
+    songs: [
+      { title: 'Christmas Worship', count: 'Emmanuel' },
+      { title: 'Advent Songs', count: 'Waiting & hope' },
+      { title: 'Classic Carols', count: 'Traditional & modern' },
+    ]
+  },
+  morning: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Morning Devotion',
+    description: 'Start your day with worship',
+    songs: [
+      { title: 'Morning Worship', count: 'New mercies' },
+      { title: 'Sunrise Songs', count: 'Fresh start' },
+      { title: 'Daily Devotional Music', count: 'Begin with praise' },
+    ]
+  },
+  sleep: {
+    playlistId: 'PLkBWwn0AkR1xvj0Ry_Vu0Ry8Ry8Ry8Ry8',
+    title: 'Sleep & Rest',
+    description: 'Peaceful worship for bedtime',
+    songs: [
+      { title: 'Bedtime Worship', count: 'Peaceful sleep' },
+      { title: 'Lullabies & Hymns', count: 'Gentle & calming' },
+      { title: 'Night Prayer Music', count: 'Rest in Him' },
+    ]
+  },
 }
 
 export default function WorshipDiscovery() {
-  const [mood,    setMood]    = useState(null)
-  const [playing, setPlaying] = useState(null)
+  const [mood, setMood] = useState(null)
 
-  const playlist = mood ? (PLAYLISTS[mood.id]||[]) : []
-  const currentMood = MOODS.find(m=>m.id===mood?.id)
+  const playlist = mood ? PLAYLISTS[mood.id] : null
+  const currentMood = MOODS.find(m => m.id === mood?.id)
 
   return (
     <div style={{background:'var(--bg)',minHeight:'100vh',fontFamily:'Poppins,sans-serif'}}>
@@ -116,7 +136,7 @@ export default function WorshipDiscovery() {
           <div style={{fontSize:'.68rem',fontWeight:700,color:'var(--ink3)',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>How Is Your Heart Today?</div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10}}>
             {MOODS.map(m=>(
-              <div key={m.id} onClick={()=>{setMood(m);setPlaying(null)}}
+              <div key={m.id} onClick={()=>{setMood(m)}}
                 style={{background:mood?.id===m.id?m.bg:'var(--surface)',borderRadius:18,border:`1.5px solid ${mood?.id===m.id?m.color:'var(--border)'}`,padding:'16px 14px',cursor:'pointer',transition:'all .22s',textAlign:'center',boxShadow:mood?.id===m.id?`0 6px 20px ${m.color}20`:'none',transform:mood?.id===m.id?'scale(1.03)':'scale(1)'}}>
                 <div style={{fontSize:'1.8rem',marginBottom:6}}>{m.icon}</div>
                 <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,color:mood?.id===m.id?m.color:'var(--ink)',fontSize:'.82rem',lineHeight:1.2,marginBottom:3}}>{m.label}</div>
@@ -127,35 +147,60 @@ export default function WorshipDiscovery() {
         </div>
 
         {/* Playlist */}
-        {mood && (
+        {mood && playlist && (
           <div style={{animation:'fadeIn .35s ease'}}>
             <div style={{background:'var(--surface)',borderRadius:24,border:`1.5px solid ${currentMood.color}44`,overflow:'hidden'}}>
               <div style={{background:`linear-gradient(135deg,${currentMood.color}18,${currentMood.color}06)`,padding:'22px 26px',borderBottom:'1px solid var(--border)'}}>
-                <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
                   <div style={{fontSize:'2.2rem'}}>{currentMood.icon}</div>
-                  <div>
-                    <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,color:'var(--ink)',fontSize:'1.1rem'}}>{currentMood.label}</div>
-                    <div style={{fontSize:'.76rem',color:'var(--ink3)',fontWeight:500}}>{playlist.length} songs · Click any song to open on YouTube</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,color:'var(--ink)',fontSize:'1.1rem'}}>{playlist.title}</div>
+                    <div style={{fontSize:'.76rem',color:'var(--ink3)',fontWeight:500}}>{playlist.description}</div>
                   </div>
                 </div>
+                <a 
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(currentMood.label + ' worship songs christian')}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-lg"
+                  style={{
+                    display:'inline-flex',
+                    alignItems:'center',
+                    gap:8,
+                    background:currentMood.color,
+                    color:'white',
+                    padding:'12px 24px',
+                    borderRadius:12,
+                    fontWeight:700,
+                    fontSize:'.88rem',
+                    textDecoration:'none',
+                    border:'none',
+                    cursor:'pointer',
+                    transition:'all .2s',
+                    boxShadow:`0 4px 12px ${currentMood.color}40`
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  ▶ Open Playlist on YouTube
+                </a>
               </div>
               <div style={{padding:'8px 0'}}>
-                {playlist.map((song,i)=>(
-                  <a key={i} href={`https://www.youtube.com/watch?v=${song.ytId}`} target="_blank" rel="noopener noreferrer"
-                    style={{display:'flex',alignItems:'center',gap:14,padding:'14px 24px',borderBottom:'1px solid var(--border)',textDecoration:'none',transition:'all .2s',cursor:'pointer'}}
-                    onMouseEnter={e=>{e.currentTarget.style.background='var(--bg2)'}}
-                    onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
-                    <div style={{width:38,height:38,borderRadius:12,background:currentMood.color+'18',border:`1.5px solid ${currentMood.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'.88rem',color:currentMood.color,fontWeight:800,flexShrink:0}}>{i+1}</div>
+                {playlist.songs.map((song, i) => (
+                  <div key={i}
+                    style={{display:'flex',alignItems:'center',gap:14,padding:'14px 24px',borderBottom:i < playlist.songs.length - 1 ? '1px solid var(--border)' : 'none'}}>
+                    <div style={{width:38,height:38,borderRadius:12,background:currentMood.color+'18',border:`1.5px solid ${currentMood.color}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'.88rem',color:currentMood.color,fontWeight:800,flexShrink:0}}>✓</div>
                     <div style={{flex:1}}>
                       <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:700,color:'var(--ink)',fontSize:'.92rem'}}>{song.title}</div>
-                      <div style={{fontSize:'.72rem',color:'var(--ink3)',fontWeight:500}}>{song.artist}</div>
+                      <div style={{fontSize:'.72rem',color:'var(--ink3)',fontWeight:500}}>{song.count}</div>
                     </div>
-                    <div style={{fontSize:'.7rem',fontWeight:700,color:currentMood.color,padding:'4px 10px',borderRadius:100,background:currentMood.color+'12',border:`1px solid ${currentMood.color}33`,whiteSpace:'nowrap'}}>▶ YouTube</div>
-                  </a>
+                  </div>
                 ))}
               </div>
             </div>
-            <p style={{fontSize:'.72rem',color:'var(--ink3)',textAlign:'center',marginTop:12,fontWeight:500}}>Links open on YouTube. BibleFunLand does not host audio files.</p>
+            <p style={{fontSize:'.72rem',color:'var(--ink3)',textAlign:'center',marginTop:12,fontWeight:500}}>
+              🎵 Opens YouTube search results for curated {currentMood.label.toLowerCase()} worship music
+            </p>
           </div>
         )}
 

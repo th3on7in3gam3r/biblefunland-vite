@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useBadges } from '../context/BadgeContext'
 import { useAuth } from '../context/AuthContext'
+import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 // ── Reading Plans ──────────────────────────────────────────────────────
 const PLANS = [
@@ -108,11 +110,61 @@ export default function BibleReadingPlan() {
   const [view, setView] = useState('home') // home | reading
   const [activeDay, setActiveDay] = useState(null)
 
+  // Load progress from database on mount
+  useEffect(() => {
+    if (user?.id) {
+      requestQueue.execute(
+        `load-progress-${user.id}`,
+        async () => {
+          try {
+            const { data: plans } = await db.getFamilyPlans(user.id)
+            if (plans && plans.length > 0) {
+              const dbProgress = {}
+              plans.forEach(plan => {
+                if (plan.progress) {
+                  Object.assign(dbProgress, plan.progress)
+                }
+              })
+              if (Object.keys(dbProgress).length > 0) {
+                setProgress(dbProgress)
+                localStorage.setItem('bfl_reading_progress', JSON.stringify(dbProgress))
+              }
+            }
+          } catch (err) {
+            console.error('Failed to load reading progress from database:', err)
+            // Fall back to localStorage
+          }
+        },
+        { priority: 0 } // High priority on load
+      )
+    }
+  }, [user?.id])
+
   function saveProgress(planId, day, checked) {
     const key = `${planId}-day${day}`
     const newProg = { ...progress, [key]: checked }
     setProgress(newProg)
     localStorage.setItem('bfl_reading_progress', JSON.stringify(newProg))
+
+    // Sync to database via request queue
+    if (user?.id) {
+      requestQueue.execute(
+        `save-progress-${user.id}-${planId}`,
+        async () => {
+          try {
+            await db.upsertFamilyPlan(user.id, {
+              plan_id: planId,
+              progress: newProg,
+              updated_at: new Date().toISOString()
+            })
+          } catch (err) {
+            console.error('Failed to sync reading progress to database:', err)
+            // Silently fail — local progress is still saved
+          }
+        },
+        { priority: 4 } // Medium priority
+      )
+    }
 
     // Check for plan completion
     const plan = PLANS.find(p => p.id === planId)
@@ -186,7 +238,11 @@ export default function BibleReadingPlan() {
                 <div style={{ fontSize:'.7rem', fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:activePlan.color, marginBottom:8 }}>Day {activeDay.day} · {activePlan.emoji}</div>
                 <div style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.5rem', fontWeight:800, color:'var(--ink)', marginBottom:6 }}>{activeDay.theme}</div>
                 <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  {activeDay.passages.map((p,i) => <span key={i} style={{ fontSize:'.76rem', fontWeight:700, padding:'4px 12px', borderRadius:100, background:`${activePlan.color}18`, color:activePlan.color, border:`1px solid ${activePlan.color}30` }}>{p}</span>)}
+                  {activeDay.passages.map((p,i) => (
+                    <a key={i} href={`/bible?q=${encodeURIComponent(p)}`} style={{ fontSize:'.76rem', fontWeight:700, padding:'4px 12px', borderRadius:100, background:`${activePlan.color}18`, color:activePlan.color, border:`1px solid ${activePlan.color}30`, textDecoration:'none', transition:'all .2s' }} onMouseEnter={e => {e.currentTarget.style.background=activePlan.color; e.currentTarget.style.color='#fff'}} onMouseLeave={e => {e.currentTarget.style.background=`${activePlan.color}18`; e.currentTarget.style.color=activePlan.color}}>
+                      {p} ↗
+                    </a>
+                  ))}
                 </div>
               </div>
               <div style={{ padding:'24px 28px' }}>
@@ -208,9 +264,9 @@ export default function BibleReadingPlan() {
               </div>
             </div>
             <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              <a href={`/bible?q=${encodeURIComponent(activeDay.passages[0])}`} className="btn btn-blue btn-sm" style={{ background:activePlan.color, border:`1px solid ${activePlan.color}`, color:'#fff' }}>📖 Read Now</a>
               <a href="/devotional" className="btn btn-outline btn-sm">🙏 Get AI Devotional</a>
               <a href="/prayer-beads" className="btn btn-outline btn-sm">📿 Meditate</a>
-              <a href="/notes" className="btn btn-outline btn-sm">📝 Take Notes</a>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { useChildSwitcher } from './ChildSwitcherContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const ActivityDashboardContext = createContext(null)
 
@@ -66,18 +67,39 @@ export function ActivityDashboardProvider({ children }) {
 
   // Load recent activities
   const loadRecentActivities = async (userId) => {
-    const userType = isChildSession ? 'child' : 'parent'
-    const { data } = await db.getChildActivity(userId, 50)
+    const result = await requestQueue.execute(
+      `recent-activities:${userId}`,
+      () => db.getChildActivity(userId, 50),
+      { priority: 2, cacheable: true, ttl: 2 * 60 * 1000 }
+    )
     
     return {
-      activities: data || []
+      activities: result?.data || []
     }
   }
 
   // Load activity statistics
   const loadActivityStats = async (userId) => {
-    const { data: weekStats } = await db.getChildActivityStats(userId, 7)
-    const { data: dayStats } = await db.getChildActivityStats(userId, 1)
+    // Use request queue with staggered priority
+    const weekStatsPromise = requestQueue.execute(
+      `activity-stats-week:${userId}`,
+      () => db.getChildActivityStats(userId, 7),
+      { priority: 1, cacheable: true, ttl: 2 * 60 * 1000 }
+    )
+
+    const dayStatsPromise = requestQueue.execute(
+      `activity-stats-day:${userId}`,
+      () => db.getChildActivityStats(userId, 1),
+      { priority: 2, cacheable: true, ttl: 60 * 1000 }
+    )
+
+    const [weekStatsResult, dayStatsResult] = await Promise.all([
+      weekStatsPromise,
+      dayStatsPromise
+    ])
+
+    const weekStats = weekStatsResult?.data || []
+    const dayStats = dayStatsResult?.data || []
     
     const stats = {
       today: {
@@ -127,10 +149,13 @@ export function ActivityDashboardProvider({ children }) {
 
   // Get current streak
   const getCurrentStreak = async (userId) => {
-    // This would integrate with the existing streak system
     try {
-      const { data } = await db.getStreak(userId)
-      return data?.current_streak || 0
+      const result = await requestQueue.execute(
+        `streak-current:${userId}`,
+        () => db.getStreak(userId),
+        { priority: 3, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      return result?.data?.current_streak || 0
     } catch {
       return 0
     }
@@ -139,8 +164,12 @@ export function ActivityDashboardProvider({ children }) {
   // Get longest streak
   const getLongestStreak = async (userId) => {
     try {
-      const { data } = await db.getStreak(userId)
-      return data?.longest_streak || 0
+      const result = await requestQueue.execute(
+        `streak-longest:${userId}`,
+        () => db.getStreak(userId),
+        { priority: 3, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      return result?.data?.longest_streak || 0
     } catch {
       return 0
     }

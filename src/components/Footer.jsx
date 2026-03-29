@@ -1,71 +1,88 @@
 import { Link } from 'react-router-dom'
 import styles from './Footer.module.css'
 
+const EXPLORE_LINKS = [
+  { to: '/trivia',       label: '🎮 Scripture Trivia' },
+  { to: '/devotional',  label: '🙏 AI Devotional' },
+  { to: '/bible',       label: '📖 Bible Explorer' },
+  { to: '/map',         label: '🗺️ Bible Map' },
+  { to: '/game/runner', label: '🏃 Scripture Runner' },
+  { to: '/resources',   label: '📚 Kingdom Resources' },
+]
+
+const COMMUNITY_LINKS = [
+  { to: '/prayer',      label: '🌍 Prayer Wall' },
+  { to: '/parent-hub',  label: '🏫 Parents & Teachers' },
+  { to: '/leaderboard', label: '🏆 Leaderboard' },
+  { to: '/podcast',     label: '🎙️ Podcast' },
+  { to: '/church-finder', label: '⛪ Church Finder' },
+  { to: '/contact',     label: '📬 Contact Us' },
+]
+
+const PARTNER_LINKS = [
+  { to: '/affiliate',  label: '🏛️ Partner With Us' },
+  { to: '/partner',    label: '⛪ Ministry Partnership' },
+  { to: '/creators',   label: '🎙️ Creator Program' },
+  { to: '/premium',    label: '👑 Go Pro' },
+  { to: '/privacy',    label: '🔒 Privacy Policy' },
+  { to: '/terms',      label: '📄 Terms of Service' },
+]
+
 export default function Footer() {
+  const currentYear = new Date().getFullYear()
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        <div className={styles.top}>
+        <div className={styles.grid}>
 
-          {/* Brand */}
+          {/* Column 1: Brand */}
           <div className={styles.brand}>
             <div className={styles.logo}>
               <div className={styles.logoIcon}>✝️</div>
               <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
             </div>
             <p className={styles.desc}>
-              An epic journey through God's Word — built with love for families,
-              children, and believers everywhere. 100% free, always growing.
+              An epic journey through God's Word — built with love for families.
+              100% free, always growing, dedicated to the Kingdom.
             </p>
+            <Link to="/affiliate" className={styles.supportBtn}>
+              🤝 Partner With Us
+            </Link>
             <div className={styles.social}>
               <a href="mailto:hello@biblefunland.com" className={styles.socialLink} title="Email us">✉️</a>
               <a href="https://twitter.com/biblefunland" target="_blank" rel="noreferrer" className={styles.socialLink} title="Twitter / X">𝕏</a>
               <a href="https://facebook.com/biblefunland" target="_blank" rel="noreferrer" className={styles.socialLink} title="Facebook">📘</a>
-              <a href="https://instagram.com/biblefunland" target="_blank" rel="noreferrer" className={styles.socialLink} title="Instagram">📸</a>
             </div>
           </div>
 
-          {/* Features */}
+          {/* Column 2: Explore */}
           <div className={styles.col}>
-            <h4>Features</h4>
+            <h4>Explore</h4>
             <ul>
-              <li><Link to="/trivia">🎮 Scripture Trivia</Link></li>
-              <li><Link to="/devotional">🙏 AI Devotional</Link></li>
-              <li><Link to="/map">🗺️ Bible Map</Link></li>
-              <li><Link to="/flashcards">🧠 Flashcards</Link></li>
-              <li><Link to="/notes">📝 Sermon Notes</Link></li>
-              <li><Link to="/prayer">🌍 Prayer Wall</Link></li>
-              <li><Link to="/bible">📖 Bible Explorer</Link></li>
-              <li><Link to="/certification">🎓 Certification</Link></li>
+              {EXPLORE_LINKS.map(l => (
+                <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+              ))}
             </ul>
           </div>
 
-          {/* Games & Tools */}
+          {/* Column 3: Community */}
           <div className={styles.col}>
-            <h4>Games & Tools</h4>
+            <h4>Community</h4>
             <ul>
-              <li><Link to="/game/david-goliath">🏹 David & Goliath</Link></li>
-              <li><Link to="/game/runner">🏃 Scripture Runner</Link></li>
-              <li><Link to="/game/escape-room">🧩 Escape Room</Link></li>
-              <li><Link to="/wordle">🟩 Bible Wordle</Link></li>
-              <li><Link to="/share">🔗 Share Cards</Link></li>
-              <li><Link to="/activity-sheets">🖨️ Activity Sheets</Link></li>
-              <li><Link to="/family-tree">🌳 Family Tree</Link></li>
-              <li><Link to="/timeline">📜 Bible Timeline</Link></li>
+              {COMMUNITY_LINKS.map(l => (
+                <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+              ))}
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Column 4: Partners & Legal */}
           <div className={styles.col}>
-            <h4>Company</h4>
+            <h4>Partnership</h4>
             <ul>
-              <li><Link to="/contact">📬 Contact Us</Link></li>
-              <li><Link to="/blog">✍️ Blog</Link></li>
-              <li><Link to="/premium">💎 Go Pro</Link></li>
-              <li><Link to="/parent-hub">🏫 Parents & Teachers</Link></li>
-              <li><Link to="/auth">🔑 Sign In / Sign Up</Link></li>
-              <li><Link to="/privacy">🔒 Privacy Policy</Link></li>
-              <li><Link to="/terms">📄 Terms of Use</Link></li>
+              {PARTNER_LINKS.map(l => (
+                <li key={l.to}><Link to={l.to}>{l.label}</Link></li>
+              ))}
             </ul>
           </div>
 
@@ -73,14 +90,19 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className={styles.bottom}>
-          <p>© {new Date().getFullYear()} BibleFunLand · Built for the Kingdom 🙏</p>
+          <p className={styles.copy}>© {currentYear} BibleFunLand · Built for the Kingdom 🙏</p>
           <div className={styles.chips}>
-            <span className={styles.chip}>✝ Faith</span>
-            <span className={styles.chip}>🎮 Fun</span>
-            <span className={styles.chip}>❤️ Family</span>
-            <span className={styles.chip}>🆓 Free</span>
+            <span className={styles.chip}>Faith</span>
+            <span className={styles.chip}>Fun</span>
+            <span className={styles.chip}>Family</span>
+          </div>
+          <div className={styles.legal}>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <Link to="/contact">Support</Link>
           </div>
         </div>
+
       </div>
     </footer>
   )

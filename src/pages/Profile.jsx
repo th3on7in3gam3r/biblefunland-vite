@@ -7,6 +7,7 @@ import { Link }      from 'react-router-dom'
 import { useKidsMode } from '../context/KidsModeContext'
 import { useBedtimeMode } from '../context/BedtimeModeContext'
 import * as db       from '../lib/db'
+import PinSetupModal from '../components/PinSetupModal'
 
 // ── Avatar roster ─────────────────────────────────────────────────────────────
 const AVATARS = [
@@ -59,10 +60,10 @@ function getMemberSince(user) {
 }
 
 export default function Profile() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, refreshProfile } = useAuth()
   const { streak, readDays, checkinCount, checkedToday, checkIn } = useStreak()
   const { earned } = useBadges()
-  const { kidsMode, requestToggle } = useKidsMode()
+  const { kidsMode, requestToggle, enableKidsMode } = useKidsMode()
   const { bedtimeMode, bedtimeSettings, toggleBedtimeMode, updateBedtimeSettings, isBedtime } = useBedtimeMode()
   const { t } = useT()
 
@@ -83,6 +84,109 @@ export default function Profile() {
   const [kidsModal, setKidsModal] = useState(false)
   const [children, setChildren] = useState([])
   const [childForm, setChildForm] = useState({ name:'', age:'', avatar:'david' }) // Default avatar for child
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [deletePin, setDeletePin] = useState('')
+  const [deletePinError, setDeletePinError] = useState(false)
+  const [deletePinShake, setDeletePinShake] = useState(false)
+  const [childToDelete, setChildToDelete] = useState(null)
+  const [childCreateError, setChildCreateError] = useState(null)
+  const [showPinSetup, setShowPinSetup] = useState(false)
+  const [pendingChildData, setPendingChildData] = useState(null)
+
+  // ── Pastor verification modal ─────────────────────────────────────────
+  const [showPastorModal, setShowPastorModal] = useState(false)
+  const [pastorModalTab, setPastorModalTab] = useState('code') // 'code' | 'request'
+  const [pastorCode, setPastorCode] = useState('')
+  const [pastorCodeError, setPastorCodeError] = useState(false)
+  const [pastorCodeShake, setPastorCodeShake] = useState(false)
+  // Request form state
+  const [pastorReqForm, setPastorReqForm] = useState({ fullName:'', churchName:'', city:'', denomination:'', website:'', message:'' })
+  const [pastorReqSubmitting, setPastorReqSubmitting] = useState(false)
+  const [pastorReqSuccess, setPastorReqSuccess] = useState(false)
+  const [pastorReqError, setPastorReqError] = useState(null)
+
+  // ── Pastor code verifier ──────────────────────────────────────────────
+  async function verifyPastorCode() {
+    if (!pastorCode.trim()) return
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/profiles/${user?.id}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'Pastor', pastor_code: pastorCode.trim() })
+      })
+      if (!res.ok) {
+        setPastorCodeError(true)
+        setPastorCodeShake(true)
+        setPastorCode('')
+        setTimeout(() => { setPastorCodeShake(false); setPastorCodeError(false) }, 600)
+        return
+      }
+      // Success — set role locally and persist
+      setProfile(p => ({ ...p, role: 'Pastor' }))
+      setShowPastorModal(false)
+      setPastorCode('')
+      setPastorCodeError(false)
+      // Persist role immediately without full save
+      await refreshProfile()
+    } catch {
+      setPastorCodeError(true)
+      setPastorCodeShake(true)
+      setPastorCode('')
+      setTimeout(() => { setPastorCodeShake(false); setPastorCodeError(false) }, 600)
+    }
+  }
+
+  // ── Close / reset pastor modal ────────────────────────────────────────
+  function closePastorModal() {
+    setShowPastorModal(false)
+    setPastorCode('')
+    setPastorCodeError(false)
+    setPastorModalTab('code')
+    setPastorReqForm({ fullName:'', churchName:'', city:'', denomination:'', website:'', message:'' })
+    setPastorReqSuccess(false)
+    setPastorReqError(null)
+  }
+
+  // ── Submit pastor access request ──────────────────────────────────────
+  async function submitPastorRequest() {
+    const { fullName, churchName, city } = pastorReqForm
+    if (!fullName.trim() || !churchName.trim() || !city.trim()) {
+      setPastorReqError('Please fill in your name, church name, and city.')
+      return
+    }
+    setPastorReqSubmitting(true)
+    setPastorReqError(null)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pastor-requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id:      user?.id,
+          user_email:   user?.email,
+          full_name:    fullName.trim(),
+          church_name:  churchName.trim(),
+          city:         city.trim(),
+          denomination: pastorReqForm.denomination.trim() || null,
+          website:      pastorReqForm.website.trim() || null,
+          message:      pastorReqForm.message.trim() || null,
+        })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setPastorReqError(
+          data.detail === 'duplicate_request'
+            ? 'You already have a pending request. We\'ll be in touch shortly!'
+            : data.error || 'Submission failed. Please try again.'
+        )
+        return
+      }
+      setPastorReqSuccess(true)
+    } catch {
+      setPastorReqError('Network error — please check your connection and try again.')
+    } finally {
+      setPastorReqSubmitting(false)
+    }
+  }
 
   // ── UI state ─────────────────────────────────────────────────────────────
   const [tab,          setTab]          = useState('profile')
@@ -131,9 +235,11 @@ export default function Profile() {
       setProfileLoaded(true)
     }).catch(() => { setProfileLoaded(true) })
 
-    db.getChildProfiles(user.id).then(({ data }) => {
+    db.getChildProfiles(user.id, true).then(({ data }) => {
+      console.log('[Profile] Child profiles loaded:', data)
       if (data) setChildren(data)
     }).catch((err) => {
+      console.error('[Profile] Error loading child profiles:', err)
       if (err.message?.includes('no such table')) {
         console.warn('Child profiles table not available')
       }
@@ -163,46 +269,213 @@ export default function Profile() {
     if (user?.id) {
       setSaving(true)
       setSaveError(null)
-      const { error } = await db.upsertProfile(user.id, {
-        display_name: updatedProfile.displayName,
-        avatar_url: updatedProfile.avatar,
-        bio: updatedProfile.bio,
-        favorite_verse: updatedProfile.favoriteVerse,
-        age: updatedProfile.age !== '' && updatedProfile.age != null ? parseInt(updatedProfile.age) || null : null,
-        role: updatedProfile.role,
-        is_age_locked: updatedProfile.is_age_locked
-      })
-      setSaving(false)
-      if (error) {
-        console.error('[Profile save]', error)
-        setSaveError(error.message || 'Failed to save — check console')
-        return
+      try {
+        // Call backend enforcement endpoints for age and role
+        if (updatedProfile.age && willLockAge) {
+          const ageRes = await fetch(`${import.meta.env.VITE_API_URL}/api/profiles/${user.id}/age`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ age: parseInt(updatedProfile.age) })
+          })
+          if (!ageRes.ok) {
+            const err = await ageRes.json()
+            throw new Error(err.error || 'Failed to set age')
+          }
+        }
+
+        if (updatedProfile.role !== profile.role) {
+          const roleRes = await fetch(`${import.meta.env.VITE_API_URL}/api/profiles/${user.id}/role`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: updatedProfile.role })
+          })
+          if (!roleRes.ok) {
+            const err = await roleRes.json()
+            throw new Error(err.error || 'Failed to set role')
+          }
+        }
+
+        // Save full profile to database
+        const { error } = await db.upsertProfile(user.id, {
+          display_name: updatedProfile.displayName,
+          avatar_url: updatedProfile.avatar,
+          bio: updatedProfile.bio,
+          favorite_verse: updatedProfile.favoriteVerse,
+          age: updatedProfile.age !== '' && updatedProfile.age != null ? parseInt(updatedProfile.age) || null : null,
+          role: updatedProfile.role,
+          is_age_locked: updatedProfile.is_age_locked
+        })
+
+        if (error) {
+          console.error('[Profile save]', error)
+          setSaveError(error.message || 'Failed to save — check console')
+          setSaving(false)
+          return
+        }
+
+        // Refresh profile in AuthContext so Nav and other components see the updated role
+        await refreshProfile()
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2500)
+
+        // Auto-activate Kids Mode for under-13 users
+        if (updatedProfile.age && parseInt(updatedProfile.age) < 13 && !kidsMode) {
+          enableKidsMode()
+        }
+      } catch (err) {
+        console.error('[Profile save error]', err)
+        setSaveError(err.message || 'Failed to save profile')
+      } finally {
+        setSaving(false)
       }
     }
-    setSaved(true); setTimeout(() => setSaved(false), 2500)
   }
 
   async function addChild() {
     if (!childForm.name.trim() || !user?.id) return
+    setChildCreateError(null)
+    
     try {
-      await db.upsertChildProfile(user.id, { 
-        display_name: childForm.name, 
+      // Check if this is the first child and if parent has default PIN
+      if (children.length === 0) {
+        const { data: controls } = await db.getParentalControls(user.id)
+        if (!controls || controls.parent_pin === '4318') {
+          // Show PIN setup modal before creating child
+          setPendingChildData({
+            display_name: childForm.name,
+            age: childForm.age ? parseInt(childForm.age) : null,
+            avatar_url: childForm.avatar
+          })
+          setShowPinSetup(true)
+          return
+        }
+      }
+      
+      // Proceed with child creation
+      await createChild({
+        display_name: childForm.name,
         age: childForm.age ? parseInt(childForm.age) : null,
         avatar_url: childForm.avatar
       })
-      const { data } = await db.getChildProfiles(user.id)
-      setChildren(data || [])
-      setChildForm({ name:'', age:'', avatar:'david' }) // Reset to default avatar
     } catch (e) {
-      alert(e.message)
+      console.error('[addChild] Error:', e)
+      setChildCreateError(e.message || 'Failed to check parental controls')
     }
+  }
+  
+  async function createChild(childData) {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/children/${user.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(childData)
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        setChildCreateError(err.error || 'Failed to add child')
+        return
+      }
+
+      // Auto-activate Kids Mode for children under 13
+      const childAge = childData.age
+      if (childAge && childAge < 13) {
+        await db.upsertChildProfile(user.id, {
+          display_name: childData.display_name,
+          age: childAge,
+          avatar_url: childData.avatar_url,
+          kids_mode: true
+        })
+      }
+
+      const { data } = await db.getChildProfiles(user.id, true)
+      setChildren(data || [])
+      setChildForm({ name:'', age:'', avatar:'david' })
+    } catch (e) {
+      setChildCreateError(e.message || 'Failed to add child')
+    }
+  }
+  
+  async function handlePinSetupComplete(newPin) {
+    try {
+      // Save the new PIN via API endpoint
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/parental-controls/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pin: '4318', // Current default PIN
+          new_pin: newPin,
+          ai_toggles: {},
+          daily_limit: 0
+        })
+      })
+      
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'Failed to save PIN')
+      }
+      
+      // Create the child profile
+      if (pendingChildData) {
+        await createChild(pendingChildData)
+        setPendingChildData(null)
+      }
+      
+      setShowPinSetup(false)
+    } catch (e) {
+      console.error('[handlePinSetupComplete] Error:', e)
+      setChildCreateError(e.message || 'Failed to set up PIN')
+      setShowPinSetup(false)
+    }
+  }
+  
+  function handlePinSetupSkip() {
+    // User chose to skip PIN setup, create child with default PIN
+    if (pendingChildData) {
+      createChild(pendingChildData)
+      setPendingChildData(null)
+    }
+    setShowPinSetup(false)
   }
 
   async function deleteChild(id) {
-    if (!user?.id || !window.confirm("Remove this child profile?")) return
-    await db.deleteChildProfile(id, user.id)
-    const { data } = await db.getChildProfiles(user.id)
-    setChildren(data || [])
+    if (!user?.id) return
+    setChildToDelete(id)
+    setDeletePin('')
+    setDeletePinError(false)
+    setDeleteModal(true)
+  }
+
+  async function confirmDeleteChild() {
+    if (!childToDelete || !user?.id) return
+    
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/children/${user.id}/${childToDelete}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: deletePin })
+      })
+      
+      if (!res.ok) {
+        const err = await res.json()
+        setDeletePinError(true)
+        setDeletePinShake(true)
+        setDeletePin('')
+        setTimeout(() => { setDeletePinShake(false); setDeletePinError(false) }, 600)
+        return
+      }
+      
+      const { data } = await db.getChildProfiles(user.id, true)
+      setChildren(data || [])
+      setDeleteModal(false)
+      setChildToDelete(null)
+      setDeletePin('')
+    } catch (e) {
+      setDeletePinError(true)
+      setDeletePinShake(true)
+      setDeletePin('')
+      setTimeout(() => { setDeletePinShake(false); setDeletePinError(false) }, 600)
+    }
   }
 
   function copyShareCard() {
@@ -327,33 +600,64 @@ export default function Profile() {
                     type="number"
                     placeholder="Years"
                     value={profile.age}
-                    onChange={e=>setProfile(p=>({...p,age:e.target.value}))}
+                    onChange={e=>{
+                      const val = e.target.value
+                      // Client-side validation: only allow [1, 120]
+                      if (val === '' || (parseInt(val) >= 1 && parseInt(val) <= 120)) {
+                        setProfile(p=>({...p,age:val}))
+                      }
+                    }}
                     disabled={profile.is_age_locked === 1}
                     style={{ background: profile.is_age_locked ? 'var(--bg2)' : 'var(--surface)', cursor: profile.is_age_locked ? 'not-allowed' : 'text' }}
                   />
+                  {profile.is_age_locked === 1 && (
+                    <div style={{ fontSize:'.55rem', color:'var(--green)', fontWeight:600, marginTop:4 }}>✓ Age locked permanently</div>
+                  )}
                   {profile.is_age_locked === 0 && profile.age && (
                     <div style={{ fontSize:'.55rem', color:'var(--red)', fontWeight:600, marginTop:4 }}>⚠️ Locked after first save</div>
+                  )}
+                  {profile.age && (parseInt(profile.age) < 1 || parseInt(profile.age) > 120) && (
+                    <div style={{ fontSize:'.55rem', color:'var(--red)', fontWeight:600, marginTop:4 }}>❌ Age must be 1-120</div>
                   )}
                 </div>
                 <div>
                   <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Account Role</label>
                   <div style={{ display:'flex', gap:6 }}>
-                    {['General', 'Parent', 'Teacher'].map(r => (
-                      <button
-                        key={r}
-                        onClick={() => setProfile(p => ({ ...p, role: r }))}
-                        style={{
-                          flex: 1, padding: '8px', borderRadius: 10,
-                          border: `1.5px solid ${profile.role === r ? 'var(--blue)' : 'var(--border)'}`,
-                          background: profile.role === r ? 'var(--blue-bg)' : 'var(--surface)',
-                          color: profile.role === r ? 'var(--blue)' : 'var(--ink3)',
-                          fontSize: '.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all .2s'
-                        }}
-                      >
-                        {r === 'Parent' ? '👨‍👩‍👧 Parent' : r === 'Teacher' ? '🏫 Teacher' : '👤 User'}
-                      </button>
-                    ))}
+                    {['General', 'Parent', 'Teacher', 'Pastor'].map(r => {
+                      // Only restrict Parent/Teacher for under-13 (Keep Pastor open)
+                      const isRestricted = (r === 'Parent' || r === 'Teacher') && profile.age && parseInt(profile.age) < 13
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => {
+                            if (r === 'Pastor' && profile.role !== 'Pastor') {
+                              setPastorCode('')
+                              setPastorCodeError(false)
+                              setShowPastorModal(true)
+                              return
+                            }
+                            setProfile(p => ({ ...p, role: r }))
+                          }}
+                          disabled={isRestricted}
+                          title={isRestricted ? 'Only available for ages 13+' : ''}
+                          style={{
+                            flex: 1, padding: '8px', borderRadius: 10,
+                            border: `1.5px solid ${profile.role === r ? 'var(--blue)' : 'var(--border)'}`,
+                            background: profile.role === r ? 'var(--blue-bg)' : isRestricted ? 'var(--bg3)' : 'var(--surface)',
+                            color: profile.role === r ? 'var(--blue)' : isRestricted ? 'var(--ink3)' : 'var(--ink3)',
+                            fontSize: '.72rem', fontWeight: 700, cursor: isRestricted ? 'not-allowed' : 'pointer', transition: 'all .2s',
+                            opacity: isRestricted ? 0.5 : 1
+                          }}
+                        >
+                          {r === 'Parent' ? '👨‍👩‍👧 Parent' : r === 'Teacher' ? '🏫 Teacher' : r === 'Pastor' ? '⛪ Pastor' : '👤 User'}
+                        </button>
+                      )
+                    })}
                   </div>
+                  {profile.age && parseInt(profile.age) < 13 && (profile.role === 'Parent' || profile.role === 'Teacher') && (
+                    <div style={{ fontSize:'.55rem', color:'var(--red)', fontWeight:600, marginTop:4 }}>⚠️ Parent/Teacher only for 13+</div>
+                  )}
                 </div>
               </div>
               <div style={{ marginBottom:20 }}>
@@ -369,6 +673,94 @@ export default function Profile() {
                 {user && !saving && !saveError && <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:'.7rem', fontWeight:600, color:'var(--green)' }}><div style={{ width:7, height:7, borderRadius:'50%', background:'var(--green)', animation:'pulse 2s ease-in-out infinite' }} /> Cloud Sync Active</div>}
               </div>
             </div>
+
+            {/* ── Child Profiles (for Parents & Pastors) ─────────────────────────────── */}
+            {(profile.role === 'Parent' || profile.role === 'Pastor' || profile.role === 'Admin') && (
+              <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:24, boxShadow:'var(--sh)' }}>
+                <div style={{ fontSize:'.68rem', fontWeight:800, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:1, marginBottom:16 }}>👨‍👩‍👧 Child Profiles</div>
+                
+                {/* Add Child Form */}
+                <div style={{ background:'var(--bg2)', borderRadius:16, border:'1.5px dashed var(--border)', padding:16, marginBottom:16 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:12, marginBottom:12 }}>
+                    <div>
+                      <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Child's Name</label>
+                      <input className="input-field" placeholder="e.g. Emma" value={childForm.name} onChange={e=>setChildForm(f=>({...f,name:e.target.value}))} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:6 }}>Age</label>
+                      <input className="input-field" type="number" placeholder="Years" value={childForm.age} onChange={e=>setChildForm(f=>({...f,age:e.target.value}))} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:8 }}>Choose Avatar</label>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(60px,1fr))', gap:8 }}>
+                      {AVATARS.map(a => {
+                        const active = childForm.avatar === a.id
+                        return (
+                          <div key={a.id} onClick={()=>setChildForm(f=>({...f,avatar:a.id}))}
+                            style={{ borderRadius:12, padding:'8px', cursor:'pointer', textAlign:'center', transition:'all .22s', border:`2px solid ${active?a.color:'var(--border)'}`, background:active?a.color+'14':'var(--surface)', boxShadow:active?`0 4px 12px ${a.color}28`:'none', transform:active?'scale(1.05)':'scale(1)' }}>
+                            <div style={{ fontSize:'1.5rem', marginBottom:2 }}>{a.emoji}</div>
+                            <div style={{ fontSize:'.5rem', fontWeight:700, color:active?a.color:'var(--ink3)', lineHeight:1 }}>{a.name}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <button className="btn btn-blue btn-full" onClick={addChild}>➕ Add Child</button>
+                  {childCreateError && <div style={{ fontSize:'.75rem', color:'var(--red)', fontWeight:600, marginTop:8, padding:'8px 12px', background:'var(--red-bg)', borderRadius:8, border:'1px solid rgba(239,68,68,.2)' }}>⚠️ {childCreateError}</div>}
+                </div>
+
+                {/* Children List */}
+                {children.length > 0 ? (
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {children.map(child => (
+                      <div key={child.id} style={{ background:'var(--bg2)', borderRadius:12, padding:14, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:12, flex:1 }}>
+                          <div style={{ fontSize:'1.8rem' }}>
+                            {AVATARS.find(a => a.id === child.avatar_url)?.emoji || '👤'}
+                          </div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontWeight:700, color:'var(--ink)', fontSize:'.85rem' }}>{child.display_name}</div>
+                            <div style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:500 }}>Age: {child.age || 'Not set'}</div>
+                          </div>
+                        </div>
+                        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                          <Link to={`/child/${child.id}`} style={{ padding:'8px 16px', borderRadius:10, background:'var(--blue)', color:'white', fontSize:'.75rem', fontWeight:700, textDecoration:'none', transition:'all .2s', whiteSpace:'nowrap' }}
+                            onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+                            onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
+                            📊 View Dashboard
+                          </Link>
+                          <button onClick={()=>{ setChildToDelete(child.id); setDeletePin(''); setDeletePinError(false); setDeleteModal(true) }} style={{ background:'none', border:'none', cursor:'pointer', fontSize:'1.2rem', padding:'4px 8px', color:'var(--red)', opacity:.6, transition:'opacity .2s' }} onMouseEnter={e=>e.currentTarget.style.opacity='1'} onMouseLeave={e=>e.currentTarget.style.opacity='.6'}>🗑️</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign:'center', padding:'20px 16px', color:'var(--ink3)', fontSize:'.8rem', fontWeight:500 }}>No child profiles yet. Add one above!</div>
+                )}
+              </div>
+            )}
+
+            {/* ── Teacher Classrooms (for Teachers & Pastors) ─────────────────────────── */}
+            {(profile.role === 'Teacher' || profile.role === 'Pastor' || profile.role === 'Admin') && (
+              <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:24, boxShadow:'var(--sh)' }}>
+                <div style={{ fontSize:'.68rem', fontWeight:800, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:1, marginBottom:16 }}>🏫 My Classrooms</div>
+                
+                <div style={{ background:'var(--bg2)', borderRadius:16, border:'1.5px dashed var(--border)', padding:16, marginBottom:16, textAlign:'center' }}>
+                  <div style={{ fontSize:'2rem', marginBottom:12 }}>📚</div>
+                  <p style={{ color:'var(--ink2)', fontSize:'.85rem', fontWeight:500, marginBottom:14 }}>Manage your Bible study classrooms, assign activities, and track student progress.</p>
+                  <Link to="/parent-hub" style={{ display:'inline-block', padding:'10px 20px', borderRadius:12, background:'linear-gradient(135deg,#A855F7,#7C3AED)', color:'white', fontWeight:700, fontSize:'.8rem', textDecoration:'none', transition:'all .2s' }}
+                    onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+                    onMouseLeave={e=>e.currentTarget.style.transform='translateY(0)'}>
+                    🏫 Go to Teachers Hub
+                  </Link>
+                </div>
+
+                <div style={{ background:'var(--bg2)', borderRadius:12, padding:14, textAlign:'center', color:'var(--ink3)', fontSize:'.8rem', fontWeight:500 }}>
+                  💡 Create classrooms, add students, and assign Bible reading plans in the Teachers Hub
+                </div>
+              </div>
+            )}
 
             {/* ── Bedtime Mode card ─────────────────────────────────────── */}
             <div style={{
@@ -749,7 +1141,191 @@ export default function Profile() {
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
       `}</style>
+
+      {/* ── Delete Child PIN Modal ─────────────────────────────────────── */}
+      {deleteModal && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.7)', zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ background:'var(--surface)', borderRadius:24, padding:'36px 32px', maxWidth:360, width:'100%', textAlign:'center', fontFamily:'Poppins,sans-serif', boxShadow:'0 40px 100px rgba(0,0,0,.4)', animation:deletePinShake?'shake .4s ease':'none' }}>
+            <div style={{ fontSize:'3rem', marginBottom:12 }}>🔒</div>
+            <h3 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.4rem', fontWeight:800, color:'var(--ink)', marginBottom:6 }}>Delete Child Profile?</h3>
+            <p style={{ fontSize:'.82rem', color:'var(--ink3)', fontWeight:500, marginBottom:22, lineHeight:1.6 }}>
+              Enter your 4-digit parent PIN to confirm deletion.<br />
+              This action cannot be undone.
+            </p>
+            <div style={{ display:'flex', gap:10, justifyContent:'center', marginBottom:16 }}>
+              {[0,1,2,3].map(i => (
+                <div key={i} style={{ width:48, height:56, borderRadius:12, border:`2.5px solid ${deletePinError?'var(--red)':deletePin.length>i?'var(--blue)':'var(--border)'}`, background:deletePin.length>i?'var(--blue-bg)':'var(--bg2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.4rem', fontWeight:800, color:'var(--ink)', transition:'all .2s' }}>
+                  {deletePin.length>i?'●':''}
+                </div>
+              ))}
+            </div>
+            {/* PIN Pad */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, maxWidth:220, margin:'0 auto 20px' }}>
+              {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k, i) => (
+                <button key={i} onClick={() => {
+                  if (k === '⌫') setDeletePin(v => v.slice(0, -1))
+                  else if (k === '') return
+                  else if (deletePin.length < 4) setDeletePin(v => v + k)
+                }} style={{ height:52, borderRadius:12, border:'1.5px solid var(--border)', background:k===''?'transparent':'var(--surface)', color:'var(--ink)', fontSize:'1.1rem', fontWeight:700, cursor:k===''?'default':'pointer', fontFamily:'Poppins,sans-serif', transition:'all .15s' }}
+                  onMouseEnter={e => { if (k) e.currentTarget.style.background = 'var(--blue-bg)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = k===''?'transparent':'var(--surface)' }}>
+                  {k}
+                </button>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={() => { setDeleteModal(false); setChildToDelete(null); setDeletePin(''); setDeletePinError(false) }} style={{ flex:1, padding:'11px 0', borderRadius:12, border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--ink2)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer' }}>Cancel</button>
+              <button onClick={confirmDeleteChild} disabled={deletePin.length < 4} style={{ flex:1, padding:'11px 0', borderRadius:12, border:'none', background:deletePin.length===4?'var(--red)':'var(--bg3)', color:deletePin.length===4?'white':'var(--ink3)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:deletePin.length===4?'pointer':'default', transition:'all .2s' }}>Delete</button>
+            </div>
+            {deletePinError && <div style={{ fontSize:'.78rem', color:'var(--red)', fontWeight:700, marginTop:10 }}>❌ Wrong PIN. Try again.</div>}
+          </div>
+        </div>
+      )}
+
+      {/* ── PIN Setup Modal ─────────────────────────────────────────────── */}
+      {showPinSetup && (
+        <PinSetupModal
+          onComplete={handlePinSetupComplete}
+          onSkip={handlePinSetupSkip}
+        />
+      )}
+
+      {/* ── Pastor Verification Modal ───────────────────────────────────── */}
+      {showPastorModal && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.75)', zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ background:'var(--surface)', borderRadius:28, padding:'40px 36px', maxWidth:480, width:'100%', textAlign:'center', fontFamily:'Poppins,sans-serif', boxShadow:'0 40px 100px rgba(0,0,0,.5)', animation:pastorCodeShake?'shake .4s ease':'slideUp .35s ease', border:'1.5px solid var(--border)', maxHeight:'90vh', overflowY:'auto' }}>
+            <div style={{ fontSize:'3.2rem', marginBottom:14 }}>⛪</div>
+            <h3 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.55rem', fontWeight:800, color:'var(--ink)', marginBottom:8 }}>Pastor Access</h3>
+            
+            <div style={{ display:'flex', borderRadius:12, background:'var(--bg2)', padding:4, marginBottom:24, border:'1.5px solid var(--border)' }}>
+              <button 
+                onClick={() => setPastorModalTab('code')}
+                style={{ flex:1, padding:'8px 0', borderRadius:8, border:'none', background: pastorModalTab === 'code' ? 'var(--surface)' : 'transparent', color: pastorModalTab === 'code' ? 'var(--blue)' : 'var(--ink3)', fontWeight:700, fontSize:'.85rem', cursor:'pointer', transition:'all .2s', boxShadow: pastorModalTab === 'code' ? 'var(--sh-sm)' : 'none' }}>
+                I have a Code
+              </button>
+              <button 
+                onClick={() => setPastorModalTab('request')}
+                style={{ flex:1, padding:'8px 0', borderRadius:8, border:'none', background: pastorModalTab === 'request' ? 'var(--surface)' : 'transparent', color: pastorModalTab === 'request' ? 'var(--blue)' : 'var(--ink3)', fontWeight:700, fontSize:'.85rem', cursor:'pointer', transition:'all .2s', boxShadow: pastorModalTab === 'request' ? 'var(--sh-sm)' : 'none' }}>
+                Request Access
+              </button>
+            </div>
+
+            {pastorModalTab === 'code' && (
+              <>
+                <p style={{ fontSize:'.82rem', color:'var(--ink3)', fontWeight:500, marginBottom:24, lineHeight:1.65 }}>
+                  Enter the unique access code provided to your congregation's leadership to unlock your Pastor account and Church Hub.
+                </p>
+
+                {/* Code input */}
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Enter pastor code…"
+                  value={pastorCode}
+                  onChange={e => { setPastorCode(e.target.value.toUpperCase()); setPastorCodeError(false) }}
+                  onKeyDown={e => e.key === 'Enter' && verifyPastorCode()}
+                  style={{
+                    textAlign:'center', letterSpacing:4, fontWeight:800, fontSize:'1.1rem', width:'100%',
+                    border:`2px solid ${pastorCodeError ? 'var(--red)' : 'var(--blue)'}`,
+                    marginBottom: pastorCodeError ? 8 : 20
+                  }}
+                />
+                {pastorCodeError && (
+                  <div style={{ fontSize:'.78rem', color:'var(--red)', fontWeight:700, marginBottom:16 }}>❌ Invalid code. Please try again.</div>
+                )}
+
+                <div style={{ display:'flex', gap:10 }}>
+                  <button
+                    onClick={closePastorModal}
+                    style={{ flex:1, padding:'12px 0', borderRadius:14, border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--ink2)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer' }}
+                  >Cancel</button>
+                  <button
+                    onClick={verifyPastorCode}
+                    disabled={!pastorCode.trim()}
+                    style={{ flex:1, padding:'12px 0', borderRadius:14, border:'none', background: pastorCode.trim() ? 'var(--blue)' : 'var(--bg3)', color: pastorCode.trim() ? 'white' : 'var(--ink3)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor: pastorCode.trim() ? 'pointer' : 'default', transition:'all .2s' }}
+                  >✅ Verify</button>
+                </div>
+
+                <p style={{ fontSize:'.7rem', color:'var(--ink3)', fontWeight:500, marginTop:18, lineHeight:1.5 }}>
+                  Don't have a code? Tap "Request Access" above to verify your church leadership.
+                </p>
+              </>
+            )}
+
+            {pastorModalTab === 'request' && (
+              <>
+                {pastorReqSuccess ? (
+                  <div style={{ padding:'20px 0' }}>
+                    <div style={{ fontSize:'3rem', marginBottom:12 }}>✅</div>
+                    <h4 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.2rem', fontWeight:800, color:'var(--green)', marginBottom:8 }}>Request Received!</h4>
+                    <p style={{ fontSize:'.85rem', color:'var(--ink3)', fontWeight:500, marginBottom:24, lineHeight:1.6 }}>
+                      We've received your request to unlock Church Hub features for <strong>{pastorReqForm.churchName}</strong>. 
+                      Our team will review this and email you within 24-48 hours.
+                    </p>
+                    <button
+                      onClick={closePastorModal}
+                      style={{ width:'100%', padding:'12px 0', borderRadius:14, border:'none', background:'var(--blue)', color:'white', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer' }}
+                    >Done</button>
+                  </div>
+                ) : (
+                  <div style={{ textAlign:'left' }}>
+                    <p style={{ fontSize:'.82rem', color:'var(--ink3)', fontWeight:500, marginBottom:20, lineHeight:1.5, textAlign:'center' }}>
+                      To protect our community, please provide your church details to unlock the Church Hub tools.
+                    </p>
+
+                    <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:20 }}>
+                      <div>
+                        <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>Your Full Name *</label>
+                        <input className="input-field" placeholder="Pastor John Smith" value={pastorReqForm.fullName} onChange={e=>setPastorReqForm(f=>({...f,fullName:e.target.value}))} style={{ fontSize:'.85rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>Church Name *</label>
+                        <input className="input-field" placeholder="Grace Community Church" value={pastorReqForm.churchName} onChange={e=>setPastorReqForm(f=>({...f,churchName:e.target.value}))} style={{ fontSize:'.85rem' }} />
+                      </div>
+                      <div style={{ display:'flex', gap:10 }}>
+                        <div style={{ flex:1 }}>
+                          <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>City / Location *</label>
+                          <input className="input-field" placeholder="Atlanta, GA" value={pastorReqForm.city} onChange={e=>setPastorReqForm(f=>({...f,city:e.target.value}))} style={{ fontSize:'.85rem' }} />
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>Denomination</label>
+                          <input className="input-field" placeholder="e.g. Baptist (Optional)" value={pastorReqForm.denomination} onChange={e=>setPastorReqForm(f=>({...f,denomination:e.target.value}))} style={{ fontSize:'.85rem' }} />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>Church Website (Optional)</label>
+                        <input className="input-field" placeholder="https://..." value={pastorReqForm.website} onChange={e=>setPastorReqForm(f=>({...f,website:e.target.value}))} style={{ fontSize:'.85rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize:'.68rem', fontWeight:700, color:'var(--ink3)', display:'block', marginBottom:4 }}>Additional Notes (Optional)</label>
+                        <textarea className="textarea-field" placeholder="Any specific needs for your congregation?" value={pastorReqForm.message} onChange={e=>setPastorReqForm(f=>({...f,message:e.target.value}))} style={{ height:60, fontSize:'.85rem' }} />
+                      </div>
+                    </div>
+
+                    {pastorReqError && <div style={{ fontSize:'.75rem', color:'var(--red)', fontWeight:600, background:'var(--red-bg)', padding:'8px 12px', borderRadius:8, marginBottom:16 }}>⚠️ {pastorReqError}</div>}
+
+                    <div style={{ display:'flex', gap:10 }}>
+                      <button
+                        onClick={closePastorModal}
+                        style={{ flex:1, padding:'12px 0', borderRadius:14, border:'1.5px solid var(--border)', background:'var(--surface)', color:'var(--ink2)', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer' }}
+                      >Cancel</button>
+                      <button
+                        onClick={submitPastorRequest}
+                        disabled={pastorReqSubmitting || !pastorReqForm.fullName.trim() || !pastorReqForm.churchName.trim() || !pastorReqForm.city.trim()}
+                        style={{ flex:2, padding:'12px 0', borderRadius:14, border:'none', background: 'var(--blue)', color: 'white', fontFamily:'Poppins,sans-serif', fontWeight:700, fontSize:'.86rem', cursor:'pointer', opacity: pastorReqSubmitting || !pastorReqForm.fullName.trim() || !pastorReqForm.churchName.trim() || !pastorReqForm.city.trim() ? 0.6 : 1, transition:'all .2s' }}
+                      >{pastorReqSubmitting ? '⏳ Sending...' : '📬 Submit Request'}</button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

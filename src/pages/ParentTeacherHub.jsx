@@ -17,9 +17,14 @@ export default function ParentTeacherHub() {
   const { user, profile } = useAuth()
   const { controls, updateControls } = useParentalControls()
   const { sendWeeklyDigest } = useEmailDigest()
-  const [activeTab, setActiveTab] = useState(profile?.role === 'Teacher' ? 'teacher' : 'parent')
+  const userRole = profile?.role?.toLowerCase() || ''
+  const isTeacherRole = userRole === 'teacher' || userRole === 'pastor' || userRole === 'leader' || userRole === 'admin'
+  const [activeTab, setActiveTab] = useState(isTeacherRole ? 'teacher' : 'parent')
   const [resources, setResources] = useState([])
   const [loading, setLoading] = useState(false)
+  const [creatingPlan, setCreatingPlan] = useState(false)
+  const [planError, setPlanError] = useState(null)
+  const [planSuccess, setPlanSuccess] = useState(false)
   const [showGenerator, setShowGenerator] = useState(false)
 
   useEffect(() => {
@@ -166,9 +171,48 @@ export default function ParentTeacherHub() {
   const createPlan = async () => {
     const title = document.getElementById('plan-title').value
     const days = parseInt(document.getElementById('plan-days').value)
-    if (title && user?.id) {
-      await db.upsertFamilyPlan(user.id, { title, total_days: days })
-      window.location.reload()
+    
+    if (!title || !days) {
+      setPlanError('Please enter a plan title and number of days')
+      return
+    }
+
+    if (days < 1 || days > 365) {
+      setPlanError('Days must be between 1 and 365')
+      return
+    }
+
+    setCreatingPlan(true)
+    setPlanError(null)
+    setPlanSuccess(false)
+
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated')
+      }
+
+      console.log('Creating plan:', { title, days, userId: user.id })
+      const result = await db.upsertFamilyPlan(user.id, { title, total_days: days })
+      
+      console.log('Plan creation result:', result)
+      
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+
+      setPlanSuccess(true)
+      document.getElementById('plan-title').value = ''
+      document.getElementById('plan-days').value = '7'
+
+      // Reload after 1.5 seconds to show success message
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
+    } catch (err) {
+      console.error('Error creating plan:', err)
+      setPlanError(err.message || 'Failed to create plan. Please try again.')
+    } finally {
+      setCreatingPlan(false)
     }
   }
 
@@ -268,12 +312,23 @@ export default function ParentTeacherHub() {
         {activeTab === 'family' ? (
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
              <div style={{ background:'var(--surface)', borderRadius:24, border:'1.5px solid var(--border)', padding:28, boxShadow:'var(--sh)', marginBottom:32 }}>
-                <h3 style={{ fontFamily:"'Baloo 2', cursive", fontSize:'1.3rem', fontWeight:800, color:'var(--ink)', marginBottom:20 }}>📖 Create Family Devotional Plan</h3>
+                <h3 style={{ fontFamily:"'Baloo 2', cursive", fontSize:'1.3rem', fontWeight:800, color:'var(--ink)', marginBottom:8 }}>📖 Create Family Devotional Plan</h3>
+                <p style={{ fontSize:'.85rem', color:'var(--ink2)', fontWeight:500, marginBottom:20 }}>Give your family devotional journey a name and set how many days it will last.</p>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, flexWrap:'wrap' }}>
-                  <input className="input-field" placeholder="Plan Title" style={{ fontSize:'.9rem' }} id="plan-title" />
-                  <input className="input-field" type="number" placeholder="Days" style={{ fontSize:'.9rem' }} id="plan-days" defaultValue="7" />
-                  <button className="btn btn-green" onClick={createPlan}>Create Plan</button>
+                  <div>
+                    <label style={{ fontSize:'.75rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:0.5, display:'block', marginBottom:6 }}>Plan Title</label>
+                    <input className="input-field" placeholder="e.g., Summer Prayer Journey" style={{ fontSize:'.9rem' }} id="plan-title" />
+                  </div>
+                  <div>
+                    <label style={{ fontSize:'.75rem', fontWeight:700, color:'var(--ink3)', textTransform:'uppercase', letterSpacing:0.5, display:'block', marginBottom:6 }}>Duration (Days)</label>
+                    <input className="input-field" type="number" placeholder="7" style={{ fontSize:'.9rem' }} id="plan-days" defaultValue="7" />
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
+                    <button className="btn btn-green" onClick={createPlan} disabled={creatingPlan}>{creatingPlan ? '⏳ Creating...' : 'Create Plan'}</button>
+                  </div>
                 </div>
+                {planError && <div style={{ fontSize:'.82rem', color:'var(--red)', fontWeight:600, marginTop:12 }}>⚠️ {planError}</div>}
+                {planSuccess && <div style={{ fontSize:'.82rem', color:'var(--green)', fontWeight:600, marginTop:12 }}>✅ Plan created successfully!</div>}
              </div>
              <FamilyPlansList parentId={user?.id} />
           </div>
@@ -444,15 +499,47 @@ function FamilyPlansList({ parentId }) {
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
   const [children, setChildren] = useState([])
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!parentId) return
-    Promise.all([db.getFamilyPlans(parentId), db.getChildProfiles(parentId)]).then(([{ data: p }, { data: c }]) => {
-      setPlans(p || []); setChildren(c || []); setLoading(false)
-    })
+    if (!parentId) {
+      setLoading(false)
+      return
+    }
+
+    const fetchData = async () => {
+      try {
+        console.log('[FamilyPlansList] Starting fetch for parentId:', parentId)
+        setLoading(true)
+        setError(null)
+        
+        console.log('[FamilyPlansList] Calling getFamilyPlans with skipCache=true...')
+        const plansRes = await db.getFamilyPlans(parentId, true)
+        console.log('[FamilyPlansList] getFamilyPlans result:', plansRes)
+        
+        console.log('[FamilyPlansList] Calling getChildProfiles with skipCache=true...')
+        const childrenRes = await db.getChildProfiles(parentId, true)
+        console.log('[FamilyPlansList] getChildProfiles result:', childrenRes)
+        
+        setPlans(plansRes?.data || [])
+        setChildren(childrenRes?.data || [])
+        console.log('[FamilyPlansList] State updated. Plans:', plansRes?.data?.length, 'Children:', childrenRes?.data?.length)
+      } catch (err) {
+        console.error('[FamilyPlansList] Error fetching family plans:', err)
+        setError(err.message || 'Failed to load family plans')
+        setPlans([])
+        setChildren([])
+      } finally {
+        console.log('[FamilyPlansList] Setting loading to false')
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [parentId])
 
   if (loading) return <div style={{ color:'var(--ink3)' }}>Loading family journeys...</div>
+  if (error) return <div style={{ textAlign:'center', padding:40, background:'var(--surface)', borderRadius:24, border:'1.5px dashed var(--border)', color:'var(--red)' }}>⚠️ {error}</div>
   if (plans.length === 0) return <div style={{ textAlign:'center', padding:40, background:'var(--surface)', borderRadius:24, border:'1.5px dashed var(--border)' }}>No active family plans.</div>
 
   return (

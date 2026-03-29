@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: 'Baloo 2', system-ui, sans-serif;
   position: relative;
   overflow: hidden;
   padding: 20px;
@@ -196,6 +196,7 @@
   color: white;
   letter-spacing: -0.5px;
   line-height: 1;
+  font-family: 'Baloo 2', system-ui, sans-serif;
 }
 
 .logoText span {
@@ -467,12 +468,13 @@
   margin-bottom: 28px;
 }
 
-/* Constrain Clerk form elements */
+/* Constrain Clerk form elements and apply Baloo 2 font */
 .formContainer :global(.cl-rootBox),
 .formContainer :global(.cl-card) {
   width: 100% !important;
   max-width: 360px !important;
   margin: 0 auto !important;
+  font-family: 'Baloo 2', system-ui, sans-serif !important;
 }
 
 .formContainer :global(.cl-formFieldInput),
@@ -481,6 +483,7 @@
   max-width: 360px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  font-family: 'Baloo 2', system-ui, sans-serif !important;
 }
 
 .formContainer :global(.cl-form),
@@ -491,6 +494,7 @@
   width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
+  font-family: 'Baloo 2', system-ui, sans-serif !important;
 }
 
 /* Benefits Section */

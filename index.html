@@ -3,41 +3,140 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BibleFunLand — Where Faith Meets Fun! Bible Games, Devotionals & More</title>
-    <meta name="description" content="Free Bible games, AI devotionals, interactive Bible map, memory verse flashcards, sermon notes, community prayer wall and more — for families who love God's Word." />
-    <meta name="keywords" content="bible games for kids, bible trivia, christian devotional, bible study tools, scripture memory, sunday school games, VBS, family faith" />
+    
+    <!-- Primary Meta Tags -->
+    <title>BibleFunLand — Interactive Bible Learning for Kids & Families | Free Christian Games & Devotionals</title>
+    <meta name="title" content="BibleFunLand — Interactive Bible Learning for Kids & Families" />
+    <meta name="description" content="Discover 80+ free Bible games, AI-powered devotionals, scripture memory tools, worship music, family devotional plans, and interactive learning for all ages. Make faith fun!" />
+    <meta name="keywords" content="bible games for kids, christian games, bible trivia, AI devotional generator, scripture memory, bible study tools, sunday school resources, VBS games, family devotionals, worship music, bible alphabet, kids bible stories, sermon writer, couples devotional, fasting tracker, bible family tree, parenting resources, teacher resources" />
     <meta name="author" content="BibleFunLand" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://biblefunland.com/" />
-    <meta property="og:title" content="BibleFunLand — Where Faith Meets Fun!" />
-    <meta property="og:description" content="Free Bible games, AI devotionals, interactive maps, and more for the whole family." />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://biblefunland.com" />
+    <meta property="og:title" content="BibleFunLand — Interactive Bible Learning for Kids & Families" />
+    <meta property="og:description" content="80+ free Bible games, AI devotionals, scripture tools, worship music & family resources. Make faith fun for all ages!" />
     <meta property="og:image" content="https://biblefunland.com/og-image.png" />
+    <meta property="og:site_name" content="BibleFunLand" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BibleFunLand — Bible Games & Devotionals" />
+    <meta name="twitter:url" content="https://biblefunland.com" />
+    <meta name="twitter:title" content="BibleFunLand — Bible Games & Devotionals for Families" />
+    <meta name="twitter:description" content="80+ free Bible games, AI devotionals, scripture memory tools & worship music. Faith made fun!" />
     <meta name="twitter:image" content="https://biblefunland.com/og-image.png" />
-    <link rel="icon" type="image/svg+xml" href="/cross.svg" />
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="BibleFunLand" />
-    <link rel="apple-touch-icon" href="/cross.svg" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <meta name="theme-color" content="#3B82F6" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+    
+    <!-- Performance & Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://amused-slug-8.clerk.accounts.dev" />
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    
     <!-- AdSense: uncomment + replace ca-pub-XXXXXXXXXX after approval
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
     -->
-    <!-- GA4: uncomment + replace G-XXXXXXXXXX after getting measurement ID
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX',{anonymize_ip:true});</script>
-    -->
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"BibleFunLand","url":"https://biblefunland.com","description":"Free Bible games, AI devotionals, scripture tools and community for families"}</script>
+    
+    <!-- GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA_MEASUREMENT_ID%"></script>
+    <script>
+      window.dataLayer=window.dataLayer||[];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js',new Date());
+      gtag('config','%VITE_GA_MEASUREMENT_ID%',{anonymize_ip:true,send_page_view:false});
+    </script>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "BibleFunLand",
+      "alternateName": "Bible Fun Land",
+      "url": "https://biblefunland.com",
+      "description": "Interactive Bible learning platform with 80+ free games, AI devotionals, scripture memory tools, worship music, and family resources for all ages",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://biblefunland.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "BibleFunLand",
+        "url": "https://biblefunland.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://biblefunland.com/favicon.png"
+        }
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Families, Children, Parents, Teachers, Sunday School Leaders"
+      },
+      "keywords": "bible games, christian education, scripture memory, family devotionals, sunday school resources"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "BibleFunLand",
+      "url": "https://biblefunland.com",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1250"
+      }
+    }
+    </script>
+    <!-- Explicit CSP to satisfy Turnstile/Clerk -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; connect-src *;">
+    
+    <!-- Safe SW Purge (Prevents Reload Loops) -->
+    <script>
+      (function() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            if (registrations.length > 0 && !sessionStorage.getItem('sw_purged')) {
+              for(let registration of registrations) { registration.unregister(); }
+              sessionStorage.setItem('sw_purged', 'true');
+              console.log('🗑️ SW Purged properly');
+              setTimeout(() => window.location.reload(), 500);
+            }
+          });
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

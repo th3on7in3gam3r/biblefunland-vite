@@ -3,78 +3,6 @@ import { SignIn, SignUp, useUser } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import styles from './Auth.module.css'
 
-const CLERK_APPEARANCE = {
-  variables: {
-    colorPrimary: '#6366f1',
-    colorText: '#1f2937',
-    colorTextSecondary: '#6b7280',
-    fontFamily: "'Poppins', system-ui, sans-serif",
-    borderRadius: '12px',
-    fontSize: '14px',
-  },
-  elements: {
-    rootBox: { width: '100%', fontFamily: "'Poppins', system-ui, sans-serif" },
-    card: { boxShadow: 'none', border: 'none', padding: 0, background: 'transparent', width: '100%' },
-    headerTitle: { display: 'none' },
-    headerSubtitle: { display: 'none' },
-    socialButtonsBlockButton: { 
-      borderRadius: '12px', 
-      border: '2px solid #e5e7eb', 
-      fontFamily: "'Poppins', sans-serif",
-      height: '48px',
-      fontSize: '14px',
-      fontWeight: '600',
-      backgroundColor: '#FFFFFF',
-      color: '#1f2937',
-      transition: 'all 0.2s ease',
-      '&:hover': { backgroundColor: '#f9fafb', borderColor: '#6366f1', transform: 'translateY(-2px)' }
-    },
-    formButtonPrimary: { 
-      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', 
-      borderRadius: '12px', 
-      fontFamily: "'Poppins', sans-serif", 
-      textTransform: 'none',
-      height: '48px',
-      fontSize: '15px',
-      fontWeight: '700',
-      transition: 'all 0.2s ease',
-      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
-      '&:hover': { 
-        background: 'linear-gradient(135deg, #5558e3, #7c3aed)',
-        transform: 'translateY(-2px)',
-        boxShadow: '0 6px 20px rgba(99, 102, 241, 0.3)'
-      }
-    },
-    formFieldInput: { 
-      borderRadius: '12px', 
-      border: '2px solid #e5e7eb', 
-      fontFamily: "'Poppins', sans-serif",
-      padding: '0 16px',
-      backgroundColor: '#FFFFFF',
-      fontSize: '14px',
-      height: '48px',
-      transition: 'all 0.2s ease',
-      '&:focus': { 
-        borderColor: '#6366f1', 
-        boxShadow: '0 0 0 4px rgba(99, 102, 241, 0.1)',
-        transform: 'translateY(-1px)'
-      }
-    },
-    footerActionText: { color: '#6b7280', fontWeight: '500', fontSize: '14px' },
-    footerActionLink: { color: '#6366f1', fontWeight: '700', fontSize: '14px' },
-    formFieldLabel: { 
-      fontWeight: '600', 
-      color: '#374151', 
-      fontSize: '13px',
-      marginBottom: '8px',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px'
-    },
-    dividerText: { color: '#9ca3af', fontSize: '13px', fontWeight: '600' },
-    dividerLine: { backgroundColor: '#e5e7eb' }
-  }
-}
-
 export default function Auth() {
   const [mode, setMode] = useState('signin')
   const { isSignedIn, isLoaded } = useUser()
@@ -241,14 +169,12 @@ export default function Auth() {
                   routing="hash"
                   fallbackRedirectUrl={redirect}
                   signUpUrl="/auth?mode=signup"
-                  appearance={CLERK_APPEARANCE}
                 />
               ) : (
                 <SignUp
                   routing="hash"
                   fallbackRedirectUrl={redirect}
                   signInUrl="/auth?mode=signin"
-                  appearance={CLERK_APPEARANCE}
                 />
               )}
             </div>

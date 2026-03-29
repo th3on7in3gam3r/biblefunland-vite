@@ -1,0 +1,483 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Poppins', sans-serif;
+}
+
+.header {
+  background: linear-gradient(135deg, #0f0f1a, #1a0a2e);
+  padding: 32px 20px 28px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  background: linear-gradient(90deg, #fcd34d, #f97316, #ec4899, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: clamp(0.8rem, 2vw, 0.88rem);
+  font-weight: 500;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.main {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.searchBar {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.eraFilters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.eraBtn {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink3);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.eraBtn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.eraBtnActive {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+}
+
+.eraBtnActive:hover {
+  background: var(--blue);
+  color: white;
+}
+
+.timelineWrapper {
+  background: #0b1525;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  padding: 20px 0 16px;
+  position: relative;
+}
+
+.timelineScroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.timelineScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timelineScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timelineScroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.timelineInner {
+  width: 60200px;
+  position: relative;
+  height: min(550px, 75vh);
+  min-width: 100%;
+  padding: 80px 0;
+}
+
+.eraBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--eraColor);
+  opacity: 0.06;
+  border-right: 1px solid var(--eraColor);
+  border-left: 1px solid var(--eraColor);
+}
+
+.eraLabel {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  color: var(--eraColor);
+  opacity: 0.7;
+}
+
+.centerLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-50%);
+}
+
+.yearMarker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.yearTick {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 auto;
+}
+
+.yearLabel {
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.eventNode {
+  position: absolute;
+  transform: translateX(-50%);
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.eventNode:hover {
+  transform: translateX(-50%) scale(1.05);
+}
+
+.connector {
+  width: 1px;
+  height: 20px;
+  transition: opacity 0.2s;
+}
+
+.nodeCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid var(--eraColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.nodeCircleSelected {
+  background: var(--eraColor);
+  transform: scale(1.2);
+  box-shadow: 0 0 20px var(--eraColor);
+}
+
+.eventLabel {
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  white-space: nowrap;
+  margin-top: 4px;
+  max-width: 70px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventLabelSelected {
+  color: var(--eraColor);
+  opacity: 1;
+}
+
+.labelYear {
+  font-size: 0.5rem;
+  opacity: 0.6;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.detailCard {
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1.5px solid var(--eraColor);
+  padding: 20px;
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.detailIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--eraColor);
+  opacity: 0.12;
+  border: 2px solid var(--eraColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.detailContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.detailHeader {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.detailTitle {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.detailBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: var(--eraColor);
+  opacity: 0.15;
+  color: var(--eraColor);
+}
+
+.detailRef {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: var(--bg2);
+  color: var(--blue);
+}
+
+.detailDesc {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.75;
+  font-weight: 500;
+  margin: 0;
+}
+
+.detailEra {
+  font-size: 0.7rem;
+  color: var(--ink3);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ink3);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 24px 16px 20px;
+  }
+
+  .main {
+    padding: 16px 12px 80px;
+  }
+
+  .eraFilters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .eraFilters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .eraBtn {
+    flex-shrink: 0;
+  }
+
+  .timelineInner {
+    height: 420px;
+    padding: 40px 0;
+  }
+
+  .nodeCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .eventLabel {
+    font-size: 0.5rem;
+    max-width: 60px;
+  }
+
+  .detailCard {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .detailIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+  }
+
+  .detailTitle {
+    font-size: 1.05rem;
+  }
+
+  .detailDesc {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .timelineWrapper {
+    border-radius: 16px;
+  }
+
+  .timelineInner {
+    height: 380px;
+    padding: 30px 0;
+  }
+
+  .eraLabel {
+    font-size: 0.5rem;
+  }
+
+  .jumpToEra {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .jumpBtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 100px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 16px;
+  backdrop-filter: blur(4px);
+  animation: fadeInOut 3s infinite;
+  z-index: 10;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}

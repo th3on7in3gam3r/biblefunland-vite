@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { formatUser } from '../lib/clerk'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const AuthContext = createContext(null)
 
@@ -15,7 +16,11 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user?.id) {
-      db.getProfile(user.id).then(({ data }) => setProfile(data)).catch(() => {})
+      requestQueue.execute(
+        `profile:${user.id}`,
+        () => db.getProfile(user.id),
+        { priority: 0, cacheable: true, ttl: 20 * 60 * 1000 }
+      ).then(({ data }) => setProfile(data)).catch(() => {})
     } else {
       setProfile(null)
     }
@@ -23,9 +28,13 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = async () => {
     if (user?.id) {
-      const { data } = await db.getProfile(user.id)
-      setProfile(data)
-      return data
+      const result = await requestQueue.execute(
+        `profile-refresh:${user.id}`,
+        () => db.getProfile(user.id),
+        { priority: 1, cacheable: false }
+      )
+      setProfile(result?.data)
+      return result?.data
     }
   }
 
@@ -40,6 +49,13 @@ export function AuthProvider({ children }) {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
+  if (!ctx) {
+    // During HMR, context might temporarily be unavailable
+    if (import.meta.hot) {
+      console.warn('useAuth called before AuthProvider is ready (HMR)')
+      return { user: null, profile: null, loading: true }
+    }
+    throw new Error('useAuth must be used inside AuthProvider')
+  }
   return ctx
 }

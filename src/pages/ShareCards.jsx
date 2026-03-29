@@ -37,6 +37,45 @@ export default function ShareCards(){
   }
   function download(){const a=document.createElement('a');a.download='bibleverse.png';a.href=canvasRef.current.toDataURL('image/png');a.click()}
   function copyText(){navigator.clipboard.writeText(`${verse}\n— ${ref}\n\nShared from BibleFunLand.com`);setCopied(true);setTimeout(()=>setCopied(false),2000)}
+  
+  function shareToTwitter(){
+    const text = encodeURIComponent(`${verse}\n— ${ref}\n\n#BibleFunLand #Scripture`)
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
+  }
+  
+  function shareToFacebook(){
+    const url = encodeURIComponent('https://biblefunland.com')
+    const quote = encodeURIComponent(`${verse} — ${ref}`)
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`, '_blank')
+  }
+  
+  function shareToWhatsApp(){
+    const text = encodeURIComponent(`${verse}\n— ${ref}\n\nShared from BibleFunLand.com`)
+    window.open(`https://wa.me/?text=${text}`, '_blank')
+  }
+  
+  function shareToPinterest(){
+    const media = canvasRef.current.toDataURL('image/png')
+    const description = encodeURIComponent(`${verse} — ${ref} | BibleFunLand.com`)
+    const url = encodeURIComponent('https://biblefunland.com')
+    window.open(`https://pinterest.com/pin/create/button/?url=${url}&description=${description}`, '_blank')
+  }
+  async function shareCard(){
+    if(!navigator.share){alert('Share not supported on this device');return}
+    try{
+      const canvas=canvasRef.current
+      canvas.toBlob(async blob=>{
+        const file=new File([blob],'verse.png',{type:'image/png'})
+        await navigator.share({
+          title:'Bible Verse',
+          text:`${verse}\n— ${ref}`,
+          files:[file]
+        })
+      })
+    }catch(err){
+      if(err.name!=='AbortError')console.error('Share failed:',err)
+    }
+  }
   return(
     <div style={{background:'var(--bg)',minHeight:'100vh',fontFamily:'Poppins,sans-serif'}}>
       <div style={{background:'linear-gradient(135deg,#0F0F1A,#1C1B3A)',padding:'60px 36px 44px',textAlign:'center'}}>
@@ -59,9 +98,42 @@ export default function ShareCards(){
           </div>
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
             <canvas ref={canvasRef} width={540} height={540} style={{borderRadius:16,maxWidth:'100%',boxShadow:'0 20px 60px rgba(0,0,0,.18)'}}/>
+            
+            {/* Primary actions */}
             <div style={{display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
               <button className="btn" style={{background:'linear-gradient(135deg,#F472B6,#C084FC)',color:'white',border:'none',boxShadow:'0 4px 16px rgba(196,132,252,.3)'}} onClick={download}>⬇️ Download PNG</button>
               <button className="btn btn-outline" onClick={copyText}>{copied?'✅ Copied!':'📋 Copy Text'}</button>
+              {navigator.share&&<button className="btn" style={{background:'linear-gradient(135deg,#10B981,#059669)',color:'white',border:'none',boxShadow:'0 4px 16px rgba(16,185,129,.3)'}} onClick={shareCard}>📤 Share</button>}
+            </div>
+
+            {/* Social platform buttons */}
+            <div style={{width:'100%',background:'var(--surface)',borderRadius:16,border:'1.5px solid var(--border)',padding:'16px 20px'}}>
+              <div style={{fontSize:'.68rem',fontWeight:800,color:'var(--ink3)',textTransform:'uppercase',letterSpacing:1,marginBottom:12,textAlign:'center'}}>Share to Social</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                <button onClick={shareToTwitter} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'10px 14px',borderRadius:12,border:'1.5px solid #1DA1F2',background:'rgba(29,161,242,.08)',color:'#1DA1F2',fontFamily:'Poppins,sans-serif',fontWeight:700,fontSize:'.78rem',cursor:'pointer',transition:'all .2s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(29,161,242,.18)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(29,161,242,.08)'}>
+                  𝕏 Twitter / X
+                </button>
+                <button onClick={shareToFacebook} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'10px 14px',borderRadius:12,border:'1.5px solid #1877F2',background:'rgba(24,119,242,.08)',color:'#1877F2',fontFamily:'Poppins,sans-serif',fontWeight:700,fontSize:'.78rem',cursor:'pointer',transition:'all .2s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(24,119,242,.18)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(24,119,242,.08)'}>
+                  📘 Facebook
+                </button>
+                <button onClick={shareToWhatsApp} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'10px 14px',borderRadius:12,border:'1.5px solid #25D366',background:'rgba(37,211,102,.08)',color:'#25D366',fontFamily:'Poppins,sans-serif',fontWeight:700,fontSize:'.78rem',cursor:'pointer',transition:'all .2s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(37,211,102,.18)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(37,211,102,.08)'}>
+                  💬 WhatsApp
+                </button>
+                <button onClick={shareToPinterest} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'10px 14px',borderRadius:12,border:'1.5px solid #E60023',background:'rgba(230,0,35,.08)',color:'#E60023',fontFamily:'Poppins,sans-serif',fontWeight:700,fontSize:'.78rem',cursor:'pointer',transition:'all .2s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(230,0,35,.18)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='rgba(230,0,35,.08)'}>
+                  📌 Pinterest
+                </button>
+              </div>
+              <div style={{marginTop:8,fontSize:'.68rem',color:'var(--ink3)',textAlign:'center',fontWeight:500}}>
+                💡 Download the image first, then attach it when posting to Instagram
+              </div>
             </div>
           </div>
         </div>

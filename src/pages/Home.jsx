@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { useStreak } from '../context/StreakContext'
 import { AdBanner, AdInContent } from '../components/AdUnit'
 import { useKidsMode } from '../context/KidsModeContext'
+import { useChildSwitcher } from '../context/ChildSwitcherContext'
+import KidsDashboard from './KidsDashboard'
 
 // ── Reveal-on-scroll hook ──────────────────────────────
 function useReveal() {
@@ -96,20 +98,34 @@ function SectionPill({ color, bg, children }) {
   )
 }
 
-function SectionHeader({ pill, pillColor, pillBg, title, sub }) {
+function SectionHeader({ pill, pillColor, pillBg, title, sub, titleColor, subColor }) {
   return (
     <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
       <SectionPill color={pillColor} bg={pillBg}>{pill}</SectionPill>
-      <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.6rem,3.5vw,2.6rem)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.2, marginBottom: sub ? 10 : 0 }}>{title}</h2>
-      {sub && <p style={{ fontSize: '.9rem', color: 'var(--ink3)', fontWeight: 500, maxWidth: 520, margin: '0 auto' }}>{sub}</p>}
+      <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.6rem,3.5vw,2.6rem)', fontWeight: 800, color: titleColor || 'var(--ink)', lineHeight: 1.2, marginBottom: sub ? 10 : 0 }}>{title}</h2>
+      {sub && <p style={{ fontSize: '.9rem', color: subColor || 'var(--ink3)', fontWeight: 500, maxWidth: 520, margin: '0 auto' }}>{sub}</p>}
     </div>
   )
 }
+
+const STICKY_CARDS = [
+  { icon: '🎮', title: 'Scripture Trivia', desc: 'Test your Bible knowledge with timed rounds', to: '/trivia', color: '#3B82F6' },
+  { icon: '🙏', title: 'AI Devotional', desc: 'Get a personalized devotion in seconds', to: '/devotional', color: '#8B5CF6' },
+  { icon: '🎵', title: 'Bible Rap Generator', desc: 'Create scripture raps and worship songs', to: '/ai/rap-generator', color: '#A855F7' },
+  { icon: '📿', title: 'Prayer Beads', desc: 'Meditate through 10 powerful scriptures', to: '/prayer-beads', color: '#6366F1' },
+  { icon: '🌍', title: 'Global Prayer Map', desc: 'See real-time prayers from around the world', to: '/prayer-map', color: '#10B981' },
+]
 
 export default function Home() {
   useReveal()
   const { streak, checkedToday, checkIn } = useStreak()
   const { kidsMode } = useKidsMode()
+  const { isChildSession } = useChildSwitcher()
+
+  if (kidsMode || isChildSession) {
+    return <KidsDashboard />
+  }
+
   const todayVerse = DAILY_VERSES[new Date().getDay()]
   const [heroParticles] = useState(() =>
     Array.from({ length: 22 }, (_, i) => ({
@@ -127,58 +143,9 @@ export default function Home() {
     <div style={{ background: 'var(--bg)', fontFamily: 'Poppins,sans-serif', overflowX: 'hidden' }}>
 
       {/* ═══════════════════════════════════════════════
-      {/* ═══════════════════════════════════════════════
-          HERO — switches between Adult + Kids Mode
+          HERO
       ═══════════════════════════════════════════════ */}
-      {kidsMode ? (
-        /* ── KIDS HERO ─────────────────────────────── */
-        <section style={{ position:'relative', minHeight:'92vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', overflow:'hidden', padding:'80px 24px 60px', textAlign:'center', background:'linear-gradient(180deg,#1A4FD6 0%,#2563EB 40%,#7C3AED 100%)' }}>
-          {/* Clouds */}
-          {[{l:'5%',t:'12%',s:180},{l:'70%',t:'8%',s:140},{l:'40%',t:'18%',s:200},{l:'15%',t:'55%',s:120},{l:'78%',t:'50%',s:160}].map((c,i)=>(
-            <div key={i} style={{ position:'absolute', left:c.l, top:c.t, width:c.s, height:c.s*0.45, borderRadius:'50%', background:'rgba(255,255,255,.15)', animation:`cloud ${8+i*1.5}s ease-in-out ${i*-2}s infinite alternate`, pointerEvents:'none', zIndex:0 }} />
-          ))}
-          {/* Stars */}
-          {Array.from({length:20},(_,i)=>({l:Math.random()*100,t:Math.random()*70,s:4+Math.random()*8})).map((s,i)=>(
-            <div key={i} style={{ position:'absolute', left:`${s.l}%`, top:`${s.t}%`, width:s.s, height:s.s, borderRadius:'50%', background:'white', opacity:.6+Math.random()*.4, animation:`twinkle ${2+Math.random()*3}s ease-in-out ${Math.random()*-4}s infinite`, pointerEvents:'none', zIndex:0 }} />
-          ))}
-          {/* Rainbow arc */}
-          <div style={{ position:'absolute', bottom:-80, left:'50%', transform:'translateX(-50%)', width:700, height:350, borderRadius:'50% 50% 0 0', background:'transparent', border:'28px solid transparent', borderImage:'linear-gradient(90deg,#EF4444,#F97316,#FCD34D,#22C55E,#3B82F6,#8B5CF6) 1', opacity:.35, pointerEvents:'none', zIndex:0 }} />
-          {/* Floating animals */}
-          {[['🦁','8%','65%','bobL'],['🐑','86%','60%','bobR'],['🐋','3%','25%','bobL'],['🦅','88%','18%','bobR'],['🐟','50%','80%','bobL'],['🕊️','45%','10%','bobR']].map(([e,l,t,a],i)=>(
-            <div key={i} style={{ position:'absolute', left:l, top:t, fontSize:'2.2rem', animation:`${a} ${3+i*.5}s ease-in-out ${i*-.7}s infinite`, pointerEvents:'none', zIndex:1, filter:'drop-shadow(0 4px 8px rgba(0,0,0,.2))' }}>{e}</div>
-          ))}
-          {/* Content */}
-          <div style={{ position:'relative', zIndex:2, maxWidth:700 }}>
-            <div style={{ fontSize:'clamp(3.5rem,10vw,6rem)', marginBottom:12, animation:'bounceIn .7s ease both', filter:'drop-shadow(0 6px 20px rgba(0,0,0,.2))' }}>✝️</div>
-            <h1 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'clamp(2.2rem,7vw,4.5rem)', fontWeight:800, color:'white', lineHeight:1.05, marginBottom:16, textShadow:'0 4px 20px rgba(0,0,0,.3)', animation:'fadeUp .7s .1s ease both' }}>
-              Bible Fun<br />
-              <span style={{ background:'linear-gradient(90deg,#FCD34D,#FDE68A)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>for Kids! 🎉</span>
-            </h1>
-            <p style={{ fontSize:'clamp(1rem,3vw,1.3rem)', color:'rgba(255,255,255,.9)', fontWeight:700, lineHeight:1.6, marginBottom:36, textShadow:'0 2px 8px rgba(0,0,0,.2)', animation:'fadeUp .7s .2s ease both' }}>
-              Games · Stories · Puzzles · Prayer 🙏<br/>All about God's amazing Word!
-            </p>
-            <div style={{ display:'flex', gap:14, justifyContent:'center', flexWrap:'wrap', marginBottom:36, animation:'fadeUp .7s .3s ease both' }}>
-              <Link to="/trivia" className="btn btn-lg" style={{ background:'#FCD34D', color:'#0A0A0A', border:'none', boxShadow:'0 8px 28px rgba(252,211,77,.4)', fontWeight:800, fontSize:'1rem', borderRadius:20 }}>🎮 Play Trivia!</Link>
-              <Link to="/kids-stories" className="btn btn-lg" style={{ background:'white', color:'#3B82F6', border:'none', boxShadow:'0 8px 28px rgba(255,255,255,.3)', fontWeight:800, fontSize:'1rem', borderRadius:20 }}>📖 Bible Stories</Link>
-              <Link to="/game/runner" className="btn btn-lg" style={{ background:'rgba(255,255,255,.15)', color:'white', border:'2px solid rgba(255,255,255,.4)', fontWeight:800, fontSize:'1rem', borderRadius:20 }}>🏃 Scripture Runner</Link>
-            </div>
-            {/* Fun feature pills */}
-            <div style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap', animation:'fadeUp .7s .4s ease both' }}>
-              {['🎨 Activity Sheets','🧩 Escape Room','🏹 David & Goliath','🎰 Spin the Verse','🏆 Earn Badges','🌈 Prayer Beads'].map((pill,i)=>(
-                <span key={i} style={{ fontSize:'.82rem', fontWeight:800, padding:'7px 16px', borderRadius:100, background:'rgba(255,255,255,.18)', color:'white', border:'1.5px solid rgba(255,255,255,.3)' }}>{pill}</span>
-              ))}
-            </div>
-          </div>
-          <style>{`
-            @keyframes cloud{from{transform:translateX(0) scale(1)}to{transform:translateX(18px) scale(1.04)}}
-            @keyframes twinkle{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
-            @keyframes bobL{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
-            @keyframes bobR{0%,100%{transform:translateY(0) rotate(3deg)}50%{transform:translateY(-14px) rotate(-3deg)}}
-            @keyframes bounceIn{0%{transform:scale(0) rotate(-15deg)}70%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0deg)}}
-          `}</style>
-        </section>
-      ) : (
-        /* ── ADULT HERO ─────────────────────────────── */
+      {/* ── ADULT HERO ─────────────────────────────── */}
         <section style={{ position: 'relative', minHeight: '92vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '80px 24px 60px', textAlign: 'center' }}>
           {/* Deep gradient bg */}
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#0F0F1A 0%,#0D1B2A 35%,#1A0A2E 70%,#0D1F14 100%)', zIndex: 0 }} />
@@ -225,7 +192,6 @@ export default function Home() {
             <div style={{ width: 1.5, height: 40, background: 'linear-gradient(180deg,rgba(255,255,255,.3),transparent)', animation: 'scrollLine 2s ease-in-out infinite' }} />
           </div>
         </section>
-      )}
 
       {/* ═══════════════════════════════════════════════
           STATS BAR
@@ -444,59 +410,95 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════
           PARENTS & TEACHERS HUB
       ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'linear-gradient(180deg,#0A1A0F,#0D1B2A)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+      <section style={{ padding: '80px 24px', background: 'linear-gradient(160deg,#071A10 0%,#0A1628 50%,#0D0A1E 100%)', position: 'relative', overflow: 'hidden' }}>
+        {/* Background glow blobs */}
+        <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(52,211,153,.07) 0%,transparent 70%)', top: '-10%', left: '-5%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(96,165,250,.06) 0%,transparent 70%)', bottom: '0%', right: '5%', pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: 960, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <SectionHeader
             pill="🏫 For Parents & Teachers"
             pillColor="#34D399"
             pillBg="rgba(52,211,153,.12)"
             title="Raise the Next Generation in Faith"
-            sub="Tools built specifically for parents and educators to guide children through scripture."
+            sub="A complete toolkit for parents and educators — track progress, assign lessons, run challenges, and guide children through God's Word."
+            titleColor="white"
+            subColor="rgba(255,255,255,.55)"
           />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, alignItems: 'stretch' }} className="home-hub-grid">
-            {/* Big CTA card */}
-            <Link to="/parent-hub" className="reveal home-hub-span" style={{ textDecoration: 'none', gridRow: 'span 2' }}>
-              <div style={{ height: '100%', borderRadius: 24, border: '1.5px solid rgba(52,211,153,.25)', background: 'linear-gradient(135deg,rgba(52,211,153,.1),rgba(16,185,129,.05),transparent)', padding: '36px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'all .3s' }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 20px 60px rgba(52,211,153,.15)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = '' }}>
-                <div>
-                  <div style={{ fontSize: '3.5rem', marginBottom: 18, filter: 'drop-shadow(0 0 16px rgba(52,211,153,.4))' }}>🏫</div>
-                  <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.5rem', fontWeight: 800, color: 'white', marginBottom: 12, lineHeight: 1.3 }}>Parents & Teachers Hub</div>
-                  <p style={{ fontSize: '.88rem', color: 'rgba(255,255,255,.5)', lineHeight: 1.75, marginBottom: 24 }}>
-                    Lesson plans, reading schedules, child progress tracking, family challenges, classroom tools, and AI-powered devotionals — all in one place.
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-                    {['📋 Lesson Plans','👶 Child Profiles','📊 Progress Tracking','🤖 AI Devotionals','🏆 Family Challenges','📅 Reading Plans'].map((tag, i) => (
-                      <span key={i} style={{ fontSize: '.7rem', fontWeight: 700, padding: '5px 12px', borderRadius: 100, background: 'rgba(52,211,153,.12)', color: '#34D399', border: '1px solid rgba(52,211,153,.2)' }}>{tag}</span>
-                    ))}
+
+          {/* Top row: Hero CTA + 2 stat chips */}
+          <div className="reveal" style={{ borderRadius: 28, border: '1.5px solid rgba(52,211,153,.2)', background: 'linear-gradient(135deg,rgba(52,211,153,.08),rgba(16,185,129,.04),rgba(99,102,241,.04))', padding: '40px 36px', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
+            {/* Decorative cross */}
+            <div style={{ position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)', fontSize: '8rem', opacity: .04, lineHeight: 1, userSelect: 'none' }}>✝</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'center' }} className="home-hub-hero">
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(52,211,153,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', flexShrink: 0, border: '1.5px solid rgba(52,211,153,.25)' }}>🏫</div>
+                  <div>
+                    <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.6rem', fontWeight: 800, color: 'white', lineHeight: 1.2 }}>Parents & Teachers Hub</div>
+                    <div style={{ fontSize: '.78rem', color: '#34D399', fontWeight: 700, letterSpacing: .3 }}>Everything in one place</div>
                   </div>
                 </div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 12, background: 'linear-gradient(135deg,#10B981,#34D399)', color: 'white', fontWeight: 800, fontSize: '.88rem', width: 'fit-content' }}>
-                  Open the Hub →
+                <p style={{ fontSize: '.9rem', color: 'rgba(255,255,255,.5)', lineHeight: 1.75, marginBottom: 22, maxWidth: 520 }}>
+                  Lesson plans, child profiles, progress dashboards, family challenges, classroom reading plans, PIN-protected parental controls, and AI devotionals — built for the whole family.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+                  {['📋 Lesson Plans','👶 Child Profiles','📊 Progress Tracking','🔒 Parental Controls','🏆 Family Challenges','📅 Reading Plans','🤖 AI Devotionals','📧 Email Digest'].map((tag, i) => (
+                    <span key={i} style={{ fontSize: '.68rem', fontWeight: 700, padding: '4px 11px', borderRadius: 100, background: 'rgba(52,211,153,.1)', color: '#34D399', border: '1px solid rgba(52,211,153,.18)' }}>{tag}</span>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <Link to="/parent-hub" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 28px', borderRadius: 14, background: 'linear-gradient(135deg,#10B981,#34D399)', color: 'white', fontWeight: 800, fontSize: '.9rem', textDecoration: 'none', boxShadow: '0 8px 28px rgba(16,185,129,.3)', transition: 'all .2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(16,185,129,.4)' }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 28px rgba(16,185,129,.3)' }}>
+                    Open the Hub →
+                  </Link>
+                  <Link to="/profile" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 24px', borderRadius: 14, background: 'rgba(255,255,255,.06)', color: 'rgba(255,255,255,.7)', fontWeight: 700, fontSize: '.88rem', textDecoration: 'none', border: '1.5px solid rgba(255,255,255,.1)', transition: 'all .2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,.1)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.06)' }}>
+                    👤 My Profile
+                  </Link>
                 </div>
               </div>
-            </Link>
-            {/* Feature mini-cards */}
-            {[
-              { icon: '📋', title: 'Lesson Plan Generator', desc: 'AI creates age-appropriate Bible lessons in seconds', to: '/parent-hub', color: '#60A5FA' },
-              { icon: '👶', title: 'Child Progress Tracking', desc: 'Monitor reading streaks, quiz scores, and badges per child', to: '/parent-hub', color: '#F472B6' },
-              { icon: '🏆', title: 'Family Challenges', desc: 'Weekly scripture challenges the whole family completes together', to: '/parent-hub', color: '#FCD34D' },
-              { icon: '📅', title: 'Classroom Reading Plans', desc: 'Assign and track Bible reading plans for your students', to: '/parent-hub', color: '#C084FC' },
-            ].map((f, i) => (
-              <Link key={i} to={f.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .07}s` }}>
-                <div style={{ borderRadius: 18, border: `1.5px solid ${f.color}22`, background: `linear-gradient(135deg,${f.color}08,transparent)`, padding: '22px 20px', display: 'flex', gap: 14, alignItems: 'flex-start', transition: 'all .25s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = f.color + '44'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = f.color + '22'; e.currentTarget.style.transform = '' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: f.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem', flexShrink: 0 }}>{f.icon}</div>
-                  <div>
-                    <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '.95rem', fontWeight: 800, color: 'white', marginBottom: 4 }}>{f.title}</div>
-                    <div style={{ fontSize: '.78rem', color: 'rgba(255,255,255,.4)', lineHeight: 1.55 }}>{f.desc}</div>
+              {/* Right: quick stats */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 140 }} className="home-hub-stats">
+                {[['📊','Progress','Dashboards'],['🔒','PIN','Controls'],['📧','Weekly','Email Digest']].map(([icon, n, l], i) => (
+                  <div key={i} style={{ borderRadius: 16, border: '1.5px solid rgba(52,211,153,.15)', background: 'rgba(52,211,153,.06)', padding: '14px 18px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
+                    <div style={{ fontFamily: "'Baloo 2',cursive", fontWeight: 800, color: 'white', fontSize: '.9rem', lineHeight: 1.1 }}>{n}</div>
+                    <div style={{ fontSize: '.65rem', color: 'rgba(255,255,255,.35)', fontWeight: 600 }}>{l}</div>
                   </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom row: 4 feature cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }} className="home-grid-4">
+            {[
+              { icon: '📋', title: 'Lesson Plans', desc: 'AI generates age-appropriate Bible lessons in seconds', to: '/parent-hub', color: '#60A5FA' },
+              { icon: '👶', title: 'Child Profiles', desc: 'Track each child\'s streaks, badges, and quiz scores', to: '/parent-hub', color: '#F472B6' },
+              { icon: '🏆', title: 'Family Challenges', desc: 'Weekly scripture challenges the whole family completes together', to: '/parent-hub', color: '#FCD34D' },
+              { icon: '🎓', title: 'Classroom Tools', desc: 'Assign reading plans and monitor student progress', to: '/parent-hub', color: '#C084FC' },
+            ].map((f, i) => (
+              <Link key={i} to={f.to} className="reveal" style={{ textDecoration: 'none', transitionDelay: `${i * .06}s` }}>
+                <div style={{ borderRadius: 20, border: `1.5px solid ${f.color}20`, background: `linear-gradient(135deg,${f.color}0A,transparent)`, padding: '22px 18px', height: '100%', transition: 'all .25s', boxSizing: 'border-box' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = f.color + '44'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 12px 32px ${f.color}15` }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = f.color + '20'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: f.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', marginBottom: 12, border: `1px solid ${f.color}25` }}>{f.icon}</div>
+                  <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '.92rem', fontWeight: 800, color: 'white', marginBottom: 6, lineHeight: 1.3 }}>{f.title}</div>
+                  <div style={{ fontSize: '.74rem', color: 'rgba(255,255,255,.38)', lineHeight: 1.6 }}>{f.desc}</div>
                 </div>
               </Link>
             ))}
           </div>
         </div>
+        <style>{`
+          @media(max-width:640px){
+            .home-hub-hero{grid-template-columns:1fr!important}
+            .home-hub-stats{flex-direction:row!important;min-width:unset!important}
+          }
+        `}</style>
       </section>
 
       {/* ═══════════════════════════════════════════════
@@ -538,6 +540,8 @@ export default function Home() {
             pillBg="rgba(168,85,247,.1)"
             title="Every Feature, Right Here"
           />
+
+
           <div className="reveal home-grid-5" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}>
             {[
               { e:'🎮',n:'Trivia',to:'/trivia' },
@@ -548,6 +552,7 @@ export default function Home() {
               { e:'⏳',n:'Fasting',to:'/fasting' },
               { e:'⌨️',n:'Typing',to:'/scripture-typing' },
               { e:'🗺️',n:'Bible Map',to:'/map' },
+              { e:'📖',n:'Bible Explorer',to:'/bible' },
               { e:'🧠',n:'Flashcards',to:'/flashcards' },
               { e:'📝',n:'Sermon Notes',to:'/notes' },
               { e:'🏹',n:'David & Goliath',to:'/game/david-goliath' },
@@ -586,6 +591,83 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          PODCAST PROMO
+      ═══════════════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0A2E,#0D1B2A)', position: 'relative', overflow: 'hidden' }}>
+        {/* Glow orbs */}
+        <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%)', top: '-20%', left: '-10%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(244,114,182,.08) 0%,transparent 70%)', bottom: '-10%', right: '5%', pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'center' }} >
+            {/* Left — text */}
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: '.7rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', background: 'rgba(249,115,22,.15)', color: '#F97316', border: '1px solid rgba(249,115,22,.25)', padding: '5px 14px', borderRadius: 100, marginBottom: 20 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#F97316', boxShadow: '0 0 8px #F97316', animation: 'glow 2s ease-in-out infinite', display: 'inline-block' }} />
+                🎙️ Now Live — Episode 2
+              </div>
+              <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.8rem,4vw,3rem)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16 }}>
+                The BibleFunLand<br />
+                <span style={{ background: 'linear-gradient(90deg,#F97316,#FBBF24,#F472B6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  Podcast is Here 🔥
+                </span>
+              </h2>
+              <p style={{ fontSize: '.92rem', color: 'rgba(255,255,255,.55)', lineHeight: 1.8, marginBottom: 24, maxWidth: 420 }}>
+                Faith conversations for the whole family — kids, parents, and teachers. Real talk about God's Word, raising children in faith, and building a community that lasts.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+                {['🙏 Faith','👨‍👩‍👧 Family','📖 Scripture','🎓 Teaching','❤️ Community'].map((tag, i) => (
+                  <span key={i} style={{ fontSize: '.68rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, background: 'rgba(249,115,22,.1)', color: '#FBBF24', border: '1px solid rgba(249,115,22,.2)' }}>{tag}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <Link to="/podcast" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 14, background: 'linear-gradient(135deg,#F97316,#FBBF24)', color: '#0A0A0A', fontWeight: 800, fontSize: '.9rem', textDecoration: 'none', boxShadow: '0 8px 28px rgba(249,115,22,.4)', transition: 'all .2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(249,115,22,.5)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 28px rgba(249,115,22,.4)' }}>
+                  🎧 Listen Now →
+                </Link>
+                <Link to="/podcast" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 22px', borderRadius: 14, background: 'rgba(255,255,255,.06)', color: 'rgba(255,255,255,.7)', fontWeight: 700, fontSize: '.88rem', textDecoration: 'none', border: '1.5px solid rgba(255,255,255,.1)', transition: 'all .2s' }}>
+                  📋 All Episodes
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — podcast card */}
+            <div style={{ background: 'linear-gradient(135deg,rgba(249,115,22,.12),rgba(244,114,182,.06))', borderRadius: 28, border: '1.5px solid rgba(249,115,22,.25)', padding: '32px 28px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: -20, right: -20, fontSize: '8rem', opacity: .04, lineHeight: 1 }}>🎙</div>
+              <div style={{ fontSize: '3.5rem', marginBottom: 16, filter: 'drop-shadow(0 0 20px rgba(249,115,22,.5))' }}>🎙️</div>
+              <div style={{ fontSize: '.68rem', fontWeight: 800, color: '#F97316', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Season 1 · Episode 2</div>
+              <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.15rem', fontWeight: 800, color: 'white', lineHeight: 1.3, marginBottom: 12 }}>
+                What Was Inside the Ark?
+              </div>
+              <p style={{ fontSize: '.78rem', color: 'rgba(255,255,255,.45)', lineHeight: 1.65, marginBottom: 20 }}>
+                Building directly from Episode 1, we step inside Noah's completed Ark! Discover the exact dimensions, the fun space shared with animals, and the profound lessons of God's perfect provision.
+              </p>
+              {/* Fake waveform */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3, height: 36, marginBottom: 16 }}>
+                {Array.from({ length: 32 }, (_, i) => (
+                  <div key={i} style={{
+                    flex: 1, borderRadius: 99,
+                    background: `rgba(249,115,22,${0.3 + Math.sin(i * 0.8) * 0.3 + 0.2})`,
+                    height: `${30 + Math.sin(i * 0.9) * 20}%`,
+                    animation: `wave ${0.8 + (i % 5) * 0.15}s ease-in-out ${i * 0.05}s infinite alternate`,
+                  }} />
+                ))}
+              </div>
+              <Link to="/podcast" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '11px 0', borderRadius: 12, background: 'linear-gradient(135deg,#F97316,#FBBF24)', color: '#0A0A0A', fontWeight: 800, fontSize: '.85rem', textDecoration: 'none' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#0A0A0A" style={{ marginLeft: 2 }}><path d="M6 4l14 8-14 8V4z"/></svg>
+                Play Episode 2
+              </Link>
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @keyframes wave{from{transform:scaleY(.6)}to{transform:scaleY(1.2)}}
+          @media(max-width:640px){.reveal.podcast-grid{grid-template-columns:1fr!important}}
+        `}</style>
       </section>
 
       {/* ═══════════════════════════════════════════════

@@ -1,9 +1,9 @@
 /**
  * src/lib/turso.js — Frontend database client proxy
- * 
+ *
  * IMPORTANT: Database operations MUST happen on the backend!
  * This file proxies requests to /api/db/* endpoints
- * 
+ *
  * The backend (server/lib/turso.js) actually connects to Turso
  * The frontend just calls these functions which make HTTP requests
  */
@@ -11,25 +11,40 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 /**
- * Make a database API call to the backend
+ * Make a database API call to the backend - direct execution without queuing
  */
 async function apiCall(endpoint, body = {}) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const response = await fetch(`${API_URL}/api/db${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Database request failed');
+      const error = new Error('Database request failed');
+      error.status = response.status;
+
+      const errorData = await response.json();
+      error.message = errorData.error || error.message;
+      console.warn('[Turso API] Request failed (retry may help):', error.message);
+      throw error;
     }
 
-    return await response.json();
+    const result = await response.json();
+    return result;
   } catch (err) {
-    console.error('[Turso API]', err);
-    return { data: null, error: err };
+    if (err.name === 'AbortError') {
+      console.warn('[Turso API] Request timeout');
+      throw new Error('Request timeout - backend server may not be running');
+    }
+    throw err;
   }
 }
 
@@ -51,9 +66,37 @@ export async function queryOne(sql, args = []) {
 
 /**
  * Execute without expecting rows (INSERT, UPDATE, DELETE)
+ * Bypasses the queue for immediate execution since writes are critical
  */
 export async function execute(sql, args = []) {
-  return apiCall('/execute', { sql, args });
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(`${API_URL}/api/db/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sql, args }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.warn('[Turso] Execute error:', errorData.error);
+      return { data: null, error: errorData.error || 'Database request failed' };
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      console.warn('[Turso] Execute timeout');
+      return { data: null, error: 'Request timeout - backend server may not be running' };
+    }
+    return { data: null, error: err.message || err };
+  }
 }
 
 /**

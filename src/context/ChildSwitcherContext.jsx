@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, createContext } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useKidsMode } from './KidsModeContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const ChildSwitcherContext = createContext(null)
 
@@ -16,11 +17,15 @@ export function ChildSwitcherProvider({ children }) {
   // Load children when parent logs in
   useEffect(() => {
     if (user?.id && profile?.role !== 'Child') {
-      db.getChildProfiles(user.id).then(({ data }) => {
+      requestQueue.execute(
+        `child-profiles:${user.id}`,
+        () => db.getChildProfiles(user.id),
+        { priority: 2, cacheable: true, ttl: 15 * 60 * 1000 }
+      ).then(({ data }) => {
         setChildProfiles(data || [])
       }).catch((error) => {
         console.warn('Could not load child profiles:', error.message)
-        setChildProfiles([]) // Set empty array on error
+        setChildProfiles([])
       })
     }
   }, [user?.id, profile?.role])
@@ -85,7 +90,14 @@ export function ChildSwitcherProvider({ children }) {
 
 export const useChildSwitcher = () => {
   const ctx = useContext(ChildSwitcherContext)
-  if (!ctx) throw new Error('useChildSwitcher must be inside ChildSwitcherProvider')
+  if (!ctx) {
+    // During HMR, context might temporarily be unavailable
+    if (import.meta.hot) {
+      console.warn('useChildSwitcher called before ChildSwitcherProvider is ready (HMR)')
+      return { isChildSession: false, activeChild: null, children: [], switchToChild: () => {}, exitChildSession: () => {} }
+    }
+    throw new Error('useChildSwitcher must be inside ChildSwitcherProvider')
+  }
   return ctx
 }
 

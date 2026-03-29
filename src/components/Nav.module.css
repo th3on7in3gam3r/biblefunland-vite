@@ -60,13 +60,15 @@
 .moreBtnOpen .moreCaret { transform: rotate(180deg); }
 
 .moreDropdown {
-  position: absolute; top: calc(100% + 8px); left: 50%;
-  transform: translateX(-50%);
+  position: absolute; top: calc(100% + 8px); 
+  right: 0; /* Anchor to the right to prevent spilling off narrow screens */
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: 16px;
   padding: 8px;
-  min-width: 210px;
+  min-width: 340px;
+  max-height: calc(100vh - 100px); /* Allows scrolling on short screens! */
+  overflow-y: auto;
   box-shadow: 0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.05);
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 2px;
@@ -74,6 +76,9 @@
   animation: dropIn 0.18s ease both;
   backdrop-filter: blur(10px);
 }
+/* Adjust scrollbar for aesthetics */
+.moreDropdown::-webkit-scrollbar { width: 6px; }
+.moreDropdown::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 .moreDropdown a {
   font-size: 0.78rem; font-weight: 600; color: var(--ink2);
   text-decoration: none; padding: 8px 12px; border-radius: 9px;
@@ -83,13 +88,23 @@
 .dropActive { color: var(--blue) !important; background: var(--blue-bg) !important; }
 
 @keyframes dropIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Right side ───────────────────────────────────── */
 .right {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+
+.desktopSearch {
+  display: flex;
+}
+
+.mobileSearch {
+  display: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .streakBadge {
@@ -186,6 +201,8 @@
   .links { display: none; }
   .hamburger { display: flex; }
   .streakBadge { display: none; }
+  .desktopSearch { display: none; }
+  .mobileSearch { display: block; }
 }
 
 @media (max-width: 480px) {

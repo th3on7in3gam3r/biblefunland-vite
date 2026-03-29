@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   age           INTEGER,
   role          TEXT DEFAULT 'General',    -- Parent | Teacher | General
   is_age_locked INTEGER DEFAULT 0,         -- 0 = unlocked, 1 = locked
+  goal          TEXT DEFAULT '',           -- daily-reading | memorize | understand | grow-faith
+  reading_plan  TEXT DEFAULT '',           -- ot-nt | gospels | psalms | topical
   created_at    TEXT DEFAULT (datetime('now')),
   updated_at    TEXT DEFAULT (datetime('now'))
 );
@@ -238,6 +240,70 @@ CREATE TABLE IF NOT EXISTS world_prayers (
   UNIQUE(country, date)
 );
 
+-- ─── Faith Milestones Tracker ─────────────────────────────────────────────────
+-- Personal sacred record of spiritual journey
+
+-- Main milestones table
+CREATE TABLE IF NOT EXISTS faith_milestones (
+  id              TEXT PRIMARY KEY,
+  user_id         TEXT NOT NULL,
+  category        TEXT NOT NULL,         -- 'salvation', 'baptism', 'rededication', 'prayer_answered', 'mentor', 'verse_received', 'ministry'
+  title           TEXT NOT NULL,
+  description     TEXT,
+  milestone_date  TEXT NOT NULL,         -- YYYY-MM-DD
+  photo_url       TEXT,                  -- For photos of baptism, ministry events, etc.
+  impact_story    TEXT,                  -- How this moment changed your faith
+  tags            TEXT DEFAULT '',       -- comma-separated for filtering
+  is_public       INTEGER DEFAULT 0,     -- Share milestone with community
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now')),
+  UNIQUE(user_id, category) FILTER (WHERE category IN ('salvation', 'baptism'))  -- Only one of each
+);
+
+-- Spiritual mentors
+CREATE TABLE IF NOT EXISTS spiritual_mentors (
+  id              TEXT PRIMARY KEY,
+  user_id         TEXT NOT NULL,
+  name            TEXT NOT NULL,
+  relationship    TEXT NOT NULL,         -- 'pastor', 'parent', 'teacher', 'friend', 'counselor', 'other'
+  how_they_shaped TEXT,                  -- Story of their influence
+  meeting_date    TEXT,                  -- YYYY-MM-DD when they met/started mentoring
+  photo_url       TEXT,
+  still_connected INTEGER DEFAULT 1,     -- 0 = parted, 1 = still in touch
+  contact_info    TEXT,                  -- Phone, email (encrypted in production)
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now'))
+);
+
+-- Verses God gave in hard seasons
+CREATE TABLE IF NOT EXISTS hard_season_verses (
+  id              TEXT PRIMARY KEY,
+  user_id         TEXT NOT NULL,
+  reference       TEXT NOT NULL,         -- "John 3:16", "Psalm 23:1", etc.
+  text            TEXT NOT NULL,         -- Full verse text
+  what_was_hard   TEXT NOT NULL,         -- The difficulty/season being faced
+  how_it_helped   TEXT,                  -- How this verse provided comfort/guidance
+  season_date     TEXT NOT NULL,         -- YYYY-MM-DD when the verse was given
+  still_meaningful INTEGER DEFAULT 1,   -- 0 = less relevant now, 1 = still meaningful
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now'))
+);
+
+-- Answered prayers
+CREATE TABLE IF NOT EXISTS answered_prayers_milestones (
+  id              TEXT PRIMARY KEY,
+  user_id         TEXT NOT NULL,
+  prayer_text     TEXT NOT NULL,         -- What was prayed for
+  answer_text     TEXT NOT NULL,         -- How God answered
+  prayer_date     TEXT NOT NULL,         -- YYYY-MM-DD when prayer was prayed
+  answer_date     TEXT NOT NULL,         -- YYYY-MM-DD when answered
+  impact_story    TEXT,                  -- How this answer strengthened faith
+  photos          TEXT DEFAULT '',       -- JSON array of photo URLs
+  is_public       INTEGER DEFAULT 0,     -- Share with community
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now'))
+);
+
 -- ─── Indexes ──────────────────────────────────────────────────────────────────
 -- SQLite is fast for small datasets but indexes help as you scale
 
@@ -248,6 +314,11 @@ CREATE INDEX IF NOT EXISTS idx_prayers_created ON prayers(created_at);
 CREATE INDEX IF NOT EXISTS idx_testimonies_cat ON testimonies(category, status);
 CREATE INDEX IF NOT EXISTS idx_world_country   ON world_prayers(country, date);
 CREATE INDEX IF NOT EXISTS idx_subs_user       ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_faith_milestones_user ON faith_milestones(user_id, milestone_date DESC);
+CREATE INDEX IF NOT EXISTS idx_faith_milestones_cat ON faith_milestones(user_id, category);
+CREATE INDEX IF NOT EXISTS idx_spiritual_mentors_user ON spiritual_mentors(user_id);
+CREATE INDEX IF NOT EXISTS idx_hard_season_verses_user ON hard_season_verses(user_id, season_date DESC);
+CREATE INDEX IF NOT EXISTS idx_answered_prayers_user ON answered_prayers_milestones(user_id, answer_date DESC);
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- DONE. Verify with:  .tables

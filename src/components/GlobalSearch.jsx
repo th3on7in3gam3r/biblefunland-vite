@@ -10,6 +10,17 @@ const SEARCH_DATA = [
   { type: 'game', title: "Jonah's Escape", desc: 'Underwater adventure', icon: '🐟', to: '/trivia', tags: ['jonah','whale','fish','puzzle'] },
   { type: 'game', title: "Noah's Voyage", desc: 'Gather all the animals', icon: '🚢', to: '/trivia', tags: ['noah','ark','flood','puzzle','animals'] },
   { type: 'game', title: 'Bible Checkers', desc: 'Strategy game', icon: '♟️', to: '/trivia', tags: ['checkers','strategy','game'] },
+  
+  // Kids Learning
+  { type: 'game', title: 'Bible Alphabet', desc: 'Learn ABCs with Bible stories', icon: '🔤', to: '/kids/alphabet', tags: ['kids','alphabet','abc','letters','learning','preschool'] },
+  { type: 'game', title: 'Bible Animals', desc: 'Discover animals in the Bible', icon: '🦁', to: '/kids/animals', tags: ['kids','animals','noah','ark','learning'] },
+  { type: 'game', title: 'Counting World', desc: 'Learn numbers with Bible', icon: '🔢', to: '/kids/counting', tags: ['kids','counting','numbers','math','learning'] },
+  { type: 'game', title: 'Bible Jigsaw', desc: 'Puzzle fun with Bible scenes', icon: '🧩', to: '/kids/jigsaw', tags: ['kids','puzzle','jigsaw','game','fun'] },
+  { type: 'game', title: 'Word Builder', desc: 'Build words from Bible stories', icon: '📝', to: '/kids/word-builder', tags: ['kids','words','spelling','learning','vocabulary'] },
+  { type: 'game', title: 'Creation Coloring', desc: 'Color the days of creation', icon: '🎨', to: '/kids/coloring', tags: ['kids','coloring','art','creation','creative'] },
+  { type: 'game', title: "God's Shapes", desc: 'Learn shapes with Bible', icon: '⭐', to: '/kids/gods-shapes', tags: ['kids','shapes','geometry','learning','preschool'] },
+  { type: 'game', title: 'Kids Dashboard', desc: 'Track your learning progress', icon: '📊', to: '/kids/dashboard', tags: ['kids','dashboard','progress','stats','achievements'] },
+  { type: 'game', title: 'Verse Scramble', desc: 'Unscramble Bible verses', icon: '🔀', to: '/kids/verse-scramble', tags: ['kids','verse','scramble','puzzle','game'] },
 
   // Pages
   { type: 'page', title: 'AI Devotional Generator', desc: 'Personalized daily devotionals', icon: '🙏', to: '/devotional', tags: ['devotional','prayer','ai','faith','daily'] },
@@ -23,6 +34,37 @@ const SEARCH_DATA = [
   { type: 'page', title: 'My Progress', desc: 'Streak, badges, calendar', icon: '📊', to: '/dashboard', tags: ['progress','streak','badge','dashboard'] },
   { type: 'page', title: 'Go Pro', desc: 'Upgrade your account', icon: '💎', to: '/premium', tags: ['pro','premium','upgrade','subscription'] },
   { type: 'page', title: 'Lumina Bible', desc: 'Read the Bible online', icon: '📖', to: '/lumina', tags: ['lumina','bible','read','scripture','book'] },
+  
+  // New & Partnership Features
+  { type: 'page', title: 'Ministry Partnerships', desc: 'Partner your church with BibleFunLand', icon: '⛪', to: '/partner', tags: ['church','partner','ministry','affiliate','collaboration'] },
+  { type: 'page', title: 'Creator Affiliate', desc: 'Earn 20% by sharing BibleFunLand', icon: '🎓', to: '/creators', tags: ['creator','affiliate','earn','share','referral'] },
+  { type: 'page', title: 'BibleFunLand Podcast', desc: 'Faith conversations for families — Episode 1: Why Did God Choose Noah?', icon: '🎙️', to: '/podcast', tags: ['podcast','audio','listen','noah','ark','family','episode','faith'] },
+  { type: 'page', title: 'Bible Character Quiz', desc: 'Which Bible character are you?', icon: '🧬', to: '/quiz/character', tags: ['quiz','character','identity','moses','david','personality'] },
+  { type: 'page', title: 'Voice Bible Reader', desc: 'Practice recitation with AI feedback', icon: '🗣️', to: '/voice-reader', tags: ['voice','read','practice','feedback','recitation'] },
+  { type: 'page', title: 'Global Prayer Map', desc: 'Real-time prayers from around the world', icon: '🌍', to: '/prayer-map', tags: ['prayer','map','global','world','live'] },
+  { type: 'page', title: 'AI Sermon Writer', desc: 'Complete sermon manuscripts', icon: '✍️', to: '/sermon-writer', tags: ['sermon','writer','ai','preach','pastor','manuscript','church'] },
+  { type: 'page', title: "Couple's Devotional", desc: 'Marriage-focused devotionals', icon: '💑', to: '/couples-devotional', tags: ['couples','marriage','devotional','relationship','spouse','husband','wife'] },
+  { type: 'page', title: 'Scripture Typing', desc: 'Type Bible verses to memorize', icon: '⌨️', to: '/scripture-typing', tags: ['typing','scripture','memorize','practice','verse','keyboard'] },
+  { type: 'page', title: 'Fasting Tracker', desc: 'Track your fasting journey', icon: '🕊️', to: '/fasting', tags: ['fasting','fast','spiritual','discipline','prayer','tracker'] },
+  { type: 'page', title: 'Bible Family Tree', desc: 'Explore biblical genealogy', icon: '🌳', to: '/family-tree', tags: ['family','tree','genealogy','lineage','ancestors','biblical','history'] },
+  { type: 'page', title: 'Worship Discovery', desc: 'Find worship music by mood', icon: '🎵', to: '/worship', tags: ['worship','music','praise','songs','mood','spotify','playlist'] },
+  { type: 'page', title: 'Parent & Teacher Hub', desc: 'Resources for parents & teachers', icon: '🏫', to: '/parent-hub', tags: ['parent','teacher','hub','resources','family','classroom','kids'] },
+
+  // New features added
+  { type: 'page', title: 'Bible Explorer', desc: 'Read the Bible — chapters, verses, bookmarks, highlights', icon: '📖', to: '/bible', tags: ['bible','read','chapter','verse','kjv','niv','translation','scripture','explorer'] },
+  { type: 'page', title: 'Interactive Bible Timeline', desc: 'Journey through 4,000 years of biblical history', icon: '⏳', to: '/timeline', tags: ['timeline','history','bible','events','creation','jesus','revelation'] },
+  { type: 'page', title: 'Faith Milestones', desc: 'Track your spiritual growth and achievements', icon: '🏔️', to: '/faith-milestones', tags: ['milestones','faith','growth','achievements','progress','spiritual'] },
+  { type: 'page', title: 'Hymn Explorer', desc: 'Discover the stories and music behind classic hymns', icon: '🎶', to: '/hymns', tags: ['hymns','music','worship','songs','history','church'] },
+  { type: 'page', title: 'Spiritual Gifts Test', desc: 'Discover your unique spiritual gifts', icon: '🎁', to: '/spiritual-gifts', tags: ['spiritual','gifts','test','discovery','ministry','service'] },
+  { type: 'page', title: 'Prayer Partner', desc: 'Connect with a digital prayer partner', icon: '🤝', to: '/prayer-partner', tags: ['prayer','partner','companion','companion','faith','connection'] },
+  { type: 'page', title: 'Bible Apologetics', desc: 'Reasonable answers for your faith questions', icon: '🛡️', to: '/apologetics', tags: ['apologetics','defense','reason','faith','questions','answers'] },
+  { type: 'page', title: 'Daily Bible Wordle', desc: 'Five letters, six tries, one Bible word', icon: '🔠', to: '/wordle', tags: ['wordle','game','puzzle','word','daily','bible'] },
+  { type: 'page', title: 'Prophecy Fulfillment', desc: 'See how Jesus fulfilled Old Testament prophecies', icon: '📜', to: '/prophecy', tags: ['prophecy','fulfillment','jesus','messiah','old testament','new testament'] },
+  { type: 'page', title: 'Sermon Illustrations', desc: 'Powerful stories for your next message', icon: '💡', to: '/sermon-illustrations', tags: ['sermon','illustrations','stories','teaching','pastor','preach'] },
+  { type: 'page', title: 'Leaderboard', desc: 'Top streaks, badges, and trivia champions', icon: '🏆', to: '/leaderboard', tags: ['leaderboard','top','streak','badges','trivia','champions','ranking','score'] },
+  { type: 'page', title: 'My Bookmarks', desc: 'Save and organize your favourite Bible verses', icon: '🔖', to: '/bookmarks', tags: ['bookmark','verse','save','folder','favorites','morning prayer','memorizing','sermon prep'] },
+  { type: 'page', title: 'Church Finder', desc: 'Find churches near you by location or city', icon: '⛪', to: '/church-finder', tags: ['church','find','near me','location','denomination','worship','service','local'] },
+  { type: 'page', title: 'Bible Rap Generator', desc: 'AI-generated scripture raps & songs', icon: '🎵', to: '/ai/rap-generator', tags: ['rap','music','ai','song','generator','scripture'] },
 
   // Bible Verses
   { type: 'verse', title: 'John 3:16', desc: '"For God so loved the world..."', icon: '📜', to: '/flashcards', tags: ['john','love','god','world','salvation','john 3'] },

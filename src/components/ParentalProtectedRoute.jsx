@@ -6,8 +6,11 @@ export default function ParentalProtectedRoute({ children, featureId }) {
   const { isFeatureEnabled } = useParentalControls()
   const { profile } = useAuth()
 
-  // If the user's role is Parent or Teacher, they can always access it
-  if (profile?.role === 'Parent' || profile?.role === 'Teacher') {
+  // If the user's role is Leader, Parent, or Teacher, they can always access it
+  const userRole = profile?.role?.toLowerCase() || ''
+  const isLeader = ['parent', 'teacher', 'pastor', 'leader', 'admin'].includes(userRole)
+  
+  if (isLeader) {
     return children
   }
 

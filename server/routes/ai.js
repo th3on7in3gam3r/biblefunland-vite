@@ -7,10 +7,14 @@ const anthropic = new Anthropic({
 });
 
 router.post('/chat', async (req, res) => {
-  const { messages, system, model = 'claude-3-5-sonnet-20240620', max_tokens = 1000 } = req.body;
+  const { messages, system, model = 'claude-3-5-sonnet-20241022', max_tokens = 1000 } = req.body;
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return res.status(500).json({ error: 'Anthropic API key not configured on server' });
+  }
+
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'messages must be an array' });
   }
 
   try {
@@ -22,7 +26,7 @@ router.post('/chat', async (req, res) => {
     });
     res.json(response);
   } catch (err) {
-    console.error('[AI Proxy Error]', err);
+    console.error('[AI Proxy Error]', err.message);
     res.status(err.status || 500).json({ 
       error: err.message || 'Failed to communicate with AI provider' 
     });

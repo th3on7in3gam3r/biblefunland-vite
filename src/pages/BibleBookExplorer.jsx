@@ -1,215 +1,1090 @@
-import { useState, useEffect } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
-import { useBadges } from '../context/BadgeContext'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useAuth } from '../context/AuthContext'
 
-const BOOKS = [
-  // ── Old Testament ─────────────────────────────────────────────────
-  { id:'genesis',        name:'Genesis',        abbr:'GEN', testament:'OT', genre:'Law',      chapters:50, author:'Moses',           date:'c.1446–1406 BC', emoji:'🌍', color:'#F59E0B', famous:'Creation, Adam & Eve, Noah, Abraham, Joseph', summary:'The book of beginnings. God creates the heavens and earth, forms humanity, and despite mankind\'s fall into sin, begins His redemptive plan through the family of Abraham, Isaac, and Jacob. It ends with the 12 sons of Israel in Egypt.', keyVerses:['Gen 1:1','Gen 1:27','Gen 3:15','Gen 12:1-2','Gen 50:20'] },
-  { id:'exodus',         name:'Exodus',         abbr:'EXO', testament:'OT', genre:'Law',      chapters:40, author:'Moses',           date:'c.1446 BC',      emoji:'🔥', color:'#EF4444', famous:'The 10 Plagues, Red Sea, Ten Commandments, Tabernacle', summary:'God hears the cry of His enslaved people in Egypt. He calls Moses from a burning bush, sends 10 devastating plagues on Pharaoh, and parts the Red Sea. At Sinai, He gives Moses the Law and the blueprint for the Tabernacle — His dwelling place among His people.', keyVerses:['Exo 3:14','Exo 14:14','Exo 20:1-17','Exo 33:14'] },
-  { id:'leviticus',      name:'Leviticus',      abbr:'LEV', testament:'OT', genre:'Law',      chapters:27, author:'Moses',           date:'c.1446 BC',      emoji:'🕍', color:'#8B5CF6', famous:'Holiness laws, sacrificial system, Atonement', summary:'God gives detailed laws to Israel about worship, sacrifice, ritual purity, and holy living. The repeated command "Be holy, because I am holy" defines its purpose. The sacrificial system points forward to the ultimate sacrifice of Jesus Christ.', keyVerses:['Lev 11:45','Lev 19:18','Lev 20:26'] },
-  { id:'numbers',        name:'Numbers',        abbr:'NUM', testament:'OT', genre:'Law',      chapters:36, author:'Moses',           date:'c.1446–1406 BC', emoji:'🏕️', color:'#10B981', famous:'40 years of wilderness, Caleb & Joshua, Bronze Serpent', summary:'Israel wanders in the wilderness for 40 years due to unbelief. Numbers is a story of grumbling, judgment, and God\'s persistent mercy. An entire generation dies in the desert — but God raises a new one to enter the Promised Land.', keyVerses:['Num 6:24-26','Num 14:18','Num 23:19'] },
-  { id:'deuteronomy',    name:'Deuteronomy',    abbr:'DEU', testament:'OT', genre:'Law',      chapters:34, author:'Moses',           date:'c.1406 BC',      emoji:'📜', color:'#F97316', famous:'Shema, Moses\'s farewell, Promised Land preview', summary:'Moses gives three farewell sermons to Israel before they enter Canaan. He recounts the history of their journey, restates the Law, and pleads with them to choose life and obedience. Contains the Shema — the great declaration: "The Lord our God is one."', keyVerses:['Deu 6:4-5','Deu 31:6','Deu 32:4'] },
-  { id:'joshua',         name:'Joshua',         abbr:'JOS', testament:'OT', genre:'History',  chapters:24, author:'Joshua',          date:'c.1406–1370 BC', emoji:'⚔️', color:'#EC4899', famous:'Jericho walls fall, Caleb\'s faith, dividing the land', summary:'Under Joshua\'s leadership, Israel finally crosses the Jordan and conquers Canaan. The walls of Jericho fall at a shout. The Promised Land is divided among the 12 tribes. Joshua\'s final challenge: "Choose this day whom you will serve."', keyVerses:['Jos 1:9','Jos 24:15'] },
-  { id:'judges',         name:'Judges',         abbr:'JDG', testament:'OT', genre:'History',  chapters:21, author:'Samuel (trad.)',  date:'c.1375–1050 BC', emoji:'🗡️', color:'#3B82F6', famous:'Samson, Gideon, Deborah, the cycle of sin', summary:'After Joshua, Israel repeatedly falls into a cycle: sin → oppression → cry out → God raises a judge → deliverance → rest → sin again. Deborah, Gideon, and Samson are the most famous of 12 judges. The book ends with the haunting line: "Everyone did what was right in their own eyes."', keyVerses:['Jdg 6:12','Jdg 21:25'] },
-  { id:'ruth',           name:'Ruth',           abbr:'RUT', testament:'OT', genre:'History',  chapters:4,  author:'Unknown',         date:'c.1100 BC',      emoji:'🌾', color:'#10B981', famous:'Loyalty of Ruth, Boaz as kinsman-redeemer', summary:'A beautiful short story of loyalty and redemption. Ruth, a Moabite widow, refuses to leave her mother-in-law Naomi after tragedy strikes. Her famous words "Where you go I will go" define the book. She marries Boaz, a picture of Christ as our kinsman-redeemer, and becomes the great-grandmother of King David.', keyVerses:['Rth 1:16','Rth 2:12'] },
-  { id:'1-samuel',       name:'1 Samuel',       abbr:'1SA', testament:'OT', genre:'History',  chapters:31, author:'Samuel (partly)', date:'c.930 BC',       emoji:'👑', color:'#F59E0B', famous:'Samuel, Saul\'s failure, David and Goliath', summary:'Samuel anoints Israel\'s first two kings. Saul starts well but loses God\'s favour through disobedience. A young shepherd named David kills the giant Goliath and is anointed as God\'s chosen king — though he must wait years before taking the throne.', keyVerses:['1Sa 16:7','1Sa 17:47'] },
-  { id:'2-samuel',       name:'2 Samuel',       abbr:'2SA', testament:'OT', genre:'History',  chapters:24, author:'Unknown',         date:'c.930 BC',       emoji:'🏰', color:'#8B5CF6', famous:'David\'s kingship, Bathsheba, God\'s covenant with David', summary:'David reigns over all Israel and establishes Jerusalem as the capital. God makes an eternal covenant with David — his throne will last forever. But David\'s sin with Bathsheba triggers years of family tragedy. The book shows that even the greatest kings need a Saviour.', keyVerses:['2Sa 7:16','2Sa 22:31'] },
-  { id:'1-kings',        name:'1 Kings',        abbr:'1KI', testament:'OT', genre:'History',  chapters:22, author:'Unknown',         date:'c.550 BC',       emoji:'✨', color:'#F59E0B', famous:'Solomon\'s wisdom, Temple built, Elijah vs. prophets of Baal', summary:'Solomon builds the Temple and receives legendary wisdom. But when he dies, the kingdom splits into north (Israel) and south (Judah). The prophet Elijah confronts King Ahab and his wife Jezebel, calling fire from heaven at Mount Carmel. He flees to Horeb, exhausted, and God speaks in a still small voice.', keyVerses:['1Ki 3:9','1Ki 8:27','1Ki 19:12'] },
-  { id:'2-kings',        name:'2 Kings',        abbr:'2KI', testament:'OT', genre:'History',  chapters:25, author:'Unknown',         date:'c.550 BC',       emoji:'💔', color:'#EF4444', famous:'Elijah\'s chariot of fire, Elisha\'s miracles, Fall of Jerusalem', summary:'Both kingdoms slide into idolatry despite the prophets\' warnings. Israel falls to Assyria in 722 BC. Judah is conquered by Babylon in 586 BC — the Temple is destroyed and the people are exiled. Yet even in judgment, God preserves a remnant through whom the Messiah will come.', keyVerses:['2Ki 2:11','2Ki 17:13','2Ki 20:5'] },
-  { id:'1-chronicles',   name:'1 Chronicles',   abbr:'1CH', testament:'OT', genre:'History',  chapters:29, author:'Ezra (trad.)',    date:'c.450–400 BC',   emoji:'📋', color:'#6366F1', famous:'David\'s preparations for the Temple', summary:'Chronicles retells Israel\'s history from a priestly perspective, focusing on worship and the Temple. After long genealogies, it covers David\'s reign — especially his preparations for the Temple he was not allowed to build himself.', keyVerses:['1Ch 16:11','1Ch 29:11'] },
-  { id:'2-chronicles',   name:'2 Chronicles',   abbr:'2CH', testament:'OT', genre:'History',  chapters:36, author:'Ezra (trad.)',    date:'c.450–400 BC',   emoji:'🏛️', color:'#14B8A6', famous:'Solomon\'s Temple, Josiah\'s revival, Exile to Babylon', summary:'Solomon builds the Temple. The kings of Judah are evaluated by their faithfulness to God. Josiah leads a great revival. The book ends with the fall of Jerusalem and exile to Babylon — and then, a moment of hope: Cyrus of Persia issues a decree allowing the Jews to return home.', keyVerses:['2Ch 7:14','2Ch 20:15'] },
-  { id:'ezra',           name:'Ezra',           abbr:'EZR', testament:'OT', genre:'History',  chapters:10, author:'Ezra',            date:'c.450 BC',       emoji:'🏗️', color:'#F97316', famous:'Return from exile, Temple rebuilding, covenant renewal', summary:'After 70 years in Babylon, a remnant returns to Jerusalem under Zerubbabel and later under Ezra the scribe. They rebuild the Temple amid opposition. Ezra then leads a spiritual revival, calling the people to put away compromise and return to God\'s Word.', keyVerses:['Ezr 7:10','Ezr 9:5'] },
-  { id:'nehemiah',       name:'Nehemiah',       abbr:'NEH', testament:'OT', genre:'History',  chapters:13, author:'Nehemiah',        date:'c.440 BC',       emoji:'🧱', color:'#10B981', famous:'Rebuilding Jerusalem\'s walls in 52 days', summary:'Nehemiah hears that Jerusalem\'s walls lie in ruins. He prays, then acts — getting permission from the Persian king to return and rebuild. The walls go up in just 52 days despite fierce opposition. Nehemiah models prayer, leadership, and the courage to do what others say is impossible.', keyVerses:['Neh 8:10','Neh 4:14'] },
-  { id:'esther',         name:'Esther',         abbr:'EST', testament:'OT', genre:'History',  chapters:10, author:'Unknown',         date:'c.450 BC',       emoji:'👸', color:'#EC4899', famous:'Queen Esther saves the Jewish people', summary:'A Jewish woman named Esther becomes queen of Persia without revealing her identity. When the evil Haman plots to exterminate all Jews, her cousin Mordecai challenges her: "Who knows if you have not come to the kingdom for such a time as this?" Esther risks her life and saves her people. God\'s name never appears — yet His fingerprints are everywhere.', keyVerses:['Est 4:14','Est 4:16'] },
-  { id:'job',            name:'Job',            abbr:'JOB', testament:'OT', genre:'Wisdom',   chapters:42, author:'Unknown',         date:'Unknown',        emoji:'💎', color:'#8B5CF6', famous:'Suffering, God\'s sovereignty, "I know my redeemer lives"', summary:'Job is a righteous man who loses everything — his children, wealth, and health — in a divinely permitted test. His friends insist he must have sinned. Job maintains his innocence and pleads for God to answer. Then God speaks from the whirlwind, not with explanations, but with breathtaking questions about creation. Job is restored. The book teaches that God\'s ways surpass human understanding.', keyVerses:['Job 1:21','Job 13:15','Job 19:25','Job 42:2'] },
-  { id:'psalms',         name:'Psalms',         abbr:'PSA', testament:'OT', genre:'Wisdom',   chapters:150,author:'David (primary)', date:'c.1000–400 BC',  emoji:'🎵', color:'#3B82F6', famous:'The longest book of the Bible — 150 songs of praise, lament, and worship', summary:'The prayer and song book of Israel — 150 poems and songs spanning every human emotion. Praise, lament, thanksgiving, anger, despair, and triumph are all here. David wrote 73 Psalms. Psalm 22 prophesies the crucifixion in extraordinary detail centuries before it happened. Psalm 23 — "The Lord is my shepherd" — is the most beloved passage in all of scripture.', keyVerses:['Psa 23:1','Psa 46:10','Psa 119:105','Psa 139:14','Psa 150:6'] },
-  { id:'proverbs',       name:'Proverbs',       abbr:'PRO', testament:'OT', genre:'Wisdom',   chapters:31, author:'Solomon (primary)',date:'c.950–700 BC',   emoji:'📖', color:'#F59E0B', famous:'Practical wisdom for every area of life', summary:'A collection of wise sayings for living well — primarily written by Solomon, the wisest man who ever lived. Covers work, speech, money, pride, marriage, friendship, and integrity. The book opens with a call to pursue wisdom above all else and closes with the portrait of a woman of noble character.', keyVerses:['Pro 3:5-6','Pro 4:23','Pro 22:6','Pro 31:25'] },
-  { id:'ecclesiastes',   name:'Ecclesiastes',   abbr:'ECC', testament:'OT', genre:'Wisdom',   chapters:12, author:'Solomon (trad.)', date:'c.935 BC',       emoji:'🌀', color:'#6366F1', famous:'Vanity of vanities, the meaning of life', summary:'The preacher (Qohelet) experiments with pleasure, work, wealth, and wisdom — and declares it all "vanity" (meaningless). Only the fear of God gives life meaning. It is the most existential book of the Bible, honestly wrestling with the darkness of life without God at the center.', keyVerses:['Ecc 3:1','Ecc 12:13'] },
-  { id:'song-of-solomon',name:'Song of Solomon', abbr:'SNG',testament:'OT', genre:'Wisdom',   chapters:8,  author:'Solomon',         date:'c.950 BC',       emoji:'💝', color:'#EC4899', famous:'A celebration of romantic love between husband and wife', summary:'A beautiful poem celebrating romantic love between a husband and his bride. It is read both as a literal celebration of marriage and as an allegory of God\'s love for Israel (and Christ\'s love for the Church). In a Bible full of spiritual themes, it affirms that human love and desire are gifts from God.', keyVerses:['Sng 8:6-7'] },
-  { id:'isaiah',         name:'Isaiah',         abbr:'ISA', testament:'OT', genre:'Prophecy', chapters:66, author:'Isaiah',          date:'c.740–700 BC',   emoji:'🦁', color:'#F59E0B', famous:'Servant songs, "wonderful counsellor", Isaiah 53', summary:'Often called the fifth gospel because of its detailed prophecies about Jesus Christ. Isaiah 53 describes the crucifixion seven centuries before it happened with shocking accuracy. Contains some of the most majestic promises in scripture: "Those who hope in the Lord will renew their strength... soar on wings like eagles."', keyVerses:['Isa 40:31','Isa 41:10','Isa 53:5','Isa 9:6','Isa 43:2'] },
-  { id:'jeremiah',       name:'Jeremiah',       abbr:'JER', testament:'OT', genre:'Prophecy', chapters:52, author:'Jeremiah',        date:'c.626–586 BC',   emoji:'😢', color:'#3B82F6', famous:'The weeping prophet, New Covenant promise, Jer 29:11', summary:'Called the "weeping prophet," Jeremiah preaches for 40 years to a people who won\'t listen, warning of Babylonian exile. He suffers rejection, imprisonment, and despair. Yet amidst the darkness he records one of the most beloved promises in scripture: "I know the plans I have for you." He also foretells the New Covenant — the one Jesus would establish.', keyVerses:['Jer 29:11','Jer 31:33','Jer 33:3'] },
-  { id:'lamentations',   name:'Lamentations',   abbr:'LAM', testament:'OT', genre:'Prophecy', chapters:5,  author:'Jeremiah',        date:'c.586 BC',       emoji:'💧', color:'#6366F1', famous:'Great is thy faithfulness — written in ruins', summary:'Jeremiah weeps over the destruction of Jerusalem. Five poems of mourning — and yet in the middle, a burst of hope: "Because of the Lord\'s great love we are not consumed, for his compassions never fail. They are new every morning: great is your faithfulness." Written in the rubble of a destroyed city.', keyVerses:['Lam 3:22-23','Lam 3:25'] },
-  { id:'ezekiel',        name:'Ezekiel',        abbr:'EZK', testament:'OT', genre:'Prophecy', chapters:48, author:'Ezekiel',         date:'c.593–571 BC',   emoji:'🌊', color:'#10B981', famous:'Valley of dry bones, the chariot of God, river of life', summary:'Ezekiel ministers among the exiles in Babylon with dramatic visions and sign-acts. He sees the Glory of God depart the Temple — and promises it will return. The famous vision of the valley of dry bones declares that God can resurrect a dead nation. It ends with a breathtaking vision of a restored temple and a life-giving river.', keyVerses:['Eze 36:26','Eze 37:3-4'] },
-  { id:'daniel',         name:'Daniel',         abbr:'DAN', testament:'OT', genre:'Prophecy', chapters:12, author:'Daniel',          date:'c.605–530 BC',   emoji:'🦁', color:'#F97316', famous:'Fiery furnace, lion\'s den, end-times prophecies', summary:'Daniel and his friends refuse to compromise their faith in the courts of Babylon and Persia. They survive the fiery furnace and the lion\'s den. Daniel receives sweeping prophetic visions about four world empires, a "Son of Man" who comes on the clouds, and the final resurrection. Jesus quoted Daniel more than any other prophet.', keyVerses:['Dan 3:17-18','Dan 6:22','Dan 10:19'] },
-  { id:'hosea',          name:'Hosea',          abbr:'HOS', testament:'OT', genre:'Prophecy', chapters:14, author:'Hosea',           date:'c.753–715 BC',   emoji:'💍', color:'#EC4899', famous:'God\'s love for unfaithful Israel depicted through marriage', summary:'God tells Hosea to marry a woman who will be unfaithful — as a living parable of God\'s relationship with Israel. Despite repeated betrayal, Hosea takes his wife back. The book is a stunning portrait of God\'s relentless, aching love for people who keep running away from Him.', keyVerses:['Hos 6:6','Hos 11:4','Hos 14:4'] },
-  { id:'joel',           name:'Joel',           abbr:'JOL', testament:'OT', genre:'Prophecy', chapters:3,  author:'Joel',            date:'c.835–800 BC',   emoji:'🌾', color:'#F59E0B', famous:'Locust plague, "pour out my Spirit on all people"', summary:'A devastating locust plague becomes the occasion for a call to national repentance. Joel looks forward to the Day of the Lord and promises: "I will pour out my Spirit on all people. Your sons and daughters will prophesy." Peter quotes this passage on the day of Pentecost in Acts 2.', keyVerses:['Joe 2:28','Joe 2:32'] },
-  { id:'amos',           name:'Amos',           abbr:'AMO', testament:'OT', genre:'Prophecy', chapters:9,  author:'Amos',            date:'c.760 BC',       emoji:'⚖️', color:'#6366F1', famous:'Justice, "let justice roll down like waters"', summary:'A shepherd and farmer called to preach against Israel\'s injustice and complacency. His message is sharp: religious rituals mean nothing when the poor are oppressed. "Let justice roll down like waters and righteousness like an ever-flowing stream." MLK Jr quoted Amos more than any other prophet.', keyVerses:['Amo 5:24','Amo 4:13'] },
-  { id:'obadiah',        name:'Obadiah',        abbr:'OBA', testament:'OT', genre:'Prophecy', chapters:1,  author:'Obadiah',         date:'c.586 BC',       emoji:'📣', color:'#EF4444', famous:'The shortest book in the Old Testament — judgment on Edom', summary:'The shortest book in the Old Testament — just 21 verses. God pronounces judgment on Edom (descendants of Esau) for celebrating when Babylon destroyed Jerusalem. The book declares that those who harm God\'s people will ultimately be judged, and that "the kingdom shall be the Lord\'s."', keyVerses:['Oba 1:15'] },
-  { id:'jonah',          name:'Jonah',          abbr:'JON', testament:'OT', genre:'Prophecy', chapters:4,  author:'Jonah',           date:'c.785–760 BC',   emoji:'🐋', color:'#3B82F6', famous:'The great fish, reluctant prophet, God\'s mercy on Nineveh', summary:'God tells Jonah to preach to Nineveh — the capital of Israel\'s feared enemy, Assyria. Jonah runs the other way, is swallowed by a great fish, and eventually goes. He preaches the shortest sermon in the Bible ("40 days and Nineveh will be overturned") and the entire city repents. Then Jonah sits outside and pouts. The book ends with God\'s stunning question about compassion.', keyVerses:['Jon 1:17','Jon 4:11'] },
-  { id:'micah',          name:'Micah',          abbr:'MIC', testament:'OT', genre:'Prophecy', chapters:7,  author:'Micah',           date:'c.735–700 BC',   emoji:'⚖️', color:'#10B981', famous:'Bethlehem prophecy, "act justly, love mercy, walk humbly"', summary:'Micah prophesies against corruption in Israel while offering extraordinary hope. He predicts that the Messiah will be born in Bethlehem — a prophecy quoted when Herod asked where the Christ was to be born (Matt 2:6). Contains one of the Bible\'s greatest summaries of true religion: "He has shown you, O mortal, what is good: to act justly, love mercy, and walk humbly with your God."', keyVerses:['Mic 5:2','Mic 6:8'] },
-  { id:'nahum',          name:'Nahum',          abbr:'NAH', testament:'OT', genre:'Prophecy', chapters:3,  author:'Nahum',           date:'c.663–612 BC',   emoji:'⚡', color:'#F97316', famous:'God\'s judgment on Nineveh — which had repented in Jonah\'s time', summary:'About 100 years after Jonah, Nineveh has returned to its cruelty. Nahum announces its coming total destruction — which happened in 612 BC when Babylon destroyed it. The book opens with a stunning declaration: "The Lord is slow to anger but great in power; the Lord will not leave the guilty unpunished."', keyVerses:['Nah 1:3','Nah 1:7'] },
-  { id:'habakkuk',       name:'Habakkuk',       abbr:'HAB', testament:'OT', genre:'Prophecy', chapters:3,  author:'Habakkuk',        date:'c.609–605 BC',   emoji:'🤔', color:'#8B5CF6', famous:'The righteous live by faith; praising God despite everything', summary:'Habakkuk is unusual — it is a conversation where the prophet asks hard questions and God answers. "God, why do you allow injustice?" God says judgment is coming. "But why would you use Babylon, who is worse than us?" God says His ways are beyond understanding. Habakkuk ends with one of the most beautiful declarations of faith: praising God even with no figs on the tree.', keyVerses:['Hab 2:4','Hab 3:17-18'] },
-  { id:'zephaniah',      name:'Zephaniah',      abbr:'ZEP', testament:'OT', genre:'Prophecy', chapters:3,  author:'Zephaniah',       date:'c.640–609 BC',   emoji:'📣', color:'#3B82F6', famous:'The Day of the Lord, God rejoicing over His people with singing', summary:'Zephaniah warns of coming judgment on Judah but ends with extraordinary tenderness: "The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you; in his love he will no longer rebuke you, but will rejoice over you with singing." The image of God singing over His people is one of the most arresting in scripture.', keyVerses:['Zep 3:17'] },
-  { id:'haggai',         name:'Haggai',         abbr:'HAG', testament:'OT', genre:'Prophecy', chapters:2,  author:'Haggai',          date:'c.520 BC',       emoji:'🏗️', color:'#F59E0B', famous:'Rebuilding the Temple after exile', summary:'The returned exiles have stopped rebuilding the Temple and are focused on their own houses instead. Haggai rebukes them and calls them back to God\'s work. The Temple is rebuilt. God promises: "The glory of this present house will be greater than the glory of the former house."', keyVerses:['Hag 2:9'] },
-  { id:'zechariah',      name:'Zechariah',      abbr:'ZEC', testament:'OT', genre:'Prophecy', chapters:14, author:'Zechariah',       date:'c.520–480 BC',   emoji:'🐎', color:'#6366F1', famous:'Palm Sunday prophecy, 30 pieces of silver, King on a donkey', summary:'Zechariah is the most messianic prophet after Isaiah. He predicts Jesus\'s triumphal entry on a donkey (quoted in Matthew 21), the betrayal for 30 pieces of silver (quoted in Matthew 27), and the piercing at Calvary (quoted in John 19). His visions of four horsemen influenced the Book of Revelation.', keyVerses:['Zec 9:9','Zec 12:10','Zec 14:9'] },
-  { id:'malachi',        name:'Malachi',        abbr:'MAL', testament:'OT', genre:'Prophecy', chapters:4,  author:'Malachi',         date:'c.430 BC',       emoji:'🌅', color:'#F97316', famous:'The last OT prophet — 400 years of silence follows', summary:'The last book of the Old Testament. God calls Israel back to faithful worship and living. He promises to send a messenger (John the Baptist) before the great Day of the Lord. Then — 400 years of silence. The Old Testament ends with a people waiting for a Messiah who is now due.', keyVerses:['Mal 3:10','Mal 4:2','Mal 3:1'] },
-  // ── New Testament ────────────────────────────────────────────────
-  { id:'matthew',        name:'Matthew',        abbr:'MAT', testament:'NT', genre:'Gospel',   chapters:28, author:'Matthew',         date:'c.50–70 AD',     emoji:'✡️', color:'#F59E0B', famous:'Sermon on the Mount, Lord\'s Prayer, Great Commission', summary:'Written primarily for Jewish readers, Matthew presents Jesus as the fulfillment of all Old Testament prophecy — the promised Messiah-King. Contains the Sermon on the Mount (the most radical ethical teaching in history), the Lord\'s Prayer, and the Great Commission: "Go and make disciples of all nations."', keyVerses:['Mat 5:3','Mat 6:9-13','Mat 11:28','Mat 22:37','Mat 28:19-20'] },
-  { id:'mark',           name:'Mark',           abbr:'MRK', testament:'NT', genre:'Gospel',   chapters:16, author:'Mark',            date:'c.50–65 AD',     emoji:'⚡', color:'#EF4444', famous:'The action gospel — 18 miracles, fast-paced, immediate', summary:'The shortest and fastest Gospel, likely written with Peter\'s input. The word "immediately" appears 41 times. Mark focuses on what Jesus did more than what He said — 18 miracles in 16 chapters. Jesus is shown as a servant who came "not to be served but to serve, and to give his life as a ransom for many."', keyVerses:['Mar 1:15','Mar 8:29','Mar 10:45'] },
-  { id:'luke',           name:'Luke',           abbr:'LUK', testament:'NT', genre:'Gospel',   chapters:24, author:'Luke',            date:'c.60–80 AD',     emoji:'🏥', color:'#10B981', famous:'Prodigal Son, Good Samaritan, women in Jesus\'s ministry', summary:'Written by a physician, Luke is the most detailed Gospel and gives special attention to the poor, women, and outcasts. Contains the longest parables — the Prodigal Son and the Good Samaritan. Luke\'s nativity account is the one read at Christmas. He also wrote Acts, making him the author of 28% of the New Testament.', keyVerses:['Luk 2:11','Luk 15:11-32','Luk 19:10','Luk 23:34'] },
-  { id:'john',           name:'John',           abbr:'JHN', testament:'NT', genre:'Gospel',   chapters:21, author:'John',            date:'c.85–95 AD',     emoji:'❤️', color:'#EC4899', famous:'7 "I AM" statements, John 3:16, "In the beginning was the Word"', summary:'The most theological Gospel, written "so that you may believe that Jesus is the Messiah, the Son of God." Opens with the stunning claim that Jesus is the eternal Word (Logos) who became flesh. Contains 7 "I AM" statements (I am the bread of life, the light of the world, the resurrection and the life), the raising of Lazarus, and Jesus\'s tender farewell discourse in John 14–17.', keyVerses:['Jhn 1:1','Jhn 3:16','Jhn 10:10','Jhn 11:25','Jhn 14:6'] },
-  { id:'acts',           name:'Acts',           abbr:'ACT', testament:'NT', genre:'History',  chapters:28, author:'Luke',            date:'c.62 AD',        emoji:'🔥', color:'#F97316', famous:'Pentecost, Paul\'s journeys, Church birth', summary:'The thrilling story of the early Church, written by Luke as the sequel to his Gospel. The Holy Spirit falls at Pentecost, the Church explodes in growth, and the Gospel spreads from Jerusalem to Rome. Stephen is stoned, Paul is converted on the Damascus road, and Peter preaches to the first Gentile family. The Kingdom of God advances despite persecution.', keyVerses:['Act 1:8','Act 2:38','Act 4:12','Act 16:31'] },
-  { id:'romans',         name:'Romans',         abbr:'ROM', testament:'NT', genre:'Epistle',  chapters:16, author:'Paul',            date:'c.57 AD',        emoji:'⚖️', color:'#8B5CF6', famous:'Justification by faith, Romans 8, spiritual gifts', summary:'Paul\'s masterpiece — the most complete explanation of the Gospel ever written. Humans are guilty before God (chapters 1–3), justified by faith alone through Christ alone (chapters 4–5), freed from sin\'s power (chapters 6–8), and called to holy, serving lives (chapters 12–15). Romans 8 is perhaps the single greatest chapter in the Bible: "Nothing can separate us from the love of God."', keyVerses:['Rom 1:16','Rom 3:23','Rom 5:8','Rom 8:28','Rom 8:38','Rom 12:2'] },
-  { id:'1-corinthians',  name:'1 Corinthians',  abbr:'1CO', testament:'NT', genre:'Epistle',  chapters:16, author:'Paul',            date:'c.55 AD',        emoji:'💒', color:'#3B82F6', famous:'Love chapter (ch.13), resurrection, spiritual gifts', summary:'Paul addresses problems in the divided, immoral Corinthian church. He covers divisions, sexual sin, lawsuits between believers, marriage, spiritual gifts, and the Lord\'s Supper. Chapter 13 — "Love is patient, love is kind" — is the most quoted passage at weddings. Chapter 15 is the New Testament\'s greatest chapter on the resurrection.', keyVerses:['1Co 13:4-7','1Co 15:55','1Co 10:31'] },
-  { id:'2-corinthians',  name:'2 Corinthians',  abbr:'2CO', testament:'NT', genre:'Epistle',  chapters:13, author:'Paul',            date:'c.56 AD',        emoji:'💪', color:'#10B981', famous:'Paul\'s sufferings, strength in weakness, new creation', summary:'Paul\'s most personal letter — a defense of his apostleship written amid great suffering. He describes beatings, shipwrecks, sleepless nights, and the "thorn in his flesh." In it he receives one of God\'s most intimate promises: "My grace is sufficient for you, for my power is made perfect in weakness." Contains the great declaration: "Anyone in Christ is a new creation."', keyVerses:['2Co 5:17','2Co 5:7','2Co 12:9','2Co 4:17'] },
-  { id:'galatians',      name:'Galatians',      abbr:'GAL', testament:'NT', genre:'Epistle',  chapters:6,  author:'Paul',            date:'c.49–55 AD',     emoji:'🔓', color:'#F59E0B', famous:'Fruits of the Spirit, freedom in Christ, justification', summary:'Paul\'s fiercest letter, written in fury against those teaching that faith in Christ isn\'t enough — that you also need to follow Jewish Law. "You are free," Paul thunders. Salvation is by grace through faith alone. Contains the beloved list of the Fruit of the Spirit and the declaration that "there is neither Jew nor Greek, slave nor free, male nor female" in Christ.', keyVerses:['Gal 2:20','Gal 5:22-23','Gal 6:7'] },
-  { id:'ephesians',      name:'Ephesians',      abbr:'EPH', testament:'NT', genre:'Epistle',  chapters:6,  author:'Paul',            date:'c.60–62 AD',     emoji:'🛡️', color:'#6366F1', famous:'Armor of God, saved by grace, one body in Christ', summary:'Written from prison, Ephesians is Paul\'s most sweeping vision of the Church — one body, one Spirit, one Lord, one faith. The first half: what God has done for us in Christ (every spiritual blessing!). The second half: how to live accordingly. Ends with the Armor of God — the full spiritual equipment for standing against evil.', keyVerses:['Eph 2:8-9','Eph 3:20','Eph 6:10-11'] },
-  { id:'philippians',    name:'Philippians',    abbr:'PHP', testament:'NT', genre:'Epistle',  chapters:4,  author:'Paul',            date:'c.60–62 AD',     emoji:'😊', color:'#EC4899', famous:'"I can do all things", "Rejoice always", written from prison', summary:'The most joyful book in the Bible — written from prison. The word "joy" or "rejoice" appears 16 times in 4 chapters. Paul urges: "Rejoice in the Lord always. I will say it again: Rejoice!" He describes the humility of Christ (the "Christ hymn" of chapter 2) and the secret of contentment: "I have learned, in whatever state I am, to be content."', keyVerses:['Php 4:4','Php 4:6-7','Php 4:13','Php 2:3'] },
-  { id:'colossians',     name:'Colossians',     abbr:'COL', testament:'NT', genre:'Epistle',  chapters:4,  author:'Paul',            date:'c.60–62 AD',     emoji:'👑', color:'#8B5CF6', famous:'Supremacy of Christ, "set your mind on things above"', summary:'Paul writes to counter false teaching that Jesus isn\'t enough. His answer: an overwhelming declaration of Christ\'s supremacy — "in Him all things hold together," "in Him the fullness of the Deity lives in bodily form." If you have Christ, you have everything. "Set your minds on things above."', keyVerses:['Col 1:15-17','Col 2:9-10','Col 3:2','Col 3:23'] },
-  { id:'1-thessalonians',name:'1 Thessalonians',abbr:'1TH', testament:'NT', genre:'Epistle',  chapters:5,  author:'Paul',            date:'c.51 AD',        emoji:'🕊️', color:'#14B8A6', famous:'The rapture, "pray without ceasing", Jesus\'s return', summary:'Paul\'s earliest surviving letter, written to a young church under persecution. He encourages them about those who have died ("fallen asleep") — they will rise first when Jesus returns. Ends with a rapid-fire list of instructions: "Rejoice always. Pray without ceasing. In everything give thanks."', keyVerses:['1Th 4:16-17','1Th 5:16-18','1Th 5:24'] },
-  { id:'2-thessalonians',name:'2 Thessalonians',abbr:'2TH', testament:'NT', genre:'Epistle',  chapters:3,  author:'Paul',            date:'c.51–52 AD',     emoji:'⏰', color:'#F97316', famous:'The man of lawlessness, do not be idle', summary:'A follow-up to 1 Thessalonians, clarifying confusion about Jesus\'s return. Some in Thessalonica had quit their jobs, thinking Jesus was coming any moment. Paul corrects them: certain events must happen first, and in the meantime, "if anyone will not work, neither shall he eat."', keyVerses:['2Th 2:3','2Th 3:3','2Th 3:10'] },
-  { id:'1-timothy',      name:'1 Timothy',      abbr:'1TI', testament:'NT', genre:'Epistle',  chapters:6,  author:'Paul',            date:'c.63–65 AD',     emoji:'📋', color:'#3B82F6', famous:'Church leadership, "fight the good fight"', summary:'Paul\'s personal letter to his young protégé Timothy, who leads the church at Ephesus. Paul gives instructions on church order, the qualifications of elders and deacons, the dangers of false teaching, and the love of money. "Fight the good fight of the faith. Take hold of the eternal life to which you were called."', keyVerses:['1Ti 6:6','1Ti 6:12','1Ti 4:12'] },
-  { id:'2-timothy',      name:'2 Timothy',      abbr:'2TI', testament:'NT', genre:'Epistle',  chapters:4,  author:'Paul',            date:'c.67 AD',        emoji:'🔥', color:'#EF4444', famous:'Paul\'s final letter before execution', summary:'Paul\'s last letter, written shortly before his martyrdom in Rome. He urges Timothy to guard the Gospel, endure hardship, preach the Word, and finish strong. "I have fought the good fight, I have finished the race, I have kept the faith." One of the most personal and moving letters in all of scripture.', keyVerses:['2Ti 1:7','2Ti 3:16','2Ti 4:7'] },
-  { id:'titus',          name:'Titus',          abbr:'TIT', testament:'NT', genre:'Epistle',  chapters:3,  author:'Paul',            date:'c.63–65 AD',     emoji:'🏝️', color:'#10B981', famous:'Church order on Crete, "grace teaches us to say no"', summary:'Paul writes to Titus, leading the churches on the island of Crete. He gives instructions on appointing elders, addressing false teachers, and how different groups in the church should live. The gospel passage: "He saved us, not because of righteous things we had done, but because of his mercy."', keyVerses:['Tit 2:11-12','Tit 3:5'] },
-  { id:'philemon',       name:'Philemon',       abbr:'PHM', testament:'NT', genre:'Epistle',  chapters:1,  author:'Paul',            date:'c.60–62 AD',     emoji:'🤝', color:'#F59E0B', famous:'Paul intercedes for a runaway slave', summary:'The most personal of Paul\'s letters — a single chapter written on behalf of Onesimus, a runaway slave who has become a Christian. Paul asks his master Philemon (also a believer) to welcome Onesimus back — not as a slave, but "as a dear brother." A powerful picture of the Gospel transforming social relationships.', keyVerses:['Phm 1:10','Phm 1:16'] },
-  { id:'hebrews',        name:'Hebrews',        abbr:'HEB', testament:'NT', genre:'Epistle',  chapters:13, author:'Unknown',         date:'c.60–70 AD',     emoji:'✝️', color:'#8B5CF6', famous:'Faith hall of fame (ch.11), "Jesus Christ the same yesterday today and forever"', summary:'Written to Jewish Christians tempted to return to Judaism, Hebrews shows how Jesus is the ultimate fulfillment of everything in the Old Testament — better than Moses, better than the angels, the ultimate High Priest whose single sacrifice achieves what thousands of animal sacrifices never could. Chapter 11 — the "faith hall of fame" — celebrates the great believers of history.', keyVerses:['Heb 4:12','Heb 11:1','Heb 12:1','Heb 13:8'] },
-  { id:'james',          name:'James',          abbr:'JAS', testament:'NT', genre:'Epistle',  chapters:5,  author:'James',           date:'c.44–50 AD',     emoji:'💼', color:'#F97316', famous:'Faith without works is dead, taming the tongue, wisdom', summary:'The most practical book in the New Testament — written by the brother of Jesus. James has little tolerance for Christians whose faith doesn\'t show in their lives: "Faith without works is dead." He tackles taming the tongue, caring for the poor, praying for the sick, and enduring trials. Full of concrete, actionable instruction.', keyVerses:['Jas 1:2-3','Jas 1:5','Jas 2:26','Jas 4:7','Jas 5:16'] },
-  { id:'1-peter',        name:'1 Peter',        abbr:'1PE', testament:'NT', genre:'Epistle',  chapters:5,  author:'Peter',           date:'c.62–64 AD',     emoji:'🌊', color:'#3B82F6', famous:'Suffering for Christ, "you are a chosen people", cast your anxiety', summary:'Peter writes to scattered Christians facing persecution, urging them to stand firm in their faith. They are "strangers and exiles" in this world — a "chosen people, a royal priesthood, a holy nation." Suffering for Christ is not unexpected — Jesus suffered first, leaving an example to follow. "Cast all your anxiety on him, because he cares for you."', keyVerses:['1Pe 2:9','1Pe 5:7','1Pe 5:8','1Pe 3:15'] },
-  { id:'2-peter',        name:'2 Peter',        abbr:'2PE', testament:'NT', genre:'Epistle',  chapters:3,  author:'Peter',           date:'c.64–68 AD',     emoji:'⏳', color:'#6366F1', famous:'False teachers, the Day of the Lord, "a day is like a thousand years"', summary:'Peter\'s final letter warns against false teachers who distort the Gospel and live immorally. He defends the authenticity of scripture ("men spoke from God as they were carried along by the Holy Spirit") and addresses those who mock the idea of Jesus\'s return. "The Lord is not slow in keeping his promise... he is patient with you, not wanting anyone to perish."', keyVerses:['2Pe 1:21','2Pe 3:9'] },
-  { id:'1-john',         name:'1 John',         abbr:'1JN', testament:'NT', genre:'Epistle',  chapters:5,  author:'John',            date:'c.85–95 AD',     emoji:'❤️', color:'#EC4899', famous:'"God is love", walking in the light, assurance of salvation', summary:'John writes to affirm that Jesus truly came in the flesh (against early heresies) and to give believers assurance of salvation. The letter revolves around three tests: believing correctly about Jesus, loving other believers, and obeying God\'s commands. Contains perhaps the simplest and most profound theological statement: "God is love."', keyVerses:['1Jn 1:9','1Jn 4:8','1Jn 4:19','1Jn 5:13'] },
-  { id:'2-john',         name:'2 John',         abbr:'2JN', testament:'NT', genre:'Epistle',  chapters:1,  author:'John',            date:'c.90–95 AD',     emoji:'📝', color:'#14B8A6', famous:'Love one another, do not welcome false teachers', summary:'The second shortest book in the Bible — 13 verses written to "the chosen lady and her children" (probably a local church). John urges continued love and obedience, and warns against welcoming those who deny that Jesus came in the flesh. Short but pointed: truth and love must go together.', keyVerses:['2Jn 1:6','2Jn 1:10'] },
-  { id:'3-john',         name:'3 John',         abbr:'3JN', testament:'NT', genre:'Epistle',  chapters:1,  author:'John',            date:'c.90–95 AD',     emoji:'👋', color:'#F59E0B', famous:'The shortest NT letter — commending faithful church workers', summary:'The shortest book in the New Testament — 14 verses written to Gaius, a faithful church leader. John commends Gaius for his hospitality to travelling missionaries and rebukes Diotrephes who loves to be first. "Dear friend, do not imitate what is evil but what is good. Anyone who does what is good is from God."', keyVerses:['3Jn 1:4','3Jn 1:11'] },
-  { id:'jude',           name:'Jude',           abbr:'JUD', testament:'NT', genre:'Epistle',  chapters:1,  author:'Jude',            date:'c.65–80 AD',     emoji:'⚔️', color:'#EF4444', famous:'Contend for the faith, warning against ungodly infiltrators', summary:'One of the shortest letters in the Bible — 25 verses. Jude urges believers to "contend earnestly for the faith" against false teachers who have crept in. He uses three Old Testament examples (the unbelieving Israelites, fallen angels, and Sodom) to warn of judgment. Ends with one of the most beautiful doxologies in scripture.', keyVerses:['Jud 1:3','Jud 1:24-25'] },
-  { id:'revelation',     name:'Revelation',     abbr:'REV', testament:'NT', genre:'Prophecy', chapters:22, author:'John',            date:'c.95–96 AD',     emoji:'🌟', color:'#F59E0B', famous:'The seven seals, the beast, New Jerusalem, "come Lord Jesus"', summary:'The grand finale of scripture. John receives visions of the risen Christ, letters to seven churches, and sweeping images of cosmic conflict and ultimate victory. The lamb who was slain conquers. Satan is defeated. Death and hell are cast into the lake of fire. A new heaven and new earth appear. The river of life flows. And the last prayer of the Bible: "Come, Lord Jesus."', keyVerses:['Rev 3:20','Rev 21:4','Rev 22:20'] },
+const DEFAULT_BIBLE_ID = 'de4e12af7f28f599-02' // KJV
+
+const FALLBACK_BIBLES = [
+  { id: 'de4e12af7f28f599-02', nameLocal: 'King James Version', abbreviationLocal: 'KJV' },
+  { id: '9879dbb7cfe39e4d-04', nameLocal: 'World English Bible', abbreviationLocal: 'WEB' },
+  { id: '06125adad2d5898a-01', nameLocal: 'American Standard Version', abbreviationLocal: 'ASV' },
 ]
 
-const GENRES = ['All','Law','History','Wisdom','Prophecy','Gospel','Epistle']
-const TESTAMENTS = ['All','OT','NT']
-const GENRE_COLORS = { Law:'#F59E0B',History:'#3B82F6',Wisdom:'#8B5CF6',Prophecy:'#EF4444',Gospel:'#10B981',Epistle:'#EC4899' }
+const HIGHLIGHT_COLORS = [
+  { color: '#FCD34D', label: 'Yellow' },
+  { color: '#34D399', label: 'Green' },
+  { color: '#60A5FA', label: 'Blue' },
+  { color: '#F472B6', label: 'Pink' },
+]
 
+const FONT_SIZES = { sm: '15px', md: '18px', lg: '22px' }
+
+// ─── API helpers ──────────────────────────────────────────────────────────────
+function makeApiFetch(userId) {
+  return async function apiFetch(path) {
+    const headers = { 'Content-Type': 'application/json' }
+    if (userId) headers['Authorization'] = `Bearer ${userId}`
+    const res = await fetch('/api/bible' + path, { headers })
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  }
+}
+
+async function apiPost(path, body, userId) {
+  const headers = { 'Content-Type': 'application/json' }
+  if (userId) headers['Authorization'] = `Bearer ${userId}`
+  const res = await fetch('/api/bible' + path, { method: 'POST', headers, body: JSON.stringify(body) })
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+  return res.json()
+}
+
+async function apiDelete(path, userId) {
+  const headers = { 'Content-Type': 'application/json' }
+  if (userId) headers['Authorization'] = `Bearer ${userId}`
+  const res = await fetch('/api/bible' + path, { method: 'DELETE', headers })
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+  return res.json()
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function Skeleton() {
+  return (
+    <div style={{ padding: '24px' }}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <div key={i} style={{
+          height: i % 3 === 0 ? '14px' : '18px',
+          background: 'var(--border)',
+          borderRadius: '6px',
+          marginBottom: '14px',
+          width: i % 2 === 0 ? '80%' : '100%',
+          animation: 'pulse 1.5s ease-in-out infinite',
+          opacity: 0.6,
+        }} />
+      ))}
+      <style>{`@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}`}</style>
+    </div>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function BibleBookExplorer() {
-  const [search, setSearch] = useState('')
-  const [genre, setGenre] = useState('All')
-  const [testament, setTestament] = useState('All')
-  const [selected, setSelected] = useState(null)
-  const [browsed, setBrowsed] = useState(() => new Set(JSON.parse(localStorage.getItem('bfl_books_browsed')||'[]')))
-  const { awardBadge } = useBadges()
-  const navigate = useNavigate()
+  const { user } = useAuth()
+  const userId = user?.id || null
 
-  const filtered = BOOKS.filter(b => {
-    if (testament !== 'All' && b.testament !== testament) return false
-    if (genre !== 'All' && b.genre !== genre) return false
-    if (search && !b.name.toLowerCase().includes(search.toLowerCase()) && !b.summary.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  // Translation / navigation state
+  const [bibles, setBibles] = useState([])
+  const [selectedBible, setSelectedBible] = useState(
+    () => localStorage.getItem('bible_selected') || DEFAULT_BIBLE_ID
+  )
+  const [books, setBooks] = useState([])
+  const [selectedBook, setSelectedBook] = useState(null)
+  const [chapters, setChapters] = useState([])
+  const [selectedChapter, setSelectedChapter] = useState(null)
+  const [chapterContent, setChapterContent] = useState(null) // { content, reference, next, previous }
 
-  function openBook(book) {
-    setSelected(book)
-    const newSet = new Set([...browsed, book.id])
-    setBrowsed(newSet)
-    localStorage.setItem('bfl_books_browsed', JSON.stringify([...newSet]))
-    if (newSet.size >= 66) awardBadge('book_explorer')
+  // User data
+  const [bookmarks, setBookmarks] = useState([])
+  const [highlights, setHighlights] = useState([])
+
+  // UI state
+  const [tab, setTab] = useState('read') // 'read' | 'search' | 'bookmarks'
+  const [fontSize, setFontSize] = useState('md')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [bookSearch, setBookSearch] = useState('')
+
+  // Verse popup
+  const [activeVerse, setActiveVerse] = useState(null) // { verseId, verseText, ref, el }
+  const [showHighlightPicker, setShowHighlightPicker] = useState(false)
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 })
+
+  // Search
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [searchError, setSearchError] = useState(null)
+  const searchDebounce = useRef(null)
+
+  const chapterRef = useRef(null)
+  const apiFetch = useCallback(makeApiFetch(userId), [userId])
+
+  // ─── Load bibles on mount ────────────────────────────────────────────────
+  useEffect(() => {
+    apiFetch('/bibles')
+      .then(json => setBibles((json.data || FALLBACK_BIBLES).sort((a, b) => a.nameLocal.localeCompare(b.nameLocal))))
+      .catch(() => setBibles(FALLBACK_BIBLES))
+  }, [apiFetch])
+
+  // ─── Load books when bible changes ──────────────────────────────────────
+  useEffect(() => {
+    if (!selectedBible) return
+    setBooks([])
+    setSelectedBook(null)
+    setChapters([])
+    setSelectedChapter(null)
+    setChapterContent(null)
+    apiFetch(`/${selectedBible}/books`)
+      .then(json => setBooks(json.data || []))
+      .catch(err => console.error('Books fetch error:', err))
+  }, [selectedBible, apiFetch])
+
+  // ─── Load chapters when book changes ────────────────────────────────────
+  useEffect(() => {
+    if (!selectedBook) return
+    setChapters([])
+    setSelectedChapter(null)
+    setChapterContent(null)
+    apiFetch(`/${selectedBible}/chapters/${selectedBook.id}`)
+      .then(json => {
+        const real = (json.data || []).filter(c => !c.id.endsWith('intro'))
+        setChapters(real)
+      })
+      .catch(err => console.error('Chapters fetch error:', err))
+  }, [selectedBook, selectedBible, apiFetch])
+
+  // ─── Handle Deep Links (?q=Luke 1:1-25) ─────────────────────────────────
+  useEffect(() => {
+    if (books.length === 0) return
+    const params = new URLSearchParams(window.location.search)
+    const q = params.get('q')
+    if (q) {
+      // Standardize "1 Corinthians" etc to parse safely
+      const match = q.match(/^(\d?\s*[a-zA-Z]+)\s+(\d+)/)
+      if (match) {
+        const bookName = match[1].trim()
+        const chapterNum = match[2]
+        // Exact or strong partial match for book
+        const book = books.find(b => b.name.toLowerCase() === bookName.toLowerCase() || b.name.toLowerCase().startsWith(bookName.toLowerCase()))
+        if (book) {
+          setSelectedBook(book)
+          // Pre-emptively load chapter content without waiting for chapters array
+          apiFetch(`/${selectedBible}/chapter/${book.id}.${chapterNum}`)
+            .then(json => {
+              setChapterContent(json.data)
+              setSelectedChapter(json.data)
+              setTab('read')
+            })
+            .catch(err => console.error(err))
+          
+          // Clear query to prevent re-triggering
+          window.history.replaceState({}, document.title, window.location.pathname)
+          return
+        }
+      }
+      // Fallback: Perform general search
+      setTab('search')
+      handleSearchInput(q)
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [books])
+
+  // ─── Load chapter content ────────────────────────────────────────────────
+  const loadChapter = useCallback(async (chapterId) => {
+    setLoading(true)
+    setError(null)
+    setChapterContent(null)
+    setActiveVerse(null)
+    try {
+      const json = await apiFetch(`/${selectedBible}/chapter/${chapterId}`)
+      setChapterContent(json.data)
+      setSelectedChapter(json.data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedBible, apiFetch])
+
+  // ─── Load user bookmarks & highlights ───────────────────────────────────
+  const loadUserData = useCallback(async () => {
+    if (!userId) return
+    try {
+      const [bm, hl] = await Promise.all([
+        apiFetch('/bookmarks'),
+        apiFetch('/highlights'),
+      ])
+      setBookmarks(bm.data || [])
+      setHighlights(hl.data || [])
+    } catch (err) {
+      console.error('User data fetch error:', err)
+    }
+  }, [userId, apiFetch])
+
+  useEffect(() => { loadUserData() }, [loadUserData])
+
+  // ─── DOM Preparation & Event Handling ────────────────────────────────────
+  useEffect(() => {
+    if (!chapterContent || !chapterRef.current) return
+    const container = chapterRef.current
+
+    // 1. Wrap un-wrapped text nodes into clickable spans
+    if (container.dataset.wrapped !== chapterContent.id) {
+      const markers = Array.from(container.querySelectorAll('.v'))
+      markers.forEach(marker => {
+        const sid = marker.getAttribute('data-sid') || marker.getAttribute('data-number')
+        if (!sid) return
+        
+        const wrapper = document.createElement('span')
+        wrapper.className = 'verse-wrap'
+        wrapper.setAttribute('data-verse', sid)
+        
+        marker.parentNode.insertBefore(wrapper, marker)
+        let curr = marker
+        while (curr) {
+          if (curr !== marker && curr.nodeType === 1 && curr.classList.contains('v')) {
+            break
+          }
+          const next = curr.nextSibling
+          wrapper.appendChild(curr)
+          curr = next
+        }
+      })
+      container.dataset.wrapped = chapterContent.id
+    }
+
+    // 2. Clear old highlights visually
+    container.querySelectorAll('.bm-indicator').forEach(el => el.remove())
+    container.querySelectorAll('.verse-wrap').forEach(el => {
+      el.style.borderLeft = ''
+      el.style.paddingLeft = ''
+      el.style.backgroundColor = ''
+      el.style.borderRadius = ''
+    })
+
+    // 3. Apply highlights
+    highlights
+      .filter(h => h.chapter_id === chapterContent.id && h.bible_id === selectedBible)
+      .forEach(h => {
+        const el = container.querySelector(`.verse-wrap[data-verse="${h.verse_id}"]`)
+        if (el) {
+          el.style.borderLeft = `3px solid ${h.color}`
+          el.style.paddingLeft = '8px'
+          el.style.backgroundColor = h.color + '22'
+          el.style.borderRadius = '2px'
+        }
+      })
+
+    // 4. Apply bookmarks
+    bookmarks
+      .filter(b => b.chapter_id === chapterContent.id && b.bible_id === selectedBible)
+      .forEach(b => {
+        const el = container.querySelector(`.verse-wrap[data-verse="${b.verse_id}"]`)
+        if (el) {
+          const span = document.createElement('span')
+          span.className = 'bm-indicator'
+          span.textContent = '🔖'
+          span.style.cssText = 'font-size:12px;margin-right:4px;'
+          el.prepend(span)
+        }
+      })
+
+    // 5. Handle Clicks
+    function handleVerseClick(e) {
+      let el = e.target
+      while (el && el !== container) {
+        const usfm = el.getAttribute('data-verse')
+        if (usfm) {
+          const rect = el.getBoundingClientRect()
+          const containerRect = container.getBoundingClientRect()
+          setPopupPos({
+            top: rect.top - containerRect.top + container.scrollTop - 60,
+            left: Math.min(rect.left - containerRect.left, containerRect.width - 220),
+          })
+          setActiveVerse({
+            verseId: usfm,
+            verseText: el.textContent?.replace(/^\d+\s*/, '').trim() || '',
+            ref: usfm,
+            el,
+          })
+          setShowHighlightPicker(false)
+          return
+        }
+        el = el.parentElement
+      }
+      setActiveVerse(null)
+    }
+
+    container.addEventListener('click', handleVerseClick)
+    return () => container.removeEventListener('click', handleVerseClick)
+  }, [chapterContent, highlights, bookmarks, selectedBible])
+
+  // ─── Bookmark save ───────────────────────────────────────────────────────
+  async function saveBookmark() {
+    if (!userId || !activeVerse || !chapterContent) return
+    try {
+      await apiPost('/bookmarks', {
+        bibleId: selectedBible,
+        bookId: selectedBook?.id || '',
+        chapterId: chapterContent.id,
+        verseId: activeVerse.verseId,
+        verseText: activeVerse.verseText,
+      }, userId)
+      await loadUserData()
+      setActiveVerse(null)
+    } catch (err) {
+      console.error('Bookmark save error:', err)
+    }
   }
 
-  if (selected) {
-    const gc = GENRE_COLORS[selected.genre] || '#6366F1'
-    return (
-      <div style={{ background:'var(--bg)', minHeight:'100vh', fontFamily:'Poppins,sans-serif' }}>
-        <div style={{ background:`linear-gradient(135deg,${gc}22,${gc}08,transparent)`, borderBottom:'1px solid var(--border)', padding:'48px 36px 36px' }}>
-          <button onClick={() => setSelected(null)} style={{ fontSize:'.8rem', fontWeight:700, color:'var(--blue)', background:'none', border:'none', cursor:'pointer', marginBottom:18, display:'flex', alignItems:'center', gap:6, fontFamily:'Poppins,sans-serif' }}>← Back to All Books</button>
-          <div style={{ maxWidth:820, margin:'0 auto' }}>
-            <div style={{ display:'flex', gap:20, alignItems:'flex-start', flexWrap:'wrap' }}>
-              <div style={{ width:80, height:80, borderRadius:20, background:`${gc}22`, border:`2px solid ${gc}44`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3rem', flexShrink:0 }}>{selected.emoji}</div>
-              <div style={{ flex:1 }}>
-                <div style={{ display:'flex', gap:8, marginBottom:10, flexWrap:'wrap' }}>
-                  <span style={{ fontSize:'.68rem', fontWeight:800, padding:'3px 10px', borderRadius:100, background:`${gc}20`, color:gc }}>{selected.genre}</span>
-                  <span style={{ fontSize:'.68rem', fontWeight:700, padding:'3px 10px', borderRadius:100, background:'var(--bg2)', color:'var(--ink3)' }}>{selected.testament === 'OT' ? 'Old Testament' : 'New Testament'}</span>
-                  <span style={{ fontSize:'.68rem', fontWeight:700, padding:'3px 10px', borderRadius:100, background:'var(--bg2)', color:'var(--ink3)' }}>{selected.chapters} Chapters</span>
-                </div>
-                <h1 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'clamp(2rem,5vw,3rem)', fontWeight:800, color:'var(--ink)', lineHeight:1.1, marginBottom:6 }}>{selected.name}</h1>
-                <div style={{ fontSize:'.84rem', color:'var(--ink3)', fontWeight:500 }}>Written by {selected.author} · {selected.date}</div>
-              </div>
-            </div>
-          </div>
+  // ─── Highlight save ──────────────────────────────────────────────────────
+  async function saveHighlight(color) {
+    if (!userId || !activeVerse || !chapterContent) return
+    try {
+      await apiPost('/highlights', {
+        bibleId: selectedBible,
+        chapterId: chapterContent.id,
+        verseId: activeVerse.verseId,
+        color,
+      }, userId)
+      await loadUserData()
+      setActiveVerse(null)
+      setShowHighlightPicker(false)
+    } catch (err) {
+      console.error('Highlight save error:', err)
+    }
+  }
+
+  // ─── Delete bookmark ─────────────────────────────────────────────────────
+  async function deleteBookmark(id) {
+    try {
+      await apiDelete(`/bookmarks/${id}`, userId)
+      setBookmarks(prev => prev.filter(b => b.id !== id))
+    } catch (err) {
+      console.error('Delete bookmark error:', err)
+    }
+  }
+
+  // ─── Search ──────────────────────────────────────────────────────────────
+  function handleSearchInput(val) {
+    setSearchQuery(val)
+    clearTimeout(searchDebounce.current)
+    if (!val.trim()) { setSearchResults(null); return }
+    searchDebounce.current = setTimeout(async () => {
+      setSearchLoading(true)
+      setSearchError(null)
+      try {
+        const json = await apiFetch(`/${selectedBible}/search?q=${encodeURIComponent(val)}`)
+        setSearchResults(json.data || { verses: [], total: 0 })
+      } catch (err) {
+        setSearchError(err.message)
+      } finally {
+        setSearchLoading(false)
+      }
+    }, 400)
+  }
+
+  // ─── Navigate to chapter from bookmark/search ────────────────────────────
+  async function navigateToChapter(bibleId, bookId, chapterId) {
+    if (bibleId !== selectedBible) {
+      setSelectedBible(bibleId)
+      localStorage.setItem('bible_selected', bibleId)
+    }
+    // Find book
+    const book = books.find(b => b.id === bookId)
+    if (book) setSelectedBook(book)
+    await loadChapter(chapterId)
+    setTab('read')
+  }
+
+  // ─── Derived values ──────────────────────────────────────────────────────
+  const currentBibleMeta = bibles.find(b => b.id === selectedBible) || FALLBACK_BIBLES[0]
+  const otBooks = books.filter(b => {
+    const ntStart = books.findIndex(x => x.id === 'MAT')
+    const idx = books.indexOf(b)
+    return ntStart === -1 ? true : idx < ntStart
+  })
+  const ntBooks = books.filter(b => !otBooks.includes(b))
+  const filteredOT = otBooks.filter(b => b.name.toLowerCase().includes(bookSearch.toLowerCase()))
+  const filteredNT = ntBooks.filter(b => b.name.toLowerCase().includes(bookSearch.toLowerCase()))
+
+  const currentChapterIdx = chapters.findIndex(c => c.id === chapterContent?.id)
+  const prevChapter = currentChapterIdx > 0 ? chapters[currentChapterIdx - 1] : null
+  const nextChapter = currentChapterIdx < chapters.length - 1 ? chapters[currentChapterIdx + 1] : null
+
+  // ─── Styles ──────────────────────────────────────────────────────────────
+  const s = {
+    page: {
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      color: 'var(--ink)',
+      fontFamily: 'inherit',
+    },
+    toolbar: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '10px 16px',
+      borderBottom: '1px solid var(--border)',
+      background: 'var(--surface)',
+      flexWrap: 'wrap',
+    },
+    select: {
+      background: 'var(--bg)',
+      color: 'var(--ink)',
+      border: '1px solid var(--border)',
+      borderRadius: '6px',
+      padding: '5px 8px',
+      fontSize: '13px',
+      cursor: 'pointer',
+    },
+    tabBar: {
+      display: 'flex',
+      borderBottom: '1px solid var(--border)',
+      background: 'var(--surface)',
+    },
+    tab: (active) => ({
+      padding: '10px 18px',
+      fontSize: '13px',
+      fontWeight: active ? '600' : '400',
+      color: active ? 'var(--blue)' : 'var(--ink2)',
+      cursor: 'pointer',
+      background: 'none',
+      borderTop: 'none',
+      borderLeft: 'none',
+      borderRight: 'none',
+      borderBottom: active ? '2px solid var(--blue)' : '2px solid transparent',
+    }),
+    body: {
+      maxWidth: '720px',
+      margin: '0 auto',
+      padding: '0 16px 80px',
+    },
+    fontBtn: (active) => ({
+      padding: '4px 8px',
+      fontSize: '12px',
+      fontWeight: active ? '700' : '400',
+      background: active ? 'var(--blue-bg)' : 'transparent',
+      color: active ? 'var(--blue)' : 'var(--ink2)',
+      border: '1px solid var(--border)',
+      borderRadius: '4px',
+      cursor: 'pointer',
+    }),
+    navBtn: (disabled) => ({
+      padding: '8px 16px',
+      background: disabled ? 'var(--border)' : 'var(--blue)',
+      color: disabled ? 'var(--ink3)' : '#fff',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: disabled ? 'default' : 'pointer',
+      fontSize: '13px',
+      fontWeight: '500',
+    }),
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+  return (
+    <div style={s.page}>
+      {/* Hero header */}
+      <div style={{ background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)', padding: '60px 36px 44px', textAlign: 'center' }}>
+        <h1 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(2rem,4.5vw,3.4rem)', fontWeight: 800, background: 'linear-gradient(90deg,#60A5FA,#C084FC,#F472B6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 8 }}>📖 Bible Explorer</h1>
+        <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.9rem', fontWeight: 500 }}>Read, search, bookmark, and highlight scripture across multiple translations</p>
+      </div>
+
+      {/* Toolbar */}
+      <div style={s.toolbar}>
+        <span style={{ fontWeight: '700', fontSize: '16px', marginRight: '4px' }}>📖</span>
+        <select
+          style={s.select}
+          value={selectedBible}
+          onChange={e => {
+            setSelectedBible(e.target.value)
+            localStorage.setItem('bible_selected', e.target.value)
+          }}
+        >
+          {bibles.map(b => (
+            <option key={b.id} value={b.id}>{b.abbreviationLocal} — {b.nameLocal}</option>
+          ))}
+        </select>
+
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
+          {['sm', 'md', 'lg'].map(sz => (
+            <button key={sz} style={s.fontBtn(fontSize === sz)} onClick={() => setFontSize(sz)}>
+              {sz === 'sm' ? 'A−' : sz === 'md' ? 'A' : 'A+'}
+            </button>
+          ))}
         </div>
-        <div style={{ maxWidth:820, margin:'0 auto', padding:'40px 24px', display:'grid', gridTemplateColumns:'1fr 320px', gap:28, alignItems:'start' }}>
-          <div>
-            <h2 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.2rem', fontWeight:800, color:'var(--ink)', marginBottom:12 }}>📖 About This Book</h2>
-            <p style={{ fontSize:'.92rem', color:'var(--ink2)', lineHeight:1.9, fontWeight:500, marginBottom:28 }}>{selected.summary}</p>
-            <h2 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'1.1rem', fontWeight:800, color:'var(--ink)', marginBottom:12 }}>🏆 Famous For</h2>
-            <p style={{ fontSize:'.88rem', color:'var(--ink2)', lineHeight:1.75, fontWeight:500 }}>{selected.famous}</p>
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-            <div style={{ background:'var(--surface)', borderRadius:18, border:'1.5px solid var(--border)', padding:'20px' }}>
-              <div style={{ fontFamily:"'Baloo 2',cursive", fontSize:'.9rem', fontWeight:800, color:'var(--ink)', marginBottom:12 }}>📌 Key Verses</div>
-              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                {selected.keyVerses.map((v, i) => (
-                  <div key={i} style={{ fontSize:'.82rem', fontWeight:700, color:gc, background:`${gc}12`, padding:'8px 12px', borderRadius:10, border:`1px solid ${gc}22` }}>{v}</div>
-                ))}
+      </div>
+
+      {/* Tab bar */}
+      <div style={s.tabBar}>
+        <button style={s.tab(tab === 'read')} onClick={() => setTab('read')}>Read</button>
+        <button style={s.tab(tab === 'search')} onClick={() => setTab('search')}>Search</button>
+      </div>
+
+      <div style={s.body}>
+        {/* ── READ TAB ── */}
+        {tab === 'read' && (
+          <>
+            {/* Book selector */}
+            {!selectedBook && (
+              <BookSelector
+                filteredOT={filteredOT}
+                filteredNT={filteredNT}
+                bookSearch={bookSearch}
+                setBookSearch={setBookSearch}
+                onSelect={book => setSelectedBook(book)}
+              />
+            )}
+
+            {/* Chapter selector */}
+            {selectedBook && !chapterContent && !loading && (
+              <ChapterSelector
+                book={selectedBook}
+                chapters={chapters}
+                onBack={() => setSelectedBook(null)}
+                onSelect={ch => loadChapter(ch.id)}
+              />
+            )}
+
+            {/* Loading skeleton */}
+            {loading && <Skeleton />}
+
+            {/* Error state */}
+            {error && !loading && (
+              <div style={{ padding: '32px', textAlign: 'center' }}>
+                <p style={{ color: 'var(--red)', marginBottom: '12px' }}>⚠️ {error}</p>
+                <button
+                  style={{ ...s.navBtn(false), background: 'var(--red)' }}
+                  onClick={() => selectedChapter && loadChapter(selectedChapter.id)}
+                >
+                  Retry
+                </button>
               </div>
-            </div>
-            <div style={{ background:'var(--surface)', borderRadius:18, border:'1.5px solid var(--border)', padding:'20px' }}>
-              <div style={{ fontFamily:"'Baloo 2',cursive", fontSize:'.9rem', fontWeight:800, color:'var(--ink)', marginBottom:12 }}>Quick Stats</div>
-              {[['📚','Genre',selected.genre],['✍️','Author',selected.author],['📅','Date Written',selected.date],['📖','Chapters',selected.chapters],['📜','Testament',selected.testament === 'OT' ? 'Old Testament' : 'New Testament']].map(([e,l,v],i)=>(
-                <div key={i} style={{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom: i < 4 ? '1px solid var(--border)' : 'none', fontSize:'.8rem' }}>
-                  <span style={{ color:'var(--ink3)', fontWeight:600 }}>{e} {l}</span>
-                  <span style={{ color:'var(--ink)', fontWeight:700 }}>{v}</span>
-                </div>
+            )}
+
+            {/* Chapter reader */}
+            {chapterContent && !loading && (
+              <ChapterReader
+                chapterContent={chapterContent}
+                selectedBook={selectedBook}
+                currentBibleMeta={currentBibleMeta}
+                fontSize={fontSize}
+                chapterRef={chapterRef}
+                activeVerse={activeVerse}
+                setActiveVerse={setActiveVerse}
+                showHighlightPicker={showHighlightPicker}
+                setShowHighlightPicker={setShowHighlightPicker}
+                popupPos={popupPos}
+                userId={userId}
+                prevChapter={prevChapter}
+                nextChapter={nextChapter}
+                onPrev={() => prevChapter && loadChapter(prevChapter.id)}
+                onNext={() => nextChapter && loadChapter(nextChapter.id)}
+                onBack={() => { setChapterContent(null); setSelectedChapter(null) }}
+                onBookmark={saveBookmark}
+                onHighlight={saveHighlight}
+                navBtnStyle={s.navBtn}
+              />
+            )}
+          </>
+        )}
+
+        {/* ── SEARCH TAB ── */}
+        {tab === 'search' && (
+          <SearchTab
+            query={searchQuery}
+            onQueryChange={handleSearchInput}
+            results={searchResults}
+            loading={searchLoading}
+            error={searchError}
+            onNavigate={(verse) => {
+              const parts = verse.id.split('.')
+              const bookId = parts[0]
+              const chapterId = parts.slice(0, 2).join('.')
+              navigateToChapter(selectedBible, bookId, chapterId)
+            }}
+          />
+        )}
+
+      </div>
+    </div>
+  )
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function BookSelector({ filteredOT, filteredNT, bookSearch, setBookSearch, onSelect }) {
+  // Sort alphabetically within each testament
+  const sortedOT = [...filteredOT].sort((a, b) => a.name.localeCompare(b.name))
+  const sortedNT = [...filteredNT].sort((a, b) => a.name.localeCompare(b.name))
+
+  return (
+    <div style={{ paddingTop: '24px' }}>
+      {/* Search */}
+      <div style={{ position: 'relative', marginBottom: '24px' }}>
+        <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: '1rem', pointerEvents: 'none' }}>🔍</span>
+        <input
+          type="text"
+          placeholder="Search books..."
+          value={bookSearch}
+          onChange={e => setBookSearch(e.target.value)}
+          style={{
+            width: '100%', padding: '11px 12px 11px 38px',
+            borderRadius: '12px', border: '1.5px solid var(--border)',
+            background: 'var(--surface)', color: 'var(--ink)',
+            fontSize: '14px', boxSizing: 'border-box',
+            outline: 'none',
+          }}
+        />
+      </div>
+      {sortedOT.length > 0 && <BookGroup title="📜 Old Testament" books={sortedOT} onSelect={onSelect} color="#F59E0B" />}
+      {sortedNT.length > 0 && <BookGroup title="✝️ New Testament" books={sortedNT} onSelect={onSelect} color="#3B82F6" />}
+    </div>
+  )
+}
+
+// Book emoji map for visual flair
+const BOOK_EMOJI = {
+  GEN:'🌍',EXO:'🔥',LEV:'🕍',NUM:'🏕️',DEU:'📜',JOS:'⚔️',JDG:'🗡️',RUT:'🌾',
+  '1SA':'👑','2SA':'🏰','1KI':'✨','2KI':'💔','1CH':'📋','2CH':'🏛️',EZR:'🏗️',
+  NEH:'🧱',EST:'👸',JOB:'💎',PSA:'🎵',PRO:'📖',ECC:'🌀',SNG:'💝',ISA:'🦁',
+  JER:'😢',LAM:'💧',EZK:'🌊',DAN:'🦁',HOS:'💍',JOL:'🌾',AMO:'⚖️',OBA:'📣',
+  JON:'🐋',MIC:'⚖️',NAH:'⚡',HAB:'🤔',ZEP:'📣',HAG:'🏗️',ZEC:'🐎',MAL:'🌅',
+  MAT:'✡️',MRK:'⚡',LUK:'🏥',JHN:'❤️',ACT:'🔥',ROM:'⚖️','1CO':'💒','2CO':'💪',
+  GAL:'🔓',EPH:'🛡️',PHP:'😊',COL:'🌟','1TH':'📬','2TH':'⏰','1TI':'📝','2TI':'🏆',
+  TIT:'📋',PHM:'🤝',HEB:'⛪',JAS:'🌿','1PE':'🪨','2PE':'⚠️','1JN':'❤️','2JN':'✉️',
+  '3JN':'✉️',JUD:'⚔️',REV:'🌈',
+}
+
+function BookGroup({ title, books, onSelect, color }) {
+  return (
+    <div style={{ marginBottom: '28px' }}>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        fontSize: '.72rem', fontWeight: 800, letterSpacing: '.5px',
+        textTransform: 'uppercase', padding: '4px 14px', borderRadius: 100,
+        background: color + '18', color, border: `1px solid ${color}30`,
+        marginBottom: '14px',
+      }}>
+        {title}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
+        {books.map(book => {
+          const emoji = BOOK_EMOJI[book.id] || '📖'
+          return (
+            <button
+              key={book.id}
+              onClick={() => onSelect(book)}
+              style={{
+                padding: '14px 12px', background: 'var(--surface)',
+                border: '1.5px solid var(--border)', borderRadius: '14px',
+                color: 'var(--ink)', fontSize: '13px', cursor: 'pointer',
+                textAlign: 'left', transition: 'all .2s', display: 'flex',
+                alignItems: 'center', gap: 8, fontWeight: 600,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = color + '12'
+                e.currentTarget.style.borderColor = color + '55'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = `0 6px 20px ${color}18`
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--surface)'
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.transform = ''
+                e.currentTarget.style.boxShadow = ''
+              }}
+            >
+              <span style={{ fontSize: '1.3rem', flexShrink: 0 }}>{emoji}</span>
+              <span style={{ lineHeight: 1.3 }}>{book.name}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ChapterSelector({ book, chapters, onBack, onSelect }) {
+  const emoji = BOOK_EMOJI[book.id] || '📖'
+  return (
+    <div style={{ paddingTop: '20px' }}>
+      <button
+        onClick={onBack}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: 'var(--blue-bg)', border: '1px solid var(--blue)',
+          color: 'var(--blue)', cursor: 'pointer', fontSize: '13px',
+          fontWeight: 700, padding: '6px 14px', borderRadius: 99, marginBottom: '20px',
+        }}
+      >
+        ← Books
+      </button>
+
+      {/* Book header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 14, marginBottom: '24px',
+        padding: '20px 22px', borderRadius: 18,
+        background: 'linear-gradient(135deg,var(--blue-bg),var(--violet-bg))',
+        border: '1.5px solid var(--border)',
+      }}>
+        <div style={{ fontSize: '2.8rem', lineHeight: 1 }}>{emoji}</div>
+        <div>
+          <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.4rem', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.2 }}>{book.name}</div>
+          <div style={{ fontSize: '.78rem', color: 'var(--ink3)', fontWeight: 600, marginTop: 3 }}>{chapters.length} chapter{chapters.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+
+      <div style={{ fontSize: '.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', color: 'var(--ink3)', marginBottom: '12px' }}>Select a Chapter</div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))', gap: '10px' }}>
+        {chapters.map((ch, i) => (
+          <button
+            key={ch.id}
+            onClick={() => onSelect(ch)}
+            style={{
+              padding: '14px 4px', background: 'var(--surface)',
+              border: '1.5px solid var(--border)', borderRadius: '12px',
+              color: 'var(--ink)', fontSize: '15px', fontWeight: 700,
+              cursor: 'pointer', textAlign: 'center', transition: 'all .2s',
+              fontFamily: "'Baloo 2',cursive",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'var(--blue)'
+              e.currentTarget.style.color = '#fff'
+              e.currentTarget.style.borderColor = 'var(--blue)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(59,130,246,.3)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'var(--surface)'
+              e.currentTarget.style.color = 'var(--ink)'
+              e.currentTarget.style.borderColor = 'var(--border)'
+              e.currentTarget.style.transform = ''
+              e.currentTarget.style.boxShadow = ''
+            }}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ChapterReader({
+  chapterContent, selectedBook, currentBibleMeta, fontSize, chapterRef,
+  activeVerse, setActiveVerse, showHighlightPicker, setShowHighlightPicker,
+  popupPos, userId, prevChapter, nextChapter, onPrev, onNext, onBack,
+  onBookmark, onHighlight, navBtnStyle,
+}) {
+  return (
+    <div style={{ paddingTop: '16px', position: 'relative' }}>
+      {/* Chapter header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '16px',
+      }}>
+        <button
+          onClick={onBack}
+          style={{ background: 'none', border: 'none', color: 'var(--blue)', cursor: 'pointer', fontSize: '13px', padding: 0 }}
+        >
+          ← {selectedBook?.name}
+        </button>
+        <span style={{ fontSize: '12px', color: 'var(--ink3)', fontWeight: '600' }}>
+          {currentBibleMeta?.abbreviationLocal}
+        </span>
+      </div>
+
+      <h1 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px', color: 'var(--ink)' }}>
+        {chapterContent.reference}
+      </h1>
+      
+      <div style={{ background: 'var(--blue-bg)', border: '1px solid var(--blue)', color: 'var(--blue)', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, display: 'inline-block', marginBottom: '24px' }}>
+        💡 <strong>Tip:</strong> Tap on any verse text to highlight or bookmark it.
+      </div>
+
+      {/* Verse popup */}
+      {activeVerse && (
+        <VersePopup
+          activeVerse={activeVerse}
+          popupPos={popupPos}
+          userId={userId}
+          showHighlightPicker={showHighlightPicker}
+          setShowHighlightPicker={setShowHighlightPicker}
+          onClose={() => { setActiveVerse(null); setShowHighlightPicker(false) }}
+          onBookmark={onBookmark}
+          onHighlight={onHighlight}
+        />
+      )}
+
+      {/* Chapter HTML content */}
+      <div
+        ref={chapterRef}
+        style={{ position: 'relative' }}
+      >
+        <style>{`
+          .chapter-content { font-size: ${FONT_SIZES[fontSize]}; line-height: 1.8; color: var(--ink); }
+          .chapter-content .v { font-size: 0.65em; font-weight: 700; color: var(--ink3); vertical-align: super; margin-right: 3px; }
+          .chapter-content h3, .chapter-content h4 { font-size: 1em; font-weight: 700; color: var(--ink2); margin: 1.2em 0 0.4em; }
+          .chapter-content p { margin: 0 0 0.6em; }
+          .chapter-content span.verse-wrap { cursor: pointer; border-radius: 4px; transition: background 0.15s; padding: 2px 0; }
+          .chapter-content span.verse-wrap:hover { background: var(--blue-bg); }
+        `}</style>
+        <div
+          className="chapter-content"
+          dangerouslySetInnerHTML={{ __html: chapterContent.content || '' }}
+        />
+      </div>
+
+      {/* Prev / Next navigation */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', gap: '12px' }}>
+        <button
+          style={navBtnStyle(!prevChapter)}
+          disabled={!prevChapter}
+          onClick={onPrev}
+        >
+          ← Previous
+        </button>
+        <button
+          style={navBtnStyle(!nextChapter)}
+          disabled={!nextChapter}
+          onClick={onNext}
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function VersePopup({ activeVerse, popupPos, userId, showHighlightPicker, setShowHighlightPicker, onClose, onBookmark, onHighlight }) {
+  const popupStyle = {
+    position: 'absolute',
+    top: `${popupPos.top}px`,
+    left: `${Math.max(0, popupPos.left)}px`,
+    zIndex: 100,
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: '10px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    padding: '10px',
+    minWidth: '200px',
+  }
+
+  const btnStyle = {
+    display: 'block',
+    width: '100%',
+    padding: '7px 10px',
+    background: 'none',
+    border: 'none',
+    borderRadius: '6px',
+    color: 'var(--ink)',
+    fontSize: '13px',
+    cursor: 'pointer',
+    textAlign: 'left',
+  }
+
+  async function handleCopy() {
+    const text = `${activeVerse.verseText} — ${activeVerse.ref}`
+    await navigator.clipboard.writeText(text).catch(() => {})
+    onClose()
+  }
+
+  async function handleShare() {
+    const text = `${activeVerse.verseText} — ${activeVerse.ref}`
+    if (navigator.share) {
+      await navigator.share({ text }).catch(() => {})
+    } else {
+      await navigator.clipboard.writeText(text).catch(() => {})
+    }
+    onClose()
+  }
+
+  return (
+    <div style={popupStyle}>
+      <div style={{ fontSize: '11px', color: 'var(--ink3)', marginBottom: '6px', fontWeight: '600' }}>
+        {activeVerse.ref}
+      </div>
+
+      {!userId ? (
+        <div style={{ fontSize: '12px', color: 'var(--ink2)', padding: '4px 0' }}>
+          <a href="/auth" style={{ color: 'var(--blue)' }}>Sign in</a> to save bookmarks & highlights
+        </div>
+      ) : (
+        <>
+          <button style={btnStyle} onMouseEnter={e => e.currentTarget.style.background='var(--blue-bg)'} onMouseLeave={e => e.currentTarget.style.background='none'} onClick={onBookmark}>
+            🔖 Bookmark
+          </button>
+          <button style={btnStyle} onMouseEnter={e => e.currentTarget.style.background='var(--blue-bg)'} onMouseLeave={e => e.currentTarget.style.background='none'} onClick={() => setShowHighlightPicker(p => !p)}>
+            🎨 Highlight
+          </button>
+          {showHighlightPicker && (
+            <div style={{ display: 'flex', gap: '6px', padding: '6px 10px' }}>
+              {HIGHLIGHT_COLORS.map(({ color, label }) => (
+                <button
+                  key={color}
+                  title={label}
+                  onClick={() => onHighlight(color)}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: color,
+                    border: '2px solid var(--border)',
+                    cursor: 'pointer',
+                  }}
+                />
               ))}
             </div>
-            <Link to="/devotional" style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'12px', borderRadius:14, background:'var(--violet-bg)', color:'var(--violet)', textDecoration:'none', fontWeight:800, fontSize:'.84rem', border:'1.5px solid rgba(139,92,246,.2)' }}>
-              🙏 Get Devotional from {selected.name}
-            </Link>
-          </div>
-        </div>
+          )}
+        </>
+      )}
+
+      <button style={btnStyle} onMouseEnter={e => e.currentTarget.style.background='var(--blue-bg)'} onMouseLeave={e => e.currentTarget.style.background='none'} onClick={handleCopy}>
+        📋 Copy
+      </button>
+      <button style={btnStyle} onMouseEnter={e => e.currentTarget.style.background='var(--blue-bg)'} onMouseLeave={e => e.currentTarget.style.background='none'} onClick={handleShare}>
+        🔗 Share
+      </button>
+      <button style={{ ...btnStyle, color: 'var(--ink3)', fontSize: '11px' }} onClick={onClose}>
+        ✕ Close
+      </button>
+    </div>
+  )
+}
+
+function SearchTab({ query, onQueryChange, results, loading, error, onNavigate }) {
+  return (
+    <div style={{ paddingTop: '16px' }}>
+      <input
+        type="text"
+        placeholder="Search the Bible..."
+        value={query}
+        onChange={e => onQueryChange(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '10px 14px',
+          borderRadius: '8px',
+          border: '1px solid var(--border)',
+          background: 'var(--surface)',
+          color: 'var(--ink)',
+          fontSize: '15px',
+          marginBottom: '16px',
+          boxSizing: 'border-box',
+        }}
+      />
+
+      {loading && <Skeleton />}
+
+      {error && (
+        <p style={{ color: 'var(--red)', fontSize: '13px' }}>⚠️ {error}</p>
+      )}
+
+      {results && !loading && (
+        <>
+          <p style={{ fontSize: '12px', color: 'var(--ink3)', marginBottom: '12px' }}>
+            {results.total || results.verses?.length || 0} results
+          </p>
+          {(!results.verses || results.verses.length === 0) && (
+            <p style={{ color: 'var(--ink2)', fontSize: '14px' }}>
+              No results found. Try a different translation or search term.
+            </p>
+          )}
+          {(results.verses || []).map(verse => (
+            <button
+              key={verse.id}
+              onClick={() => onNavigate(verse)}
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '12px',
+                marginBottom: '8px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                color: 'var(--ink)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--blue-bg)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--surface)'}
+            >
+              <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--blue)', marginBottom: '4px' }}>
+                {verse.reference}
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--ink2)', lineHeight: '1.5' }}>
+                {verse.text}
+              </div>
+            </button>
+          ))}
+        </>
+      )}
+    </div>
+  )
+}
+
+function BookmarksTab({ userId, bookmarks, onDelete, onNavigate }) {
+  if (!userId) {
+    return (
+      <div style={{ paddingTop: '32px', textAlign: 'center', color: 'var(--ink2)' }}>
+        <p style={{ fontSize: '15px', marginBottom: '8px' }}>🔖 Your bookmarks will appear here</p>
+        <a href="/auth" style={{ color: 'var(--blue)', fontSize: '14px' }}>Sign in to save bookmarks</a>
+      </div>
+    )
+  }
+
+  if (bookmarks.length === 0) {
+    return (
+      <div style={{ paddingTop: '32px', textAlign: 'center', color: 'var(--ink2)' }}>
+        <p style={{ fontSize: '15px' }}>No bookmarks yet. Tap a verse while reading to save it.</p>
       </div>
     )
   }
 
   return (
-    <div style={{ background:'var(--bg)', minHeight:'100vh', fontFamily:'Poppins,sans-serif' }}>
-      <div style={{ background:'linear-gradient(135deg,#0F0F1A,#1E1B4B)', padding:'56px 36px 44px', textAlign:'center' }}>
-        <h1 style={{ fontFamily:"'Baloo 2',cursive", fontSize:'clamp(2rem,5vw,3.5rem)', fontWeight:800, background:'linear-gradient(90deg,#FCD34D,#60A5FA,#A5B4FC)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', marginBottom:8 }}>
-          📖 Bible Book Explorer
-        </h1>
-        <p style={{ color:'rgba(255,255,255,.5)', fontSize:'.92rem', fontWeight:500, marginBottom:6 }}>
-          All 66 books of the Bible — summaries, key verses, and context. Browse them all.
-        </p>
-        <div style={{ fontSize:'.78rem', color:'rgba(255,255,255,.3)', fontWeight:500 }}>
-          {browsed.size}/66 books explored
-          {browsed.size > 0 && <span style={{ color:'#34D399', marginLeft:8 }}>· {Math.round(browsed.size/66*100)}% complete</span>}
+    <div style={{ paddingTop: '16px' }}>
+      {bookmarks.map(bm => (
+        <div
+          key={bm.id}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+            padding: '12px',
+            marginBottom: '8px',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+          }}
+        >
+          <button
+            onClick={() => onNavigate(bm)}
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              padding: 0,
+              color: 'var(--ink)',
+            }}
+          >
+            <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--blue)', marginBottom: '4px' }}>
+              {bm.verse_id}
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--ink2)', lineHeight: '1.5' }}>
+              {bm.verse_text || '—'}
+            </div>
+          </button>
+          <button
+            onClick={() => onDelete(bm.id)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--ink3)',
+              fontSize: '16px',
+              padding: '2px 4px',
+              flexShrink: 0,
+            }}
+            title="Delete bookmark"
+          >
+            ×
+          </button>
         </div>
-      </div>
-
-      <div style={{ maxWidth:1060, margin:'0 auto', padding:'32px 20px' }}>
-        {/* Filters */}
-        <div style={{ display:'flex', gap:12, marginBottom:24, flexWrap:'wrap', alignItems:'center' }}>
-          <input className="input-field" placeholder="🔍 Search books..." value={search} onChange={e=>setSearch(e.target.value)} style={{ flex:1, minWidth:200 }} />
-          <div style={{ display:'flex', gap:6 }}>
-            {TESTAMENTS.map(t => <button key={t} onClick={()=>setTestament(t)} style={{ fontSize:'.74rem', fontWeight:700, padding:'7px 14px', borderRadius:10, cursor:'pointer', border:`1.5px solid ${testament===t?'var(--blue)':'var(--border)'}`, background:testament===t?'var(--blue)':'var(--surface)', color:testament===t?'white':'var(--ink2)', transition:'all .2s' }}>{t === 'OT' ? 'Old Testament' : t === 'NT' ? 'New Testament' : t}</button>)}
-          </div>
-          <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-            {GENRES.map(g => <button key={g} onClick={()=>setGenre(g)} style={{ fontSize:'.72rem', fontWeight:700, padding:'6px 12px', borderRadius:100, cursor:'pointer', border:`1.5px solid ${genre===g?GENRE_COLORS[g]||'var(--blue)':'var(--border)'}`, background:genre===g?(GENRE_COLORS[g]||'var(--blue)')+'18':'var(--surface)', color:genre===g?GENRE_COLORS[g]||'var(--blue)':'var(--ink3)', transition:'all .2s' }}>{g}</button>)}
-          </div>
-        </div>
-
-        {/* Books grid */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))', gap:12 }}>
-          {filtered.map((book, i) => {
-            const gc = GENRE_COLORS[book.genre] || '#6366F1'
-            const done = browsed.has(book.id)
-            return (
-              <div key={book.id} onClick={() => openBook(book)}
-                style={{ background:'var(--surface)', borderRadius:18, border:`1.5px solid ${done ? gc+'44' : 'var(--border)'}`, padding:'18px 16px', cursor:'pointer', transition:'all .25s', position:'relative', overflow:'hidden' }}
-                onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 14px 36px ${gc}18`; e.currentTarget.style.borderColor=gc+'66' }}
-                onMouseLeave={e=>{ e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; e.currentTarget.style.borderColor=done?gc+'44':'var(--border)' }}>
-                <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:gc, borderRadius:'16px 16px 0 0' }} />
-                {done && <div style={{ position:'absolute', top:8, right:8, fontSize:'.58rem', fontWeight:800, color:gc, background:`${gc}18`, padding:'2px 7px', borderRadius:100 }}>✓ Read</div>}
-                <div style={{ fontSize:'2rem', marginBottom:8 }}>{book.emoji}</div>
-                <div style={{ fontFamily:"'Baloo 2',cursive", fontSize:'.95rem', fontWeight:800, color:'var(--ink)', marginBottom:4 }}>{book.name}</div>
-                <div style={{ fontSize:'.64rem', fontWeight:700, padding:'2px 8px', borderRadius:100, background:`${gc}15`, color:gc, display:'inline-block', marginBottom:6 }}>{book.genre}</div>
-                <div style={{ fontSize:'.72rem', color:'var(--ink3)', fontWeight:500 }}>{book.chapters} chapters</div>
-              </div>
-            )
-          })}
-        </div>
-
-        {filtered.length === 0 && (
-          <div style={{ textAlign:'center', padding:'40px 0', color:'var(--ink3)', fontSize:'.9rem', fontWeight:500 }}>
-            No books match your search. Try a different filter.
-          </div>
-        )}
-      </div>
+      ))}
     </div>
   )
 }

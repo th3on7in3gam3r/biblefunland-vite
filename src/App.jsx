@@ -8,6 +8,8 @@ import EmailPopup from './components/EmailPopup'
 import BibleRadio from './components/BibleRadio'
 import CookieConsent from './components/CookieConsent'
 import ErrorBoundary from './components/ErrorBoundary'
+import OnboardingModal from './components/OnboardingModal'
+import OfflineIndicator from './components/OfflineIndicator'
 import { PageLoader } from './components/Skeleton'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
@@ -32,6 +34,7 @@ import { BedtimeModeProvider } from './context/BedtimeModeContext'
 import { ActivityDashboardProvider } from './context/ActivityDashboardContext'
 import { AdvancedAnalyticsProvider } from './context/AdvancedAnalyticsContext'
 import { FamilyChallengesProvider } from './context/FamilyChallengesContext'
+import { OfflineProvider } from './context/OfflineContext'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 import ParentalProtectedRoute from './components/ParentalProtectedRoute'
@@ -50,6 +53,7 @@ const Blog=lazy_(()=>import('./pages/Blog'))
 const PrayerWall=lazy_(()=>import('./pages/PrayerWallRealtime'))
 const Dashboard=lazy_(()=>import('./pages/Dashboard'))
 const Admin=lazy_(()=>import('./pages/Admin'))
+const AdminAnalytics=lazy_(()=>import('./pages/AdminAnalytics'))
 const Profile=lazy_(()=>import('./pages/Profile'))
 const DavidGoliath=lazy_(()=>import('./pages/DavidGoliath'))
 const BibleCharacterChat=lazy_(()=>import('./pages/BibleCharacterChat'))
@@ -92,6 +96,7 @@ const BibleBattleArena=lazy_(()=>import('./pages/BibleBattleArena'))
 const BibleSearch=lazy_(()=>import('./pages/BibleSearch'))
 const Bedtime=lazy_(()=>import('./pages/Bedtime'))
 const BedtimeSettings=lazy_(()=>import('./pages/BedtimeSettings'))
+const ChildDashboard=lazy_(()=>import('./pages/ChildDashboard'))
 
 // ── v12 Features ──────────────────────────────────────────────────────────────
 const SermonWriter=lazy_(()=>import('./pages/SermonWriter'))
@@ -101,6 +106,20 @@ const FastingTracker=lazy_(()=>import('./pages/FastingTracker'))
 const BibleFamilyTree=lazy_(()=>import('./pages/BibleFamilyTree'))
 const WorshipDiscovery=lazy_(()=>import('./pages/WorshipDiscovery'))
 const ParentTeacherHub=lazy_(()=>import('./pages/ParentTeacherHub'))
+const ParentsTeachers=lazy_(()=>import('./pages/ParentsTeachers'))
+const Leaderboard=lazy_(()=>import('./pages/Leaderboard'))
+const Podcast=lazy_(()=>import('./pages/Podcast'))
+const Bookmarks=lazy_(()=>import('./pages/Bookmarks'))
+const SharedBookmarks=lazy_(()=>import('./pages/SharedBookmarks'))
+const ChurchFinder=lazy_(()=>import('./pages/ChurchFinder'))
+const BibleReader=lazy_(()=>import('./pages/BibleReader'))
+const HymnExplorer=lazy_(()=>import('./pages/HymnExplorer'))
+const SpiritualGiftsTest=lazy_(()=>import('./pages/SpiritualGiftsTest'))
+const PrayerPartner=lazy_(()=>import('./pages/PrayerPartner'))
+const Apologetics=lazy_(()=>import('./pages/Apologetics'))
+const BibleNames=lazy_(()=>import('./pages/BibleNames'))
+const ChristianFinance=lazy_(()=>import('./pages/ChristianFinance'))
+const FaithMilestones=lazy_(()=>import('./pages/FaithMilestones'))
 
 // ── v11 Features ──────────────────────────────────────────────────────────────
 const BibleWordle=lazy_(()=>import('./pages/BibleWordle'))
@@ -110,18 +129,45 @@ const SermonIllustrations=lazy_(()=>import('./pages/SermonIllustrations'))
 const KidsBibleStories=lazy_(()=>import('./pages/KidsBibleStories'))
 const ReadingStats=lazy_(()=>import('./pages/ReadingStats'))
 const ProphecyFulfillment=lazy_(()=>import('./pages/ProphecyFulfillment'))
+const BibleDramaScripts=lazy_(()=>import('./pages/BibleDramaScripts'))
+const ChurchDashboard=lazy_(()=>import('./pages/ChurchDashboard'))
+const JoinChurch=lazy_(()=>import('./pages/JoinChurch'))
+
+// ── Kids Learning ──────────────────────────────────────────────────────────────
+const KidsNumbers=lazy_(()=>import('./pages/KidsNumbers'))
+const BibleAlphabet=lazy_(()=>import('./pages/BibleAlphabet'))
+const BibleAnimals=lazy_(()=>import('./pages/BibleAnimals'))
+const BibleCountingWorld=lazy_(()=>import('./pages/BibleCountingWorld'))
+const BibleJigsaw=lazy_(()=>import('./pages/BibleJigsaw'))
+const BibleWordBuilder=lazy_(()=>import('./pages/BibleWordBuilder'))
+const CreationColoring=lazy_(()=>import('./pages/CreationColoring'))
+const GodsShapes=lazy_(()=>import('./pages/GodsShapes'))
+const KidsDashboard=lazy_(()=>import('./pages/KidsDashboard'))
+const VerseScrambleKids=lazy_(()=>import('./pages/VerseScrambleKids'))
+const KidsLetters=lazy_(()=>import('./pages/KidsLetters'))
+const KidsShapes=lazy_(()=>import('./pages/KidsShapes'))
+const KidsPuzzles=lazy_(()=>import('./pages/KidsPuzzles'))
+
+// Affiliate + Partnerships
+const Resources=lazy_(()=>import('./pages/Resources'))
+const Affiliate=lazy_(()=>import('./pages/Affiliate'))
+const Partner=lazy_(()=>import('./pages/Partner'))
+const PartnerProfile=lazy_(()=>import('./pages/PartnerProfile'))
+const Creators=lazy_(()=>import('./pages/Creators'))
 
 const SP = ({c:C}) => <Suspense fallback={<PageLoader/>}><C/></Suspense>
 
 export default function App() {
   return (
     <ErrorBoundary>
-    <ThemeProvider><LanguageProvider><AuthProvider><StreakProvider><MusicProvider>
+    <ThemeProvider><LanguageProvider><AuthProvider><OfflineProvider><StreakProvider><MusicProvider>
     <BadgeProvider><KidsModeProvider><ParentalControlsProvider><ChildSwitcherProvider>
     <ScriptureMemoryProvider><EmailDigestProvider><TeacherClassroomProvider><BedtimeModeProvider>
     <ActivityDashboardProvider><AdvancedAnalyticsProvider><FamilyChallengesProvider><AdsProvider>
       <div className="app-shell">
+        <OfflineIndicator/>
         <Nav/>
+        <OnboardingModal/>
         <PwaInstallBanner/>
         <EmailPopup/>
         <CookieConsent onConsent={()=>{}}/>
@@ -144,6 +190,9 @@ export default function App() {
 
             {/* Bible reference */}
             <Route path="/bible"           element={<SP c={BibleBookExplorer}/>}/>
+            <Route path="/read"            element={<Navigate to="/bible" replace/>}/>
+            <Route path="/read/:book"     element={<Navigate to="/bible" replace/>}/>
+            <Route path="/read/:book/:chapter" element={<Navigate to="/bible" replace/>}/>
             <Route path="/reading-plan"    element={<SP c={BibleReadingPlan}/>}/>
 
             {/* Games */}
@@ -179,6 +228,7 @@ export default function App() {
             <Route path="/ai/prayer-companion"  element={<ParentalProtectedRoute featureId="prayer"><SP c={AIPrayerCompanion}/></ParentalProtectedRoute>}/>
             <Route path="/pray-for-world"       element={<SP c={PrayForTheWorld}/>}/>
             <Route path="/ai/study-generator"   element={<ParentalProtectedRoute featureId="study"><SP c={BibleStudyGenerator}/></ParentalProtectedRoute>}/>
+            <Route path="/ai/drama-scripts"     element={<ParentalProtectedRoute featureId="drama"><SP c={BibleDramaScripts}/></ParentalProtectedRoute>}/>
 
             {/* v10 — Bible Tools */}
             <Route path="/language-explorer"    element={<SP c={OriginalLanguageExplorer}/>}/>
@@ -201,6 +251,13 @@ export default function App() {
             <Route path="/terms"    element={<SP c={TermsOfService}/>}/>
             <Route path="/contact"  element={<SP c={Contact}/>}/>
             <Route path="/premium"  element={<SP c={Premium}/>}/>
+            <Route path="/resources"  element={<SP c={Resources}/>}/>
+            <Route path="/affiliate" element={<SP c={Affiliate}/>}/>
+            <Route path="/partner" element={<SP c={Partner}/>}/>
+            <Route path="/partner/:slug" element={<SP c={PartnerProfile}/>}/>
+            <Route path="/creators" element={<SP c={Creators}/>}/>
+
+
 
             {/* v12 — New Features */}
             <Route path="/sermon-writer"       element={<SP c={SermonWriter}/>}/>
@@ -210,6 +267,33 @@ export default function App() {
             <Route path="/family-tree"         element={<SP c={BibleFamilyTree}/>}/>
             <Route path="/worship"             element={<SP c={WorshipDiscovery}/>}/>
             <Route path="/parent-hub"          element={<SP c={ParentTeacherHub}/>}/>
+            <Route path="/parents-teachers"    element={<SP c={ParentsTeachers}/>}/>
+            <Route path="/leaderboard"         element={<SP c={Leaderboard}/>}/>
+            <Route path="/podcast"             element={<SP c={Podcast}/>}/>
+            <Route path="/hymns"               element={<SP c={HymnExplorer}/>}/>
+            <Route path="/spiritual-gifts"     element={<SP c={SpiritualGiftsTest}/>}/>
+            <Route path="/prayer-partner"      element={<SP c={PrayerPartner}/>}/>
+            <Route path="/apologetics"         element={<SP c={Apologetics}/>}/>
+          <Route path="/names"               element={<SP c={BibleNames}/>}/>
+          <Route path="/finance"             element={<SP c={ChristianFinance}/>}/>
+            <Route path="/faith-milestones"    element={<SP c={FaithMilestones}/>}/>
+            <Route path="/bookmarks/shared/:token" element={<SP c={SharedBookmarks}/>}/>
+            <Route path="/church-finder"       element={<SP c={ChurchFinder}/>}/>
+
+            {/* Kids Learning */}
+            <Route path="/kids/numbers"        element={<SP c={KidsNumbers}/>}/>
+            <Route path="/kids/letters"        element={<SP c={KidsLetters}/>}/>
+            <Route path="/kids/shapes"         element={<SP c={KidsShapes}/>}/>
+            <Route path="/kids/puzzles"        element={<SP c={KidsPuzzles}/>}/>
+            <Route path="/kids/alphabet"       element={<SP c={BibleAlphabet}/>}/>
+            <Route path="/kids/animals"        element={<SP c={BibleAnimals}/>}/>
+            <Route path="/kids/counting"       element={<SP c={BibleCountingWorld}/>}/>
+            <Route path="/kids/jigsaw"         element={<SP c={BibleJigsaw}/>}/>
+            <Route path="/kids/word-builder"   element={<SP c={BibleWordBuilder}/>}/>
+            <Route path="/kids/coloring"       element={<SP c={CreationColoring}/>}/>
+            <Route path="/kids/gods-shapes"    element={<SP c={GodsShapes}/>}/>
+            <Route path="/kids/dashboard"      element={<SP c={KidsDashboard}/>}/>
+            <Route path="/kids/verse-scramble" element={<SP c={VerseScrambleKids}/>}/>
 
             {/* v11 — Daily & Discovery */}
             <Route path="/wordle"              element={<SP c={BibleWordle}/>}/>
@@ -224,11 +308,18 @@ export default function App() {
             <Route element={<PrivateRoute/>}>
               <Route path="/dashboard"    element={<SP c={Dashboard}/>}/>
               <Route path="/profile"      element={<SP c={Profile}/>}/>
+              <Route path="/bookmarks"    element={<SP c={Bookmarks}/>}/>
+              <Route path="/faith-milestones" element={<SP c={FaithMilestones}/>}/>
+              <Route path="/child/:childId" element={<SP c={ChildDashboard}/>}/>
+              <Route path="/profile/child/:childId" element={<SP c={ChildDashboard}/>}/>
               <Route path="/bedtime-settings" element={<SP c={BedtimeSettings}/>}/>
               <Route path="/achievements" element={<SP c={Achievements}/>}/>
+              <Route path="/church/dashboard" element={<SP c={ChurchDashboard}/>}/>
+              <Route path="/church/join"      element={<SP c={JoinChurch}/>}/>
             </Route>
             <Route element={<AdminRoute/>}>
               <Route path="/admin" element={<SP c={Admin}/>}/>
+              <Route path="/admin/analytics" element={<SP c={AdminAnalytics}/>}/>
             </Route>
 
             {/* 404 */}
@@ -240,7 +331,7 @@ export default function App() {
     </AdsProvider></FamilyChallengesProvider></AdvancedAnalyticsProvider></ActivityDashboardProvider></BedtimeModeProvider></TeacherClassroomProvider>
     </EmailDigestProvider></ScriptureMemoryProvider></ChildSwitcherProvider>
     </ParentalControlsProvider></KidsModeProvider></BadgeProvider>
-    </MusicProvider></StreakProvider></AuthProvider></LanguageProvider></ThemeProvider>
+    </MusicProvider></StreakProvider></OfflineProvider></AuthProvider></LanguageProvider></ThemeProvider>
     </ErrorBoundary>
   )
 }

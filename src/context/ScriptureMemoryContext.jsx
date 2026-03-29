@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { useChildSwitcher } from './ChildSwitcherContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 const ScriptureMemoryContext = createContext(null)
 
@@ -35,8 +36,12 @@ export function ScriptureMemoryProvider({ children }) {
   const loadMemoryVerses = async (userId) => {
     setLoading(true)
     try {
-      const { data } = await db.getMemoryVerses(userId, getUserType())
-      setMemoryVerses(data || [])
+      const result = await requestQueue.execute(
+        `memory-verses:${userId}`,
+        () => db.getMemoryVerses(userId, getUserType()),
+        { priority: 4, cacheable: true, ttl: 10 * 60 * 1000 }
+      )
+      setMemoryVerses(result?.data || [])
     } catch (error) {
       console.error('Error loading memory verses:', error)
     } finally {

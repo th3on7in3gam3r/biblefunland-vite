@@ -1,12 +1,25 @@
 import { useState } from 'react'
 const VIDS=[
-  {id:1,title:"The Story of Noah's Ark",desc:"The incredible story of Noah's obedience and God's faithfulness.",thumb:'🚢',bg:'linear-gradient(135deg,#EFF6FF,#EDE9FE)',cat:'Bible Story',views:'12.4K',dur:'8:32',yt:'WNKouRd5nLs',featured:true},
-  {id:2,title:'David & Goliath — The Full Story',desc:'The epic battle of faith that changed history.',thumb:'🏹',bg:'linear-gradient(135deg,#FDF2F8,#F5F3FF)',cat:'Bible Story',views:'8.7K',dur:'6:14',yt:'3AYoSpGAOHI'},
-  {id:3,title:'Morning Devotional — Jeremiah 29:11',desc:"Start your day grounded in God's promise.",thumb:'🌅',bg:'linear-gradient(135deg,#FFFBEB,#FFF7ED)',cat:'Devotional',views:'5.3K',dur:'5:02',yt:'2H_Ls49TKPA'},
-  {id:4,title:"Jonah & the Whale — Kids Edition",desc:'A fun, colorful retelling for young believers!',thumb:'🐟',bg:'linear-gradient(135deg,#ECFDF5,#F0FDFA)',cat:'Kids',views:'14.2K',dur:'4:45',yt:'9S9ZenL2fgA'},
-  {id:5,title:'Worship Together — Top 5 Family Songs',desc:'Sing along with five uplifting worship songs.',thumb:'🎵',bg:'linear-gradient(135deg,#EFF6FF,#EDE9FE)',cat:'Worship',views:'22.1K',dur:'12:30',yt:'VUROGlegNtU'},
-  {id:6,title:'The Creation Story — 7 Days Illustrated',desc:'A breathtaking journey through Genesis 1.',thumb:'🌍',bg:'linear-gradient(135deg,#F0FDFA,#ECFDF5)',cat:'Bible Story',views:'9.8K',dur:'7:18',yt:'WNKouRd5nLs'},
-  {id:7,title:'How to Memorize Scripture — 3 Easy Methods',desc:'Fun and effective techniques for all ages.',thumb:'📝',bg:'linear-gradient(135deg,#FEF2F2,#FDF2F8)',cat:'Devotional',views:'6.1K',dur:'9:55',yt:'3AYoSpGAOHI'},
+  {id:1,title:"The Bible Project: Overview",desc:"A cinematic walk through the entire Bible's story from Genesis to Revelation.",thumb:'📖',bg:'linear-gradient(135deg,#EFF6FF,#EDE9FE)',cat:'Bible Story',views:'12M',dur:'5:32',yt:'7_CGP-12AE0',featured:true},
+  {id:2,title:'David & Goliath (Saddleback Kids)',desc:'The epic battle of faith retold in stunning animation for kids.',thumb:'🏹',bg:'linear-gradient(135deg,#FDF2F8,#F5F3FF)',cat:'Kids',views:'14M',dur:'3:14',yt:'NuedVFB8-7Y'},
+  {id:3,title:"Noah's Ark — God's Covenant",desc:"The story of Noah, the great flood, and the promise of the rainbow.",thumb:'🚢',bg:'linear-gradient(135deg,#ECFDF5,#F0FDFA)',cat:'Kids',views:'8.8M',dur:'4:45',yt:'qzYjy6lhRag'},
+  {id:4,title:'The Life of Jesus — Luke Part 1',desc:'Explore the early life of Jesus and the beginning of His ministry.',thumb:'✝️',bg:'linear-gradient(135deg,#FFFBEB,#FFF7ED)',cat:'Bible Story',views:'10M',dur:'14:22',yt:'XIb_dCIxzr0'},
+  {id:5,title:'Jonah & the Whale (BibleProject)',desc:'The story of a reluctant prophet and God\'s overwhelming mercy.',thumb:'🐟',bg:'linear-gradient(135deg,#F0FDFA,#ECFDF5)',cat:'Bible Story',views:'4.2M',dur:'8:45',yt:'dLIabZc0O4c'},
+  {id:6,title:'Creation Story (Saddleback Kids)',desc:'The miraculous story of how God created the world in six days.',thumb:'🌍',bg:'linear-gradient(135deg,#EFF6FF,#ECFDF5)',cat:'Kids',views:'11M',dur:'7:18',yt:'teu7BCZTgDs'},
+  {id:7,title:'Worship: What A Beautiful Name',desc:'Hillsong Worship anthem performed live with powerful lyrics.',thumb:'🎵',bg:'linear-gradient(135deg,#EDE9FE,#FDF2F8)',cat:'Worship',views:'88M',dur:'5:41',yt:'nQWFzMvEEZA'},
+  {id:8,title:'Worship: Graves Into Gardens',desc:'Elevation Worship — Turning failure into victory in Christ.',thumb:'🙌',bg:'linear-gradient(135deg,#FFF7ED,#FFFBEB)',cat:'Worship',views:'22M',dur:'6:03',yt:'Kw8Bw5X2Wsg'},
+  {id:9,title:'Jeremiah (BibleProject)',desc:"God's promise of a new heart in a changing world.",thumb:'🌅',bg:'linear-gradient(135deg,#FFFBEB,#FFF7ED)',cat:'Bible Story',views:'3.3M',dur:'7:02',yt:'RSK36cHbrk0'},
+  {id:10,title:'How to Read the Bible: Prose Discourse',desc:'Learn the different ways the Bible tells its grand story.',thumb:'📝',bg:'linear-gradient(135deg,#FEF2F2,#FDF2F8)',cat:'Devotional',views:'6.1M',dur:'5:55',yt:'3AYoSpGAOHI'},
+  {id:11,title:'Moses & The Red Sea (Saddleback)',desc:'God\'s miraculous deliverance of His people from slavery.',thumb:'🔥',bg:'linear-gradient(135deg,#FFF7ED,#FFFBEB)',cat:'Kids',views:'18M',dur:'5:20',yt:'g25492m54D8'},
+  {id:12,title:'Daniel in the Lions\' Den (Saddleback)',desc:'Saddleback Kids presents the courage of Daniel in the den.',thumb:'🦁',bg:'linear-gradient(135deg,#ECFDF5,#F0FDFA)',cat:'Kids',views:'14.9M',dur:'3:30',yt:'bEM_X25DWPk'},
+  {id:13,title:'Acts Part 1 (BibleProject)',desc:'The journey of the early church from Jerusalem to Samaria.',thumb:'🛤️',bg:'linear-gradient(135deg,#FDF2F8,#F5F3FF)',cat:'Bible Story',views:'4.5M',dur:'12:10',yt:'CGbNw855ksw'},
+  {id:14,title:'Fruit of the Spirit — Kids Lesson',desc:'Love, Joy, Peace... learn how God grows us from the inside.',thumb:'🍓',bg:'linear-gradient(135deg,#FFFBEB,#ECFDF5)',cat:'Kids',views:'12M',dur:'4:15',yt:'x1NHe0m_1d8'},
+  {id:15,title:'The Farmer & The Seeds (Parable)',desc:'Minno Kids — Jesus explains how our hearts grow spiritual fruit.',thumb:'🌱',bg:'linear-gradient(135deg,#ECFDF5,#FFFBEB)',cat:'Kids',views:'4.8M',dur:'6:40',yt:'b4wS9_vW9s8'},
+  {id:16,title:'The Good Samaritan — Loving Neighbors',desc:'A timeless lesson on kindness and compassion for our neighbors.',thumb:'🤝',bg:'linear-gradient(135deg,#F5F3FF,#FDF2F8)',cat:'Kids',views:'7.2M',dur:'5:30',yt:'osfQg4yKtq8'},
+  {id:17,title:'Joseph & His Coat of Colors',desc:'Genesis 37: A story of family, jealousy, and God\'s greater plan.',thumb:'👑',bg:'linear-gradient(135deg,#FFF7ED,#FDE68A)',cat:'Kids',views:'9.7M',dur:'3:45',yt:'VnlqKPIZQzI'},
+  {id:18,title:'Peter Walks on Water (Saddleback)',desc:'Teaching us to keep our eyes on Jesus even in the storms.',thumb:'🌊',bg:'linear-gradient(135deg,#EFF6FF,#EDE9FE)',cat:'Kids',views:'5.1M',dur:'4:25',yt:'oVy9HGr3Qig'},
+  {id:19,title:'The Law — BibleProject',desc:'Understanding God\'s instructions at Mt. Sinai and their purpose.',thumb:'📜',bg:'linear-gradient(135deg,#F3F4F6,#E5E7EB)',cat:'Bible Story',views:'2.2M',dur:'6:05',yt:'qgU3Z28S_50'},
+  {id:20,title:'Revelation (Part 1) — BibleProject',desc:'The epic vision of John and the promise of a world made new.',thumb:'🌈',bg:'linear-gradient(135deg,#EDE9FE,#C084FC)',cat:'Bible Story',views:'15M',dur:'12:44',yt:'5nvVVcYD-0w'},
 ]
 const FILTERS=['All','Bible Story','Devotional','Kids','Worship']
 export default function Videos(){
@@ -14,6 +27,7 @@ export default function Videos(){
   const[modal,setModal]=useState(null)
   const visible=filter==='All'?VIDS:VIDS.filter(v=>v.cat===filter)
   const featured=VIDS.find(v=>v.featured)
+
   return(
     <div style={{background:'var(--bg)',minHeight:'100vh',fontFamily:'Poppins,sans-serif'}}>
       {modal&&(
@@ -41,9 +55,10 @@ export default function Videos(){
             <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}`}</style>
             <h2 style={{fontFamily:"'Baloo 2',cursive",fontSize:'1.6rem',fontWeight:800,color:'var(--ink)',marginBottom:6}}>{featured.title}</h2>
             <p style={{fontSize:'.88rem',color:'var(--ink2)',fontWeight:500,marginBottom:18,maxWidth:680}}>{featured.desc}</p>
-            <div style={{borderRadius:24,overflow:'hidden',boxShadow:'0 30px 80px rgba(0,0,0,.15)',aspectRatio:'16/9',background:'#0A0A1A',border:'1.5px solid var(--border)',maxWidth:800}}>
+            <div style={{borderRadius:24,overflow:'hidden',boxShadow:'0 30px 80px rgba(0,0,0,.15)',aspectRatio:'16/9',background:'#0A0A1A',border:'1.5px solid var(--border)',maxWidth:800,position:'relative'}}>
               <iframe src={`https://www.youtube.com/embed/${featured.yt}?rel=0&modestbranding=1`} title={featured.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen style={{width:'100%',height:'100%',border:'none',display:'block'}}/>
             </div>
+            <button onClick={()=>setModal(featured)} style={{marginTop:20,padding:'12px 28px',borderRadius:16,background:'var(--blue)',color:'white',border:'none',fontSize:'.9rem',fontWeight:800,cursor:'pointer',boxShadow:'0 10px 30px var(--blue-bg)'}}>▶ Watch Full Screen</button>
           </div>
         )}
         {/* Grid */}
@@ -53,7 +68,7 @@ export default function Videos(){
             {FILTERS.map(f=><button key={f} onClick={()=>setFilter(f)} style={{fontSize:'.76rem',fontWeight:700,padding:'6px 14px',borderRadius:100,cursor:'pointer',border:`1.5px solid ${filter===f?'var(--blue)':'var(--border)'}`,background:filter===f?'var(--blue)':'var(--surface)',color:filter===f?'white':'var(--ink2)',transition:'all .2s'}}>{f}</button>)}
           </div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:24}}>
           {visible.filter(v=>!v.featured).map(v=>(
             <div key={v.id} onClick={()=>setModal(v)} style={{borderRadius:20,background:'var(--surface)',overflow:'hidden',cursor:'pointer',border:'1.5px solid var(--border)',transition:'all .28s',boxShadow:'none'}}
               onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-5px)';e.currentTarget.style.boxShadow='0 20px 60px rgba(0,0,0,.12)'}}

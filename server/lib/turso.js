@@ -4,10 +4,14 @@
  */
 
 const { createClient } = require('@libsql/client');
+const path = require('path');
 require('dotenv').config();
 
 const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
+
+const localDbPath = path.join(__dirname, '../local.db');
+const localUrl = `file:${localDbPath}`;
 
 if (!url || !authToken) {
   console.warn(
@@ -19,8 +23,9 @@ if (!url || !authToken) {
   );
 }
 
+console.log('🚀 Turso connecting to:', url || localUrl);
 const client = createClient({
-  url: url || 'file:local.db',
+  url: url || localUrl,
   authToken: authToken || undefined,
 });
 

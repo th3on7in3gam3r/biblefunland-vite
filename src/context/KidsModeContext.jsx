@@ -56,13 +56,14 @@ export function KidsModeProvider({ children }) {
 
   function requestToggle(action) {
     if (action === 'disable') {
-      // Check if mandatory
+      // For under-13 users, require PIN to disable Kids Mode
       if (profile?.age && parseInt(profile.age) < 13) {
-        alert("Kids Mode is mandatory for users under 13. 🙏")
+        setPinAction('disable')
+        setShowPinModal(true)
         return
       }
-      setPinAction('disable')
-      setShowPinModal(true)
+      // For 13+, allow direct disable
+      disableKidsMode()
     } else {
       enableKidsMode()
     }
@@ -83,7 +84,7 @@ export function KidsModeProvider({ children }) {
   const setPin = (pin) => localStorage.setItem(PIN_KEY, pin)
 
   return (
-    <KidsModeContext.Provider value={{ kidsMode, requestToggle, getPin, setPin }}>
+    <KidsModeContext.Provider value={{ kidsMode, requestToggle, enableKidsMode, getPin, setPin }}>
       {children}
       {showPinModal && (
         <PinModal

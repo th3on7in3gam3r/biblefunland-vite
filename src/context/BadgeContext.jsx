@@ -12,6 +12,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useAuth } from './AuthContext'
 import * as db from '../lib/db'
+import { requestQueue } from '../lib/requestQueue'
 
 // ── Badge definitions ─────────────────────────────────────────────────
 export const BADGE_DEFS = {
@@ -71,7 +72,11 @@ export function BadgeProvider({ children }) {
   // Load from Turso when user logs in
   useEffect(() => {
     if (!user) return
-    db.getBadges(user.id).then(({ data }) => {
+    requestQueue.execute(
+      `badges:${user.id}`,
+      () => db.getBadges(user.id),
+      { priority: 4, cacheable: true, ttl: 10 * 60 * 1000 }
+    ).then(({ data }) => {
       if (data?.length) {
         const ids = new Set(data.map(b => b.badge_id))
         setEarned(ids)

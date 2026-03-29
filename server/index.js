@@ -42,35 +42,59 @@ const apiLimiter = rateLimit({
 });
 
 // Middleware
-app.use(helmet());
-
-// CORS configuration - allow both localhost and production origins
+// CORS configuration - allow all local development and production origins
 const corsOptions = {
   origin: (origin, callback) => {
+    // List of allowed origins
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://localhost:3004',
       'http://localhost:5173',
       'http://localhost:5174',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:5174',
-      process.env.FRONTEND_URL, // Production frontend URL
+      'http://127.0.0.1:3002',
+      process.env.FRONTEND_URL,
     ].filter(Boolean);
 
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Dynamic dev check: Allow any localhost or 127.0.0.1 origin
+    if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn('⚠️  CORS Blocked for origin:', origin);
+      // Don't pass an Error to callback to avoid triggering 500 error
+      callback(null, false);
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'Cache-Control', 'Pragma'],
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
+// app.use(helmet({
+//   crossOriginResourcePolicy: { policy: "cross-origin" },
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["*"],
+//       scriptSrc: ["* ", "'unsafe-inline'", "'unsafe-eval'"],
+//       styleSrc: ["*", "'unsafe-inline'"],
+//       imgSrc: ["*", "data:", "blob:"],
+//       connectSrc: ["*"],
+//       frameSrc: ["*"],
+//       frameAncestors: ["'self'"]
+//     },
+//   }
+// }));
+
 app.use(apiLimiter); // Apply general limiter to all routes
 
 // ROUTES
@@ -87,10 +111,24 @@ app.get('/', (req, res) => {
 
 // Database API routes (no rate limit for now)
 app.use('/api/db', require('./routes/db'));
+app.use('/api/leaderboard', require('./routes/leaderboard'));
+app.use('/api/bible', require('./routes/bible'));
+app.use('/api/bookmarks', require('./routes/bookmarks'));
+app.use('/api/churches', require('./routes/churchFinder'));
+
+// Profile enforcement routes
+app.use('/api/profiles', require('./routes/profiles'));
+app.use('/api/children', require('./routes/children'));
+app.use('/api/parental-controls', require('./routes/parentalControls'));
+app.use('/api/classrooms', require('./routes/classrooms'));
+
+// Faith Milestones routes
+app.use('/api/faith-milestones', require('./routes/faith-milestones'));
 
 // Other Routes with specific rate limiters
 app.use('/api/ai', aiLimiter, require('./routes/ai'));
 app.use('/api/email', emailLimiter, require('./routes/email'));
+app.use('/api/pastor-requests', emailLimiter, require('./routes/pastorRequests'));
 
 // 404 handler
 app.use((req, res) => {

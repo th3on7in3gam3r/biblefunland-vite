@@ -111,8 +111,8 @@ export function EmailDigestProvider({ children }) {
 
       const emailContent = formatDigestEmail(digest)
       
-      // Send email using your backend API (since Resend requires server-side)
-      const response = await fetch('/api/send-weekly-digest', {
+      // Send email via backend Resend integration
+      const response = await fetch('/api/email/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,10 +125,12 @@ export function EmailDigestProvider({ children }) {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send email')
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to send email')
       }
 
-      return { success: true, digest }
+      const result = await response.json()
+      return { success: true, digest, emailId: result.id }
     } catch (error) {
       console.error('Error sending weekly digest:', error)
       throw error

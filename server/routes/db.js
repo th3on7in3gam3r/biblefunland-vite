@@ -131,7 +131,7 @@ router.post('/query', async (req, res) => {
   try {
     // Only allow read operations (SELECT)
     const { sql, args = [] } = req.body;
-    if (!sql || !sql.toUpperCase().startsWith('SELECT')) {
+    if (!sql || !sql.trim().toUpperCase().startsWith('SELECT')) {
       return res.status(400).json({ error: 'Only SELECT queries are allowed' });
     }
     const { data, error } = await query(sql, args);
