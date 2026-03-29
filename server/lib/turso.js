@@ -8,8 +8,8 @@ const path = require('path');
 require('dotenv').config();
 
 const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-const url = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const url = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
 
 // Local fallback ONLY in development
 const localDbPath = path.join(__dirname, '../local.db');
