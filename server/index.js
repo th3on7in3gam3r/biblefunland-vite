@@ -97,9 +97,19 @@ app.use(cors(corsOptions));
 
 app.use(apiLimiter); // Apply general limiter to all routes
 
-// ROUTES
-// ─── Stripe Webhook MUST come before express.json() for signature verification ───
+// ─── Route Mounting ──────────────────────────────────────────────────────────
+// Helper to mount routes with and without the /api prefix for maximum compatibility
+const mount = (path, middleware) => {
+  app.use(path, middleware);
+  if (path.startsWith('/api')) {
+    app.use(path.replace('/api', ''), middleware);
+  }
+};
+
+// ─── STRIPE WEBHOOK ──────────────────────────────────────────────────────────
+// Must come before express.json()
 app.use('/api/checkout', checkoutLimiter, require('./routes/stripe'));
+app.use('/checkout', checkoutLimiter, require('./routes/stripe'));
 
 // Regular JSON parsing for all other routes
 app.use(express.json());
@@ -109,26 +119,20 @@ app.get('/', (req, res) => {
   res.json({ message: 'BibleFunLand Backend Proxy is running! 🕊️' });
 });
 
-// Database API routes (no rate limit for now)
-app.use('/api/db', require('./routes/db'));
-app.use('/api/leaderboard', require('./routes/leaderboard'));
-app.use('/api/bible', require('./routes/bible'));
-app.use('/api/bookmarks', require('./routes/bookmarks'));
-app.use('/api/churches', require('./routes/churchFinder'));
-
-// Profile enforcement routes
-app.use('/api/profiles', require('./routes/profiles'));
-app.use('/api/children', require('./routes/children'));
-app.use('/api/parental-controls', require('./routes/parentalControls'));
-app.use('/api/classrooms', require('./routes/classrooms'));
-
-// Faith Milestones routes
-app.use('/api/faith-milestones', require('./routes/faith-milestones'));
-
-// Other Routes with specific rate limiters
-app.use('/api/ai', aiLimiter, require('./routes/ai'));
-app.use('/api/email', emailLimiter, require('./routes/email'));
-app.use('/api/pastor-requests', emailLimiter, require('./routes/pastorRequests'));
+// Database and Feature routes
+mount('/api/db', require('./routes/db'));
+mount('/api/leaderboard', require('./routes/leaderboard'));
+mount('/api/bible', require('./routes/bible'));
+mount('/api/bookmarks', require('./routes/bookmarks'));
+mount('/api/churches', require('./routes/churchFinder'));
+mount('/api/profiles', require('./routes/profiles'));
+mount('/api/children', require('./routes/children'));
+mount('/api/parental-controls', require('./routes/parentalControls'));
+mount('/api/classrooms', require('./routes/classrooms'));
+mount('/api/faith-milestones', require('./routes/faith-milestones'));
+mount('/api/ai', aiLimiter, require('./routes/ai'));
+mount('/api/email', emailLimiter, require('./routes/email'));
+mount('/api/pastor-requests', emailLimiter, require('./routes/pastorRequests'));
 
 // 404 handler
 app.use((req, res) => {
