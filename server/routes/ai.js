@@ -3,7 +3,7 @@ const router = express.Router();
 const Anthropic = require('@anthropic-ai/sdk');
 
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY || 'sk-ant-mock123'
 });
 
 router.post('/chat', async (req, res) => {
