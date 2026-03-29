@@ -3,14 +3,20 @@
  * Proxies calls to the secure backend to protect the Anthropic API key.
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
-export async function generateAIContent({ system, messages, model = 'claude-3-5-sonnet-20241022', max_tokens = 500 }) {
+export async function generateAIContent({
+  system,
+  messages,
+  model = 'claude-3-5-sonnet-20241022',
+  max_tokens = 500,
+}) {
   try {
-    const response = await fetch(`${API_URL}/api/ai/chat`, {
+    const response = await fetch(`${API_URL}/ai/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system, messages, model, max_tokens })
+      body: JSON.stringify({ system, messages, model, max_tokens }),
     });
 
     if (!response.ok) {

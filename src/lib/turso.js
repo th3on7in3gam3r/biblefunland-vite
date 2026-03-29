@@ -8,7 +8,8 @@
  * The frontend just calls these functions which make HTTP requests
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 /**
  * Make a database API call to the backend - direct execution without queuing
@@ -18,7 +19,7 @@ async function apiCall(endpoint, body = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(`${API_URL}/api/db${endpoint}`, {
+    const response = await fetch(`${API_URL}/db${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -73,7 +74,7 @@ export async function execute(sql, args = []) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(`${API_URL}/api/db/execute`, {
+    const response = await fetch(`${API_URL}/db/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sql, args }),

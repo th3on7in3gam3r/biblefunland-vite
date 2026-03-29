@@ -347,8 +347,9 @@ export async function getChildProfiles(parentId, skipCache = false) {
   try {
     if (skipCache) {
       // Bypass cache by calling the API directly
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${API_URL}/api/db/query`, {
+      const API_URL =
+        import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+      const response = await fetch(`${API_URL}/db/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -537,8 +538,9 @@ export async function getMemoryVerseStats(userId, userType = 'parent') {
 export async function getFamilyPlans(parentId, skipCache = false) {
   if (skipCache) {
     // Bypass cache by calling the API directly
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-    const response = await fetch(`${API_URL}/api/db/query`, {
+    const API_URL =
+      import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+    const response = await fetch(`${API_URL}/db/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -900,14 +902,17 @@ export async function joinChurch(userId, churchId) {
 }
 
 export async function getChurchMembers(churchId) {
-  return query(`
+  return query(
+    `
     SELECT p.*, s.streak, s.last_checkin, s.checkin_count
     FROM profiles p
     JOIN church_members cm ON p.id = cm.user_id
     LEFT JOIN streaks s ON p.id = s.user_id
     WHERE cm.church_id = ?
     ORDER BY s.streak DESC
-  `, [churchId]);
+  `,
+    [churchId]
+  );
 }
 
 export async function getChurchStats(churchId) {
@@ -916,19 +921,25 @@ export async function getChurchStats(churchId) {
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekAgoStr = weekAgo.toISOString();
 
-  const activeCount = await queryOne(`
+  const activeCount = await queryOne(
+    `
     SELECT COUNT(DISTINCT s.user_id) as count
     FROM streaks s
     JOIN church_members cm ON s.user_id = cm.user_id
     WHERE cm.church_id = ? AND s.last_checkin >= ?
-  `, [churchId, weekAgoStr]);
+  `,
+    [churchId, weekAgoStr]
+  );
 
-  const newBadgeCount = await queryOne(`
+  const newBadgeCount = await queryOne(
+    `
     SELECT COUNT(*) as count
     FROM badges b
     JOIN church_members cm ON b.user_id = cm.user_id
     WHERE cm.church_id = ? AND b.earned_at >= ?
-  `, [churchId, weekAgoStr]);
+  `,
+    [churchId, weekAgoStr]
+  );
 
   return {
     active_this_week: activeCount?.data?.count || 0,

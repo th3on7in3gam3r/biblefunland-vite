@@ -1,56 +1,76 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { PageLoader } from '../components/Skeleton'
-import Podium from '../components/Podium'
-import LeaderboardRow from '../components/LeaderboardRow'
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { PageLoader } from '../components/Skeleton';
+import Podium from '../components/Podium';
+import LeaderboardRow from '../components/LeaderboardRow';
 
 const TABS = [
   { id: 'streaks', label: '🔥 Top Streaks' },
-  { id: 'badges',  label: '🏆 Most Badges' },
-  { id: 'trivia',  label: '🎯 Trivia Champions' },
-]
+  { id: 'badges', label: '🏆 Most Badges' },
+  { id: 'trivia', label: '🎯 Trivia Champions' },
+];
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 async function fetchLeaderboard(category, userId) {
-  const url = `${API_BASE}/api/leaderboard/${category}${userId ? `?userId=${userId}` : ''}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`)
-  return res.json()
+  const url = `${API_BASE}/leaderboard/${category}${userId ? `?userId=${userId}` : ''}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`);
+  return res.json();
 }
 
 export default function Leaderboard() {
-  const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState('streaks')
-  const [data, setData] = useState({ entries: [], currentUser: null })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [retryKey, setRetryKey] = useState(0)
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('streaks');
+  const [data, setData] = useState({ entries: [], currentUser: null });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const result = await fetchLeaderboard(activeTab, user?.id)
-      setData(result)
+      const result = await fetchLeaderboard(activeTab, user?.id);
+      setData(result);
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [activeTab, user?.id, retryKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, user?.id, retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const topThree = data.entries.slice(0, 3)
-  const rest     = data.entries.slice(3)
+  const topThree = data.entries.slice(0, 3);
+  const rest = data.entries.slice(3);
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins, sans-serif' }}>
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)', padding: '60px 36px 44px', textAlign: 'center' }}>
-        <h1 style={{ fontFamily: "'Baloo 2', cursive", fontSize: 'clamp(2rem,4.5vw,3.2rem)', fontWeight: 800, background: 'linear-gradient(90deg,#FBBF24,#F59E0B,#D97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 8 }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)',
+          padding: '60px 36px 44px',
+          textAlign: 'center',
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: "'Baloo 2', cursive",
+            fontSize: 'clamp(2rem,4.5vw,3.2rem)',
+            fontWeight: 800,
+            background: 'linear-gradient(90deg,#FBBF24,#F59E0B,#D97706)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: 8,
+          }}
+        >
           🏆 Leaderboard
         </h1>
         <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.9rem', fontWeight: 500 }}>
@@ -60,8 +80,10 @@ export default function Leaderboard() {
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
         {/* Tab strip */}
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 28, paddingBottom: 4 }}>
-          {TABS.map(tab => (
+        <div
+          style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 28, paddingBottom: 4 }}
+        >
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -89,12 +111,16 @@ export default function Leaderboard() {
         {!loading && error && (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <p style={{ color: 'var(--red)', marginBottom: 16 }}>{error}</p>
-            <button className="btn btn-blue" onClick={() => setRetryKey(k => k + 1)}>Retry</button>
+            <button className="btn btn-blue" onClick={() => setRetryKey((k) => k + 1)}>
+              Retry
+            </button>
           </div>
         )}
 
         {!loading && !error && data.entries.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 60, color: 'var(--ink3)', fontSize: '.95rem' }}>
+          <div
+            style={{ textAlign: 'center', padding: 60, color: 'var(--ink3)', fontSize: '.95rem' }}
+          >
             No entries yet — be the first! 🌟
           </div>
         )}
@@ -105,7 +131,7 @@ export default function Leaderboard() {
 
             {rest.length > 0 && (
               <div style={{ marginTop: 16 }}>
-                {rest.map(entry => (
+                {rest.map((entry) => (
                   <LeaderboardRow
                     key={entry.userId}
                     entry={entry}
@@ -130,9 +156,11 @@ export default function Leaderboard() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 32 }}>
-          <Link to="/" style={{ color: 'var(--ink3)', fontSize: '.85rem', textDecoration: 'none' }}>← Home</Link>
+          <Link to="/" style={{ color: 'var(--ink3)', fontSize: '.85rem', textDecoration: 'none' }}>
+            ← Home
+          </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
