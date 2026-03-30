@@ -64,6 +64,8 @@ const SEARCH_DATA = [
   { type: 'page', title: 'Leaderboard', desc: 'Top streaks, badges, and trivia champions', icon: '🏆', to: '/leaderboard', tags: ['leaderboard','top','streak','badges','trivia','champions','ranking','score'] },
   { type: 'page', title: 'My Bookmarks', desc: 'Save and organize your favourite Bible verses', icon: '🔖', to: '/bookmarks', tags: ['bookmark','verse','save','folder','favorites','morning prayer','memorizing','sermon prep'] },
   { type: 'page', title: 'Church Finder', desc: 'Find churches near you by location or city', icon: '⛪', to: '/church-finder', tags: ['church','find','near me','location','denomination','worship','service','local'] },
+  { type: 'page', title: 'Church Hub', desc: 'Exclusive pastoral tools and congregation management', icon: '⛪', to: '/church/dashboard', tags: ['church','pastor','super-user','leader','hub','dashboard','congregation'] },
+  { type: 'page', title: 'Join Church / Request Access', desc: 'Connect with a church or request Pastor access', icon: '🤝', to: '/church/join', tags: ['church','join','pastor','request','verification','access'] },
   { type: 'page', title: 'Bible Rap Generator', desc: 'AI-generated scripture raps & songs', icon: '🎵', to: '/ai/rap-generator', tags: ['rap','music','ai','song','generator','scripture'] },
 
   // Bible Verses
