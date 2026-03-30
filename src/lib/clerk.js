@@ -23,7 +23,7 @@ export {
   UserButton,
   SignedIn,
   SignedOut,
-} from '@clerk/clerk-react'
+} from '@clerk/clerk-react';
 
 /**
  * formatUser(clerkUser)
@@ -36,15 +36,15 @@ export {
  * Clerk shape:     { id, primaryEmailAddress, firstName, lastName, imageUrl }
  */
 export function formatUser(clerkUser) {
-  if (!clerkUser) return null
+  if (!clerkUser) return null;
   return {
-    id:    clerkUser.id,
+    id: clerkUser.id,
     email: clerkUser.primaryEmailAddress?.emailAddress ?? '',
     user_metadata: {
-      full_name:  `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim(),
+      full_name: `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim(),
       avatar_url: clerkUser.imageUrl ?? '',
     },
-  }
+  };
 }
 
 /**

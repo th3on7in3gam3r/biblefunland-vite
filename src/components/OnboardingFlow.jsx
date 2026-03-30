@@ -1,13 +1,29 @@
-import { useState } from 'react'
-import { useOnboarding } from '../context/OnboardingContext'
-import styles from './OnboardingFlow.module.css'
+import { useState } from 'react';
+import { useOnboarding } from '../context/OnboardingContext';
+import styles from './OnboardingFlow.module.css';
 
 const BOOKS = [
-  'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
-  'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
-  'Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans',
-  'Psalms', 'Proverbs', 'Isaiah', 'Jeremiah'
-]
+  'Genesis',
+  'Exodus',
+  'Leviticus',
+  'Numbers',
+  'Deuteronomy',
+  'Joshua',
+  'Judges',
+  'Ruth',
+  '1 Samuel',
+  '2 Samuel',
+  'Matthew',
+  'Mark',
+  'Luke',
+  'John',
+  'Acts',
+  'Romans',
+  'Psalms',
+  'Proverbs',
+  'Isaiah',
+  'Jeremiah',
+];
 
 const INTERESTS = [
   '📖 Bible Study',
@@ -17,15 +33,15 @@ const INTERESTS = [
   '⚡ Daily Devotions',
   '🎮 Games',
   '👨‍👩‍👧‍👦 Family Activities',
-  '⭐ Achievements'
-]
+  '⭐ Achievements',
+];
 
 const AGE_GROUPS = [
   { value: 'child', label: '👶 Child (Under 10)' },
   { value: 'preteen', label: '👧 Preteen (10-12)' },
   { value: 'teen', label: '👦 Teen (13-17)' },
-  { value: 'adult', label: '🧑 Adult (18+)' }
-]
+  { value: 'adult', label: '🧑 Adult (18+)' },
+];
 
 export default function OnboardingFlow() {
   const {
@@ -35,32 +51,34 @@ export default function OnboardingFlow() {
     nextStep,
     prevStep,
     completeOnboarding,
-    skipOnboarding
-  } = useOnboarding()
+    skipOnboarding,
+  } = useOnboarding();
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const handleComplete = async () => {
     if (!onboardingData.displayName || !onboardingData.ageGroup) {
-      alert('Please fill in required fields')
-      return
+      alert('Please fill in required fields');
+      return;
     }
 
-    setLoading(true)
-    const success = await completeOnboarding()
-    setLoading(false)
+    setLoading(true);
+    const success = await completeOnboarding();
+    setLoading(false);
 
     if (!success) {
-      alert('Error saving preferences. Please try again.')
+      alert('Error saving preferences. Please try again.');
     }
-  }
+  };
 
   return (
     <div className={styles.onboarding}>
       <div className={styles.container}>
         <div className={styles.header}>
           <h1>Welcome to BibleFunLand! 🌟</h1>
-          <p>Let's get you set up in {4 - onboardingStep} step{onboardingStep !== 3 ? 's' : ''}</p>
+          <p>
+            Let's get you set up in {4 - onboardingStep} step{onboardingStep !== 3 ? 's' : ''}
+          </p>
           <div className={styles.progressBar}>
             <div className={styles.progress} style={{ width: `${(onboardingStep + 1) * 25}%` }} />
           </div>
@@ -71,7 +89,10 @@ export default function OnboardingFlow() {
           {onboardingStep === 0 && (
             <div className={styles.step}>
               <h2>👋 Welcome!</h2>
-              <p>BibleFunLand is your adventure through Scripture with games, challenges, and fun learning experiences for the whole family.</p>
+              <p>
+                BibleFunLand is your adventure through Scripture with games, challenges, and fun
+                learning experiences for the whole family.
+              </p>
               <div className={styles.features}>
                 <div className={styles.feature}>
                   <span>📚</span>
@@ -112,7 +133,7 @@ export default function OnboardingFlow() {
               <div className={styles.formGroup}>
                 <label>Age Group (Required)</label>
                 <div className={styles.ageGroups}>
-                  {AGE_GROUPS.map(group => (
+                  {AGE_GROUPS.map((group) => (
                     <button
                       key={group.value}
                       className={`${styles.ageButton} ${onboardingData.ageGroup === group.value ? styles.selected : ''}`}
@@ -130,17 +151,19 @@ export default function OnboardingFlow() {
           {onboardingStep === 2 && (
             <div className={styles.step}>
               <h2>📖 Favorite Books of the Bible</h2>
-              <p className={styles.subtitle}>Select your 3-5 favorite books to personalize your experience</p>
+              <p className={styles.subtitle}>
+                Select your 3-5 favorite books to personalize your experience
+              </p>
               <div className={styles.bookGrid}>
-                {BOOKS.map(book => (
+                {BOOKS.map((book) => (
                   <button
                     key={book}
                     className={`${styles.bookButton} ${onboardingData.favoriteBooks.includes(book) ? styles.selected : ''}`}
                     onClick={() => {
                       const updated = onboardingData.favoriteBooks.includes(book)
-                        ? onboardingData.favoriteBooks.filter(b => b !== book)
-                        : [...onboardingData.favoriteBooks, book].slice(-5) // Max 5
-                      updateOnboardingData('favoriteBooks', updated)
+                        ? onboardingData.favoriteBooks.filter((b) => b !== book)
+                        : [...onboardingData.favoriteBooks, book].slice(-5); // Max 5
+                      updateOnboardingData('favoriteBooks', updated);
                     }}
                   >
                     {book}
@@ -157,15 +180,15 @@ export default function OnboardingFlow() {
               <h2>🎯 What Interests You?</h2>
               <p className={styles.subtitle}>Choose what features you'd like to use</p>
               <div className={styles.interestGrid}>
-                {INTERESTS.map(interest => (
+                {INTERESTS.map((interest) => (
                   <button
                     key={interest}
                     className={`${styles.interestButton} ${onboardingData.interests.includes(interest) ? styles.selected : ''}`}
                     onClick={() => {
                       const updated = onboardingData.interests.includes(interest)
-                        ? onboardingData.interests.filter(i => i !== interest)
-                        : [...onboardingData.interests, interest]
-                      updateOnboardingData('interests', updated)
+                        ? onboardingData.interests.filter((i) => i !== interest)
+                        : [...onboardingData.interests, interest];
+                      updateOnboardingData('interests', updated);
                     }}
                   >
                     {interest}
@@ -196,43 +219,27 @@ export default function OnboardingFlow() {
         </div>
 
         <div className={styles.footer}>
-          <button
-            onClick={skipOnboarding}
-            className={styles.buttonSkip}
-            disabled={loading}
-          >
+          <button onClick={skipOnboarding} className={styles.buttonSkip} disabled={loading}>
             Skip
           </button>
 
           {onboardingStep > 0 && (
-            <button
-              onClick={prevStep}
-              className={styles.buttonSecondary}
-              disabled={loading}
-            >
+            <button onClick={prevStep} className={styles.buttonSecondary} disabled={loading}>
               Back
             </button>
           )}
 
           {onboardingStep < 3 ? (
-            <button
-              onClick={nextStep}
-              className={styles.buttonPrimary}
-              disabled={loading}
-            >
+            <button onClick={nextStep} className={styles.buttonPrimary} disabled={loading}>
               Next
             </button>
           ) : (
-            <button
-              onClick={handleComplete}
-              className={styles.buttonPrimary}
-              disabled={loading}
-            >
+            <button onClick={handleComplete} className={styles.buttonPrimary} disabled={loading}>
               {loading ? 'Saving...' : 'Complete Setup'}
             </button>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

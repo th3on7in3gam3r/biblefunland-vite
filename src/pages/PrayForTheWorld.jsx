@@ -1,168 +1,1057 @@
-import { useState, useEffect } from 'react'
-import { incrementWorldPrayer } from '../lib/db'
+import { useState, useEffect } from 'react';
+import { incrementWorldPrayer } from '../lib/db';
 
 // 60-country rotation — day-of-year picks one
 const COUNTRIES = [
-  { name:'Afghanistan',    flag:'🇦🇫', pop:'40M',  christian:'0.3%', color:'#EF4444', needs:['Underground church protection','Freedom from fear & persecution','Open doors for the Gospel'], fact:'One of the most restricted nations on earth for Christians. Conversion from Islam is punishable by death.', prayer:'Lord, protect every secret believer in Afghanistan tonight. Strengthen the underground church. Send Your Word in ways that cannot be stopped — through dreams, through radio, through every crack of light.' },
-  { name:'Albania',        flag:'🇦🇱', pop:'2.8M', christian:'17%',  color:'#EF4444', needs:['Post-communist revival','Reaching the Muslim majority','Church unity'], fact:'Declared itself "the world\'s first atheist state" in 1967. Christianity has been growing since communism fell in 1991.', prayer:'God of resurrection, what was dead is coming alive. Breathe revival into Albania. Raise up Albanian voices to proclaim Your name in their own language and culture.' },
-  { name:'Algeria',        flag:'🇩🇿', pop:'45M',  christian:'0.5%', color:'#10B981', needs:['Berber church growth','Freedom from church closures','Bible access'], fact:'The Kabyle Berber people have one of the fastest-growing evangelical movements in North Africa — despite intense government pressure.', prayer:'Father, what You are doing among the Berber people is breathtaking. Protect the house churches. Multiply the Bibles. Let the revival that has started not be stopped.' },
-  { name:'Bangladesh',     flag:'🇧🇩', pop:'170M', christian:'0.4%', color:'#F59E0B', needs:['Church planting in unreached areas','Bible translation completion','Protection from religious violence'], fact:'Only 0.4% Christian in a nation of 170 million — yet the church grows steadily through quiet witness and compassion ministry.', prayer:'Lord of the harvest, the fields in Bangladesh are white. Send workers. Protect believers. May Your Church grow like a seed that no one can stop — quietly, persistently, powerfully.' },
-  { name:'Belarus',        flag:'🇧🇾', pop:'9.4M', christian:'48%',  color:'#3B82F6', needs:['Freedom after political crackdown','Persecuted church support','Youth reaching out'], fact:'Belarusian Christians courageously protested government injustice after disputed 2020 elections. Many were imprisoned.', prayer:'God who sees injustice, stand with believers in Belarus who paid a high price for doing what was right. Bring freedom. Restore what was lost. May the Church there be known for courage.' },
-  { name:'Bhutan',         flag:'🇧🇹', pop:'780K', christian:'0.5%', color:'#8B5CF6', needs:['Freedom from Buddhist state restrictions','Church planting','Reaching young people'], fact:'The Kingdom of Bhutan — a Buddhist monarchy — restricts religious conversion. The tiny Christian community worships in secret.', prayer:'Father, every Christian in Bhutan knows what it costs to follow You. Honor their sacrifice. Grow the Church in secret. And may the day come when the name of Jesus is spoken freely in this beautiful kingdom.' },
-  { name:'Bolivia',        flag:'🇧🇴', pop:'12M',  christian:'78%',  color:'#10B981', needs:['Syncretism with indigenous religion','Rural church access','Spiritual depth over cultural Christianity'], fact:'While nominally Christian, much of Bolivia\'s faith is mixed with pre-Christian indigenous practices. Genuine discipleship is the great need.', prayer:'Lord, bring depth to Bolivia\'s Christianity. Where Your name is used in empty rituals, bring true encounter. Raise up Bolivian disciples who know You — not just about You.' },
-  { name:'Cambodia',       flag:'🇰🇭', pop:'17M',  christian:'2.2%', color:'#F97316', needs:['Post-genocide trauma healing','Anti-trafficking ministry','Discipleship depth'], fact:'The Khmer Rouge killed 2 million people (25% of the population) in the 1970s. The church is healing deep generational wounds through the Gospel.', prayer:'God who heals, Cambodia carries wounds that only You can reach. Meet the survivors and their children. Use the church there to bring healing to a traumatized nation. Turn their mourning into dancing.' },
-  { name:'China',          flag:'🇨🇳', pop:'1.4B', christian:'6.9%', color:'#EF4444', needs:['House church protection','Underground seminary training','Bibles in remote areas'], fact:'China may have 100+ million Christians — the fastest-growing church in history — despite (and partly because of) government crackdowns.', prayer:'Almighty God, what You are doing in China defies human explanation. 100 million people. A church that cannot be stopped. Protect them. Provide for them. And let the church in China send missionaries to the whole world.' },
-  { name:'Colombia',       flag:'🇨🇴', pop:'51M',  christian:'90%',  color:'#10B981', needs:['Peace in conflict zones','FARC/cartel area church protection','Reconciliation ministry'], fact:'Colombia has the second-largest number of internally displaced people in the world. The church serves in conflict zones where others cannot go.', prayer:'Prince of Peace, let Your peace break through in Colombia where human peace has failed. Protect pastors in danger zones. Use the Church as an agent of reconciliation in a divided nation.' },
-  { name:'Cuba',           flag:'🇨🇺', pop:'11M',  christian:'56%',  color:'#3B82F6', needs:['Religious freedom under communism','Church supplies access','Youth ministry'], fact:'Cuba\'s church has grown under communism. House churches multiply. Christians smuggle Bibles and church supplies from abroad.', prayer:'God who cannot be communized, Your Church in Cuba survives what should have killed it. Supply every need. Bring every Bible. And let the revival already stirring in Cuba overflow to the whole Caribbean.' },
-  { name:'Egypt',          flag:'🇪🇬', pop:'104M', christian:'11%',  color:'#F59E0B', needs:['Coptic church protection','Religious freedom','Reaching the Muslim majority'], fact:'Egypt has the largest Christian population in the Middle East — about 11 million Coptic Christians. They face regular persecution and church bombings.', prayer:'God of the Copts, whose ancestors fled to Egypt with the infant Jesus — protect Your ancient Church. Rebuild what bombs have destroyed. May the Coptic Church be not only survivors but witnesses to the whole Arab world.' },
-  { name:'Eritrea',        flag:'🇪🇷', pop:'3.5M', christian:'63%',  color:'#EF4444', needs:['Release of imprisoned pastors','Underground church survival','Refugee church support'], fact:'One of the most persecuted Christian nations. Non-sanctioned denominations are banned. Hundreds of pastors have been imprisoned in metal shipping containers for 20+ years.', prayer:'Lord, we name the pastors in the shipping containers tonight. You know every name. Keep them alive. Keep their faith. And shame the powers that imprisoned them for loving You.' },
-  { name:'Ethiopia',       flag:'🇪🇹', pop:'120M', christian:'63%',  color:'#10B981', needs:['Civil war healing','Church unity among tribes','Rural access'], fact:'Ethiopia has one of the fastest-growing evangelical churches in the world. But civil war has displaced millions and torn communities apart.', prayer:'God of Ethiopia, Your ancient Church there traces its roots to Acts 8. Honor that heritage. Bring peace to the tribal conflicts. Use the Ethiopian church — now numbering tens of millions — as a healing force.' },
-  { name:'France',         flag:'🇫🇷', pop:'67M',  christian:'41%',  color:'#3B82F6', needs:['Post-secular revival','African diaspora church growth','Reaching nominally Catholic majority'], fact:'France is one of the most secular nations in the world. Yet the African diaspora churches in Paris are among the largest and most vibrant in Europe.', prayer:'God who does not abandon nations, we pray for France. The secular darkness is real. But so are the thousands of African Christians worshipping in Paris\'s suburbs. Use the immigrant church to re-evangelize Europe.' },
-  { name:'Germany',        flag:'🇩🇪', pop:'83M',  christian:'54%',  color:'#8B5CF6', needs:['Nominal Christianity revival','Refugee church integration','Youth engagement'], fact:'The birthplace of the Reformation — where Luther nailed his 95 theses — now has some of the emptiest churches in Europe. But the refugee church from Iran and Syria is growing dramatically.', prayer:'God of the Reformation, do it again in Germany. What Luther started, complete. And let the Iranian and Syrian Christians flooding into Germany plant revival fires in a nation that forgot its first love.' },
-  { name:'India',          flag:'🇮🇳', pop:'1.4B', christian:'2.3%', color:'#F59E0B', needs:['Persecution from Hindu nationalism','Dalit outreach','Northeast revival spreading south'], fact:'India\'s 30 million Christians face rising Hindu nationalist violence. Yet the northeast states (Nagaland, Mizoram) are majority Christian and have sent missionaries to South Asia.', prayer:'God, 30 million in India — that is a massive church. Protect them from the rising violence. Use the northeast Indian missionaries to carry the Gospel to unreached peoples. Let 2.3% become 10%.' },
-  { name:'Indonesia',      flag:'🇮🇩', pop:'274M', christian:'10%',  color:'#EF4444', needs:['Church closure prevention','Inter-religious peace','Papua church support'], fact:'The world\'s largest Muslim nation — yet has 27 million Christians. Church burnings occur regularly, especially in hardline provinces.', prayer:'Lord, protect every church building and every congregation in Indonesia. Where churches have been burned, rebuild them. Where licenses are denied, open doors no government can shut.' },
-  { name:'Iran',           flag:'🇮🇷', pop:'85M',  christian:'0.4%', color:'#EF4444', needs:['Underground church protection','House church leader safety','Diaspora mission'], fact:'Iran may have the fastest-growing church in the world — entirely underground, primarily Shia Muslims turning to Christ through dreams and visions.', prayer:'God who speaks in dreams, You are doing something in Iran that has no human explanation. Millions of Muslims dreaming of Jesus and following Him at great personal cost. Protect them. Sustain them. And let what is happening there inspire the whole world.' },
-  { name:'Iraq',           flag:'🇮🇶', pop:'41M',  christian:'0.8%', color:'#EF4444', needs:['Rebuild after ISIS genocide','Diaspora return','Ancient church survival'], fact:'Iraq\'s ancient Christian community — the Chaldeans — was decimated by ISIS. The Nineveh Plain, where Jonah preached, is slowly being rebuilt.', prayer:'God of Jonah, the city of Nineveh still exists. The ancient church in Assyria and Chaldea still exists — barely. Help them rebuild. Draw back the diaspora. And let the Church on the Nineveh Plain be a light again.' },
-  { name:'Japan',          flag:'🇯🇵', pop:'125M', christian:'1%',   color:'#3B82F6', needs:['Breaking spiritual isolation','Youth depression crisis','Rural church planting'], fact:'Japan\'s less than 1% Christian population has barely moved in 150 years. It is one of the most spiritually resistant nations on earth — and one of the most lonely.', prayer:'God who reaches the unreachable, Japan\'s loneliness is breaking our hearts. Young people dying of isolation, elderly people dying alone. May the Church in Japan be the answer to the loneliness epidemic. Let the 1% become a leaven that changes everything.' },
-  { name:'Jordan',         flag:'🇯🇴', pop:'10M',  christian:'2.2%', color:'#F59E0B', needs:['Refugee church support','Witness among Muslim majority','Religious freedom protection'], fact:'Jordan hosts hundreds of thousands of refugees from Syria, Iraq, and Palestine — many of whom are encountering Christianity for the first time.', prayer:'God of the refugee, so many who fled ISIS are now in Jordan — displaced and searching. Let Christians in Jordan be the first kind face many of them see. Use the refugee crisis as a river of grace.' },
-  { name:'Kazakhstan',     flag:'🇰🇿', pop:'19M',  christian:'24%',  color:'#10B981', needs:['Post-Soviet church growth','Reaching ethnic Kazakhs','Religious freedom protection'], fact:'A post-Soviet majority-Muslim nation where a small but growing Christian community faces registration restrictions and government surveillance.', prayer:'Lord, what You planted in Kazakhstan during Soviet times — water it now. Grow it. Protect the Kazakh believers who know what it cost their parents to keep the faith hidden.' },
-  { name:'Kenya',          flag:'🇰🇪', pop:'54M',  christian:'85%',  color:'#10B981', needs:['Ethnic reconciliation','Fighting prosperity gospel','Sending missionaries to unreached peoples'], fact:'Kenya is one of Africa\'s most Christian nations and a major missionary-sending country. Over 8,000 Kenyan missionaries serve across Africa and beyond.', prayer:'God of Kenya, thank You for the faith that burns there. Now call Kenya to go further — to the 10/40 window, to the north, to the unreached. Let Kenya\'s missionaries reach nations that western missions cannot access.' },
-  { name:'Laos',           flag:'🇱🇦', pop:'7.4M', christian:'2.5%', color:'#8B5CF6', needs:['Hmong and hill tribe access','Church registration freedom','Pastor training'], fact:'Laos is a communist country where Christianity is tightly restricted. The Hmong hill tribes have a vibrant but heavily persecuted church.', prayer:'Father, the Hmong church in Laos has paid a price most of us will never understand — generation after generation of persecution. Honor their faithfulness. Bring freedom. And let their suffering be the seed of a great harvest.' },
-  { name:'Lebanon',        flag:'🇱🇧', pop:'5.5M', christian:'34%',  color:'#F97316', needs:['Economic collapse support','War trauma healing','Christian witness amid conflict'], fact:'Lebanon was once the only Arab-majority Christian nation. Economic collapse and Hezbollah influence have driven a massive emigration of Christians.', prayer:'God, Lebanon is bleeding. Its Christians are leaving by the hundreds of thousands. Stop the bleeding. Give believers a reason to stay. Use the Church there as a beacon for the whole Middle East in its darkest hour.' },
-  { name:'Libya',          flag:'🇱🇾', pop:'7.2M', christian:'2.7%', color:'#EF4444', needs:['Post-conflict stability','Sub-Saharan migrant church care','Gospel access'], fact:'Libya has almost no indigenous Christian community. Most Christians are sub-Saharan African migrants trying to reach Europe — stranded in dangerous conditions.', prayer:'Jesus who fed the five thousand, the migrants stranded in Libya are Your children too. Send Christians to serve them. Meet their physical needs. And let the Gospel reach them in the middle of the Mediterranean crisis.' },
-  { name:'Madagascar',     flag:'🇲🇬', pop:'28M',  christian:'49%',  color:'#10B981', needs:['Famine and poverty crisis','Ancestral worship syncretism','Rural church depth'], fact:'One of the poorest nations, facing climate-driven famine in the south. The church is large but often mixed with traditional ancestor worship.', prayer:'God of the poor, the south of Madagascar is starving. Send provision. Send relief workers. And in the midst of need, let Your Church there shine with practical love that draws people away from fear and into freedom.' },
-  { name:'Malaysia',       flag:'🇲🇾', pop:'33M',  christian:'9%',   color:'#F59E0B', needs:['Malay Muslim outreach','Legal discrimination against converts','Orang Asli people access'], fact:'Christianity is growing among Chinese and Indian Malaysians, but Malays are legally barred from converting from Islam. Conversion is a criminal offense.', prayer:'Lord, laws cannot hold back Your Spirit. We pray for the Malay people — that You would reach them in ways no law can prevent. Dreams, encounters, the witness of neighbors. Open what human law has tried to close.' },
-  { name:'Mali',           flag:'🇲🇱', pop:'22M',  christian:'2.9%', color:'#F97316', needs:['Islamist violence in the north','Church planting in unreached areas','Refugee care'], fact:'Northern Mali is controlled by Islamist groups. Attacks on churches and Christians occur regularly. Yet the church in the south is planting northward.', prayer:'God of the brave, Malian Christians planting churches toward the front lines — bless them with supernatural protection. Let their courage shame the darkness. And let every attack on a church become a door for the Gospel.' },
-  { name:'Mexico',         flag:'🇲🇽', pop:'130M', christian:'87%',  color:'#10B981', needs:['Cartel violence against pastors','Indigenous church access','Nominal Catholic revival'], fact:'Mexico loses several pastors to cartel violence every year. Yet the evangelical church is one of the fastest-growing in Latin America.', prayer:'God of Mexico, You know every pastor\'s name who has died for the Gospel in the shadow of cartels. Honor their sacrifice. Protect the ones still standing. And let the blood of martyrs water a harvest that cannot be stopped.' },
-  { name:'Mongolia',       flag:'🇲🇳', pop:'3.3M', christian:'2%',   color:'#8B5CF6', needs:['Nomadic church planting','Post-communist spiritual hunger','Discipleship in extreme poverty'], fact:'In 1990, Mongolia had almost no Christians. Today there are 60,000+. The church grew from zero to a movement in 30 years — one of history\'s most dramatic church plantings.', prayer:'God who builds the Church where no human could, Mongolia is Your miracle. From 0 to 60,000 in a generation. Keep building. Reach the nomads in their gers on the steppe. Let this small church in a vast land think big about the nations.' },
-  { name:'Morocco',        flag:'🇲🇦', pop:'37M',  christian:'0.3%', color:'#F59E0B', needs:['Berber church protection','Bible distribution','North African revival'], fact:'Most Moroccan Christians keep their faith completely hidden. Conversion from Islam is socially devastating and legally dangerous. Berbers are increasingly open to the Gospel.', prayer:'Father, every secret believer in Morocco is known to You. Give them courage, community with each other, and the Word. Let the Berber openness be the beginning of a North African wave.' },
-  { name:'Mozambique',     flag:'🇲🇿', pop:'32M',  christian:'56%',  color:'#10B981', needs:['Islamist insurgency in the north','Cyclone disaster recovery','Discipleship depth'], fact:'Northern Mozambique faces a brutal Islamist insurgency. Churches have been burned, Christians beheaded. Yet believers continue to meet.', prayer:'God of Mozambique, we grieve what is happening in the north. Protect Your people. Shelter them. Send them help. And let the courage of believers in the north be seen across the whole continent as a testimony.' },
-  { name:'Myanmar',        flag:'🇲🇲', pop:'54M',  christian:'8%',   color:'#EF4444', needs:['Military coup victims','Chin and Karen church protection','Peace negotiations'], fact:'Myanmar\'s military coup has devastated the country. The predominantly Christian Chin and Karen ethnic groups face active military violence.', prayer:'God who hears the cry of the oppressed, Myanmar is crying out. The Chin people, the Karen people — Your people — are fleeing bombs and bullets. Intervene. Protect. Bring justice. And in the middle of the chaos, let Your Church be found.' },
-  { name:'Nepal',          flag:'🇳🇵', pop:'30M',  christian:'1.9%', color:'#F97316', needs:['Anti-conversion law repeal','Church planting in Himalayan villages','Caste system transformation'], fact:'Nepal passed anti-conversion and anti-proselytizing laws in 2017. Yet the church has grown from 50 believers in 1960 to over 500,000 today.', prayer:'God who does the impossible in Nepal — 50 to 500,000. Laws could not stop You. Let them not stop You now. Reach the Himalayan villages that have never heard. Reach the upper castes through the testimony of lower-caste believers made new.' },
-  { name:'Nigeria',        flag:'🇳🇬', pop:'220M', christian:'46%',  color:'#10B981', needs:['Fulani herdsmen attacks on Christians','Boko Haram persecution','North-South reconciliation'], fact:'Nigeria has more Christians than any other African nation — over 100 million. But the north faces severe Islamic persecution. Hundreds of churches have been destroyed.', prayer:'God of Nigeria, 100 million believers is extraordinary. Use them to reach the north. Protect the communities under attack. And let Nigeria\'s church be not just the largest in Africa but the most missionary-minded.' },
-  { name:'North Korea',    flag:'🇰🇵', pop:'26M',  christian:'1.7%', color:'#EF4444', needs:['Underground church survival','Defector believer care','Prayer for Kim regime change'], fact:'North Korea is consistently ranked the most dangerous place on earth to be a Christian. An estimated 70,000 Christians are in labor camps for their faith.', prayer:'God who sees what no satellite can see, You know every believer in North Korea. You know the camps. You know the names. Keep them alive. Keep their faith. And Father — open this nation as only You can.' },
-  { name:'Pakistan',       flag:'🇵🇰', pop:'230M', christian:'1.6%', color:'#EF4444', needs:['Blasphemy law repeal','Forced conversion prevention','Church protection'], fact:'Pakistan\'s blasphemy laws have been used repeatedly to imprison and kill Christians. Asia Bibi spent 8 years on death row for alleged blasphemy while washing dishes.', prayer:'God of Asia Bibi and millions like her — justice is slow but You are just. Protect Pakistani Christians. Confound the blasphemy laws. Raise up voices inside Pakistan to advocate for their neighbors. And visit Pakistani Muslims with dreams of Jesus.' },
-  { name:'Palestine',      flag:'🇵🇸', pop:'5.4M', christian:'1%',   color:'#8B5CF6', needs:['Christian community survival amid conflict','Peace witness','Bethlehem church support'], fact:'The Christian community in Bethlehem — the birthplace of Jesus — has declined from 80% in 1947 to under 15% today due to emigration from conflict.', prayer:'Lord, You were born in Bethlehem. May there be Christians in Bethlehem to celebrate Your birth for generations to come. Protect what remains of the Christian community there. Bring peace that only You can engineer.' },
-  { name:'Papua New Guinea',flag:'🇵🇬', pop:'10M',  christian:'96%',  color:'#10B981', needs:['Tribal warfare','Sorcery-related violence','Depth vs. nominal Christianity'], fact:'PNG is 96% Christian but tribal warfare, sorcery murders, and corruption remain widespread. The challenge is transformation, not evangelization.', prayer:'God of PNG, Your Church there is large. Now make it deep. Transform the tribal conflicts, the sorcery fear, the corruption. Let 96% on paper become 96% in practice — a nation where Your Kingdom truly comes.' },
-  { name:'Peru',           flag:'🇵🇪', pop:'33M',  christian:'85%',  color:'#10B981', needs:['Amazon tribe outreach','Combating prosperity gospel','Healing from Shining Path trauma'], fact:'Peru has over 1,000 uncontacted and unreached indigenous groups in the Amazon. The church in Lima is growing rapidly but spiritual depth is uneven.', prayer:'God of the Amazon, there are whole peoples in Peru who have never heard the name of Jesus. Send those who will go. Protect the indigenous communities from exploitation. And let the growing church in Lima send missionaries to its own backyard.' },
-  { name:'Philippines',    flag:'🇵🇭', pop:'111M', christian:'92%',  color:'#10B981', needs:['Mindanao peace','Nominalism transformation','Missionary sending'], fact:'The only predominantly Christian nation in Asia, the Philippines sends thousands of missionaries worldwide — in part because Filipino workers travel to every corner of the earth.', prayer:'God of the Philippines, Your plan was brilliant — put a missionary-hearted people in every city on earth as overseas workers. Let every Filipino abroad be a light. Let the church in Mindanao build bridges of peace, not walls of conflict.' },
-  { name:'Russia',         flag:'🇷🇺', pop:'144M', christian:'71%',  color:'#3B82F6', needs:['War trauma and guilt','Protestant church restrictions','Peace'], fact:'The war in Ukraine has divided families, traumatized a generation, and created a spiritual crisis. Many Russians are questioning everything — and some are finding Jesus.', prayer:'God over empires, the crisis in Russia is also a spiritual crisis. People are asking questions they never asked before. Send answers. Reach Russians through dreams, through exile Christians, through every means available. Let the trauma of this moment become a door to You.' },
-  { name:'Saudi Arabia',   flag:'🇸🇦', pop:'35M',  christian:'4.4%', color:'#EF4444', needs:['Expat church protection','Secret Saudi believers','Neighboring nation outreach'], fact:'Christianity is completely illegal for Saudi citizens. Yet expat workers have secret house churches. Saudi seekers increasingly find the Gospel online.', prayer:'God who found Saul of Tarsus on a road, find the Saudi Arabians searching online tonight. Meet them in their dreams. Connect them to believers. And protect the expat house churches that keep a light burning in the birthplace of Islam.' },
-  { name:'Somalia',        flag:'🇸🇴', pop:'17M',  christian:'0.01%',color:'#EF4444', needs:['Secret believer protection','Al-Shabaab territory access','Diaspora mission'], fact:'Somalia may have fewer than 1,000 Christians in the entire nation — and those who are known face death. Al-Shabaab actively hunts converts.', prayer:'Father, Somalia\'s believers could fit in a single room, and they live in constant danger. You know every name. Every address. Every whispered prayer. Guard them with angels. And let the Somali diaspora around the world come to know You and take the Gospel home.' },
-  { name:'South Korea',    flag:'🇰🇷', pop:'52M',  christian:'28%',  color:'#8B5CF6', needs:['Declining church attendance','Materialism in the church','North Korea outreach'], fact:'South Korea sends more missionaries per capita than almost any other nation. Yet domestic church attendance has been declining for 20 years as materialism grows.', prayer:'God who blessed South Korea beyond measure, let the blessing not become a trap. Call the Korean church back to its prayer-meeting roots. And let the thousands of Korean missionaries keep going to the hardest places on earth.' },
-  { name:'South Sudan',    flag:'🇸🇸', pop:'11M',  christian:'60%',  color:'#10B981', needs:['Civil war healing','Hunger crisis','Church leadership development'], fact:'The world\'s newest nation — and one of its most Christian. South Sudan is majority Christian yet has suffered horrific ethnic civil war since independence.', prayer:'God of South Sudan, this nation was born in hope and has suffered so much since. The church is large. Raise up church leaders who can be peacemakers across ethnic lines. Let Christianity there mean reconciliation, not just identity.' },
-  { name:'Syria',          flag:'🇸🇾', pop:'18M',  christian:'8%',   color:'#EF4444', needs:['War displacement recovery','Ancient Christian community survival','Return of refugees'], fact:'Syria\'s ancient Christian community — present since Acts 9 — has been devastated by civil war. 90% of Syrian Christians have fled. Many may never return.', prayer:'God of Damascus, Paul was converted on the road to Damascus. The church there is among the oldest in the world. Do not let it die. Draw back the Syrian Christians who fled. Let Damascus see revival before the ancient church there is extinguished.' },
-  { name:'Tajikistan',     flag:'🇹🇯', pop:'9.9M', christian:'1.5%', color:'#8B5CF6', needs:['Government registration restrictions','Islamic pressure','Youth outreach'], fact:'The poorest former Soviet republic. Christianity is growing quietly despite government surveillance and social pressure from a Muslim majority.', prayer:'Lord of the hidden harvest, what is growing in Tajikistan in secret — water it. Protect it. And bring the day when the doors open wide and what grew in the dark can grow in the light.' },
-  { name:'Thailand',       flag:'🇹🇭', pop:'70M',  christian:'1.2%', color:'#F59E0B', needs:['Buddhist majority outreach','Hill tribe church growth','Urban church planting'], fact:'Thailand is 95% Buddhist. Buddhism is intertwined with Thai national identity, making conversion feel like cultural betrayal. Yet the hill tribes in the north are majority Christian.', prayer:'God, in Thailand following Jesus can feel like betraying your country. Reach Thai Buddhists with a vision of Jesus that transcends cultural walls. Use the thriving hill tribe churches as a bridge.' },
-  { name:'Tibet',          flag:'🏔️',  pop:'7.2M', christian:'0.1%', color:'#8B5CF6', needs:['Access for the Gospel','Buddhist monastery outreach','Tibetan Bible completion'], fact:'Tibet has one of the smallest and most isolated Christian populations on earth. Tibetan Buddhist monks and laypersons are among the least-reached people.', prayer:'God who is higher than any mountain, the Tibetan people have searched for You in temples for centuries. Send them the truth. Complete the Tibetan Bible. And reach lamas and monks who already know how to pray.' },
-  { name:'Turkey',         flag:'🇹🇷', pop:'84M',  christian:'0.2%', color:'#EF4444', needs:['Church planting in Istanbul','Legal recognition','Persecution of converts'], fact:'Once the heart of early Christianity — Ephesus, Antioch, Galatia, Thyatira — Turkey is now 99.8% Muslim with fewer than 10 non-immigrant Protestant churches for its entire population.', prayer:'God of the seven churches of Revelation, once Your Church blazed in Turkey. May it burn there again. Let Ephesus, Antioch, and Galatia be names of living churches again, not only ruins.' },
-  { name:'Uganda',         flag:'🇺🇬', pop:'47M',  christian:'85%',  color:'#10B981', needs:['Corruption transformation','Poverty in northern regions','Child soldier healing'], fact:'Uganda\'s church is large and growing. Yet Uganda also faces severe corruption, child soldier trauma in the north, and LGBTQ legislation debates that have isolated it internationally.', prayer:'God of Uganda, You have given this nation a large Church. Now use it to lead the nation in the way of justice and truth. May Ugandan Christians be known for how well they love — all people.' },
-  { name:'Ukraine',        flag:'🇺🇦', pop:'43M',  christian:'83%',  color:'#3B82F6', needs:['War survival and trauma care','Displaced persons ministry','Rebuild the nation'], fact:'Ukraine\'s church has been in the center of a horrific war. Yet thousands of church members have stayed to serve as the body of Christ — housing refugees, distributing food, staying when they could leave.', prayer:'God of Ukraine, the courage of that church is extraordinary. Let the whole world see what the body of Christ looks like in wartime. Bring peace. Rebuild what was destroyed. And honor the faithfulness of every believer who stayed.' },
-  { name:'Uzbekistan',     flag:'🇺🇿', pop:'35M',  christian:'1.1%', color:'#8B5CF6', needs:['Repeal of church registration law','Bible access','House church protection'], fact:'Uzbekistan has dramatically cracked down on religious minorities. Church buildings are demolished, Bibles confiscated, believers fined and imprisoned for worship.', prayer:'God who planted a church in Uzbekistan against all odds, protect it now. Let every Bible confiscated be replaced by ten. Let every church demolished be replaced by twenty house churches. What governments destroy, You rebuild.' },
-  { name:'Venezuela',      flag:'🇻🇪', pop:'29M',  christian:'96%',  color:'#F97316', needs:['Economic collapse ministry','Diaspora church planting','Political crisis response'], fact:'Venezuela\'s economy has collapsed, pushing 7 million people to emigrate. Venezuela churches now plant churches wherever the diaspora settles — from Peru to Spain to the US.', prayer:'God who turns tragedy into mission, Venezuela\'s pain has scattered its people — and scattered seed. May every Venezuelan believer abroad plant a church or join one. Let the diaspora become a missions movement.' },
-  { name:'Vietnam',        flag:'🇻🇳', pop:'97M',  christian:'8.2%', color:'#EF4444', needs:['Ethnic minority church protection','House church freedom','Government registration'], fact:'Vietnam\'s communist government tightly controls religion. Montagnard (hill tribe) Christians face intense persecution. Yet the church grows steadily in both cities and mountains.', prayer:'Lord of Vietnam, from the cities to the Central Highlands, Your church grows despite surveillance, fines, and imprisonment. Honor the Montagnard believers\' sacrifice. Bring them freedom. And let the entire nation hear the Good News.' },
-  { name:'Yemen',          flag:'🇾🇪', pop:'33M',  christian:'0.2%', color:'#EF4444', needs:['War survivor care','Famine relief','Secret believer connection'], fact:'Yemen is in the middle of the world\'s worst humanitarian crisis. It has almost no indigenous Christian community — but Muslims are finding Jesus through satellite TV and the internet.', prayer:'God of Yemen, in the middle of famine and bombs, You are still reaching people. Strengthen the tiny community of secret believers. Send food and medicine through Christian relief organizations. And may the crisis become the context for the first great Yemeni harvest.' },
-]
+  {
+    name: 'Afghanistan',
+    flag: '🇦🇫',
+    pop: '40M',
+    christian: '0.3%',
+    color: '#EF4444',
+    needs: [
+      'Underground church protection',
+      'Freedom from fear & persecution',
+      'Open doors for the Gospel',
+    ],
+    fact: 'One of the most restricted nations on earth for Christians. Conversion from Islam is punishable by death.',
+    prayer:
+      'Lord, protect every secret believer in Afghanistan tonight. Strengthen the underground church. Send Your Word in ways that cannot be stopped — through dreams, through radio, through every crack of light.',
+  },
+  {
+    name: 'Albania',
+    flag: '🇦🇱',
+    pop: '2.8M',
+    christian: '17%',
+    color: '#EF4444',
+    needs: ['Post-communist revival', 'Reaching the Muslim majority', 'Church unity'],
+    fact: 'Declared itself "the world\'s first atheist state" in 1967. Christianity has been growing since communism fell in 1991.',
+    prayer:
+      'God of resurrection, what was dead is coming alive. Breathe revival into Albania. Raise up Albanian voices to proclaim Your name in their own language and culture.',
+  },
+  {
+    name: 'Algeria',
+    flag: '🇩🇿',
+    pop: '45M',
+    christian: '0.5%',
+    color: '#10B981',
+    needs: ['Berber church growth', 'Freedom from church closures', 'Bible access'],
+    fact: 'The Kabyle Berber people have one of the fastest-growing evangelical movements in North Africa — despite intense government pressure.',
+    prayer:
+      'Father, what You are doing among the Berber people is breathtaking. Protect the house churches. Multiply the Bibles. Let the revival that has started not be stopped.',
+  },
+  {
+    name: 'Bangladesh',
+    flag: '🇧🇩',
+    pop: '170M',
+    christian: '0.4%',
+    color: '#F59E0B',
+    needs: [
+      'Church planting in unreached areas',
+      'Bible translation completion',
+      'Protection from religious violence',
+    ],
+    fact: 'Only 0.4% Christian in a nation of 170 million — yet the church grows steadily through quiet witness and compassion ministry.',
+    prayer:
+      'Lord of the harvest, the fields in Bangladesh are white. Send workers. Protect believers. May Your Church grow like a seed that no one can stop — quietly, persistently, powerfully.',
+  },
+  {
+    name: 'Belarus',
+    flag: '🇧🇾',
+    pop: '9.4M',
+    christian: '48%',
+    color: '#3B82F6',
+    needs: ['Freedom after political crackdown', 'Persecuted church support', 'Youth reaching out'],
+    fact: 'Belarusian Christians courageously protested government injustice after disputed 2020 elections. Many were imprisoned.',
+    prayer:
+      'God who sees injustice, stand with believers in Belarus who paid a high price for doing what was right. Bring freedom. Restore what was lost. May the Church there be known for courage.',
+  },
+  {
+    name: 'Bhutan',
+    flag: '🇧🇹',
+    pop: '780K',
+    christian: '0.5%',
+    color: '#8B5CF6',
+    needs: ['Freedom from Buddhist state restrictions', 'Church planting', 'Reaching young people'],
+    fact: 'The Kingdom of Bhutan — a Buddhist monarchy — restricts religious conversion. The tiny Christian community worships in secret.',
+    prayer:
+      'Father, every Christian in Bhutan knows what it costs to follow You. Honor their sacrifice. Grow the Church in secret. And may the day come when the name of Jesus is spoken freely in this beautiful kingdom.',
+  },
+  {
+    name: 'Bolivia',
+    flag: '🇧🇴',
+    pop: '12M',
+    christian: '78%',
+    color: '#10B981',
+    needs: [
+      'Syncretism with indigenous religion',
+      'Rural church access',
+      'Spiritual depth over cultural Christianity',
+    ],
+    fact: "While nominally Christian, much of Bolivia's faith is mixed with pre-Christian indigenous practices. Genuine discipleship is the great need.",
+    prayer:
+      "Lord, bring depth to Bolivia's Christianity. Where Your name is used in empty rituals, bring true encounter. Raise up Bolivian disciples who know You — not just about You.",
+  },
+  {
+    name: 'Cambodia',
+    flag: '🇰🇭',
+    pop: '17M',
+    christian: '2.2%',
+    color: '#F97316',
+    needs: ['Post-genocide trauma healing', 'Anti-trafficking ministry', 'Discipleship depth'],
+    fact: 'The Khmer Rouge killed 2 million people (25% of the population) in the 1970s. The church is healing deep generational wounds through the Gospel.',
+    prayer:
+      'God who heals, Cambodia carries wounds that only You can reach. Meet the survivors and their children. Use the church there to bring healing to a traumatized nation. Turn their mourning into dancing.',
+  },
+  {
+    name: 'China',
+    flag: '🇨🇳',
+    pop: '1.4B',
+    christian: '6.9%',
+    color: '#EF4444',
+    needs: ['House church protection', 'Underground seminary training', 'Bibles in remote areas'],
+    fact: 'China may have 100+ million Christians — the fastest-growing church in history — despite (and partly because of) government crackdowns.',
+    prayer:
+      'Almighty God, what You are doing in China defies human explanation. 100 million people. A church that cannot be stopped. Protect them. Provide for them. And let the church in China send missionaries to the whole world.',
+  },
+  {
+    name: 'Colombia',
+    flag: '🇨🇴',
+    pop: '51M',
+    christian: '90%',
+    color: '#10B981',
+    needs: [
+      'Peace in conflict zones',
+      'FARC/cartel area church protection',
+      'Reconciliation ministry',
+    ],
+    fact: 'Colombia has the second-largest number of internally displaced people in the world. The church serves in conflict zones where others cannot go.',
+    prayer:
+      'Prince of Peace, let Your peace break through in Colombia where human peace has failed. Protect pastors in danger zones. Use the Church as an agent of reconciliation in a divided nation.',
+  },
+  {
+    name: 'Cuba',
+    flag: '🇨🇺',
+    pop: '11M',
+    christian: '56%',
+    color: '#3B82F6',
+    needs: ['Religious freedom under communism', 'Church supplies access', 'Youth ministry'],
+    fact: "Cuba's church has grown under communism. House churches multiply. Christians smuggle Bibles and church supplies from abroad.",
+    prayer:
+      'God who cannot be communized, Your Church in Cuba survives what should have killed it. Supply every need. Bring every Bible. And let the revival already stirring in Cuba overflow to the whole Caribbean.',
+  },
+  {
+    name: 'Egypt',
+    flag: '🇪🇬',
+    pop: '104M',
+    christian: '11%',
+    color: '#F59E0B',
+    needs: ['Coptic church protection', 'Religious freedom', 'Reaching the Muslim majority'],
+    fact: 'Egypt has the largest Christian population in the Middle East — about 11 million Coptic Christians. They face regular persecution and church bombings.',
+    prayer:
+      'God of the Copts, whose ancestors fled to Egypt with the infant Jesus — protect Your ancient Church. Rebuild what bombs have destroyed. May the Coptic Church be not only survivors but witnesses to the whole Arab world.',
+  },
+  {
+    name: 'Eritrea',
+    flag: '🇪🇷',
+    pop: '3.5M',
+    christian: '63%',
+    color: '#EF4444',
+    needs: [
+      'Release of imprisoned pastors',
+      'Underground church survival',
+      'Refugee church support',
+    ],
+    fact: 'One of the most persecuted Christian nations. Non-sanctioned denominations are banned. Hundreds of pastors have been imprisoned in metal shipping containers for 20+ years.',
+    prayer:
+      'Lord, we name the pastors in the shipping containers tonight. You know every name. Keep them alive. Keep their faith. And shame the powers that imprisoned them for loving You.',
+  },
+  {
+    name: 'Ethiopia',
+    flag: '🇪🇹',
+    pop: '120M',
+    christian: '63%',
+    color: '#10B981',
+    needs: ['Civil war healing', 'Church unity among tribes', 'Rural access'],
+    fact: 'Ethiopia has one of the fastest-growing evangelical churches in the world. But civil war has displaced millions and torn communities apart.',
+    prayer:
+      'God of Ethiopia, Your ancient Church there traces its roots to Acts 8. Honor that heritage. Bring peace to the tribal conflicts. Use the Ethiopian church — now numbering tens of millions — as a healing force.',
+  },
+  {
+    name: 'France',
+    flag: '🇫🇷',
+    pop: '67M',
+    christian: '41%',
+    color: '#3B82F6',
+    needs: [
+      'Post-secular revival',
+      'African diaspora church growth',
+      'Reaching nominally Catholic majority',
+    ],
+    fact: 'France is one of the most secular nations in the world. Yet the African diaspora churches in Paris are among the largest and most vibrant in Europe.',
+    prayer:
+      "God who does not abandon nations, we pray for France. The secular darkness is real. But so are the thousands of African Christians worshipping in Paris's suburbs. Use the immigrant church to re-evangelize Europe.",
+  },
+  {
+    name: 'Germany',
+    flag: '🇩🇪',
+    pop: '83M',
+    christian: '54%',
+    color: '#8B5CF6',
+    needs: ['Nominal Christianity revival', 'Refugee church integration', 'Youth engagement'],
+    fact: 'The birthplace of the Reformation — where Luther nailed his 95 theses — now has some of the emptiest churches in Europe. But the refugee church from Iran and Syria is growing dramatically.',
+    prayer:
+      'God of the Reformation, do it again in Germany. What Luther started, complete. And let the Iranian and Syrian Christians flooding into Germany plant revival fires in a nation that forgot its first love.',
+  },
+  {
+    name: 'India',
+    flag: '🇮🇳',
+    pop: '1.4B',
+    christian: '2.3%',
+    color: '#F59E0B',
+    needs: [
+      'Persecution from Hindu nationalism',
+      'Dalit outreach',
+      'Northeast revival spreading south',
+    ],
+    fact: "India's 30 million Christians face rising Hindu nationalist violence. Yet the northeast states (Nagaland, Mizoram) are majority Christian and have sent missionaries to South Asia.",
+    prayer:
+      'God, 30 million in India — that is a massive church. Protect them from the rising violence. Use the northeast Indian missionaries to carry the Gospel to unreached peoples. Let 2.3% become 10%.',
+  },
+  {
+    name: 'Indonesia',
+    flag: '🇮🇩',
+    pop: '274M',
+    christian: '10%',
+    color: '#EF4444',
+    needs: ['Church closure prevention', 'Inter-religious peace', 'Papua church support'],
+    fact: "The world's largest Muslim nation — yet has 27 million Christians. Church burnings occur regularly, especially in hardline provinces.",
+    prayer:
+      'Lord, protect every church building and every congregation in Indonesia. Where churches have been burned, rebuild them. Where licenses are denied, open doors no government can shut.',
+  },
+  {
+    name: 'Iran',
+    flag: '🇮🇷',
+    pop: '85M',
+    christian: '0.4%',
+    color: '#EF4444',
+    needs: ['Underground church protection', 'House church leader safety', 'Diaspora mission'],
+    fact: 'Iran may have the fastest-growing church in the world — entirely underground, primarily Shia Muslims turning to Christ through dreams and visions.',
+    prayer:
+      'God who speaks in dreams, You are doing something in Iran that has no human explanation. Millions of Muslims dreaming of Jesus and following Him at great personal cost. Protect them. Sustain them. And let what is happening there inspire the whole world.',
+  },
+  {
+    name: 'Iraq',
+    flag: '🇮🇶',
+    pop: '41M',
+    christian: '0.8%',
+    color: '#EF4444',
+    needs: ['Rebuild after ISIS genocide', 'Diaspora return', 'Ancient church survival'],
+    fact: "Iraq's ancient Christian community — the Chaldeans — was decimated by ISIS. The Nineveh Plain, where Jonah preached, is slowly being rebuilt.",
+    prayer:
+      'God of Jonah, the city of Nineveh still exists. The ancient church in Assyria and Chaldea still exists — barely. Help them rebuild. Draw back the diaspora. And let the Church on the Nineveh Plain be a light again.',
+  },
+  {
+    name: 'Japan',
+    flag: '🇯🇵',
+    pop: '125M',
+    christian: '1%',
+    color: '#3B82F6',
+    needs: ['Breaking spiritual isolation', 'Youth depression crisis', 'Rural church planting'],
+    fact: "Japan's less than 1% Christian population has barely moved in 150 years. It is one of the most spiritually resistant nations on earth — and one of the most lonely.",
+    prayer:
+      "God who reaches the unreachable, Japan's loneliness is breaking our hearts. Young people dying of isolation, elderly people dying alone. May the Church in Japan be the answer to the loneliness epidemic. Let the 1% become a leaven that changes everything.",
+  },
+  {
+    name: 'Jordan',
+    flag: '🇯🇴',
+    pop: '10M',
+    christian: '2.2%',
+    color: '#F59E0B',
+    needs: [
+      'Refugee church support',
+      'Witness among Muslim majority',
+      'Religious freedom protection',
+    ],
+    fact: 'Jordan hosts hundreds of thousands of refugees from Syria, Iraq, and Palestine — many of whom are encountering Christianity for the first time.',
+    prayer:
+      'God of the refugee, so many who fled ISIS are now in Jordan — displaced and searching. Let Christians in Jordan be the first kind face many of them see. Use the refugee crisis as a river of grace.',
+  },
+  {
+    name: 'Kazakhstan',
+    flag: '🇰🇿',
+    pop: '19M',
+    christian: '24%',
+    color: '#10B981',
+    needs: ['Post-Soviet church growth', 'Reaching ethnic Kazakhs', 'Religious freedom protection'],
+    fact: 'A post-Soviet majority-Muslim nation where a small but growing Christian community faces registration restrictions and government surveillance.',
+    prayer:
+      'Lord, what You planted in Kazakhstan during Soviet times — water it now. Grow it. Protect the Kazakh believers who know what it cost their parents to keep the faith hidden.',
+  },
+  {
+    name: 'Kenya',
+    flag: '🇰🇪',
+    pop: '54M',
+    christian: '85%',
+    color: '#10B981',
+    needs: [
+      'Ethnic reconciliation',
+      'Fighting prosperity gospel',
+      'Sending missionaries to unreached peoples',
+    ],
+    fact: "Kenya is one of Africa's most Christian nations and a major missionary-sending country. Over 8,000 Kenyan missionaries serve across Africa and beyond.",
+    prayer:
+      "God of Kenya, thank You for the faith that burns there. Now call Kenya to go further — to the 10/40 window, to the north, to the unreached. Let Kenya's missionaries reach nations that western missions cannot access.",
+  },
+  {
+    name: 'Laos',
+    flag: '🇱🇦',
+    pop: '7.4M',
+    christian: '2.5%',
+    color: '#8B5CF6',
+    needs: ['Hmong and hill tribe access', 'Church registration freedom', 'Pastor training'],
+    fact: 'Laos is a communist country where Christianity is tightly restricted. The Hmong hill tribes have a vibrant but heavily persecuted church.',
+    prayer:
+      'Father, the Hmong church in Laos has paid a price most of us will never understand — generation after generation of persecution. Honor their faithfulness. Bring freedom. And let their suffering be the seed of a great harvest.',
+  },
+  {
+    name: 'Lebanon',
+    flag: '🇱🇧',
+    pop: '5.5M',
+    christian: '34%',
+    color: '#F97316',
+    needs: ['Economic collapse support', 'War trauma healing', 'Christian witness amid conflict'],
+    fact: 'Lebanon was once the only Arab-majority Christian nation. Economic collapse and Hezbollah influence have driven a massive emigration of Christians.',
+    prayer:
+      'God, Lebanon is bleeding. Its Christians are leaving by the hundreds of thousands. Stop the bleeding. Give believers a reason to stay. Use the Church there as a beacon for the whole Middle East in its darkest hour.',
+  },
+  {
+    name: 'Libya',
+    flag: '🇱🇾',
+    pop: '7.2M',
+    christian: '2.7%',
+    color: '#EF4444',
+    needs: ['Post-conflict stability', 'Sub-Saharan migrant church care', 'Gospel access'],
+    fact: 'Libya has almost no indigenous Christian community. Most Christians are sub-Saharan African migrants trying to reach Europe — stranded in dangerous conditions.',
+    prayer:
+      'Jesus who fed the five thousand, the migrants stranded in Libya are Your children too. Send Christians to serve them. Meet their physical needs. And let the Gospel reach them in the middle of the Mediterranean crisis.',
+  },
+  {
+    name: 'Madagascar',
+    flag: '🇲🇬',
+    pop: '28M',
+    christian: '49%',
+    color: '#10B981',
+    needs: ['Famine and poverty crisis', 'Ancestral worship syncretism', 'Rural church depth'],
+    fact: 'One of the poorest nations, facing climate-driven famine in the south. The church is large but often mixed with traditional ancestor worship.',
+    prayer:
+      'God of the poor, the south of Madagascar is starving. Send provision. Send relief workers. And in the midst of need, let Your Church there shine with practical love that draws people away from fear and into freedom.',
+  },
+  {
+    name: 'Malaysia',
+    flag: '🇲🇾',
+    pop: '33M',
+    christian: '9%',
+    color: '#F59E0B',
+    needs: [
+      'Malay Muslim outreach',
+      'Legal discrimination against converts',
+      'Orang Asli people access',
+    ],
+    fact: 'Christianity is growing among Chinese and Indian Malaysians, but Malays are legally barred from converting from Islam. Conversion is a criminal offense.',
+    prayer:
+      'Lord, laws cannot hold back Your Spirit. We pray for the Malay people — that You would reach them in ways no law can prevent. Dreams, encounters, the witness of neighbors. Open what human law has tried to close.',
+  },
+  {
+    name: 'Mali',
+    flag: '🇲🇱',
+    pop: '22M',
+    christian: '2.9%',
+    color: '#F97316',
+    needs: ['Islamist violence in the north', 'Church planting in unreached areas', 'Refugee care'],
+    fact: 'Northern Mali is controlled by Islamist groups. Attacks on churches and Christians occur regularly. Yet the church in the south is planting northward.',
+    prayer:
+      'God of the brave, Malian Christians planting churches toward the front lines — bless them with supernatural protection. Let their courage shame the darkness. And let every attack on a church become a door for the Gospel.',
+  },
+  {
+    name: 'Mexico',
+    flag: '🇲🇽',
+    pop: '130M',
+    christian: '87%',
+    color: '#10B981',
+    needs: [
+      'Cartel violence against pastors',
+      'Indigenous church access',
+      'Nominal Catholic revival',
+    ],
+    fact: 'Mexico loses several pastors to cartel violence every year. Yet the evangelical church is one of the fastest-growing in Latin America.',
+    prayer:
+      "God of Mexico, You know every pastor's name who has died for the Gospel in the shadow of cartels. Honor their sacrifice. Protect the ones still standing. And let the blood of martyrs water a harvest that cannot be stopped.",
+  },
+  {
+    name: 'Mongolia',
+    flag: '🇲🇳',
+    pop: '3.3M',
+    christian: '2%',
+    color: '#8B5CF6',
+    needs: [
+      'Nomadic church planting',
+      'Post-communist spiritual hunger',
+      'Discipleship in extreme poverty',
+    ],
+    fact: "In 1990, Mongolia had almost no Christians. Today there are 60,000+. The church grew from zero to a movement in 30 years — one of history's most dramatic church plantings.",
+    prayer:
+      'God who builds the Church where no human could, Mongolia is Your miracle. From 0 to 60,000 in a generation. Keep building. Reach the nomads in their gers on the steppe. Let this small church in a vast land think big about the nations.',
+  },
+  {
+    name: 'Morocco',
+    flag: '🇲🇦',
+    pop: '37M',
+    christian: '0.3%',
+    color: '#F59E0B',
+    needs: ['Berber church protection', 'Bible distribution', 'North African revival'],
+    fact: 'Most Moroccan Christians keep their faith completely hidden. Conversion from Islam is socially devastating and legally dangerous. Berbers are increasingly open to the Gospel.',
+    prayer:
+      'Father, every secret believer in Morocco is known to You. Give them courage, community with each other, and the Word. Let the Berber openness be the beginning of a North African wave.',
+  },
+  {
+    name: 'Mozambique',
+    flag: '🇲🇿',
+    pop: '32M',
+    christian: '56%',
+    color: '#10B981',
+    needs: ['Islamist insurgency in the north', 'Cyclone disaster recovery', 'Discipleship depth'],
+    fact: 'Northern Mozambique faces a brutal Islamist insurgency. Churches have been burned, Christians beheaded. Yet believers continue to meet.',
+    prayer:
+      'God of Mozambique, we grieve what is happening in the north. Protect Your people. Shelter them. Send them help. And let the courage of believers in the north be seen across the whole continent as a testimony.',
+  },
+  {
+    name: 'Myanmar',
+    flag: '🇲🇲',
+    pop: '54M',
+    christian: '8%',
+    color: '#EF4444',
+    needs: ['Military coup victims', 'Chin and Karen church protection', 'Peace negotiations'],
+    fact: "Myanmar's military coup has devastated the country. The predominantly Christian Chin and Karen ethnic groups face active military violence.",
+    prayer:
+      'God who hears the cry of the oppressed, Myanmar is crying out. The Chin people, the Karen people — Your people — are fleeing bombs and bullets. Intervene. Protect. Bring justice. And in the middle of the chaos, let Your Church be found.',
+  },
+  {
+    name: 'Nepal',
+    flag: '🇳🇵',
+    pop: '30M',
+    christian: '1.9%',
+    color: '#F97316',
+    needs: [
+      'Anti-conversion law repeal',
+      'Church planting in Himalayan villages',
+      'Caste system transformation',
+    ],
+    fact: 'Nepal passed anti-conversion and anti-proselytizing laws in 2017. Yet the church has grown from 50 believers in 1960 to over 500,000 today.',
+    prayer:
+      'God who does the impossible in Nepal — 50 to 500,000. Laws could not stop You. Let them not stop You now. Reach the Himalayan villages that have never heard. Reach the upper castes through the testimony of lower-caste believers made new.',
+  },
+  {
+    name: 'Nigeria',
+    flag: '🇳🇬',
+    pop: '220M',
+    christian: '46%',
+    color: '#10B981',
+    needs: [
+      'Fulani herdsmen attacks on Christians',
+      'Boko Haram persecution',
+      'North-South reconciliation',
+    ],
+    fact: 'Nigeria has more Christians than any other African nation — over 100 million. But the north faces severe Islamic persecution. Hundreds of churches have been destroyed.',
+    prayer:
+      "God of Nigeria, 100 million believers is extraordinary. Use them to reach the north. Protect the communities under attack. And let Nigeria's church be not just the largest in Africa but the most missionary-minded.",
+  },
+  {
+    name: 'North Korea',
+    flag: '🇰🇵',
+    pop: '26M',
+    christian: '1.7%',
+    color: '#EF4444',
+    needs: [
+      'Underground church survival',
+      'Defector believer care',
+      'Prayer for Kim regime change',
+    ],
+    fact: 'North Korea is consistently ranked the most dangerous place on earth to be a Christian. An estimated 70,000 Christians are in labor camps for their faith.',
+    prayer:
+      'God who sees what no satellite can see, You know every believer in North Korea. You know the camps. You know the names. Keep them alive. Keep their faith. And Father — open this nation as only You can.',
+  },
+  {
+    name: 'Pakistan',
+    flag: '🇵🇰',
+    pop: '230M',
+    christian: '1.6%',
+    color: '#EF4444',
+    needs: ['Blasphemy law repeal', 'Forced conversion prevention', 'Church protection'],
+    fact: "Pakistan's blasphemy laws have been used repeatedly to imprison and kill Christians. Asia Bibi spent 8 years on death row for alleged blasphemy while washing dishes.",
+    prayer:
+      'God of Asia Bibi and millions like her — justice is slow but You are just. Protect Pakistani Christians. Confound the blasphemy laws. Raise up voices inside Pakistan to advocate for their neighbors. And visit Pakistani Muslims with dreams of Jesus.',
+  },
+  {
+    name: 'Palestine',
+    flag: '🇵🇸',
+    pop: '5.4M',
+    christian: '1%',
+    color: '#8B5CF6',
+    needs: [
+      'Christian community survival amid conflict',
+      'Peace witness',
+      'Bethlehem church support',
+    ],
+    fact: 'The Christian community in Bethlehem — the birthplace of Jesus — has declined from 80% in 1947 to under 15% today due to emigration from conflict.',
+    prayer:
+      'Lord, You were born in Bethlehem. May there be Christians in Bethlehem to celebrate Your birth for generations to come. Protect what remains of the Christian community there. Bring peace that only You can engineer.',
+  },
+  {
+    name: 'Papua New Guinea',
+    flag: '🇵🇬',
+    pop: '10M',
+    christian: '96%',
+    color: '#10B981',
+    needs: ['Tribal warfare', 'Sorcery-related violence', 'Depth vs. nominal Christianity'],
+    fact: 'PNG is 96% Christian but tribal warfare, sorcery murders, and corruption remain widespread. The challenge is transformation, not evangelization.',
+    prayer:
+      'God of PNG, Your Church there is large. Now make it deep. Transform the tribal conflicts, the sorcery fear, the corruption. Let 96% on paper become 96% in practice — a nation where Your Kingdom truly comes.',
+  },
+  {
+    name: 'Peru',
+    flag: '🇵🇪',
+    pop: '33M',
+    christian: '85%',
+    color: '#10B981',
+    needs: [
+      'Amazon tribe outreach',
+      'Combating prosperity gospel',
+      'Healing from Shining Path trauma',
+    ],
+    fact: 'Peru has over 1,000 uncontacted and unreached indigenous groups in the Amazon. The church in Lima is growing rapidly but spiritual depth is uneven.',
+    prayer:
+      'God of the Amazon, there are whole peoples in Peru who have never heard the name of Jesus. Send those who will go. Protect the indigenous communities from exploitation. And let the growing church in Lima send missionaries to its own backyard.',
+  },
+  {
+    name: 'Philippines',
+    flag: '🇵🇭',
+    pop: '111M',
+    christian: '92%',
+    color: '#10B981',
+    needs: ['Mindanao peace', 'Nominalism transformation', 'Missionary sending'],
+    fact: 'The only predominantly Christian nation in Asia, the Philippines sends thousands of missionaries worldwide — in part because Filipino workers travel to every corner of the earth.',
+    prayer:
+      'God of the Philippines, Your plan was brilliant — put a missionary-hearted people in every city on earth as overseas workers. Let every Filipino abroad be a light. Let the church in Mindanao build bridges of peace, not walls of conflict.',
+  },
+  {
+    name: 'Russia',
+    flag: '🇷🇺',
+    pop: '144M',
+    christian: '71%',
+    color: '#3B82F6',
+    needs: ['War trauma and guilt', 'Protestant church restrictions', 'Peace'],
+    fact: 'The war in Ukraine has divided families, traumatized a generation, and created a spiritual crisis. Many Russians are questioning everything — and some are finding Jesus.',
+    prayer:
+      'God over empires, the crisis in Russia is also a spiritual crisis. People are asking questions they never asked before. Send answers. Reach Russians through dreams, through exile Christians, through every means available. Let the trauma of this moment become a door to You.',
+  },
+  {
+    name: 'Saudi Arabia',
+    flag: '🇸🇦',
+    pop: '35M',
+    christian: '4.4%',
+    color: '#EF4444',
+    needs: ['Expat church protection', 'Secret Saudi believers', 'Neighboring nation outreach'],
+    fact: 'Christianity is completely illegal for Saudi citizens. Yet expat workers have secret house churches. Saudi seekers increasingly find the Gospel online.',
+    prayer:
+      'God who found Saul of Tarsus on a road, find the Saudi Arabians searching online tonight. Meet them in their dreams. Connect them to believers. And protect the expat house churches that keep a light burning in the birthplace of Islam.',
+  },
+  {
+    name: 'Somalia',
+    flag: '🇸🇴',
+    pop: '17M',
+    christian: '0.01%',
+    color: '#EF4444',
+    needs: ['Secret believer protection', 'Al-Shabaab territory access', 'Diaspora mission'],
+    fact: 'Somalia may have fewer than 1,000 Christians in the entire nation — and those who are known face death. Al-Shabaab actively hunts converts.',
+    prayer:
+      "Father, Somalia's believers could fit in a single room, and they live in constant danger. You know every name. Every address. Every whispered prayer. Guard them with angels. And let the Somali diaspora around the world come to know You and take the Gospel home.",
+  },
+  {
+    name: 'South Korea',
+    flag: '🇰🇷',
+    pop: '52M',
+    christian: '28%',
+    color: '#8B5CF6',
+    needs: ['Declining church attendance', 'Materialism in the church', 'North Korea outreach'],
+    fact: 'South Korea sends more missionaries per capita than almost any other nation. Yet domestic church attendance has been declining for 20 years as materialism grows.',
+    prayer:
+      'God who blessed South Korea beyond measure, let the blessing not become a trap. Call the Korean church back to its prayer-meeting roots. And let the thousands of Korean missionaries keep going to the hardest places on earth.',
+  },
+  {
+    name: 'South Sudan',
+    flag: '🇸🇸',
+    pop: '11M',
+    christian: '60%',
+    color: '#10B981',
+    needs: ['Civil war healing', 'Hunger crisis', 'Church leadership development'],
+    fact: "The world's newest nation — and one of its most Christian. South Sudan is majority Christian yet has suffered horrific ethnic civil war since independence.",
+    prayer:
+      'God of South Sudan, this nation was born in hope and has suffered so much since. The church is large. Raise up church leaders who can be peacemakers across ethnic lines. Let Christianity there mean reconciliation, not just identity.',
+  },
+  {
+    name: 'Syria',
+    flag: '🇸🇾',
+    pop: '18M',
+    christian: '8%',
+    color: '#EF4444',
+    needs: [
+      'War displacement recovery',
+      'Ancient Christian community survival',
+      'Return of refugees',
+    ],
+    fact: "Syria's ancient Christian community — present since Acts 9 — has been devastated by civil war. 90% of Syrian Christians have fled. Many may never return.",
+    prayer:
+      'God of Damascus, Paul was converted on the road to Damascus. The church there is among the oldest in the world. Do not let it die. Draw back the Syrian Christians who fled. Let Damascus see revival before the ancient church there is extinguished.',
+  },
+  {
+    name: 'Tajikistan',
+    flag: '🇹🇯',
+    pop: '9.9M',
+    christian: '1.5%',
+    color: '#8B5CF6',
+    needs: ['Government registration restrictions', 'Islamic pressure', 'Youth outreach'],
+    fact: 'The poorest former Soviet republic. Christianity is growing quietly despite government surveillance and social pressure from a Muslim majority.',
+    prayer:
+      'Lord of the hidden harvest, what is growing in Tajikistan in secret — water it. Protect it. And bring the day when the doors open wide and what grew in the dark can grow in the light.',
+  },
+  {
+    name: 'Thailand',
+    flag: '🇹🇭',
+    pop: '70M',
+    christian: '1.2%',
+    color: '#F59E0B',
+    needs: ['Buddhist majority outreach', 'Hill tribe church growth', 'Urban church planting'],
+    fact: 'Thailand is 95% Buddhist. Buddhism is intertwined with Thai national identity, making conversion feel like cultural betrayal. Yet the hill tribes in the north are majority Christian.',
+    prayer:
+      'God, in Thailand following Jesus can feel like betraying your country. Reach Thai Buddhists with a vision of Jesus that transcends cultural walls. Use the thriving hill tribe churches as a bridge.',
+  },
+  {
+    name: 'Tibet',
+    flag: '🏔️',
+    pop: '7.2M',
+    christian: '0.1%',
+    color: '#8B5CF6',
+    needs: ['Access for the Gospel', 'Buddhist monastery outreach', 'Tibetan Bible completion'],
+    fact: 'Tibet has one of the smallest and most isolated Christian populations on earth. Tibetan Buddhist monks and laypersons are among the least-reached people.',
+    prayer:
+      'God who is higher than any mountain, the Tibetan people have searched for You in temples for centuries. Send them the truth. Complete the Tibetan Bible. And reach lamas and monks who already know how to pray.',
+  },
+  {
+    name: 'Turkey',
+    flag: '🇹🇷',
+    pop: '84M',
+    christian: '0.2%',
+    color: '#EF4444',
+    needs: ['Church planting in Istanbul', 'Legal recognition', 'Persecution of converts'],
+    fact: 'Once the heart of early Christianity — Ephesus, Antioch, Galatia, Thyatira — Turkey is now 99.8% Muslim with fewer than 10 non-immigrant Protestant churches for its entire population.',
+    prayer:
+      'God of the seven churches of Revelation, once Your Church blazed in Turkey. May it burn there again. Let Ephesus, Antioch, and Galatia be names of living churches again, not only ruins.',
+  },
+  {
+    name: 'Uganda',
+    flag: '🇺🇬',
+    pop: '47M',
+    christian: '85%',
+    color: '#10B981',
+    needs: ['Corruption transformation', 'Poverty in northern regions', 'Child soldier healing'],
+    fact: "Uganda's church is large and growing. Yet Uganda also faces severe corruption, child soldier trauma in the north, and LGBTQ legislation debates that have isolated it internationally.",
+    prayer:
+      'God of Uganda, You have given this nation a large Church. Now use it to lead the nation in the way of justice and truth. May Ugandan Christians be known for how well they love — all people.',
+  },
+  {
+    name: 'Ukraine',
+    flag: '🇺🇦',
+    pop: '43M',
+    christian: '83%',
+    color: '#3B82F6',
+    needs: ['War survival and trauma care', 'Displaced persons ministry', 'Rebuild the nation'],
+    fact: "Ukraine's church has been in the center of a horrific war. Yet thousands of church members have stayed to serve as the body of Christ — housing refugees, distributing food, staying when they could leave.",
+    prayer:
+      'God of Ukraine, the courage of that church is extraordinary. Let the whole world see what the body of Christ looks like in wartime. Bring peace. Rebuild what was destroyed. And honor the faithfulness of every believer who stayed.',
+  },
+  {
+    name: 'Uzbekistan',
+    flag: '🇺🇿',
+    pop: '35M',
+    christian: '1.1%',
+    color: '#8B5CF6',
+    needs: ['Repeal of church registration law', 'Bible access', 'House church protection'],
+    fact: 'Uzbekistan has dramatically cracked down on religious minorities. Church buildings are demolished, Bibles confiscated, believers fined and imprisoned for worship.',
+    prayer:
+      'God who planted a church in Uzbekistan against all odds, protect it now. Let every Bible confiscated be replaced by ten. Let every church demolished be replaced by twenty house churches. What governments destroy, You rebuild.',
+  },
+  {
+    name: 'Venezuela',
+    flag: '🇻🇪',
+    pop: '29M',
+    christian: '96%',
+    color: '#F97316',
+    needs: ['Economic collapse ministry', 'Diaspora church planting', 'Political crisis response'],
+    fact: "Venezuela's economy has collapsed, pushing 7 million people to emigrate. Venezuela churches now plant churches wherever the diaspora settles — from Peru to Spain to the US.",
+    prayer:
+      "God who turns tragedy into mission, Venezuela's pain has scattered its people — and scattered seed. May every Venezuelan believer abroad plant a church or join one. Let the diaspora become a missions movement.",
+  },
+  {
+    name: 'Vietnam',
+    flag: '🇻🇳',
+    pop: '97M',
+    christian: '8.2%',
+    color: '#EF4444',
+    needs: ['Ethnic minority church protection', 'House church freedom', 'Government registration'],
+    fact: "Vietnam's communist government tightly controls religion. Montagnard (hill tribe) Christians face intense persecution. Yet the church grows steadily in both cities and mountains.",
+    prayer:
+      "Lord of Vietnam, from the cities to the Central Highlands, Your church grows despite surveillance, fines, and imprisonment. Honor the Montagnard believers' sacrifice. Bring them freedom. And let the entire nation hear the Good News.",
+  },
+  {
+    name: 'Yemen',
+    flag: '🇾🇪',
+    pop: '33M',
+    christian: '0.2%',
+    color: '#EF4444',
+    needs: ['War survivor care', 'Famine relief', 'Secret believer connection'],
+    fact: "Yemen is in the middle of the world's worst humanitarian crisis. It has almost no indigenous Christian community — but Muslims are finding Jesus through satellite TV and the internet.",
+    prayer:
+      'God of Yemen, in the middle of famine and bombs, You are still reaching people. Strengthen the tiny community of secret believers. Send food and medicine through Christian relief organizations. And may the crisis become the context for the first great Yemeni harvest.',
+  },
+];
 
 const dayOfYear = () => {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), 0, 0)
-  return Math.floor((now - start) / 86400000)
-}
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now - start) / 86400000);
+};
 
 export default function PrayForTheWorld() {
-  const [prayCount, setPrayCount] = useState(0)
-  const [prayed, setPrayed] = useState(false)
-  const [countryIdx, setCountryIdx] = useState(dayOfYear() % COUNTRIES.length)
-  const [todayPrayers, setTodayPrayers] = useState(Math.floor(200 + Math.random() * 800))
-  const [loading, setLoading] = useState(false)
-  const country = COUNTRIES[countryIdx]
+  const [prayCount, setPrayCount] = useState(0);
+  const [prayed, setPrayed] = useState(false);
+  const [countryIdx, setCountryIdx] = useState(dayOfYear() % COUNTRIES.length);
+  const [todayPrayers, setTodayPrayers] = useState(Math.floor(200 + Math.random() * 800));
+  const [loading, setLoading] = useState(false);
+  const country = COUNTRIES[countryIdx];
 
   async function markPrayed() {
-    if (prayed) return
-    setPrayed(true)
-    setTodayPrayers(c => c + 1)
+    if (prayed) return;
+    setPrayed(true);
+    setTodayPrayers((c) => c + 1);
     try {
-      await incrementWorldPrayer(country.name)
+      await incrementWorldPrayer(country.name);
     } catch {}
   }
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#0C0F1A,#0D1B2A,#0A1F0A)', padding: '52px 36px 40px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '.7rem', fontWeight: 700, background: 'rgba(16,185,129,.15)', color: '#34D399', padding: '4px 14px', borderRadius: 100, marginBottom: 12, border: '1px solid rgba(16,185,129,.2)' }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg,#0C0F1A,#0D1B2A,#0A1F0A)',
+          padding: '52px 36px 40px',
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: '.7rem',
+            fontWeight: 700,
+            background: 'rgba(16,185,129,.15)',
+            color: '#34D399',
+            padding: '4px 14px',
+            borderRadius: 100,
+            marginBottom: 12,
+            border: '1px solid rgba(16,185,129,.2)',
+          }}
+        >
           🌍 Daily · Rotates Every 24 Hours · {COUNTRIES.length} Nations
         </div>
-        <h1 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(2rem,5vw,3.2rem)', fontWeight: 800, color: 'white', marginBottom: 8 }}>
+        <h1
+          style={{
+            fontFamily: "'Baloo 2',cursive",
+            fontSize: 'clamp(2rem,5vw,3.2rem)',
+            fontWeight: 800,
+            color: 'white',
+            marginBottom: 8,
+          }}
+        >
           Pray for the World
         </h1>
         <p style={{ color: 'rgba(255,255,255,.45)', fontSize: '.88rem', fontWeight: 500 }}>
-          Every day a different nation. Pray for one country for five minutes. The global Church, unified.
+          Every day a different nation. Pray for one country for five minutes. The global Church,
+          unified.
         </p>
       </div>
 
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '36px 20px' }}>
         {/* Today counter */}
-        <div style={{ background: 'var(--green-bg)', border: '1.5px solid rgba(16,185,129,.2)', borderRadius: 14, padding: '12px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--green)', animation: 'pulse 2s ease-in-out infinite', flexShrink: 0 }} />
-          <span style={{ fontSize: '.84rem', fontWeight: 700, color: 'var(--green)' }}>{todayPrayers.toLocaleString()} people have prayed for {country.name} today</span>
+        <div
+          style={{
+            background: 'var(--green-bg)',
+            border: '1.5px solid rgba(16,185,129,.2)',
+            borderRadius: 14,
+            padding: '12px 20px',
+            marginBottom: 24,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              background: 'var(--green)',
+              animation: 'pulse 2s ease-in-out infinite',
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: '.84rem', fontWeight: 700, color: 'var(--green)' }}>
+            {todayPrayers.toLocaleString()} people have prayed for {country.name} today
+          </span>
         </div>
 
         {/* Country card */}
-        <div style={{ background: 'var(--surface)', borderRadius: 28, border: '1.5px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--sh-lg)', marginBottom: 20 }}>
+        <div
+          style={{
+            background: 'var(--surface)',
+            borderRadius: 28,
+            border: '1.5px solid var(--border)',
+            overflow: 'hidden',
+            boxShadow: 'var(--sh-lg)',
+            marginBottom: 20,
+          }}
+        >
           {/* Top banner */}
-          <div style={{ background: `linear-gradient(135deg,${country.color}22,${country.color}08)`, padding: '36px 36px 28px', borderBottom: '1px solid var(--border)' }}>
+          <div
+            style={{
+              background: `linear-gradient(135deg,${country.color}22,${country.color}08)`,
+              padding: '36px 36px 28px',
+              borderBottom: '1px solid var(--border)',
+            }}
+          >
             <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <div style={{ fontSize: '5rem', lineHeight: 1, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,.15))', flexShrink: 0 }}>{country.flag}</div>
+              <div
+                style={{
+                  fontSize: '5rem',
+                  lineHeight: 1,
+                  filter: 'drop-shadow(0 4px 12px rgba(0,0,0,.15))',
+                  flexShrink: 0,
+                }}
+              >
+                {country.flag}
+              </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '.68rem', fontWeight: 800, padding: '3px 10px', borderRadius: 100, background: `${country.color}20`, color: country.color }}>Today's Nation</span>
-                  <span style={{ fontSize: '.68rem', fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: 'var(--bg2)', color: 'var(--ink3)' }}>Population: {country.pop}</span>
-                  <span style={{ fontSize: '.68rem', fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: 'var(--bg2)', color: 'var(--ink3)' }}>Christians: {country.christian}</span>
+                  <span
+                    style={{
+                      fontSize: '.68rem',
+                      fontWeight: 800,
+                      padding: '3px 10px',
+                      borderRadius: 100,
+                      background: `${country.color}20`,
+                      color: country.color,
+                    }}
+                  >
+                    Today's Nation
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '.68rem',
+                      fontWeight: 700,
+                      padding: '3px 10px',
+                      borderRadius: 100,
+                      background: 'var(--bg2)',
+                      color: 'var(--ink3)',
+                    }}
+                  >
+                    Population: {country.pop}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '.68rem',
+                      fontWeight: 700,
+                      padding: '3px 10px',
+                      borderRadius: 100,
+                      background: 'var(--bg2)',
+                      color: 'var(--ink3)',
+                    }}
+                  >
+                    Christians: {country.christian}
+                  </span>
                 </div>
-                <h2 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 800, color: 'var(--ink)', lineHeight: 1.1, marginBottom: 6 }}>{country.name}</h2>
-                <div style={{ fontSize: '.84rem', color: 'var(--ink3)', fontWeight: 500, lineHeight: 1.65 }}>{country.fact}</div>
+                <h2
+                  style={{
+                    fontFamily: "'Baloo 2',cursive",
+                    fontSize: 'clamp(1.8rem,4vw,2.8rem)',
+                    fontWeight: 800,
+                    color: 'var(--ink)',
+                    lineHeight: 1.1,
+                    marginBottom: 6,
+                  }}
+                >
+                  {country.name}
+                </h2>
+                <div
+                  style={{
+                    fontSize: '.84rem',
+                    color: 'var(--ink3)',
+                    fontWeight: 500,
+                    lineHeight: 1.65,
+                  }}
+                >
+                  {country.fact}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Prayer needs */}
           <div style={{ padding: '24px 36px', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'var(--ink)', marginBottom: 14 }}>🙏 Key Prayer Needs</div>
+            <div
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: '1rem',
+                fontWeight: 800,
+                color: 'var(--ink)',
+                marginBottom: 14,
+              }}
+            >
+              🙏 Key Prayer Needs
+            </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {country.needs.map((n, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg2)', borderRadius: 12, padding: '10px 14px', border: '1.5px solid var(--border)', flex: '1 1 200px' }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: country.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: '.82rem', fontWeight: 600, color: 'var(--ink2)' }}>{n}</span>
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: 'var(--bg2)',
+                    borderRadius: 12,
+                    padding: '10px 14px',
+                    border: '1.5px solid var(--border)',
+                    flex: '1 1 200px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: country.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: '.82rem', fontWeight: 600, color: 'var(--ink2)' }}>
+                    {n}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Prayer text */}
-          <div style={{ padding: '24px 36px', background: `linear-gradient(135deg,${country.color}06,transparent)` }}>
-            <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'var(--ink)', marginBottom: 12 }}>✝️ Prayer for Today</div>
-            <p style={{ fontSize: '.92rem', color: 'var(--ink2)', lineHeight: 1.9, fontWeight: 500, fontStyle: 'italic', borderLeft: `3px solid ${country.color}`, paddingLeft: 16, marginBottom: 24 }}>
+          <div
+            style={{
+              padding: '24px 36px',
+              background: `linear-gradient(135deg,${country.color}06,transparent)`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: '1rem',
+                fontWeight: 800,
+                color: 'var(--ink)',
+                marginBottom: 12,
+              }}
+            >
+              ✝️ Prayer for Today
+            </div>
+            <p
+              style={{
+                fontSize: '.92rem',
+                color: 'var(--ink2)',
+                lineHeight: 1.9,
+                fontWeight: 500,
+                fontStyle: 'italic',
+                borderLeft: `3px solid ${country.color}`,
+                paddingLeft: 16,
+                marginBottom: 24,
+              }}
+            >
               {country.prayer}
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-              <button onClick={markPrayed} disabled={prayed}
-                style={{ padding: '13px 28px', borderRadius: 14, border: 'none', background: prayed ? 'var(--green)' : `linear-gradient(135deg,${country.color},${country.color}bb)`, color: 'white', fontFamily: 'Poppins,sans-serif', fontWeight: 800, fontSize: '.9rem', cursor: prayed ? 'default' : 'pointer', transition: 'all .3s', boxShadow: prayed ? 'none' : `0 6px 20px ${country.color}33` }}>
+              <button
+                onClick={markPrayed}
+                disabled={prayed}
+                style={{
+                  padding: '13px 28px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: prayed
+                    ? 'var(--green)'
+                    : `linear-gradient(135deg,${country.color},${country.color}bb)`,
+                  color: 'white',
+                  fontFamily: 'Poppins,sans-serif',
+                  fontWeight: 800,
+                  fontSize: '.9rem',
+                  cursor: prayed ? 'default' : 'pointer',
+                  transition: 'all .3s',
+                  boxShadow: prayed ? 'none' : `0 6px 20px ${country.color}33`,
+                }}
+              >
                 {prayed ? '✅ I Prayed for ' + country.name : '🙏 I Prayed for ' + country.name}
               </button>
-              {prayed && <span style={{ fontSize: '.82rem', color: 'var(--green)', fontWeight: 700 }}>Thank you. Heaven recorded that. 🌍</span>}
+              {prayed && (
+                <span style={{ fontSize: '.82rem', color: 'var(--green)', fontWeight: 700 }}>
+                  Thank you. Heaven recorded that. 🌍
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         {/* Country nav */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="btn btn-outline btn-sm" onClick={() => setCountryIdx(i => (i - 1 + COUNTRIES.length) % COUNTRIES.length)}>← Previous</button>
-          <span style={{ fontSize: '.78rem', fontWeight: 600, color: 'var(--ink3)', display: 'flex', alignItems: 'center' }}>{countryIdx + 1} / {COUNTRIES.length} nations</span>
-          <button className="btn btn-outline btn-sm" onClick={() => setCountryIdx(i => (i + 1) % COUNTRIES.length)}>Next →</button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setCountryIdx((i) => (i - 1 + COUNTRIES.length) % COUNTRIES.length)}
+          >
+            ← Previous
+          </button>
+          <span
+            style={{
+              fontSize: '.78rem',
+              fontWeight: 600,
+              color: 'var(--ink3)',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {countryIdx + 1} / {COUNTRIES.length} nations
+          </span>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setCountryIdx((i) => (i + 1) % COUNTRIES.length)}
+          >
+            Next →
+          </button>
         </div>
       </div>
       <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}`}</style>
     </div>
-  )
+  );
 }

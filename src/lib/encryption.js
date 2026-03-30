@@ -3,10 +3,10 @@
  * Uses AES-GCM for authenticated encryption
  */
 
-const ALGORITHM = 'AES-GCM'
-const KEY_LENGTH = 256
-const IV_LENGTH = 12 // 96 bits for GCM
-const TAG_LENGTH = 128 // 128 bits for authentication tag
+const ALGORITHM = 'AES-GCM';
+const KEY_LENGTH = 256;
+const IV_LENGTH = 12; // 96 bits for GCM
+const TAG_LENGTH = 128; // 128 bits for authentication tag
 
 /**
  * Derive encryption key from user ID and device fingerprint
@@ -16,17 +16,14 @@ const TAG_LENGTH = 128 // 128 bits for authentication tag
 export async function deriveEncryptionKey(userId) {
   try {
     // Create a base key from user ID
-    const encoder = new TextEncoder()
-    const data = encoder.encode(userId + (navigator.userAgent || ''))
-    
+    const encoder = new TextEncoder();
+    const data = encoder.encode(userId + (navigator.userAgent || ''));
+
     // Import the data as a key
-    const baseKey = await crypto.subtle.importKey(
-      'raw',
-      data,
-      { name: 'PBKDF2' },
-      false,
-      ['deriveBits', 'deriveKey']
-    )
+    const baseKey = await crypto.subtle.importKey('raw', data, { name: 'PBKDF2' }, false, [
+      'deriveBits',
+      'deriveKey',
+    ]);
 
     // Derive the actual encryption key using PBKDF2
     const derivedKey = await crypto.subtle.deriveKey(
@@ -34,18 +31,18 @@ export async function deriveEncryptionKey(userId) {
         name: 'PBKDF2',
         salt: encoder.encode('biblefunland-offline-salt'),
         iterations: 100000,
-        hash: 'SHA-256'
+        hash: 'SHA-256',
       },
       baseKey,
       { name: ALGORITHM, length: KEY_LENGTH },
       false,
       ['encrypt', 'decrypt']
-    )
+    );
 
-    return derivedKey
+    return derivedKey;
   } catch (error) {
-    console.error('❌ Error deriving encryption key:', error)
-    throw error
+    console.error('❌ Error deriving encryption key:', error);
+    throw error;
   }
 }
 
@@ -57,32 +54,32 @@ export async function deriveEncryptionKey(userId) {
  */
 export async function encryptData(data, key) {
   try {
-    const encoder = new TextEncoder()
-    const plaintext = encoder.encode(JSON.stringify(data))
-    
+    const encoder = new TextEncoder();
+    const plaintext = encoder.encode(JSON.stringify(data));
+
     // Generate random IV
-    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH))
-    
+    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+
     // Encrypt the data
     const ciphertext = await crypto.subtle.encrypt(
       {
         name: ALGORITHM,
         iv: iv,
-        tagLength: TAG_LENGTH
+        tagLength: TAG_LENGTH,
       },
       key,
       plaintext
-    )
+    );
 
     // Return IV and ciphertext as base64 strings
     return {
       iv: arrayBufferToBase64(iv),
       ciphertext: arrayBufferToBase64(ciphertext),
-      algorithm: ALGORITHM
-    }
+      algorithm: ALGORITHM,
+    };
   } catch (error) {
-    console.error('❌ Error encrypting data:', error)
-    throw error
+    console.error('❌ Error encrypting data:', error);
+    throw error;
   }
 }
 
@@ -94,30 +91,30 @@ export async function encryptData(data, key) {
  */
 export async function decryptData(encryptedData, key) {
   try {
-    const { iv, ciphertext } = encryptedData
-    
+    const { iv, ciphertext } = encryptedData;
+
     // Convert base64 strings back to ArrayBuffers
-    const ivBuffer = base64ToArrayBuffer(iv)
-    const ciphertextBuffer = base64ToArrayBuffer(ciphertext)
-    
+    const ivBuffer = base64ToArrayBuffer(iv);
+    const ciphertextBuffer = base64ToArrayBuffer(ciphertext);
+
     // Decrypt the data
     const plaintext = await crypto.subtle.decrypt(
       {
         name: ALGORITHM,
         iv: ivBuffer,
-        tagLength: TAG_LENGTH
+        tagLength: TAG_LENGTH,
       },
       key,
       ciphertextBuffer
-    )
+    );
 
     // Decode and parse the plaintext
-    const decoder = new TextDecoder()
-    const jsonString = decoder.decode(plaintext)
-    return JSON.parse(jsonString)
+    const decoder = new TextDecoder();
+    const jsonString = decoder.decode(plaintext);
+    return JSON.parse(jsonString);
   } catch (error) {
-    console.error('❌ Error decrypting data:', error)
-    throw error
+    console.error('❌ Error decrypting data:', error);
+    throw error;
   }
 }
 
@@ -127,12 +124,12 @@ export async function decryptData(encryptedData, key) {
  * @returns {string} Base64 encoded string
  */
 function arrayBufferToBase64(buffer) {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i])
+    binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
+  return btoa(binary);
 }
 
 /**
@@ -141,12 +138,12 @@ function arrayBufferToBase64(buffer) {
  * @returns {ArrayBuffer} Decoded buffer
  */
 function base64ToArrayBuffer(base64) {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i);
   }
-  return bytes.buffer
+  return bytes.buffer;
 }
 
 /**
@@ -157,15 +154,15 @@ function base64ToArrayBuffer(base64) {
  */
 export async function encryptSyncQueueEntry(entry, key) {
   try {
-    const encryptedPayload = await encryptData(entry.payload, key)
+    const encryptedPayload = await encryptData(entry.payload, key);
     return {
       ...entry,
       payload: encryptedPayload,
-      encrypted: true
-    }
+      encrypted: true,
+    };
   } catch (error) {
-    console.error('❌ Error encrypting sync queue entry:', error)
-    throw error
+    console.error('❌ Error encrypting sync queue entry:', error);
+    throw error;
   }
 }
 
@@ -178,17 +175,17 @@ export async function encryptSyncQueueEntry(entry, key) {
 export async function decryptSyncQueueEntry(entry, key) {
   try {
     if (!entry.encrypted || !entry.payload.ciphertext) {
-      return entry
+      return entry;
     }
-    
-    const decryptedPayload = await decryptData(entry.payload, key)
+
+    const decryptedPayload = await decryptData(entry.payload, key);
     return {
       ...entry,
       payload: decryptedPayload,
-      encrypted: false
-    }
+      encrypted: false,
+    };
   } catch (error) {
-    console.error('❌ Error decrypting sync queue entry:', error)
-    throw error
+    console.error('❌ Error decrypting sync queue entry:', error);
+    throw error;
   }
 }

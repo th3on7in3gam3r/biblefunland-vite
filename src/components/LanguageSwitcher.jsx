@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { useLanguage, LANGUAGES } from '../i18n/LanguageContext'
-import styles from './LanguageSwitcher.module.css'
+import { useState } from 'react';
+import { useLanguage, LANGUAGES } from '../i18n/LanguageContext';
+import styles from './LanguageSwitcher.module.css';
 
 export default function LanguageSwitcher() {
-  const { lang, changeLanguage } = useLanguage()
-  const [open, setOpen] = useState(false)
-  const current = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0]
+  const { lang, changeLanguage } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const current = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
 
   return (
     <div className={styles.wrap}>
       <button
         className={styles.trigger}
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         title="Change language"
         aria-label="Change language"
       >
@@ -24,11 +24,14 @@ export default function LanguageSwitcher() {
         <>
           <div className={styles.backdrop} onClick={() => setOpen(false)} />
           <div className={styles.dropdown}>
-            {LANGUAGES.map(l => (
+            {LANGUAGES.map((l) => (
               <button
                 key={l.code}
                 className={`${styles.option} ${l.code === lang ? styles.active : ''}`}
-                onClick={() => { changeLanguage(l.code); setOpen(false) }}
+                onClick={() => {
+                  changeLanguage(l.code);
+                  setOpen(false);
+                }}
               >
                 <span className={styles.flag}>{l.flag}</span>
                 <span className={styles.label}>{l.label}</span>
@@ -39,5 +42,5 @@ export default function LanguageSwitcher() {
         </>
       )}
     </div>
-  )
+  );
 }

@@ -1,15 +1,39 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react';
 
 const COLORS = [
-  '#000000','#FFFFFF','#EF4444','#F97316','#FCD34D','#22C55E','#3B82F6','#8B5CF6',
-  '#EC4899','#14B8A6','#A78BFA','#FDE68A','#86EFAC','#93C5FD','#F9A8D4','#6EE7B7',
-  '#0EA5E9','#E11D48','#D97706','#16A34A','#7C3AED','#374151','#9CA3AF','#F3F4F6',
-]
+  '#000000',
+  '#FFFFFF',
+  '#EF4444',
+  '#F97316',
+  '#FCD34D',
+  '#22C55E',
+  '#3B82F6',
+  '#8B5CF6',
+  '#EC4899',
+  '#14B8A6',
+  '#A78BFA',
+  '#FDE68A',
+  '#86EFAC',
+  '#93C5FD',
+  '#F9A8D4',
+  '#6EE7B7',
+  '#0EA5E9',
+  '#E11D48',
+  '#D97706',
+  '#16A34A',
+  '#7C3AED',
+  '#374151',
+  '#9CA3AF',
+  '#F3F4F6',
+];
 
 const DAYS = [
   {
-    day: 1, title: 'Day 1: Light!', verse: '"Let there be light!" — Genesis 1:3',
-    emoji: '☀️', bg: '#FFF9C4',
+    day: 1,
+    title: 'Day 1: Light!',
+    verse: '"Let there be light!" — Genesis 1:3',
+    emoji: '☀️',
+    bg: '#FFF9C4',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="sky-left" x="0" y="0" width="200" height="300" fill="#1A1A2E" stroke="#333" stroke-width="1"/>
       <rect id="sky-right" x="200" y="0" width="200" height="300" fill="#FFF9C4" stroke="#333" stroke-width="1"/>
@@ -22,11 +46,14 @@ const DAYS = [
       <line id="ray5" x1="253" y1="73" x2="235" y2="55" stroke="#E5A000" stroke-width="3" stroke-linecap="round"/>
       <text x="100" y="150" text-anchor="middle" font-size="22" fill="#A0AEC0" font-family="Georgia">Darkness</text>
       <text x="300" y="230" text-anchor="middle" font-size="18" fill="#D97706" font-family="Georgia">Light!</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 2, title: 'Day 2: Sky & Water!', verse: '"God called the expanse Sky." — Genesis 1:8',
-    emoji: '☁️', bg: '#E0F2FE',
+    day: 2,
+    title: 'Day 2: Sky & Water!',
+    verse: '"God called the expanse Sky." — Genesis 1:8',
+    emoji: '☁️',
+    bg: '#E0F2FE',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="sky" x="0" y="0" width="400" height="180" fill="#BAE6FD" stroke="#7DD3FC" stroke-width="1"/>
       <rect id="water" x="0" y="180" width="400" height="120" fill="#0EA5E9" stroke="#0284C7" stroke-width="1"/>
@@ -38,11 +65,14 @@ const DAYS = [
       <ellipse id="wave2" cx="280" cy="210" rx="90" ry="18" fill="#38BDF8" stroke="#0EA5E9" stroke-width="1"/>
       <text x="200" y="140" text-anchor="middle" font-size="16" fill="#1E40AF" font-family="Georgia">Heaven / Sky</text>
       <text x="200" y="250" text-anchor="middle" font-size="16" fill="white" font-family="Georgia">Waters Below</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 3, title: 'Day 3: Land & Plants!', verse: '"Let dry ground appear!" — Genesis 1:9',
-    emoji: '🌱', bg: '#F0FDF4',
+    day: 3,
+    title: 'Day 3: Land & Plants!',
+    verse: '"Let dry ground appear!" — Genesis 1:9',
+    emoji: '🌱',
+    bg: '#F0FDF4',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="bg-sky" x="0" y="0" width="400" height="180" fill="#BAE6FD" stroke="none"/>
       <rect id="bg-ground" x="0" y="180" width="400" height="120" fill="#92400E" stroke="none"/>
@@ -55,11 +85,14 @@ const DAYS = [
       <circle id="flower2" cx="240" cy="165" r="10" fill="#FCD34D" stroke="#D97706" stroke-width="2"/>
       <ellipse id="sun-d3" cx="330" cy="55" rx="35" ry="35" fill="#FCD34D" stroke="#E5A000" stroke-width="2"/>
       <text x="200" y="270" text-anchor="middle" font-size="14" fill="white" font-family="Georgia">God made land, trees &amp; flowers!</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 4, title: 'Day 4: Sun, Moon & Stars!', verse: '"He made the stars also." — Genesis 1:16',
-    emoji: '⭐', bg: '#1E1B4B',
+    day: 4,
+    title: 'Day 4: Sun, Moon & Stars!',
+    verse: '"He made the stars also." — Genesis 1:16',
+    emoji: '⭐',
+    bg: '#1E1B4B',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="night-sky" x="0" y="0" width="400" height="300" fill="#1E1B4B" stroke="none"/>
       <circle id="moon" cx="100" cy="80" r="45" fill="#FDE68A" stroke="#F59E0B" stroke-width="2"/>
@@ -75,11 +108,14 @@ const DAYS = [
       <circle id="s3" cx="250" cy="250" r="3" fill="white"/><circle id="s4" cx="360" cy="230" r="2" fill="white"/>
       <circle id="s5" cx="80" cy="220" r="2" fill="white"/><circle id="s6" cx="340" cy="30" r="3" fill="white"/>
       <text x="200" y="280" text-anchor="middle" font-size="13" fill="#A5B4FC" font-family="Georgia">Sun, Moon &amp; Stars to mark seasons!</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 5, title: 'Day 5: Fish & Birds!', verse: '"Let the waters teem with creatures!" — Genesis 1:20',
-    emoji: '🐟', bg: '#E0F2FE',
+    day: 5,
+    title: 'Day 5: Fish & Birds!',
+    verse: '"Let the waters teem with creatures!" — Genesis 1:20',
+    emoji: '🐟',
+    bg: '#E0F2FE',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="sky-d5" x="0" y="0" width="400" height="130" fill="#BAE6FD" stroke="none"/>
       <rect id="water-d5" x="0" y="130" width="400" height="170" fill="#0EA5E9" stroke="none"/>
@@ -98,11 +134,14 @@ const DAYS = [
       <ellipse id="fish3" cx="200" cy="200" rx="28" ry="13" fill="#FCD34D" stroke="#D97706" stroke-width="2"/>
       <polygon id="tail3" points="228,200 244,190 244,210" fill="#D97706" stroke="#B45309" stroke-width="1"/>
       <text x="200" y="278" text-anchor="middle" font-size="13" fill="white" font-family="Georgia">God filled the sky and sea with life!</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 6, title: 'Day 6: Animals & People!', verse: '"God created mankind in his own image." — Gen 1:27',
-    emoji: '🦁', bg: '#FFF7ED',
+    day: 6,
+    title: 'Day 6: Animals & People!',
+    verse: '"God created mankind in his own image." — Gen 1:27',
+    emoji: '🦁',
+    bg: '#FFF7ED',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="bg-d6" x="0" y="0" width="400" height="300" fill="#FEF3C7" stroke="none"/>
       <ellipse id="ground-d6" cx="200" cy="270" rx="210" ry="60" fill="#86EFAC" stroke="#4ADE80" stroke-width="1"/>
@@ -117,11 +156,14 @@ const DAYS = [
       <rect id="person-body" x="185" y="180" width="30" height="50" rx="5" fill="#FBBF24" stroke="#D97706" stroke-width="2"/>
       <circle id="person-head" cx="200" cy="165" r="20" fill="#FDE68A" stroke="#D97706" stroke-width="2"/>
       <text x="200" y="290" text-anchor="middle" font-size="13" fill="#374151" font-family="Georgia">People made in God's image!</text>
-    </svg>`
+    </svg>`,
   },
   {
-    day: 7, title: 'Day 7: God Rested!', verse: '"God rested from all his work." — Genesis 2:3',
-    emoji: '🌈', bg: '#F5F3FF',
+    day: 7,
+    title: 'Day 7: God Rested!',
+    verse: '"God rested from all his work." — Genesis 2:3',
+    emoji: '🌈',
+    bg: '#F5F3FF',
     svg: `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
       <rect id="bg-d7" x="0" y="0" width="400" height="300" fill="#E0F2FE" stroke="none"/>
       <path id="rainbow1" d="M0,200 Q200,20 400,200" fill="none" stroke="#EF4444" stroke-width="18" opacity="0.8"/>
@@ -134,70 +176,112 @@ const DAYS = [
       <ellipse id="cloud-d7a" cx="200" cy="40" rx="55" ry="28" fill="white" stroke="#CBD5E1" stroke-width="1.5" opacity="0.9"/>
       <ellipse id="cloud-d7b" cx="240" cy="35" rx="40" ry="24" fill="white" stroke="#CBD5E1" stroke-width="1.5" opacity="0.9"/>
       <text x="200" y="275" text-anchor="middle" font-size="15" fill="#374151" font-family="Georgia" font-weight="bold">God blessed Day 7 — the Sabbath!</text>
-    </svg>`
-  }
-]
+    </svg>`,
+  },
+];
 
 export default function CreationColoring() {
-  const [dayIdx,    setDayIdx]    = useState(0)
-  const [activeColor, setActiveColor] = useState('#FCD34D')
-  const [fills,     setFills]     = useState({})
-  const [completed, setCompleted] = useState(new Set())
-  const svgRef = useRef(null)
+  const [dayIdx, setDayIdx] = useState(0);
+  const [activeColor, setActiveColor] = useState('#FCD34D');
+  const [fills, setFills] = useState({});
+  const [completed, setCompleted] = useState(new Set());
+  const svgRef = useRef(null);
 
-  const day = DAYS[dayIdx]
+  const day = DAYS[dayIdx];
 
-  useEffect(() => { setFills({}) }, [dayIdx])
+  useEffect(() => {
+    setFills({});
+  }, [dayIdx]);
 
   function handleSvgClick(e) {
-    const target = e.target
-    if (target.tagName === 'svg' || target.tagName === 'text') return
-    const id = target.id || target.closest('[id]')?.id
-    if (!id) return
-    const newFills = { ...fills, [id]: activeColor }
-    setFills(newFills)
+    const target = e.target;
+    if (target.tagName === 'svg' || target.tagName === 'text') return;
+    const id = target.id || target.closest('[id]')?.id;
+    if (!id) return;
+    const newFills = { ...fills, [id]: activeColor };
+    setFills(newFills);
     // Count filled non-text elements
-    const allIds = [...svgRef.current.querySelectorAll('[id]:not(text)')].map(el => el.id)
-    const filledCount = allIds.filter(i => newFills[i]).length
+    const allIds = [...svgRef.current.querySelectorAll('[id]:not(text)')].map((el) => el.id);
+    const filledCount = allIds.filter((i) => newFills[i]).length;
     if (filledCount >= Math.floor(allIds.length * 0.6)) {
-      setCompleted(s => new Set([...s, dayIdx]))
+      setCompleted((s) => new Set([...s, dayIdx]));
     }
   }
 
   // Apply fills to SVG after render
   useEffect(() => {
-    if (!svgRef.current) return
+    if (!svgRef.current) return;
     Object.entries(fills).forEach(([id, color]) => {
-      const el = svgRef.current.querySelector(`#${id}`)
-      if (el) el.setAttribute('fill', color)
-    })
-  }, [fills])
+      const el = svgRef.current.querySelector(`#${id}`);
+      if (el) el.setAttribute('fill', color);
+    });
+  }, [fills]);
 
   function download() {
-    const svg  = svgRef.current.querySelector('svg')
-    if (!svg) return
-    const data = new XMLSerializer().serializeToString(svg)
-    const blob = new Blob([data], { type: 'image/svg+xml' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
-    a.href = url; a.download = `creation-day-${day.day}.svg`; a.click()
-    URL.revokeObjectURL(url)
+    const svg = svgRef.current.querySelector('svg');
+    if (!svg) return;
+    const data = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([data], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `creation-day-${day.day}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
     <div style={{ background: '#FFF8F0', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#064E3B,#065F46)', padding: '24px 24px 16px', textAlign: 'center' }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg,#064E3B,#065F46)',
+          padding: '24px 24px 16px',
+          textAlign: 'center',
+        }}
+      >
         <div style={{ fontSize: '2rem', marginBottom: 4 }}>🎨</div>
-        <h1 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.5rem,4vw,2.2rem)', fontWeight: 800, color: 'white', marginBottom: 4 }}>Creation Coloring Book</h1>
-        <p style={{ color: 'rgba(255,255,255,.7)', fontSize: '.8rem', fontWeight: 600 }}>Color the 7 Days of Creation — tap a color, tap the picture!</p>
+        <h1
+          style={{
+            fontFamily: "'Baloo 2',cursive",
+            fontSize: 'clamp(1.5rem,4vw,2.2rem)',
+            fontWeight: 800,
+            color: 'white',
+            marginBottom: 4,
+          }}
+        >
+          Creation Coloring Book
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,.7)', fontSize: '.8rem', fontWeight: 600 }}>
+          Color the 7 Days of Creation — tap a color, tap the picture!
+        </p>
       </div>
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '16px 14px' }}>
         {/* Day selector */}
-        <div style={{ display: 'flex', gap: 7, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}>
+        <div
+          style={{ display: 'flex', gap: 7, marginBottom: 14, overflowX: 'auto', paddingBottom: 4 }}
+        >
           {DAYS.map((d, i) => (
-            <button key={i} onClick={() => setDayIdx(i)}
-              style={{ flexShrink: 0, fontSize: '.72rem', fontWeight: 800, padding: '7px 12px', borderRadius: 12, cursor: 'pointer', border: `2px solid ${dayIdx === i ? '#064E3B' : '#D1D5DB'}`, background: dayIdx === i ? '#064E3B' : 'white', color: dayIdx === i ? 'white' : '#374151', display: 'flex', alignItems: 'center', gap: 4, transition: 'all .2s', whiteSpace: 'nowrap' }}>
+            <button
+              key={i}
+              onClick={() => setDayIdx(i)}
+              style={{
+                flexShrink: 0,
+                fontSize: '.72rem',
+                fontWeight: 800,
+                padding: '7px 12px',
+                borderRadius: 12,
+                cursor: 'pointer',
+                border: `2px solid ${dayIdx === i ? '#064E3B' : '#D1D5DB'}`,
+                background: dayIdx === i ? '#064E3B' : 'white',
+                color: dayIdx === i ? 'white' : '#374151',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                transition: 'all .2s',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {d.emoji} Day {d.day} {completed.has(i) ? '✅' : ''}
             </button>
           ))}
@@ -205,35 +289,146 @@ export default function CreationColoring() {
 
         {/* Day title */}
         <div style={{ textAlign: 'center', marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(1.1rem,3vw,1.5rem)', fontWeight: 800, color: '#1F2937', marginBottom: 4 }}>{day.emoji} {day.title}</div>
-          <div style={{ fontSize: '.78rem', color: '#059669', fontWeight: 700, fontStyle: 'italic' }}>{day.verse}</div>
+          <div
+            style={{
+              fontFamily: "'Baloo 2',cursive",
+              fontSize: 'clamp(1.1rem,3vw,1.5rem)',
+              fontWeight: 800,
+              color: '#1F2937',
+              marginBottom: 4,
+            }}
+          >
+            {day.emoji} {day.title}
+          </div>
+          <div
+            style={{ fontSize: '.78rem', color: '#059669', fontWeight: 700, fontStyle: 'italic' }}
+          >
+            {day.verse}
+          </div>
         </div>
 
         {/* Color palette */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 14, background: 'white', borderRadius: 16, padding: '12px', boxShadow: '0 2px 12px rgba(0,0,0,.08)' }}>
-          {COLORS.map(c => (
-            <div key={c} onClick={() => setActiveColor(c)}
-              style={{ width: 32, height: 32, borderRadius: '50%', background: c, cursor: 'pointer', border: activeColor === c ? '3px solid #1F2937' : '2px solid #E5E7EB', boxShadow: activeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : 'none', transition: 'all .15s' }} />
+        <div
+          style={{
+            display: 'flex',
+            gap: 6,
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            marginBottom: 14,
+            background: 'white',
+            borderRadius: 16,
+            padding: '12px',
+            boxShadow: '0 2px 12px rgba(0,0,0,.08)',
+          }}
+        >
+          {COLORS.map((c) => (
+            <div
+              key={c}
+              onClick={() => setActiveColor(c)}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: c,
+                cursor: 'pointer',
+                border: activeColor === c ? '3px solid #1F2937' : '2px solid #E5E7EB',
+                boxShadow: activeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : 'none',
+                transition: 'all .15s',
+              }}
+            />
           ))}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: activeColor, border: '2px solid #D1D5DB' }} />
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: activeColor,
+                border: '2px solid #D1D5DB',
+              }}
+            />
             <span style={{ fontSize: '.72rem', fontWeight: 700, color: '#374151' }}>Selected</span>
           </div>
         </div>
 
         {/* SVG canvas */}
-        <div ref={svgRef} onClick={handleSvgClick}
-          style={{ background: 'white', borderRadius: 22, padding: 8, boxShadow: '0 8px 32px rgba(0,0,0,.1)', marginBottom: 14, cursor: 'crosshair' }}
-          dangerouslySetInnerHTML={{ __html: day.svg }} />
+        <div
+          ref={svgRef}
+          onClick={handleSvgClick}
+          style={{
+            background: 'white',
+            borderRadius: 22,
+            padding: 8,
+            boxShadow: '0 8px 32px rgba(0,0,0,.1)',
+            marginBottom: 14,
+            cursor: 'crosshair',
+          }}
+          dangerouslySetInnerHTML={{ __html: day.svg }}
+        />
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => setFills({})} style={{ background: '#F3F4F6', border: 'none', borderRadius: 12, padding: '10px 18px', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.82rem', cursor: 'pointer', color: '#374151' }}>🗑️ Clear</button>
-          <button onClick={download} style={{ background: '#059669', border: 'none', borderRadius: 12, padding: '10px 18px', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.82rem', cursor: 'pointer', color: 'white' }}>⬇️ Save Picture</button>
-          <button onClick={() => setDayIdx(i => (i + 1) % DAYS.length)} style={{ background: '#1D4ED8', border: 'none', borderRadius: 12, padding: '10px 18px', fontFamily: 'Poppins,sans-serif', fontWeight: 700, fontSize: '.82rem', cursor: 'pointer', color: 'white' }}>Next Day ✨</button>
+          <button
+            onClick={() => setFills({})}
+            style={{
+              background: '#F3F4F6',
+              border: 'none',
+              borderRadius: 12,
+              padding: '10px 18px',
+              fontFamily: 'Poppins,sans-serif',
+              fontWeight: 700,
+              fontSize: '.82rem',
+              cursor: 'pointer',
+              color: '#374151',
+            }}
+          >
+            🗑️ Clear
+          </button>
+          <button
+            onClick={download}
+            style={{
+              background: '#059669',
+              border: 'none',
+              borderRadius: 12,
+              padding: '10px 18px',
+              fontFamily: 'Poppins,sans-serif',
+              fontWeight: 700,
+              fontSize: '.82rem',
+              cursor: 'pointer',
+              color: 'white',
+            }}
+          >
+            ⬇️ Save Picture
+          </button>
+          <button
+            onClick={() => setDayIdx((i) => (i + 1) % DAYS.length)}
+            style={{
+              background: '#1D4ED8',
+              border: 'none',
+              borderRadius: 12,
+              padding: '10px 18px',
+              fontFamily: 'Poppins,sans-serif',
+              fontWeight: 700,
+              fontSize: '.82rem',
+              cursor: 'pointer',
+              color: 'white',
+            }}
+          >
+            Next Day ✨
+          </button>
         </div>
-        <p style={{ textAlign: 'center', fontSize: '.7rem', color: '#9CA3AF', marginTop: 10, fontWeight: 500 }}>Tap any part of the picture to color it! 🎨</p>
+        <p
+          style={{
+            textAlign: 'center',
+            fontSize: '.7rem',
+            color: '#9CA3AF',
+            marginTop: 10,
+            fontWeight: 500,
+          }}
+        >
+          Tap any part of the picture to color it! 🎨
+        </p>
       </div>
     </div>
-  )
+  );
 }

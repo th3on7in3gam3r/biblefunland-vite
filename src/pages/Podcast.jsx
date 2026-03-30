@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import styles from './Podcast.module.css'
+import { useState, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import styles from './Podcast.module.css';
 
 /**
  * EPISODES — add new episodes here.
@@ -26,12 +26,13 @@ const EPISODES = [
   {
     id: 2,
     title: 'What Was Inside the Ark?',
-    description: 'Building directly from Episode 1, we step inside Noah\'s completed Ark! Discover the amazing dimensions, the fun and imaginative reality of sharing space with all those animals, and the profound lessons of order, obedience, and God\'s perfect provision.',
+    description:
+      "Building directly from Episode 1, we step inside Noah's completed Ark! Discover the amazing dimensions, the fun and imaginative reality of sharing space with all those animals, and the profound lessons of order, obedience, and God's perfect provision.",
     date: 'April 2026',
     duration: '—',
     season: 1,
     episode: 2,
-    tags: ['Noah\'s Ark', 'Animals', 'Obedience', 'God\'s Provision'],
+    tags: ["Noah's Ark", 'Animals', 'Obedience', "God's Provision"],
     audioUrl: 'https://nabthatslot.com/podcast/podcast-2-inside-noah-ark.mp3',
     status: 'released',
     featured: true,
@@ -39,7 +40,8 @@ const EPISODES = [
   {
     id: 1,
     title: 'Why Did God Choose Noah?',
-    description: 'Out of everyone in the whole world — why Noah? In this first episode we dig into Genesis 6, explore what made Noah stand out in a corrupt generation, and discover what it means to find favour with God. A question for kids, parents, and everyone in between.',
+    description:
+      'Out of everyone in the whole world — why Noah? In this first episode we dig into Genesis 6, explore what made Noah stand out in a corrupt generation, and discover what it means to find favour with God. A question for kids, parents, and everyone in between.',
     date: 'March 2026',
     duration: '18:45',
     season: 1,
@@ -49,86 +51,87 @@ const EPISODES = [
     status: 'released',
     featured: false,
   },
-]
+];
 
 function AudioPlayer({ src, title }) {
-  const audioRef = useRef(null)
-  const [playing, setPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [currentTime, setCurrentTime] = useState('0:00')
-  const [duration, setDuration] = useState('—')
+  const audioRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState('0:00');
+  const [duration, setDuration] = useState('—');
 
   const togglePlay = (e) => {
-    e?.stopPropagation()
-    if (!src) return
-    const a = audioRef.current
+    e?.stopPropagation();
+    if (!src) return;
+    const a = audioRef.current;
     if (playing) {
-      a.pause()
-      setPlaying(false)
+      a.pause();
+      setPlaying(false);
     } else {
-      a.play().catch(err => console.error("Playback failed:", err))
-      setPlaying(true)
+      a.play().catch((err) => console.error('Playback failed:', err));
+      setPlaying(true);
     }
-  }
+  };
 
   const onTimeUpdate = () => {
-    const a = audioRef.current
-    if (!a.duration) return
-    setProgress((a.currentTime / a.duration) * 100)
-    setCurrentTime(fmt(a.currentTime))
-  }
+    const a = audioRef.current;
+    if (!a.duration) return;
+    setProgress((a.currentTime / a.duration) * 100);
+    setCurrentTime(fmt(a.currentTime));
+  };
 
   const onLoadedMetadata = () => {
-    setDuration(fmt(audioRef.current.duration))
-  }
+    setDuration(fmt(audioRef.current.duration));
+  };
 
   const onEnded = () => {
-    setPlaying(false)
-    setProgress(0)
-  }
+    setPlaying(false);
+    setProgress(0);
+  };
 
   const handleSeek = (e) => {
-    e.stopPropagation()
-    if (!src) return
-    const a = audioRef.current
-    const rect = e.currentTarget.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const percent = clickX / rect.width
-    a.currentTime = percent * a.duration
-  }
+    e.stopPropagation();
+    if (!src) return;
+    const a = audioRef.current;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percent = clickX / rect.width;
+    a.currentTime = percent * a.duration;
+  };
 
   const fmt = (s) => {
-    if (!s || isNaN(s)) return '—'
-    const mins = Math.floor(s / 60)
-    const secs = Math.floor(s % 60)
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+    if (!s || isNaN(s)) return '—';
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className={styles.playerContainer}>
       {src && (
-        <audio 
-          ref={audioRef} 
-          src={src} 
-          onTimeUpdate={onTimeUpdate} 
-          onLoadedMetadata={onLoadedMetadata} 
-          onEnded={onEnded} 
+        <audio
+          ref={audioRef}
+          src={src}
+          onTimeUpdate={onTimeUpdate}
+          onLoadedMetadata={onLoadedMetadata}
+          onEnded={onEnded}
         />
       )}
       <div className={styles.playerMain}>
-        <button 
-          onClick={togglePlay} 
-          disabled={!src} 
+        <button
+          onClick={togglePlay}
+          disabled={!src}
           className={styles.playBtn}
           title={src ? (playing ? 'Pause' : 'Play') : 'Coming Soon'}
         >
           {playing ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-              <rect x="5" y="4" width="4" height="16" rx="1.5"/><rect x="15" y="4" width="4" height="16" rx="1.5"/>
+              <rect x="5" y="4" width="4" height="16" rx="1.5" />
+              <rect x="15" y="4" width="4" height="16" rx="1.5" />
             </svg>
           ) : (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style={{ marginLeft: 3 }}>
-              <path d="M6.5 4v16l14-8z"/>
+              <path d="M6.5 4v16l14-8z" />
             </svg>
           )}
         </button>
@@ -143,9 +146,11 @@ function AudioPlayer({ src, title }) {
           </div>
         </div>
       </div>
-      {!src && <div className={styles.comingSoonText}>🎙️ Episode coming soon to your favorite player!</div>}
+      {!src && (
+        <div className={styles.comingSoonText}>🎙️ Episode coming soon to your favorite player!</div>
+      )}
     </div>
-  )
+  );
 }
 
 function EpisodeCard({ ep, featured, onClick }) {
@@ -165,42 +170,51 @@ function EpisodeCard({ ep, featured, onClick }) {
           <h2 className={styles.epTitle}>{ep.title}</h2>
           <p className={styles.epDesc}>{ep.description}</p>
           <div className={styles.tags}>
-            {ep.tags.map(t => <span key={t} className={styles.tag}>{t}</span>)}
+            {ep.tags.map((t) => (
+              <span key={t} className={styles.tag}>
+                {t}
+              </span>
+            ))}
           </div>
         </div>
         <div className={styles.featuredFooter}>
           <AudioPlayer src={ep.audioUrl} title={ep.title} />
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className={styles.standardCard} onClick={onClick}>
       <div className={styles.cardIcon}>🎙️</div>
       <div className={styles.cardContent}>
-        <div className={styles.cardMeta}>S{ep.season} · E{ep.episode} · {ep.date}</div>
+        <div className={styles.cardMeta}>
+          S{ep.season} · E{ep.episode} · {ep.date}
+        </div>
         <h3 className={styles.cardTitle}>{ep.title}</h3>
-        <p className={styles.cardDesc}>{ep.description.substring(0, 150)}{ep.description.length > 150 ? '...' : ''}</p>
+        <p className={styles.cardDesc}>
+          {ep.description.substring(0, 150)}
+          {ep.description.length > 150 ? '...' : ''}
+        </p>
         <AudioPlayer src={ep.audioUrl} title={ep.title} />
       </div>
     </div>
-  )
+  );
 }
 
 export default function Podcast() {
-  const [filterStatus, setFilterStatus] = useState('released')
+  const [filterStatus, setFilterStatus] = useState('released');
   const [activeId, setActiveId] = useState(() => {
-    const featured = EPISODES.find(e => e.featured && e.status === 'released')
-    return featured?.id || EPISODES.find(e => e.status === 'released')?.id || EPISODES[0]?.id
-  })
+    const featured = EPISODES.find((e) => e.featured && e.status === 'released');
+    return featured?.id || EPISODES.find((e) => e.status === 'released')?.id || EPISODES[0]?.id;
+  });
 
-  const releasedEpisodes = useMemo(() => EPISODES.filter(e => e.status === 'released'), [])
-  const futureEpisodes = useMemo(() => EPISODES.filter(e => e.status === 'future'), [])
-  
-  const displayEpisodes = filterStatus === 'released' ? releasedEpisodes : futureEpisodes
-  const heroEpisode = displayEpisodes.find(e => e.id === activeId) || displayEpisodes[0]
-  const rest = displayEpisodes.filter(e => e.id !== (heroEpisode?.id))
+  const releasedEpisodes = useMemo(() => EPISODES.filter((e) => e.status === 'released'), []);
+  const futureEpisodes = useMemo(() => EPISODES.filter((e) => e.status === 'future'), []);
+
+  const displayEpisodes = filterStatus === 'released' ? releasedEpisodes : futureEpisodes;
+  const heroEpisode = displayEpisodes.find((e) => e.id === activeId) || displayEpisodes[0];
+  const rest = displayEpisodes.filter((e) => e.id !== heroEpisode?.id);
 
   return (
     <div className={styles.container}>
@@ -209,12 +223,14 @@ export default function Podcast() {
         <div className={styles.heroIcon}>🎙️</div>
         <h1 className={styles.title}>BibleFunLand Podcast</h1>
         <p className={styles.subtitle}>
-          Faith adventures and bedtime stories for families, kids, and teachers. 
-          New episodes every Monday.
+          Faith adventures and bedtime stories for families, kids, and teachers. New episodes every
+          Monday.
         </p>
         <div className={styles.platforms}>
           {['🍎 Apple Podcasts', '🎵 Spotify', '📻 Google Podcasts'].map((p, i) => (
-            <span key={i} className={styles.platformTag}>{p} — Coming Soon</span>
+            <span key={i} className={styles.platformTag}>
+              {p} — Coming Soon
+            </span>
           ))}
         </div>
       </div>
@@ -223,16 +239,16 @@ export default function Podcast() {
         <nav className={styles.tabs}>
           {[
             { key: 'released', label: 'Released', count: releasedEpisodes.length, icon: '▶' },
-            { key: 'future', label: 'Coming Soon', count: futureEpisodes.length, icon: '⏰' }
-          ].map(tab => {
-            const isActive = filterStatus === tab.key
+            { key: 'future', label: 'Coming Soon', count: futureEpisodes.length, icon: '⏰' },
+          ].map((tab) => {
+            const isActive = filterStatus === tab.key;
             return (
               <button
                 key={tab.key}
                 onClick={() => {
-                  setFilterStatus(tab.key)
-                  const firstEp = tab.key === 'released' ? releasedEpisodes[0] : futureEpisodes[0]
-                  if (firstEp) setActiveId(firstEp.id)
+                  setFilterStatus(tab.key);
+                  const firstEp = tab.key === 'released' ? releasedEpisodes[0] : futureEpisodes[0];
+                  if (firstEp) setActiveId(firstEp.id);
                 }}
                 className={`${styles.tabBtn} ${isActive ? styles.tabBtnActive : ''}`}
               >
@@ -240,7 +256,7 @@ export default function Podcast() {
                 {tab.label}
                 <span className={styles.tabCount}>{tab.count}</span>
               </button>
-            )
+            );
           })}
         </nav>
 
@@ -252,20 +268,18 @@ export default function Podcast() {
         ) : (
           <>
             {heroEpisode && <EpisodeCard ep={heroEpisode} featured />}
-            {rest.map(ep => (
-              <EpisodeCard 
-                key={ep.id} 
-                ep={ep} 
-                onClick={() => setActiveId(ep.id)} 
-              />
+            {rest.map((ep) => (
+              <EpisodeCard key={ep.id} ep={ep} onClick={() => setActiveId(ep.id)} />
             ))}
           </>
         )}
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <Link to="/" className={styles.backLink}>← Back to BibleFunLand</Link>
+          <Link to="/" className={styles.backLink}>
+            ← Back to BibleFunLand
+          </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -683,7 +683,7 @@ const EVENTS = [
     ref: 'Acts 10',
     era: 'earlyChurch',
     icon: '🤝',
-    desc: "Peter receives a vision of unclean animals, then preaches to Cornelius, a Roman centurion. The Holy Spirit falls on Gentiles, marking a pivotal moment: the gospel is for all nations.",
+    desc: 'Peter receives a vision of unclean animals, then preaches to Cornelius, a Roman centurion. The Holy Spirit falls on Gentiles, marking a pivotal moment: the gospel is for all nations.',
   },
   {
     id: 'peters-vision-cornelius--40',
@@ -846,16 +846,15 @@ export default function BibleTimeline() {
     }
   };
 
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>🌍 Bible Timeline</h1>
         <p className={styles.subtitle}>
-          {eraFilter === 'All' 
+          {eraFilter === 'All'
             ? `From Creation to Revelation — ${EVENTS.length} key events across 4,000 years of history.`
-            : `Showing ${filtered.length} key events from the ${ERAS.find(e => e.id === eraFilter)?.label}.`
-          } Scroll to explore.
+            : `Showing ${filtered.length} key events from the ${ERAS.find((e) => e.id === eraFilter)?.label}.`}{' '}
+          Scroll to explore.
         </p>
       </header>
 
@@ -920,7 +919,11 @@ export default function BibleTimeline() {
               <div className={styles.centerLine} />
 
               {[-4000, -3000, -2000, -1500, -1000, -500, 0, 50, 100].map((year) => (
-                <div key={`year-marker-${year}`} className={styles.yearMarker} style={{ left: yearToX(year) }}>
+                <div
+                  key={`year-marker-${year}`}
+                  className={styles.yearMarker}
+                  style={{ left: yearToX(year) }}
+                >
                   <div className={styles.yearTick} />
                   <div className={styles.yearLabel}>
                     {year === 0 ? 'AD/BC' : year > 0 ? `AD ${year}` : `${Math.abs(year)} BC`}
@@ -933,16 +936,16 @@ export default function BibleTimeline() {
                 const levels = 6;
                 const minSpacing = 110; // Increased spacing for labels
                 const lastXByLevel = new Array(levels).fill(-9999);
-                
+
                 return filtered.map((event, i) => {
                   const rawX = yearToX(event.year);
                   const era = getEra(event.year);
                   const isSelected = selected === event.id;
-                  
+
                   // Stagger vertically using 6 different levels
                   // Levels: 0, 1, 2 (above centerline) | 3, 4, 5 (below centerline)
                   const level = i % levels;
-                  
+
                   // Collision avoidance: ensure events on the SAME LEVEL have minSpacing
                   let adjustedX = Math.max(rawX, lastXByLevel[level] + minSpacing);
                   lastXByLevel[level] = adjustedX;
@@ -950,10 +953,10 @@ export default function BibleTimeline() {
                   // Determine vertical position based on level
                   // We'll use a range of heights to scatter them
                   // Spaced between 18% and 82% to avoid clipping labels at top/bottom
-                  const verticalOffsets = [18, 30, 42, 58, 70, 82]; 
+                  const verticalOffsets = [18, 30, 42, 58, 70, 82];
                   const topPos = `${verticalOffsets[level]}%`;
                   const isAboveCenter = verticalOffsets[level] < 50;
-                  
+
                   // Calculate connector height to aim toward center line
                   const distToCenter = Math.abs(50 - verticalOffsets[level]);
                   const connectorHeight = `${distToCenter * 0.8}%`;
@@ -966,7 +969,7 @@ export default function BibleTimeline() {
                         left: adjustedX,
                         top: topPos,
                         '--eraColor': era?.color || '#6B7280',
-                        zIndex: isSelected ? 10 : 2
+                        zIndex: isSelected ? 10 : 2,
                       }}
                       onClick={() => setSelected(isSelected ? null : event.id)}
                       role="button"
@@ -978,13 +981,13 @@ export default function BibleTimeline() {
                     >
                       <div
                         className={styles.connector}
-                        style={{ 
+                        style={{
                           height: connectorHeight,
                           minHeight: '20px',
                           marginBottom: isAboveCenter ? '4px' : undefined,
                           marginTop: !isAboveCenter ? '4px' : undefined,
                           order: isAboveCenter ? 2 : 0,
-                          transform: isAboveCenter ? 'rotate(180deg)' : 'none'
+                          transform: isAboveCenter ? 'rotate(180deg)' : 'none',
                         }}
                       />
                       <div
@@ -995,10 +998,10 @@ export default function BibleTimeline() {
                       </div>
                       <div
                         className={`${styles.eventLabel} ${isSelected ? styles.eventLabelSelected : ''}`}
-                        style={{ 
+                        style={{
                           order: isAboveCenter ? 0 : 2,
                           marginTop: isAboveCenter ? 0 : '6px',
-                          marginBottom: isAboveCenter ? '6px' : 0
+                          marginBottom: isAboveCenter ? '6px' : 0,
                         }}
                       >
                         {event.label}
@@ -1048,8 +1051,6 @@ export default function BibleTimeline() {
           </div>
         )}
       </div>
-
-
 
       <style>{`
         @keyframes popIn {

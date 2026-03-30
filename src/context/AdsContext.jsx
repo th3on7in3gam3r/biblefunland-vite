@@ -9,80 +9,86 @@
 //   const { showAds, isProUser, consent } = useAds()
 // ─────────────────────────────────────────────────────────
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useAuth } from './AuthContext'
-import { getSubscription } from '../lib/db'
-import { getCookieConsent } from '../components/CookieConsent'
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
+import { getSubscription } from '../lib/db';
+import { getCookieConsent } from '../components/CookieConsent';
 
-const AdsContext = createContext(null)
+const AdsContext = createContext(null);
 
 export function AdsProvider({ children }) {
-  const { user } = useAuth()
-  const [consent, setConsent] = useState(() => getCookieConsent())
-  const [isProUser, setIsProUser] = useState(false)
-  const [proChecked, setProChecked] = useState(false)
+  const { user } = useAuth();
+  const [consent, setConsent] = useState(() => getCookieConsent());
+  const [isProUser, setIsProUser] = useState(false);
+  const [proChecked, setProChecked] = useState(false);
 
   // Check Pro status from server
   useEffect(() => {
-    if (!user) { setIsProUser(false); setProChecked(true); return }
-    checkProStatus()
-  }, [user])
+    if (!user) {
+      setIsProUser(false);
+      setProChecked(true);
+      return;
+    }
+    checkProStatus();
+  }, [user]);
 
   async function checkProStatus() {
     try {
-      const { data } = await getSubscription(user.id)
+      const { data } = await getSubscription(user.id);
       if (data?.status === 'active' && new Date(data.expires_at) > new Date()) {
-        setIsProUser(true)
+        setIsProUser(true);
       } else {
-        const localPro = localStorage.getItem('bfl_pro_status')
-        setIsProUser(localPro === 'active')
+        const localPro = localStorage.getItem('bfl_pro_status');
+        setIsProUser(localPro === 'active');
       }
     } catch {
-      const localPro = localStorage.getItem('bfl_pro_status')
-      setIsProUser(localPro === 'active')
+      const localPro = localStorage.getItem('bfl_pro_status');
+      setIsProUser(localPro === 'active');
     }
-    setProChecked(true)
+    setProChecked(true);
   }
 
   function updateConsent(newConsent) {
-    setConsent(newConsent)
+    setConsent(newConsent);
   }
 
   // Ads show only when:
   // - Cookie consent granted for ads
   // - User is NOT on Pro/Family plan
   // - Supabase Pro check has completed
-  const adsGranted = consent?.ads !== false
-  const showAds = proChecked && !isProUser && adsGranted
+  const adsGranted = consent?.ads !== false;
+  const showAds = proChecked && !isProUser && adsGranted;
 
   // Push AdSense ad units after consent
   useEffect(() => {
-    if (!showAds) return
+    if (!showAds) return;
     try {
-      const adsbygoogle = window.adsbygoogle || []
-      window.adsbygoogle = adsbygoogle
+      const adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle = adsbygoogle;
     } catch {}
-  }, [showAds])
+  }, [showAds]);
 
   return (
-    <AdsContext.Provider value={{
-      consent,
-      showAds,
-      isProUser,
-      proChecked,
-      updateConsent,
-      adsGranted,
-    }}>
+    <AdsContext.Provider
+      value={{
+        consent,
+        showAds,
+        isProUser,
+        proChecked,
+        updateConsent,
+        adsGranted,
+      }}
+    >
       {children}
     </AdsContext.Provider>
-  )
+  );
 }
 
 export const useAds = () => {
-  const ctx = useContext(AdsContext)
-  if (!ctx) throw new Error('useAds must be used inside AdsProvider')
-  return ctx
-}
+  const ctx = useContext(AdsContext);
+  if (!ctx) throw new Error('useAds must be used inside AdsProvider');
+  return ctx;
+};
 
 /*
   ── Supabase: Create subscriptions table ──

@@ -5,10 +5,10 @@
 
 class ContextInitializer {
   constructor() {
-    this.initQueue = []
-    this.initialized = new Set()
-    this.isInitializing = false
-    this.initDelay = 100 // ms between context initializations
+    this.initQueue = [];
+    this.initialized = new Set();
+    this.isInitializing = false;
+    this.initDelay = 100; // ms between context initializations
   }
 
   /**
@@ -18,11 +18,11 @@ class ContextInitializer {
     this.initQueue.push({
       name: contextName,
       fn: initFn,
-      priority: this.getPriority(contextName)
-    })
+      priority: this.getPriority(contextName),
+    });
 
     // Sort by priority (lower number = higher priority)
-    this.initQueue.sort((a, b) => a.priority - b.priority)
+    this.initQueue.sort((a, b) => a.priority - b.priority);
   }
 
   /**
@@ -31,43 +31,43 @@ class ContextInitializer {
    */
   getPriority(contextName) {
     const priorities = {
-      'AuthContext': 0,           // Must be first
-      'ChildSwitcherContext': 1,  // Depends on Auth
-      'ParentalControlsContext': 2,
-      'ActivityDashboardContext': 3,
-      'AdvancedAnalyticsContext': 4,
-      'BadgeContext': 5,
-      'ScriptureMemoryContext': 5,
-      'StreakContext': 5,
-      'ThemeContext': 10,         // Low priority
-      'LanguageContext': 10
-    }
-    return priorities[contextName] ?? 100
+      AuthContext: 0, // Must be first
+      ChildSwitcherContext: 1, // Depends on Auth
+      ParentalControlsContext: 2,
+      ActivityDashboardContext: 3,
+      AdvancedAnalyticsContext: 4,
+      BadgeContext: 5,
+      ScriptureMemoryContext: 5,
+      StreakContext: 5,
+      ThemeContext: 10, // Low priority
+      LanguageContext: 10,
+    };
+    return priorities[contextName] ?? 100;
   }
 
   /**
    * Start coordinated initialization
    */
   async initialize() {
-    if (this.isInitializing) return
-    this.isInitializing = true
+    if (this.isInitializing) return;
+    this.isInitializing = true;
 
     try {
       for (const context of this.initQueue) {
-        if (this.initialized.has(context.name)) continue
+        if (this.initialized.has(context.name)) continue;
 
         try {
-          await context.fn()
-          this.initialized.add(context.name)
+          await context.fn();
+          this.initialized.add(context.name);
         } catch (error) {
-          console.error(`Failed to initialize ${context.name}:`, error)
+          console.error(`Failed to initialize ${context.name}:`, error);
         }
 
         // Stagger initialization to prevent thundering herd
-        await new Promise(resolve => setTimeout(resolve, this.initDelay))
+        await new Promise((resolve) => setTimeout(resolve, this.initDelay));
       }
     } finally {
-      this.isInitializing = false
+      this.isInitializing = false;
     }
   }
 
@@ -75,18 +75,18 @@ class ContextInitializer {
    * Check if all contexts are initialized
    */
   isReady() {
-    return this.initialized.size === this.initQueue.length
+    return this.initialized.size === this.initQueue.length;
   }
 
   /**
    * Reset initialization state
    */
   reset() {
-    this.initialized.clear()
-    this.isInitializing = false
+    this.initialized.clear();
+    this.isInitializing = false;
   }
 }
 
-export const contextInitializer = new ContextInitializer()
+export const contextInitializer = new ContextInitializer();
 
-export default ContextInitializer
+export default ContextInitializer;

@@ -1,10 +1,10 @@
-import { useParams, Link } from 'react-router-dom'
-import { getPartnerBySlug } from '../data/partners'
-import styles from './PartnerProfile.module.css'
+import { useParams, Link } from 'react-router-dom';
+import { getPartnerBySlug } from '../data/partners';
+import styles from './PartnerProfile.module.css';
 
 export default function PartnerProfile() {
-  const { slug } = useParams()
-  const partner = getPartnerBySlug(slug)
+  const { slug } = useParams();
+  const partner = getPartnerBySlug(slug);
 
   if (!partner) {
     return (
@@ -13,18 +13,19 @@ export default function PartnerProfile() {
           <div className={styles.notFoundIcon}>⛪</div>
           <h1 className={styles.notFoundTitle}>Church Page Not Found</h1>
           <p className={styles.notFoundSub}>
-            This ministry partner page doesn't exist yet. If you're a church looking to partner with BibleFunLand,
-            we'd love to set up your own page!
+            This ministry partner page doesn't exist yet. If you're a church looking to partner with
+            BibleFunLand, we'd love to set up your own page!
           </p>
-          <Link to="/partner" className={styles.backBtn}>⛪ Apply for a Church Page</Link>
+          <Link to="/partner" className={styles.backBtn}>
+            ⛪ Apply for a Church Page
+          </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className={styles.page}>
-
       {/* ── Hero ── */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
@@ -33,18 +34,19 @@ export default function PartnerProfile() {
           </div>
           <span className={styles.partnerEmoji}>{partner.emoji}</span>
           <h1 className={styles.partnerName}>{partner.name}</h1>
-          {partner.tagline && (
-            <p className={styles.partnerTagline}>"{partner.tagline}"</p>
-          )}
-          <div className={styles.welcomeMsg}>
-            {partner.welcomeMessage}
-          </div>
+          {partner.tagline && <p className={styles.partnerTagline}>"{partner.tagline}"</p>}
+          <div className={styles.welcomeMsg}>{partner.welcomeMessage}</div>
           <div className={styles.heroMeta}>
             <span>📍 {partner.location}</span>
             <span className={styles.metaDot}>·</span>
             <span>👥 {partner.size} members</span>
             <span className={styles.metaDot}>·</span>
-            <a href={partner.website} target="_blank" rel="noopener noreferrer" style={{ color: '#34d399' }}>
+            <a
+              href={partner.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#34d399' }}
+            >
               🌐 Visit Website
             </a>
           </div>
@@ -57,7 +59,7 @@ export default function PartnerProfile() {
           ⭐ Featured for {partner.name.split(' ')[0]} Members
         </h2>
         <div className={styles.featuredGrid}>
-          {partner.featuredLinks.map(link => (
+          {partner.featuredLinks.map((link) => (
             <Link key={link.to} to={link.to} className={styles.featuredCard}>
               <span className={styles.featuredIcon}>{link.label.split(' ')[0]}</span>
               <div className={styles.featuredLabel}>{link.label.split(' ').slice(1).join(' ')}</div>
@@ -108,7 +110,6 @@ export default function PartnerProfile() {
           </Link>
         </div>
       </div>
-
     </div>
-  )
+  );
 }

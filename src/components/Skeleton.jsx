@@ -1,4 +1,4 @@
-import styles from './Skeleton.module.css'
+import styles from './Skeleton.module.css';
 
 // ── Base skeleton pulse block ──
 export function Skeleton({ width, height, radius, style = {} }) {
@@ -7,7 +7,7 @@ export function Skeleton({ width, height, radius, style = {} }) {
       className={styles.skeleton}
       style={{ width, height, borderRadius: radius || 8, ...style }}
     />
-  )
+  );
 }
 
 // ── Text skeleton ──
@@ -15,15 +15,10 @@ export function SkeletonText({ lines = 3, lastWidth = '70%' }) {
   return (
     <div className={styles.textBlock}>
       {Array.from({ length: lines }, (_, i) => (
-        <Skeleton
-          key={i}
-          height={14}
-          width={i === lines - 1 ? lastWidth : '100%'}
-          radius={6}
-        />
+        <Skeleton key={i} height={14} width={i === lines - 1 ? lastWidth : '100%'} radius={6} />
       ))}
     </div>
-  )
+  );
 }
 
 // ── Card skeleton ──
@@ -38,7 +33,7 @@ export function SkeletonCard({ showThumb = true, lines = 3 }) {
         <SkeletonText lines={lines} lastWidth="55%" />
       </div>
     </div>
-  )
+  );
 }
 
 // ── Game card skeleton ──
@@ -53,7 +48,7 @@ export function SkeletonGameCard() {
         <Skeleton height={22} width={70} radius={100} />
       </div>
     </div>
-  )
+  );
 }
 
 // ── Prayer card skeleton ──
@@ -74,7 +69,7 @@ export function SkeletonPrayerCard() {
         <Skeleton height={14} width={80} radius={6} />
       </div>
     </div>
-  )
+  );
 }
 
 // ── Hero skeleton ──
@@ -91,7 +86,7 @@ export function SkeletonHero() {
         <Skeleton height={52} width={160} radius={14} />
       </div>
     </div>
-  )
+  );
 }
 
 // ── Page skeleton (general) ──
@@ -112,34 +107,44 @@ export function SkeletonPage({ cards = 6, columns = 3 }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ── Inline loading spinner ──
 export function LoadingSpinner({ size = 32, color = 'var(--violet)' }) {
   return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%',
-      border: `3px solid var(--border)`,
-      borderTopColor: color,
-      animation: 'spin .7s linear infinite',
-      display: 'inline-block',
-    }}>
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        border: `3px solid var(--border)`,
+        borderTopColor: color,
+        animation: 'spin .7s linear infinite',
+        display: 'inline-block',
+      }}
+    >
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
-  )
+  );
 }
 
 // ── Full page loader ──
 export function PageLoader({ message = 'Loading...' }) {
   return (
-    <div style={{
-      minHeight: '60vh', display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', gap: 16,
-      fontFamily: 'Poppins, sans-serif',
-    }}>
+    <div
+      style={{
+        minHeight: '60vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+        fontFamily: 'Poppins, sans-serif',
+      }}
+    >
       <LoadingSpinner size={44} />
       <p style={{ fontSize: '.9rem', color: 'var(--ink3)', fontWeight: 600 }}>{message}</p>
     </div>
-  )
+  );
 }

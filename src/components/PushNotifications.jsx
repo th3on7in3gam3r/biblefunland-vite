@@ -229,16 +229,5 @@ export default function PushNotifications() {
         )}
       </div>
     </div>
-  )
-            <button onClick={disable} style={{ fontSize: '.82rem', fontWeight: 600, padding: '9px 16px', borderRadius: 10, background: 'var(--bg2)', color: 'var(--ink3)', border: '1.5px solid var(--border)', cursor: 'pointer' }}>
-              Turn Off
-            </button>
-          </>
-        )}
-        {permission === 'denied' && (
-          <p style={{ fontSize: '.78rem', color: 'var(--red)', fontWeight: 500 }}>Notifications are blocked. Go to your browser settings → Site Settings → Notifications to re-enable.</p>
-        )}
-      </div>
-    </div>
-  )
+  );
 }

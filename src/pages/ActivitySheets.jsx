@@ -1,15 +1,87 @@
-import { useRef } from 'react'
+import { useRef } from 'react';
 
 const SHEETS = [
-  { id:'wordsearch', title:'Bible Word Search', desc:'Find 15 Bible names hidden in the grid', grade:'Ages 6-10', emoji:'🔍', color:'#3B82F6', bg:'#EFF6FF', pro:false },
-  { id:'crossword', title:'Bible Crossword', desc:'Crossword puzzle with scripture clues', grade:'Ages 8-12', emoji:'✏️', color:'#8B5CF6', bg:'#F5F3FF', pro:false },
-  { id:'coloring', title:'Noah\'s Ark Coloring Page', desc:'Detailed coloring scene of Noah\'s Ark', grade:'Ages 3-8', emoji:'🎨', color:'#EC4899', bg:'#FDF2F8', pro:false },
-  { id:'memorygame', title:'Bible Memory Match Cards', desc:'Print and cut out matching game cards', grade:'Ages 4-8', emoji:'🃏', color:'#10B981', bg:'#ECFDF5', pro:false },
-  { id:'journaling', title:'Scripture Journaling Page', desc:'Lined pages with verse prompts for reflection', grade:'All ages', emoji:'📔', color:'#F97316', bg:'#FFF7ED', pro:true },
-  { id:'dotdot', title:'Connect the Dots: Star of Bethlehem', desc:'Dot-to-dot reveals the Star of Bethlehem', grade:'Ages 4-7', emoji:'🌟', color:'#F59E0B', bg:'#FFFBEB', pro:false },
-  { id:'maze', title:'Help Moses Through the Wilderness', desc:'Maze game following Moses to the Promised Land', grade:'Ages 5-9', emoji:'🏜️', color:'#14B8A6', bg:'#F0FDFA', pro:false },
-  { id:'versecard', title:'Memory Verse Cards — Top 10', desc:'10 printable verse cards to cut out and carry', grade:'All ages', emoji:'📜', color:'#6366F1', bg:'#EEF2FF', pro:true },
-]
+  {
+    id: 'wordsearch',
+    title: 'Bible Word Search',
+    desc: 'Find 15 Bible names hidden in the grid',
+    grade: 'Ages 6-10',
+    emoji: '🔍',
+    color: '#3B82F6',
+    bg: '#EFF6FF',
+    pro: false,
+  },
+  {
+    id: 'crossword',
+    title: 'Bible Crossword',
+    desc: 'Crossword puzzle with scripture clues',
+    grade: 'Ages 8-12',
+    emoji: '✏️',
+    color: '#8B5CF6',
+    bg: '#F5F3FF',
+    pro: false,
+  },
+  {
+    id: 'coloring',
+    title: "Noah's Ark Coloring Page",
+    desc: "Detailed coloring scene of Noah's Ark",
+    grade: 'Ages 3-8',
+    emoji: '🎨',
+    color: '#EC4899',
+    bg: '#FDF2F8',
+    pro: false,
+  },
+  {
+    id: 'memorygame',
+    title: 'Bible Memory Match Cards',
+    desc: 'Print and cut out matching game cards',
+    grade: 'Ages 4-8',
+    emoji: '🃏',
+    color: '#10B981',
+    bg: '#ECFDF5',
+    pro: false,
+  },
+  {
+    id: 'journaling',
+    title: 'Scripture Journaling Page',
+    desc: 'Lined pages with verse prompts for reflection',
+    grade: 'All ages',
+    emoji: '📔',
+    color: '#F97316',
+    bg: '#FFF7ED',
+    pro: true,
+  },
+  {
+    id: 'dotdot',
+    title: 'Connect the Dots: Star of Bethlehem',
+    desc: 'Dot-to-dot reveals the Star of Bethlehem',
+    grade: 'Ages 4-7',
+    emoji: '🌟',
+    color: '#F59E0B',
+    bg: '#FFFBEB',
+    pro: false,
+  },
+  {
+    id: 'maze',
+    title: 'Help Moses Through the Wilderness',
+    desc: 'Maze game following Moses to the Promised Land',
+    grade: 'Ages 5-9',
+    emoji: '🏜️',
+    color: '#14B8A6',
+    bg: '#F0FDFA',
+    pro: false,
+  },
+  {
+    id: 'versecard',
+    title: 'Memory Verse Cards — Top 10',
+    desc: '10 printable verse cards to cut out and carry',
+    grade: 'All ages',
+    emoji: '📜',
+    color: '#6366F1',
+    bg: '#EEF2FF',
+    pro: true,
+  },
+];
 
 // Generate printable HTML for each sheet type
 function generateSheet(id) {
@@ -131,48 +203,120 @@ ${generateCrossword()}
 <h1>🃏 Bible Memory Match Cards</h1><h2>Print, cut out, and match the Bible characters to their stories! · BibleFunLand.com</h2>
 <div class="instructions"><strong>Instructions:</strong> Print this page, cut out each card, and flip them face-down. Take turns flipping 2 cards at a time — match the character to their story! First player to collect the most pairs wins!</div>
 <div class="grid">
-  ${[['👑','David','Killed Goliath'],['🏹','Goliath','9 feet tall'],['🚢','Noah','Built the Ark'],['🌈','Rainbow','God\'s covenant'],['🐟','Jonah','In the fish 3 days'],['🌊','Red Sea','God parted it'],['👸','Esther','Saved her people'],['🦁','Daniel','Lions\' den'],['🔥','Moses','Burning bush'],['📜','Ten Commandments','Given on Sinai'],['🌸','Mary','Mother of Jesus'],['✉️','Paul','Wrote 13 letters']].map(([e,n,s])=>`<div class="card"><div class="emoji">${e}</div><div class="label">${n}</div><div class="sub">${s}</div></div>`).join('')}
+  ${[
+    ['👑', 'David', 'Killed Goliath'],
+    ['🏹', 'Goliath', '9 feet tall'],
+    ['🚢', 'Noah', 'Built the Ark'],
+    ['🌈', 'Rainbow', "God's covenant"],
+    ['🐟', 'Jonah', 'In the fish 3 days'],
+    ['🌊', 'Red Sea', 'God parted it'],
+    ['👸', 'Esther', 'Saved her people'],
+    ['🦁', 'Daniel', "Lions' den"],
+    ['🔥', 'Moses', 'Burning bush'],
+    ['📜', 'Ten Commandments', 'Given on Sinai'],
+    ['🌸', 'Mary', 'Mother of Jesus'],
+    ['✉️', 'Paul', 'Wrote 13 letters'],
+  ]
+    .map(
+      ([e, n, s]) =>
+        `<div class="card"><div class="emoji">${e}</div><div class="label">${n}</div><div class="sub">${s}</div></div>`
+    )
+    .join('')}
 </div>
 <div class="footer">BibleFunLand.com · Free printable Bible games for Sunday School and home</div>
 </body></html>`,
-  }
+  };
 
   function generateWordSearchGrid() {
-    const words = ['MOSES','DAVID','ESTHER','RUTH','PAUL','NOAH','PETER','MARY','DANIEL']
-    const size = 15
-    const grid = Array(size).fill(null).map(() => Array(size).fill(''))
+    const words = ['MOSES', 'DAVID', 'ESTHER', 'RUTH', 'PAUL', 'NOAH', 'PETER', 'MARY', 'DANIEL'];
+    const size = 15;
+    const grid = Array(size)
+      .fill(null)
+      .map(() => Array(size).fill(''));
     // Place words
-    words.forEach(word => {
-      let placed = false; let attempts = 0
+    words.forEach((word) => {
+      let placed = false;
+      let attempts = 0;
       while (!placed && attempts < 100) {
-        attempts++
-        const dir = Math.floor(Math.random() * 3) // 0=H, 1=V, 2=D
-        const r = Math.floor(Math.random() * size)
-        const c = Math.floor(Math.random() * size)
+        attempts++;
+        const dir = Math.floor(Math.random() * 3); // 0=H, 1=V, 2=D
+        const r = Math.floor(Math.random() * size);
+        const c = Math.floor(Math.random() * size);
         if (dir === 0 && c + word.length <= size) {
-          if (word.split('').every((_,i) => !grid[r][c+i] || grid[r][c+i] === word[i])) {
-            word.split('').forEach((ch,i) => grid[r][c+i] = ch); placed = true
+          if (word.split('').every((_, i) => !grid[r][c + i] || grid[r][c + i] === word[i])) {
+            word.split('').forEach((ch, i) => (grid[r][c + i] = ch));
+            placed = true;
           }
         } else if (dir === 1 && r + word.length <= size) {
-          if (word.split('').every((_,i) => !grid[r+i][c] || grid[r+i][c] === word[i])) {
-            word.split('').forEach((ch,i) => grid[r+i][c] = ch); placed = true
+          if (word.split('').every((_, i) => !grid[r + i][c] || grid[r + i][c] === word[i])) {
+            word.split('').forEach((ch, i) => (grid[r + i][c] = ch));
+            placed = true;
           }
         }
       }
-    })
-    const alpha = 'ABCDEFGHIJKLMNOPRSTUVWXYZ'
-    grid.forEach(row => row.forEach((cell, j, arr) => { if (!cell) arr[j] = alpha[Math.floor(Math.random() * alpha.length)] }))
-    return grid.map(row => row.map(cell => `<div class="cell">${cell}</div>`).join('')).join('')
+    });
+    const alpha = 'ABCDEFGHIJKLMNOPRSTUVWXYZ';
+    grid.forEach((row) =>
+      row.forEach((cell, j, arr) => {
+        if (!cell) arr[j] = alpha[Math.floor(Math.random() * alpha.length)];
+      })
+    );
+    return grid
+      .map((row) => row.map((cell) => `<div class="cell">${cell}</div>`).join(''))
+      .join('');
   }
 
   function generateCrossword() {
     return `<div class="grid">
-      ${Array(12).fill(null).map((_,r)=>Array(12).fill(null).map((_,c)=>{
-        const blocked=[[0,2],[0,3],[0,7],[0,8],[1,0],[1,5],[1,6],[1,11],[2,4],[3,9],[4,1],[4,2],[5,7],[5,8],[6,3],[6,4],[7,0],[7,1],[8,6],[8,9],[9,2],[9,10],[10,5],[10,6],[11,3],[11,4],[11,8],[11,9]].some(([br,bc])=>br===r&&bc===c)
-        const nums={[`${1},${4}`]:1,[`${0},${0}`]:2,[`${2},${6}`]:3,[`${4},${3}`]:4,[`${3},${1}`]:5}
-        const num=nums[`${r},${c}`]
-        return `<div class="cell${blocked?' blocked':''}">${num?`<span class="num">${num}</span>`:''}</div>`
-      }).join('')).join('')}
+      ${Array(12)
+        .fill(null)
+        .map((_, r) =>
+          Array(12)
+            .fill(null)
+            .map((_, c) => {
+              const blocked = [
+                [0, 2],
+                [0, 3],
+                [0, 7],
+                [0, 8],
+                [1, 0],
+                [1, 5],
+                [1, 6],
+                [1, 11],
+                [2, 4],
+                [3, 9],
+                [4, 1],
+                [4, 2],
+                [5, 7],
+                [5, 8],
+                [6, 3],
+                [6, 4],
+                [7, 0],
+                [7, 1],
+                [8, 6],
+                [8, 9],
+                [9, 2],
+                [9, 10],
+                [10, 5],
+                [10, 6],
+                [11, 3],
+                [11, 4],
+                [11, 8],
+                [11, 9],
+              ].some(([br, bc]) => br === r && bc === c);
+              const nums = {
+                [`${1},${4}`]: 1,
+                [`${0},${0}`]: 2,
+                [`${2},${6}`]: 3,
+                [`${4},${3}`]: 4,
+                [`${3},${1}`]: 5,
+              };
+              const num = nums[`${r},${c}`];
+              return `<div class="cell${blocked ? ' blocked' : ''}">${num ? `<span class="num">${num}</span>` : ''}</div>`;
+            })
+            .join('')
+        )
+        .join('')}
     </div>
     <div class="clues">
       <div><h3>ACROSS</h3>
@@ -189,67 +333,262 @@ ${generateCrossword()}
         <div class="clue"><strong>4.</strong> "The Lord is my ______" (Psalm 23) (8)</div>
         <div class="clue"><strong>5.</strong> Daniel was thrown in this (5,4)</div>
       </div>
-    </div>`
+    </div>`;
   }
 
   function generateMazeWalls() {
-    const walls = []
-    const wallData = [[20,20,460,20],[20,20,20,460],[460,20,460,460],[20,460,460,460],[20,60,160,60],[200,60,300,60],[340,60,460,60],[20,100,80,100],[120,100,220,100],[260,100,360,100],[400,100,460,100],[20,140,140,140],[180,140,280,140],[320,140,460,140],[20,180,100,180],[140,180,240,180],[280,180,380,180],[420,180,460,180],[60,220,160,220],[200,220,300,220],[340,220,440,220],[20,260,120,260],[160,260,260,260],[300,260,400,260],[440,260,460,260],[20,300,80,300],[120,300,220,300],[260,300,360,300],[400,300,460,300],[20,340,140,340],[180,340,280,340],[320,340,420,340],[20,380,100,380],[140,380,240,380],[280,380,380,380],[420,380,460,380],[60,420,160,420],[200,420,300,420],[340,420,460,420]]
-    return wallData.map(([x1,y1,x2,y2]) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7C2D12" stroke-width="3" stroke-linecap="square"/>`).join('')
+    const walls = [];
+    const wallData = [
+      [20, 20, 460, 20],
+      [20, 20, 20, 460],
+      [460, 20, 460, 460],
+      [20, 460, 460, 460],
+      [20, 60, 160, 60],
+      [200, 60, 300, 60],
+      [340, 60, 460, 60],
+      [20, 100, 80, 100],
+      [120, 100, 220, 100],
+      [260, 100, 360, 100],
+      [400, 100, 460, 100],
+      [20, 140, 140, 140],
+      [180, 140, 280, 140],
+      [320, 140, 460, 140],
+      [20, 180, 100, 180],
+      [140, 180, 240, 180],
+      [280, 180, 380, 180],
+      [420, 180, 460, 180],
+      [60, 220, 160, 220],
+      [200, 220, 300, 220],
+      [340, 220, 440, 220],
+      [20, 260, 120, 260],
+      [160, 260, 260, 260],
+      [300, 260, 400, 260],
+      [440, 260, 460, 260],
+      [20, 300, 80, 300],
+      [120, 300, 220, 300],
+      [260, 300, 360, 300],
+      [400, 300, 460, 300],
+      [20, 340, 140, 340],
+      [180, 340, 280, 340],
+      [320, 340, 420, 340],
+      [20, 380, 100, 380],
+      [140, 380, 240, 380],
+      [280, 380, 380, 380],
+      [420, 380, 460, 380],
+      [60, 420, 160, 420],
+      [200, 420, 300, 420],
+      [340, 420, 460, 420],
+    ];
+    return wallData
+      .map(
+        ([x1, y1, x2, y2]) =>
+          `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7C2D12" stroke-width="3" stroke-linecap="square"/>`
+      )
+      .join('');
   }
 
   function generateDotToDot() {
     // Star of Bethlehem shape with 40 dots
-    const pts = []
-    const cx=300,cy=290,r1=200,r2=80
-    for (let i=0;i<10;i++) {
-      const angle=(i*36-90)*Math.PI/180
-      const r=i%2===0?r1:r2
-      pts.push([cx+r*Math.cos(angle),cy+r*Math.sin(angle)])
+    const pts = [];
+    const cx = 300,
+      cy = 290,
+      r1 = 200,
+      r2 = 80;
+    for (let i = 0; i < 10; i++) {
+      const angle = ((i * 36 - 90) * Math.PI) / 180;
+      const r = i % 2 === 0 ? r1 : r2;
+      pts.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
     }
     // Add more detail points
-    const extra = [[cx,cy-260],[cx+80,cy-180],[cx+240,cy-80],[cx+260,cy+40],[cx+160,cy+180],[cx+60,cy+260],[cx-60,cy+260],[cx-160,cy+180],[cx-260,cy+40],[cx-240,cy-80],[cx-80,cy-180]]
-    const allPts = [...pts,...extra].slice(0,40)
-    return allPts.map(([x,y],i) => `<circle cx="${Math.round(x)}" cy="${Math.round(y)}" r="5" fill="none" stroke="#0C4A6E" stroke-width="2"/>
-      <text x="${Math.round(x)+8}" y="${Math.round(y)+4}" font-family="Georgia" font-size="11" fill="#0C4A6E" font-weight="bold">${i+1}</text>`).join('')
+    const extra = [
+      [cx, cy - 260],
+      [cx + 80, cy - 180],
+      [cx + 240, cy - 80],
+      [cx + 260, cy + 40],
+      [cx + 160, cy + 180],
+      [cx + 60, cy + 260],
+      [cx - 60, cy + 260],
+      [cx - 160, cy + 180],
+      [cx - 260, cy + 40],
+      [cx - 240, cy - 80],
+      [cx - 80, cy - 180],
+    ];
+    const allPts = [...pts, ...extra].slice(0, 40);
+    return allPts
+      .map(
+        (
+          [x, y],
+          i
+        ) => `<circle cx="${Math.round(x)}" cy="${Math.round(y)}" r="5" fill="none" stroke="#0C4A6E" stroke-width="2"/>
+      <text x="${Math.round(x) + 8}" y="${Math.round(y) + 4}" font-family="Georgia" font-size="11" fill="#0C4A6E" font-weight="bold">${i + 1}</text>`
+      )
+      .join('');
   }
 
-  const html = sheets[id]
-  if (!html) return
-  const win = window.open('', '_blank')
-  win.document.write(html)
-  win.document.close()
-  setTimeout(() => win.print(), 800)
+  const html = sheets[id];
+  if (!html) return;
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 800);
 }
 
 export default function ActivitySheets() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)', padding: '56px 36px 40px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '.7rem', fontWeight: 700, background: 'rgba(249,115,22,.15)', color: '#FCD34D', padding: '4px 12px', borderRadius: 100, marginBottom: 12 }}>🖨️ Sunday School Ready</div>
-        <h1 style={{ fontFamily: "'Baloo 2',cursive", fontSize: 'clamp(2rem,5vw,3.5rem)', fontWeight: 800, background: 'linear-gradient(90deg,#FCD34D,#FB923C,#F472B6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 8 }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)',
+          padding: '56px 36px 40px',
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            fontSize: '.7rem',
+            fontWeight: 700,
+            background: 'rgba(249,115,22,.15)',
+            color: '#FCD34D',
+            padding: '4px 12px',
+            borderRadius: 100,
+            marginBottom: 12,
+          }}
+        >
+          🖨️ Sunday School Ready
+        </div>
+        <h1
+          style={{
+            fontFamily: "'Baloo 2',cursive",
+            fontSize: 'clamp(2rem,5vw,3.5rem)',
+            fontWeight: 800,
+            background: 'linear-gradient(90deg,#FCD34D,#FB923C,#F472B6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: 8,
+          }}
+        >
           Printable Bible Activity Sheets
         </h1>
-        <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.9rem', fontWeight: 500, maxWidth: 480, margin: '0 auto' }}>
-          Click any sheet to open a print-ready version. Free for Sunday School, VBS, homeschool, and family use!
+        <p
+          style={{
+            color: 'rgba(255,255,255,.5)',
+            fontSize: '.9rem',
+            fontWeight: 500,
+            maxWidth: 480,
+            margin: '0 auto',
+          }}
+        >
+          Click any sheet to open a print-ready version. Free for Sunday School, VBS, homeschool,
+          and family use!
         </p>
       </div>
       <div style={{ maxWidth: 1060, margin: '0 auto', padding: '44px 24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18 }}>
-          {SHEETS.map(s => (
-            <div key={s.id} style={{ background: 'var(--surface)', borderRadius: 20, border: `1.5px solid ${s.color}33`, boxShadow: '0 2px 12px rgba(0,0,0,.06)', overflow: 'hidden', transition: 'all .28s', position: 'relative' }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 16px 48px ${s.color}25` }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.06)' }}>
-              {s.pro && <div style={{ position: 'absolute', top: 10, right: 10, fontSize: '.62rem', fontWeight: 700, padding: '2px 8px', borderRadius: 100, background: 'linear-gradient(135deg,#F59E0B,#F97316)', color: 'white' }}>PRO</div>}
-              <div style={{ height: 100, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.5rem' }}>{s.emoji}</div>
+          {SHEETS.map((s) => (
+            <div
+              key={s.id}
+              style={{
+                background: 'var(--surface)',
+                borderRadius: 20,
+                border: `1.5px solid ${s.color}33`,
+                boxShadow: '0 2px 12px rgba(0,0,0,.06)',
+                overflow: 'hidden',
+                transition: 'all .28s',
+                position: 'relative',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = `0 16px 48px ${s.color}25`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.06)';
+              }}
+            >
+              {s.pro && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    fontSize: '.62rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 100,
+                    background: 'linear-gradient(135deg,#F59E0B,#F97316)',
+                    color: 'white',
+                  }}
+                >
+                  PRO
+                </div>
+              )}
+              <div
+                style={{
+                  height: 100,
+                  background: s.bg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '3.5rem',
+                }}
+              >
+                {s.emoji}
+              </div>
               <div style={{ padding: '16px 16px 18px' }}>
-                <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '.95rem', fontWeight: 800, color: 'var(--ink)', marginBottom: 4 }}>{s.title}</div>
-                <div style={{ fontSize: '.76rem', color: 'var(--ink3)', fontWeight: 500, marginBottom: 4 }}>{s.desc}</div>
-                <div style={{ fontSize: '.68rem', fontWeight: 700, color: s.color, marginBottom: 14 }}>👶 {s.grade}</div>
+                <div
+                  style={{
+                    fontFamily: "'Baloo 2',cursive",
+                    fontSize: '.95rem',
+                    fontWeight: 800,
+                    color: 'var(--ink)',
+                    marginBottom: 4,
+                  }}
+                >
+                  {s.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: '.76rem',
+                    color: 'var(--ink3)',
+                    fontWeight: 500,
+                    marginBottom: 4,
+                  }}
+                >
+                  {s.desc}
+                </div>
+                <div
+                  style={{ fontSize: '.68rem', fontWeight: 700, color: s.color, marginBottom: 14 }}
+                >
+                  👶 {s.grade}
+                </div>
                 {s.pro ? (
-                  <button className="btn btn-outline btn-sm" style={{ width: '100%', justifyContent: 'center', color: 'var(--orange)', borderColor: 'var(--orange)' }}>💎 Pro Feature</button>
+                  <button
+                    className="btn btn-outline btn-sm"
+                    style={{
+                      width: '100%',
+                      justifyContent: 'center',
+                      color: 'var(--orange)',
+                      borderColor: 'var(--orange)',
+                    }}
+                  >
+                    💎 Pro Feature
+                  </button>
                 ) : (
-                  <button className="btn btn-sm" style={{ width: '100%', justifyContent: 'center', background: `linear-gradient(135deg,${s.color},${s.color}bb)`, color: 'white', border: 'none' }} onClick={() => generateSheet(s.id)}>
+                  <button
+                    className="btn btn-sm"
+                    style={{
+                      width: '100%',
+                      justifyContent: 'center',
+                      background: `linear-gradient(135deg,${s.color},${s.color}bb)`,
+                      color: 'white',
+                      border: 'none',
+                    }}
+                    onClick={() => generateSheet(s.id)}
+                  >
                     🖨️ Print / Download
                   </button>
                 )}
@@ -257,14 +596,41 @@ export default function ActivitySheets() {
             </div>
           ))}
         </div>
-        <div style={{ background: 'var(--green-bg)', border: '1.5px solid var(--green)', borderRadius: 16, padding: '18px 22px', marginTop: 28, display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div
+          style={{
+            background: 'var(--green-bg)',
+            border: '1.5px solid var(--green)',
+            borderRadius: 16,
+            padding: '18px 22px',
+            marginTop: 28,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+          }}
+        >
           <span style={{ fontSize: '1.8rem' }}>💡</span>
           <div>
-            <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'var(--ink)', marginBottom: 3 }}>How to print</div>
-            <div style={{ fontSize: '.82rem', color: 'var(--ink2)', fontWeight: 500, lineHeight: 1.6 }}>Click any sheet button → a new tab opens with the print-ready sheet → your browser print dialog will appear automatically. Best printed in black & white on standard paper.</div>
+            <div
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: '1rem',
+                fontWeight: 800,
+                color: 'var(--ink)',
+                marginBottom: 3,
+              }}
+            >
+              How to print
+            </div>
+            <div
+              style={{ fontSize: '.82rem', color: 'var(--ink2)', fontWeight: 500, lineHeight: 1.6 }}
+            >
+              Click any sheet button → a new tab opens with the print-ready sheet → your browser
+              print dialog will appear automatically. Best printed in black & white on standard
+              paper.
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

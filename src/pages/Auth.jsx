@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react'
-import { SignIn, SignUp, useUser } from '@clerk/clerk-react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import styles from './Auth.module.css'
+import { useState, useEffect } from 'react';
+import { SignIn, SignUp, useUser } from '@clerk/clerk-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styles from './Auth.module.css';
 
 export default function Auth() {
-  const [mode, setMode] = useState('signin')
-  const { isSignedIn, isLoaded } = useUser()
-  const navigate = useNavigate()
-  const [params] = useSearchParams()
-  const redirect = params.get('redirect') || '/'
+  const [mode, setMode] = useState('signin');
+  const { isSignedIn, isLoaded } = useUser();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const redirect = params.get('redirect') || '/';
 
   // Redirect if already signed in
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      navigate(redirect)
+      navigate(redirect);
     }
-  }, [isLoaded, isSignedIn, navigate, redirect])
+  }, [isLoaded, isSignedIn, navigate, redirect]);
 
   // Check URL for mode
   useEffect(() => {
-    const urlMode = params.get('mode')
-    if (urlMode === 'signup') setMode('signup')
-  }, [params])
+    const urlMode = params.get('mode');
+    if (urlMode === 'signup') setMode('signup');
+  }, [params]);
 
   if (!isLoaded) {
     return (
@@ -31,7 +31,7 @@ export default function Auth() {
           <p>Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -52,15 +52,20 @@ export default function Auth() {
             <div className={styles.logo}>
               <div className={styles.logoIcon}>✝️</div>
               <div>
-                <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
+                <span className={styles.logoText}>
+                  Bible<span>Fun</span>Land
+                </span>
                 <div className={styles.logoTagline}>Faith • Fun • Family</div>
               </div>
             </div>
             <h1 className={styles.brandTitle}>
-              Where Faith<br />Meets Fun
+              Where Faith
+              <br />
+              Meets Fun
             </h1>
             <p className={styles.brandSubtitle}>
-              Join thousands of families growing together in faith through interactive Bible learning, games, and adventures.
+              Join thousands of families growing together in faith through interactive Bible
+              learning, games, and adventures.
             </p>
           </div>
 
@@ -116,7 +121,8 @@ export default function Auth() {
           <div className={styles.testimonial}>
             <div className={styles.testimonialQuote}>"</div>
             <p className={styles.testimonialText}>
-              BibleFunLand transformed our family devotions. My kids actually look forward to Bible time now!
+              BibleFunLand transformed our family devotions. My kids actually look forward to Bible
+              time now!
             </p>
             <div className={styles.testimonialAuthor}>
               <div className={styles.testimonialAvatar}>👨‍👩‍👧</div>
@@ -155,10 +161,9 @@ export default function Auth() {
                 {mode === 'signin' ? 'Sign in to continue' : 'Create your account'}
               </h2>
               <p className={styles.authSubtitle}>
-                {mode === 'signin' 
+                {mode === 'signin'
                   ? 'Welcome back! Continue your faith journey.'
-                  : 'Start your adventure in faith-based learning today.'
-                }
+                  : 'Start your adventure in faith-based learning today.'}
               </p>
             </div>
 
@@ -203,10 +208,7 @@ export default function Auth() {
             </div>
 
             {/* Skip Link */}
-            <button 
-              className={styles.skipButton}
-              onClick={() => navigate('/')}
-            >
+            <button className={styles.skipButton} onClick={() => navigate('/')}>
               Continue as guest →
             </button>
 
@@ -214,8 +216,13 @@ export default function Auth() {
             <div className={styles.footer}>
               <p className={styles.terms}>
                 By continuing, you agree to our{' '}
-                <a href="/terms" className={styles.link}>Terms</a> and{' '}
-                <a href="/privacy" className={styles.link}>Privacy Policy</a>
+                <a href="/terms" className={styles.link}>
+                  Terms
+                </a>{' '}
+                and{' '}
+                <a href="/privacy" className={styles.link}>
+                  Privacy Policy
+                </a>
               </p>
               <div className={styles.security}>
                 <span className={styles.securityIcon}>🔒</span>
@@ -226,5 +233,5 @@ export default function Auth() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -65,10 +65,12 @@ export const BIBLE_BOOKS = [
   { id: '3JN', name: '3 John', chapters: 1, slug: '3-john' },
   { id: 'JUD', name: 'Jude', chapters: 1, slug: 'jude' },
   { id: 'REV', name: 'Revelation', chapters: 22, slug: 'revelation' },
-]
+];
 
 export function resolveBook(query) {
-  if (!query) return null
-  const q = query.toLowerCase().replace(/\s+/g, '-')
-  return BIBLE_BOOKS.find(b => b.slug === q || b.id.toLowerCase() === q || b.name.toLowerCase() === query.toLowerCase())
+  if (!query) return null;
+  const q = query.toLowerCase().replace(/\s+/g, '-');
+  return BIBLE_BOOKS.find(
+    (b) => b.slug === q || b.id.toLowerCase() === q || b.name.toLowerCase() === query.toLowerCase()
+  );
 }

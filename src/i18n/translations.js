@@ -23,7 +23,8 @@ export const translations = {
     'hero.line1': 'The Ultimate',
     'hero.line2': 'Bible Experience',
     'hero.line3': 'For Everyone',
-    'hero.desc': 'Games, AI devotionals, interactive maps, flashcards, sermon notes, prayer wall and more — all free, for families who love God\'s Word.',
+    'hero.desc':
+      "Games, AI devotionals, interactive maps, flashcards, sermon notes, prayer wall and more — all free, for families who love God's Word.",
     'hero.cta1': 'Play Trivia',
     'hero.cta2': 'Get Devotional',
     'hero.streak': 'day streak 🔥',
@@ -107,7 +108,8 @@ export const translations = {
     'hero.line1': 'La Experiencia',
     'hero.line2': 'Bíblica Definitiva',
     'hero.line3': 'Para Todos',
-    'hero.desc': 'Juegos, devocionales IA, mapas interactivos, tarjetas de memoria, notas de sermones y más — todo gratis para familias que aman la Palabra de Dios.',
+    'hero.desc':
+      'Juegos, devocionales IA, mapas interactivos, tarjetas de memoria, notas de sermones y más — todo gratis para familias que aman la Palabra de Dios.',
     'hero.cta1': 'Jugar Trivia',
     'hero.cta2': 'Obtener Devocional',
     'hero.streak': 'días seguidos 🔥',
@@ -186,7 +188,8 @@ export const translations = {
     'hero.line1': "L'Expérience",
     'hero.line2': 'Biblique Ultime',
     'hero.line3': 'Pour Tous',
-    'hero.desc': "Jeux, dévotions IA, cartes interactives, fiches mémoire, notes de sermons et plus — tout gratuit pour les familles qui aiment la Parole de Dieu.",
+    'hero.desc':
+      'Jeux, dévotions IA, cartes interactives, fiches mémoire, notes de sermons et plus — tout gratuit pour les familles qui aiment la Parole de Dieu.',
     'hero.cta1': 'Jouer au Quiz',
     'hero.cta2': 'Obtenir une Dévotion',
     'hero.streak': 'jours consécutifs 🔥',
@@ -200,9 +203,9 @@ export const translations = {
     'home.verseDay': 'Verset du Jour',
     'home.dailyInspo': 'Inspiration Quotidienne',
     'home.streakTitle': 'Votre Série de Lecture',
-    'home.streakDesc': "Enregistrez-vous chaque jour. Ne brisez pas la chaîne!",
+    'home.streakDesc': 'Enregistrez-vous chaque jour. Ne brisez pas la chaîne!',
     'home.checkIn': "S'enregistrer Aujourd'hui ✅",
-    'home.checkedIn': 'Enregistré Aujourd\'hui! ✅',
+    'home.checkedIn': "Enregistré Aujourd'hui! ✅",
     'home.blog': 'Du Blog',
     'home.community': 'Communauté',
 
@@ -261,7 +264,8 @@ export const translations = {
     'hero.line1': 'A Experiência',
     'hero.line2': 'Bíblica Definitiva',
     'hero.line3': 'Para Todos',
-    'hero.desc': 'Jogos, devocionais IA, mapas interativos, cartões de memória, notas de sermões e mais — tudo grátis para famílias que amam a Palavra de Deus.',
+    'hero.desc':
+      'Jogos, devocionais IA, mapas interativos, cartões de memória, notas de sermões e mais — tudo grátis para famílias que amam a Palavra de Deus.',
     'hero.cta1': 'Jogar Trivia',
     'hero.cta2': 'Obter Devocional',
     'hero.streak': 'dias seguidos 🔥',
@@ -319,4 +323,4 @@ export const translations = {
     'misc.viewAll': 'Ver Tudo →',
     'misc.comingSoon': 'Em Breve',
   },
-}
+};

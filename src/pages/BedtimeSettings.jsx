@@ -1,27 +1,27 @@
-import { useState, useEffect } from 'react'
-import { useBedtimeMode } from '../context/BedtimeModeContext'
-import { useAuth } from '../context/AuthContext'
-import styles from './BedtimeSettings.module.css'
+import { useState, useEffect } from 'react';
+import { useBedtimeMode } from '../context/BedtimeModeContext';
+import { useAuth } from '../context/AuthContext';
+import styles from './BedtimeSettings.module.css';
 
 export default function BedtimeSettings() {
-  const { bedtimeSettings, updateBedtimeSettings, isBedtime } = useBedtimeMode()
-  const { user } = useAuth()
-  const [localSettings, setLocalSettings] = useState(bedtimeSettings)
-  const [saved, setSaved] = useState(false)
+  const { bedtimeSettings, updateBedtimeSettings, isBedtime } = useBedtimeMode();
+  const { user } = useAuth();
+  const [localSettings, setLocalSettings] = useState(bedtimeSettings);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setLocalSettings(bedtimeSettings)
-  }, [bedtimeSettings])
+    setLocalSettings(bedtimeSettings);
+  }, [bedtimeSettings]);
 
   const handleChange = (key, value) => {
-    setLocalSettings(prev => ({ ...prev, [key]: value }))
-  }
+    setLocalSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = () => {
-    updateBedtimeSettings(localSettings)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
+    updateBedtimeSettings(localSettings);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   const handleReset = () => {
     const defaults = {
@@ -33,10 +33,10 @@ export default function BedtimeSettings() {
       dimUI: true,
       quietSounds: true,
       showBedtimeStory: true,
-    }
-    setLocalSettings(defaults)
-    updateBedtimeSettings(defaults)
-  }
+    };
+    setLocalSettings(defaults);
+    updateBedtimeSettings(defaults);
+  };
 
   if (!user) {
     return (
@@ -46,7 +46,7 @@ export default function BedtimeSettings() {
           <p className={styles.subtitle}>Please sign in to customize your bedtime experience.</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,7 +77,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.enabled}
-                onChange={e => handleChange('enabled', e.target.checked)}
+                onChange={(e) => handleChange('enabled', e.target.checked)}
               />
               <span className={styles.toggleSlider} />
               <span className={styles.toggleLabel}>Enable Bedtime Mode</span>
@@ -89,7 +89,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.autoEnable}
-                onChange={e => handleChange('autoEnable', e.target.checked)}
+                onChange={(e) => handleChange('autoEnable', e.target.checked)}
                 disabled={!localSettings.enabled}
               />
               <span className={styles.toggleSlider} />
@@ -103,7 +103,7 @@ export default function BedtimeSettings() {
               <input
                 type="time"
                 value={localSettings.bedtime}
-                onChange={e => handleChange('bedtime', e.target.value)}
+                onChange={(e) => handleChange('bedtime', e.target.value)}
                 disabled={!localSettings.enabled || !localSettings.autoEnable}
                 className={styles.timeInput}
               />
@@ -113,7 +113,7 @@ export default function BedtimeSettings() {
               <input
                 type="time"
                 value={localSettings.wakeTime}
-                onChange={e => handleChange('wakeTime', e.target.value)}
+                onChange={(e) => handleChange('wakeTime', e.target.value)}
                 disabled={!localSettings.enabled || !localSettings.autoEnable}
                 className={styles.timeInput}
               />
@@ -131,7 +131,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.dimUI}
-                onChange={e => handleChange('dimUI', e.target.checked)}
+                onChange={(e) => handleChange('dimUI', e.target.checked)}
               />
               <span className={styles.toggleSlider} />
               <span className={styles.toggleLabel}>Dim UI (70% brightness)</span>
@@ -143,7 +143,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.calmContent}
-                onChange={e => handleChange('calmContent', e.target.checked)}
+                onChange={(e) => handleChange('calmContent', e.target.checked)}
               />
               <span className={styles.toggleSlider} />
               <span className={styles.toggleLabel}>Calm color palette</span>
@@ -161,7 +161,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.showBedtimeStory}
-                onChange={e => handleChange('showBedtimeStory', e.target.checked)}
+                onChange={(e) => handleChange('showBedtimeStory', e.target.checked)}
               />
               <span className={styles.toggleSlider} />
               <span className={styles.toggleLabel}>Show bedtime stories</span>
@@ -173,7 +173,7 @@ export default function BedtimeSettings() {
               <input
                 type="checkbox"
                 checked={localSettings.quietSounds}
-                onChange={e => handleChange('quietSounds', e.target.checked)}
+                onChange={(e) => handleChange('quietSounds', e.target.checked)}
               />
               <span className={styles.toggleSlider} />
               <span className={styles.toggleLabel}>Enable ambient sounds</span>
@@ -190,9 +190,7 @@ export default function BedtimeSettings() {
             <div className={styles.previewScreen}>
               <div className={styles.previewContent}>
                 <div className={styles.previewIcon}>🌙</div>
-                <div className={styles.previewText}>
-                  "In peace I will lie down and sleep"
-                </div>
+                <div className={styles.previewText}>"In peace I will lie down and sleep"</div>
                 <div className={styles.previewRef}>Psalm 4:8</div>
               </div>
             </div>
@@ -224,5 +222,5 @@ export default function BedtimeSettings() {
         </button>
       </div>
     </div>
-  )
+  );
 }

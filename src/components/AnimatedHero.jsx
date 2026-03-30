@@ -1,17 +1,42 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useStreak } from '../context/StreakContext'
-import { useT } from '../i18n/useT'
-import styles from './AnimatedHero.module.css'
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useStreak } from '../context/StreakContext';
+import { useT } from '../i18n/useT';
+import styles from './AnimatedHero.module.css';
 
 // ── Bible words for particle storm ──
 const BIBLE_WORDS = [
-  'Grace','Faith','Hope','Love','Peace','Joy','Truth',
-  'Light','Life','Word','Lord','Christ','Holy','Prayer',
-  'Mercy','Blessed','Amen','Glory','Praise','Wisdom',
-  'Strength','Courage','Trust','Salvation','Gospel',
-  'יהוה','Agape','Logos','Shalom','Hallelujah',
-]
+  'Grace',
+  'Faith',
+  'Hope',
+  'Love',
+  'Peace',
+  'Joy',
+  'Truth',
+  'Light',
+  'Life',
+  'Word',
+  'Lord',
+  'Christ',
+  'Holy',
+  'Prayer',
+  'Mercy',
+  'Blessed',
+  'Amen',
+  'Glory',
+  'Praise',
+  'Wisdom',
+  'Strength',
+  'Courage',
+  'Trust',
+  'Salvation',
+  'Gospel',
+  'יהוה',
+  'Agape',
+  'Logos',
+  'Shalom',
+  'Hallelujah',
+];
 
 // ── Star data ──
 function makeStars(n) {
@@ -23,19 +48,19 @@ function makeStars(n) {
     size: Math.random() * 2 + 0.5,
     speed: Math.random() * 0.3 + 0.1,
     opacity: Math.random() * 0.8 + 0.2,
-  }))
+  }));
 }
 
 export default function AnimatedHero() {
-  const canvasRef = useRef(null)
-  const animRef = useRef(null)
-  const { streak } = useStreak()
-  const { t } = useT()
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+  const { streak } = useStreak();
+  const { t } = useT();
 
   // Which effect is showing
-  const [effect, setEffect] = useState('particles') // particles | waves | starfield | video
-  const [videoReady, setVideoReady] = useState(false)
-  const [particles, setParticles] = useState([])
+  const [effect, setEffect] = useState('particles'); // particles | waves | starfield | video
+  const [videoReady, setVideoReady] = useState(false);
+  const [particles, setParticles] = useState([]);
 
   // Init particles
   useEffect(() => {
@@ -47,112 +72,124 @@ export default function AnimatedHero() {
       size: Math.random() * 0.6 + 0.5,
       speed: Math.random() * 0.025 + 0.012,
       opacity: Math.random() * 0.7 + 0.2,
-      color: ['#60A5FA','#C084FC','#F472B6','#34D399','#FCD34D','#FB923C'][Math.floor(Math.random()*6)],
+      color: ['#60A5FA', '#C084FC', '#F472B6', '#34D399', '#FCD34D', '#FB923C'][
+        Math.floor(Math.random() * 6)
+      ],
       delay: Math.random() * 8,
       drift: (Math.random() - 0.5) * 0.015,
-    }))
-    setParticles(ps)
-  }, [])
+    }));
+    setParticles(ps);
+  }, []);
 
   // Animate particles
   useEffect(() => {
-    if (effect !== 'particles') return
-    let frame
-    let ps = particles.map(p => ({ ...p }))
+    if (effect !== 'particles') return;
+    let frame;
+    let ps = particles.map((p) => ({ ...p }));
     function tick() {
-      ps = ps.map(p => {
-        let y = p.y - p.speed
-        let x = p.x + p.drift
+      ps = ps.map((p) => {
+        let y = p.y - p.speed;
+        let x = p.x + p.drift;
         if (y < -10) {
-          y = 115 + Math.random() * 20
-          x = Math.random() * 100
+          y = 115 + Math.random() * 20;
+          x = Math.random() * 100;
         }
-        if (x < 0) x = 100
-        if (x > 100) x = 0
-        return { ...p, x, y }
-      })
-      setParticles([...ps])
-      frame = requestAnimationFrame(tick)
+        if (x < 0) x = 100;
+        if (x > 100) x = 0;
+        return { ...p, x, y };
+      });
+      setParticles([...ps]);
+      frame = requestAnimationFrame(tick);
     }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [effect])
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [effect]);
 
   // Starfield canvas
   useEffect(() => {
-    if (effect !== 'starfield') return
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let W = canvas.width = canvas.offsetWidth
-    let H = canvas.height = canvas.offsetHeight
-    const stars = makeStars(300)
-    let speed = 0
-    let targetSpeed = 2
+    if (effect !== 'starfield') return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W = (canvas.width = canvas.offsetWidth);
+    let H = (canvas.height = canvas.offsetHeight);
+    const stars = makeStars(300);
+    let speed = 0;
+    let targetSpeed = 2;
 
     function draw() {
-      ctx.fillStyle = 'rgba(5,5,18,0.18)'
-      ctx.fillRect(0, 0, W, H)
-      const cx = W / 2, cy = H / 2
+      ctx.fillStyle = 'rgba(5,5,18,0.18)';
+      ctx.fillRect(0, 0, W, H);
+      const cx = W / 2,
+        cy = H / 2;
 
-      stars.forEach(s => {
-        s.z -= s.speed * (1 + speed * 0.5)
-        if (s.z <= 0) { s.z = 100; s.x = Math.random() * 100; s.y = Math.random() * 100 }
-        const px = ((s.x - 50) / s.z) * W + cx
-        const py = ((s.y - 50) / s.z * (H / W)) * W + cy
-        const r = Math.max(0.2, (1 - s.z / 100) * 2.5)
-        const op = Math.min(1, (1 - s.z / 100) * 1.4)
-        ctx.beginPath()
-        ctx.arc(px, py, r, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255,255,255,${op})`
-        ctx.fill()
-      })
+      stars.forEach((s) => {
+        s.z -= s.speed * (1 + speed * 0.5);
+        if (s.z <= 0) {
+          s.z = 100;
+          s.x = Math.random() * 100;
+          s.y = Math.random() * 100;
+        }
+        const px = ((s.x - 50) / s.z) * W + cx;
+        const py = ((s.y - 50) / s.z) * (H / W) * W + cy;
+        const r = Math.max(0.2, (1 - s.z / 100) * 2.5);
+        const op = Math.min(1, (1 - s.z / 100) * 1.4);
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${op})`;
+        ctx.fill();
+      });
 
       // Cross glow at center
-      const crossAlpha = 0.12 + Math.sin(Date.now() / 1200) * 0.06
-      const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120)
-      grd.addColorStop(0, `rgba(165,180,252,${crossAlpha + 0.1})`)
-      grd.addColorStop(1, 'rgba(0,0,0,0)')
-      ctx.fillStyle = grd
-      ctx.fillRect(0, 0, W, H)
+      const crossAlpha = 0.12 + Math.sin(Date.now() / 1200) * 0.06;
+      const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120);
+      grd.addColorStop(0, `rgba(165,180,252,${crossAlpha + 0.1})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, W, H);
 
       // Draw cross
-      ctx.save()
-      ctx.globalAlpha = 0.18 + Math.sin(Date.now() / 1000) * 0.06
-      ctx.strokeStyle = '#A5B4FC'
-      ctx.lineWidth = 3
-      ctx.shadowColor = '#A5B4FC'
-      ctx.shadowBlur = 20
-      ctx.beginPath(); ctx.moveTo(cx, cy - 40); ctx.lineTo(cx, cy + 40); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(cx - 28, cy - 10); ctx.lineTo(cx + 28, cy - 10); ctx.stroke()
-      ctx.restore()
+      ctx.save();
+      ctx.globalAlpha = 0.18 + Math.sin(Date.now() / 1000) * 0.06;
+      ctx.strokeStyle = '#A5B4FC';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#A5B4FC';
+      ctx.shadowBlur = 20;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 40);
+      ctx.lineTo(cx, cy + 40);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - 28, cy - 10);
+      ctx.lineTo(cx + 28, cy - 10);
+      ctx.stroke();
+      ctx.restore();
 
-      speed += (targetSpeed - speed) * 0.02
-      animRef.current = requestAnimationFrame(draw)
+      speed += (targetSpeed - speed) * 0.02;
+      animRef.current = requestAnimationFrame(draw);
     }
-    animRef.current = requestAnimationFrame(draw)
+    animRef.current = requestAnimationFrame(draw);
 
     const resize = () => {
-      W = canvas.width = canvas.offsetWidth
-      H = canvas.height = canvas.offsetHeight
-    }
-    window.addEventListener('resize', resize)
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', resize);
     return () => {
-      cancelAnimationFrame(animRef.current)
-      window.removeEventListener('resize', resize)
-    }
-  }, [effect])
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, [effect]);
 
   const EFFECTS = [
     { id: 'particles', label: '✨ Words' },
-    { id: 'waves',     label: '🌊 Waves' },
+    { id: 'waves', label: '🌊 Waves' },
     { id: 'starfield', label: '🌌 Stars' },
-    { id: 'video',     label: '🎬 Video' },
-  ]
+    { id: 'video', label: '🎬 Video' },
+  ];
 
   return (
     <section className={styles.hero}>
-
       {/* ── Effect layers ── */}
 
       {/* 1. Gradient waves (always underneath as base) */}
@@ -164,9 +201,7 @@ export default function AnimatedHero() {
       </div>
 
       {/* 2. Starfield canvas */}
-      {effect === 'starfield' && (
-        <canvas ref={canvasRef} className={styles.starCanvas} />
-      )}
+      {effect === 'starfield' && <canvas ref={canvasRef} className={styles.starCanvas} />}
 
       {/* 3. YouTube video background */}
       {effect === 'video' && (
@@ -179,7 +214,8 @@ export default function AnimatedHero() {
             frameBorder="0"
           />
           <div className={styles.videoLabel}>
-            🎬 Replace <code>WNKouRd5nLs</code> in <code>AnimatedHero.jsx</code> with your YouTube video ID
+            🎬 Replace <code>WNKouRd5nLs</code> in <code>AnimatedHero.jsx</code> with your YouTube
+            video ID
           </div>
         </div>
       )}
@@ -187,7 +223,7 @@ export default function AnimatedHero() {
       {/* 4. Floating word particles */}
       {effect === 'particles' && (
         <div className={styles.particleLayer} aria-hidden="true">
-          {particles.map(p => (
+          {particles.map((p) => (
             <span
               key={p.id}
               className={styles.wordParticle}
@@ -213,7 +249,7 @@ export default function AnimatedHero() {
       <div className={styles.content}>
         {/* Effect switcher pills */}
         <div className={styles.effectSwitcher}>
-          {EFFECTS.map(e => (
+          {EFFECTS.map((e) => (
             <button
               key={e.id}
               className={`${styles.effectBtn} ${effect === e.id ? styles.effectBtnActive : ''}`}
@@ -230,8 +266,10 @@ export default function AnimatedHero() {
         </div>
 
         <h1 className={styles.h1}>
-          {t('hero.line1')}<br />
-          <span className={styles.rainbow}>{t('hero.line2')}</span><br />
+          {t('hero.line1')}
+          <br />
+          <span className={styles.rainbow}>{t('hero.line2')}</span>
+          <br />
           {t('hero.line3')}
         </h1>
 
@@ -259,5 +297,5 @@ export default function AnimatedHero() {
         <div className={styles.scrollLine} />
       </div>
     </section>
-  )
+  );
 }

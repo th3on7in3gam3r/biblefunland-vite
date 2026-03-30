@@ -1,33 +1,33 @@
-import React, { useState, useEffect } from 'react'
-import { useOffline } from '../context/OfflineContext'
-import styles from './OfflineIndicator.module.css'
+import React, { useState, useEffect } from 'react';
+import { useOffline } from '../context/OfflineContext';
+import styles from './OfflineIndicator.module.css';
 
 /**
  * OfflineIndicator Component - Displays offline status and sync queue information
  * Shows banner when offline with sync queue count and "Learn More" link
  */
 export default function OfflineIndicator() {
-  const { isOnline, syncQueueCount, syncInProgress } = useOffline()
-  const [showBanner, setShowBanner] = useState(false)
-  const [fadeOut, setFadeOut] = useState(false)
+  const { isOnline, syncQueueCount, syncInProgress } = useOffline();
+  const [showBanner, setShowBanner] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
 
   // Show/hide banner based on online status
   useEffect(() => {
     if (!isOnline) {
-      setShowBanner(true)
-      setFadeOut(false)
+      setShowBanner(true);
+      setFadeOut(false);
     } else if (showBanner) {
       // Fade out when coming back online
-      setFadeOut(true)
+      setFadeOut(true);
       const timer = setTimeout(() => {
-        setShowBanner(false)
-      }, 2000)
-      return () => clearTimeout(timer)
+        setShowBanner(false);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [isOnline, showBanner])
+  }, [isOnline, showBanner]);
 
   if (!showBanner) {
-    return null
+    return null;
   }
 
   return (
@@ -64,5 +64,5 @@ export default function OfflineIndicator() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useKidsMode } from '../context/KidsModeContext'
-import { Link } from 'react-router-dom'
-import ResourceCard from '../components/ResourceCard'
-import FamilyDevotionalSection from '../components/FamilyDevotionalSection'
-import AggregatedProgressSection from '../components/AggregatedProgressSection'
+import { useState, useMemo } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useKidsMode } from '../context/KidsModeContext';
+import { Link } from 'react-router-dom';
+import ResourceCard from '../components/ResourceCard';
+import FamilyDevotionalSection from '../components/FamilyDevotionalSection';
+import AggregatedProgressSection from '../components/AggregatedProgressSection';
 
 // Hardcoded resource data
 const ALL_RESOURCES = [
@@ -12,7 +12,7 @@ const ALL_RESOURCES = [
   {
     id: 'lp-1',
     title: 'Fruit of the Spirit: Love',
-    description: 'Interactive lesson on God\'s love with activities and crafts for young learners.',
+    description: "Interactive lesson on God's love with activities and crafts for young learners.",
     category: 'Lesson Plans',
     role: 'Teacher',
     ageRange: '4-8',
@@ -24,7 +24,8 @@ const ALL_RESOURCES = [
   {
     id: 'lp-2',
     title: 'David and Goliath: Faith',
-    description: 'Teaching faith through David\'s courage with interactive storytelling and discussion.',
+    description:
+      "Teaching faith through David's courage with interactive storytelling and discussion.",
     category: 'Lesson Plans',
     role: 'Teacher',
     ageRange: '6-12',
@@ -36,7 +37,7 @@ const ALL_RESOURCES = [
   {
     id: 'lp-3',
     title: 'Parables for Parents',
-    description: 'Guide to teaching Jesus\'s parables to children with modern-day applications.',
+    description: "Guide to teaching Jesus's parables to children with modern-day applications.",
     category: 'Lesson Plans',
     role: 'Parent',
     ageRange: '5-10',
@@ -85,7 +86,7 @@ const ALL_RESOURCES = [
   },
   {
     id: 'dev-3',
-    title: 'Teacher\'s Daily Devotional',
+    title: "Teacher's Daily Devotional",
     description: 'Inspirational devotionals designed specifically for educators and mentors.',
     category: 'Devotionals',
     role: 'Teacher',
@@ -136,7 +137,7 @@ const ALL_RESOURCES = [
   {
     id: 'act-3',
     title: 'Creation Week Art Project',
-    description: 'Multi-day art project exploring God\'s creation with daily activities.',
+    description: "Multi-day art project exploring God's creation with daily activities.",
     category: 'Activity Ideas',
     role: 'Teacher',
     ageRange: '6-11',
@@ -207,47 +208,47 @@ const ALL_RESOURCES = [
     link: '#',
     downloadable: true,
   },
-]
+];
 
-const CATEGORIES = ['Lesson Plans', 'Devotionals', 'Activity Ideas', 'Teaching Resources']
+const CATEGORIES = ['Lesson Plans', 'Devotionals', 'Activity Ideas', 'Teaching Resources'];
 
 export default function ParentsTeachers() {
-  const { user, profile } = useAuth()
-  const { kidsMode } = useKidsMode()
-  const [activeCategory, setActiveCategory] = useState('Lesson Plans')
-  const [showSignInModal, setShowSignInModal] = useState(false)
+  const { user, profile } = useAuth();
+  const { kidsMode } = useKidsMode();
+  const [activeCategory, setActiveCategory] = useState('Lesson Plans');
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   // Filter resources based on category, role, kids mode, and auth status
   const filteredResources = useMemo(() => {
-    let filtered = ALL_RESOURCES.filter(r => r.category === activeCategory)
+    let filtered = ALL_RESOURCES.filter((r) => r.category === activeCategory);
 
     // Apply Kids Mode filter
     if (kidsMode) {
-      filtered = filtered.filter(r => r.ageAppropriate === true)
+      filtered = filtered.filter((r) => r.ageAppropriate === true);
     }
 
     // Apply role-based sorting
     if (user && profile?.role) {
       // Sort by role: user's role first, then others
       filtered.sort((a, b) => {
-        const aIsUserRole = a.role === profile.role
-        const bIsUserRole = b.role === profile.role
-        if (aIsUserRole && !bIsUserRole) return -1
-        if (!aIsUserRole && bIsUserRole) return 1
-        return 0
-      })
+        const aIsUserRole = a.role === profile.role;
+        const bIsUserRole = b.role === profile.role;
+        if (aIsUserRole && !bIsUserRole) return -1;
+        if (!aIsUserRole && bIsUserRole) return 1;
+        return 0;
+      });
     }
 
     // For unauthenticated users, show limited preview (first 3 per category)
     if (!user) {
-      filtered = filtered.slice(0, 3)
+      filtered = filtered.slice(0, 3);
     }
 
-    return filtered
-  }, [activeCategory, user, profile, kidsMode])
+    return filtered;
+  }, [activeCategory, user, profile, kidsMode]);
 
   function handleUnauthorizedClick() {
-    setShowSignInModal(true)
+    setShowSignInModal(true);
   }
 
   const heroStyle = {
@@ -257,7 +258,7 @@ export default function ParentsTeachers() {
     textAlign: 'center',
     position: 'relative',
     overflow: 'hidden',
-  }
+  };
 
   const glowStyle1 = {
     position: 'absolute',
@@ -268,7 +269,7 @@ export default function ParentsTeachers() {
     borderRadius: '50%',
     background: 'radial-gradient(circle,rgba(99,102,241,.15),transparent 70%)',
     pointerEvents: 'none',
-  }
+  };
 
   const glowStyle2 = {
     position: 'absolute',
@@ -279,7 +280,7 @@ export default function ParentsTeachers() {
     borderRadius: '50%',
     background: 'radial-gradient(circle,rgba(99,102,241,.1),transparent 70%)',
     pointerEvents: 'none',
-  }
+  };
 
   const titleStyle = {
     fontFamily: "'Baloo 2', cursive",
@@ -290,7 +291,7 @@ export default function ParentsTeachers() {
     letterSpacing: '-.4px',
     position: 'relative',
     zIndex: 1,
-  }
+  };
 
   const subtitleStyle = {
     fontSize: '.95rem',
@@ -299,7 +300,7 @@ export default function ParentsTeachers() {
     marginBottom: 6,
     position: 'relative',
     zIndex: 1,
-  }
+  };
 
   const welcomeStyle = {
     fontSize: '.85rem',
@@ -308,7 +309,7 @@ export default function ParentsTeachers() {
     marginBottom: 20,
     position: 'relative',
     zIndex: 1,
-  }
+  };
 
   const tabsContainerStyle = {
     display: 'flex',
@@ -318,7 +319,7 @@ export default function ParentsTeachers() {
     padding: '0 16px',
     position: 'relative',
     zIndex: 1,
-  }
+  };
 
   const tabStyle = (active) => ({
     padding: '10px 20px',
@@ -331,26 +332,26 @@ export default function ParentsTeachers() {
     cursor: 'pointer',
     transition: 'all 0.3s',
     fontFamily: 'Poppins,sans-serif',
-  })
+  });
 
   const contentStyle = {
     maxWidth: 1200,
     margin: '0 auto',
     padding: 'clamp(24px,5vw,40px) 16px',
-  }
+  };
 
   const gridStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
     gap: 16,
     marginBottom: 32,
-  }
+  };
 
   const emptyStyle = {
     textAlign: 'center',
     padding: '40px 20px',
     color: 'var(--ink3)',
-  }
+  };
 
   const previewBannerStyle = {
     background: 'linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.08))',
@@ -362,7 +363,7 @@ export default function ParentsTeachers() {
     fontSize: '.85rem',
     fontWeight: 600,
     color: 'var(--ink2)',
-  }
+  };
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
@@ -380,8 +381,8 @@ export default function ParentsTeachers() {
             {profile.role === 'Teacher'
               ? '🏫 Welcome, Teacher! Explore resources designed for your classroom.'
               : profile.role === 'Parent'
-              ? '👨‍👩‍👧 Welcome, Parent! Find activities and devotionals for your family.'
-              : '👤 Welcome! Browse resources for families and educators.'}
+                ? '👨‍👩‍👧 Welcome, Parent! Find activities and devotionals for your family.'
+                : '👤 Welcome! Browse resources for families and educators.'}
           </div>
         ) : (
           <div style={welcomeStyle}>
@@ -391,28 +392,26 @@ export default function ParentsTeachers() {
 
         {/* Category Tabs */}
         <div style={tabsContainerStyle}>
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
               style={tabStyle(activeCategory === cat)}
-              onMouseEnter={e => {
+              onMouseEnter={(e) => {
                 if (activeCategory !== cat) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,.12)'
+                  e.currentTarget.style.background = 'rgba(255,255,255,.12)';
                 }
               }}
-              onMouseLeave={e => {
+              onMouseLeave={(e) => {
                 if (activeCategory !== cat) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,.08)'
+                  e.currentTarget.style.background = 'rgba(255,255,255,.08)';
                 }
               }}
             >
               {cat === 'Lesson Plans' && '📚'}
               {cat === 'Devotionals' && '🙏'}
               {cat === 'Activity Ideas' && '🎨'}
-              {cat === 'Teaching Resources' && '📖'}
-              {' '}
-              {cat}
+              {cat === 'Teaching Resources' && '📖'} {cat}
             </button>
           ))}
         </div>
@@ -423,13 +422,27 @@ export default function ParentsTeachers() {
         {/* Preview banner for unauthenticated users */}
         {!user && (
           <div style={previewBannerStyle}>
-            👀 You're viewing a limited preview. <Link to="/auth" style={{ color: 'var(--blue)', fontWeight: 700, textDecoration: 'none' }}>Sign in</Link> to access all resources.
+            👀 You're viewing a limited preview.{' '}
+            <Link
+              to="/auth"
+              style={{ color: 'var(--blue)', fontWeight: 700, textDecoration: 'none' }}
+            >
+              Sign in
+            </Link>{' '}
+            to access all resources.
           </div>
         )}
 
         {/* Kids Mode indicator */}
         {kidsMode && (
-          <div style={{ ...previewBannerStyle, background: 'linear-gradient(135deg,rgba(252,211,77,.1),rgba(245,158,11,.08))', borderColor: 'rgba(252,211,77,.2)', color: 'var(--ink2)' }}>
+          <div
+            style={{
+              ...previewBannerStyle,
+              background: 'linear-gradient(135deg,rgba(252,211,77,.1),rgba(245,158,11,.08))',
+              borderColor: 'rgba(252,211,77,.2)',
+              color: 'var(--ink2)',
+            }}
+          >
             👶 Kids Mode is active — showing age-appropriate resources only.
           </div>
         )}
@@ -451,7 +464,7 @@ export default function ParentsTeachers() {
         {/* Resources Grid */}
         {filteredResources.length > 0 ? (
           <div style={gridStyle}>
-            {filteredResources.map(resource => (
+            {filteredResources.map((resource) => (
               <ResourceCard
                 key={resource.id}
                 resource={resource}
@@ -462,7 +475,14 @@ export default function ParentsTeachers() {
         ) : (
           <div style={emptyStyle}>
             <div style={{ fontSize: '2.5rem', marginBottom: 12, opacity: 0.3 }}>📚</div>
-            <div style={{ fontFamily: "'Baloo 2', cursive", fontWeight: 800, color: 'var(--ink)', marginBottom: 6 }}>
+            <div
+              style={{
+                fontFamily: "'Baloo 2', cursive",
+                fontWeight: 800,
+                color: 'var(--ink)',
+                marginBottom: 6,
+              }}
+            >
               No resources available
             </div>
             <div style={{ fontSize: '.85rem', color: 'var(--ink3)' }}>
@@ -500,7 +520,7 @@ export default function ParentsTeachers() {
               fontFamily: 'Poppins,sans-serif',
               boxShadow: '0 40px 100px rgba(0,0,0,.4)',
             }}
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔐</div>
             <h3
@@ -523,7 +543,8 @@ export default function ParentsTeachers() {
                 lineHeight: 1.6,
               }}
             >
-              Create an account or sign in to unlock full access to all resources, save your favorites, and track your family's progress.
+              Create an account or sign in to unlock full access to all resources, save your
+              favorites, and track your family's progress.
             </p>
             <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
               <Link
@@ -539,8 +560,8 @@ export default function ParentsTeachers() {
                   textDecoration: 'none',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
               >
                 ✝️ Sign In / Create Account
               </Link>
@@ -557,8 +578,8 @@ export default function ParentsTeachers() {
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg2)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface)')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg2)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface)')}
               >
                 Continue Browsing
               </button>
@@ -567,5 +588,5 @@ export default function ParentsTeachers() {
         </div>
       )}
     </div>
-  )
+  );
 }

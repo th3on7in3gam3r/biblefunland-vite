@@ -1,89 +1,92 @@
-import { createContext, useContext } from 'react'
-import * as db from '../lib/db'
+import { createContext, useContext } from 'react';
+import * as db from '../lib/db';
 
 // Weekly Email Digest Context
-const EmailDigestContext = createContext(null)
+const EmailDigestContext = createContext(null);
 
 export function EmailDigestProvider({ children }) {
   // Generate weekly activity digest for a parent
   const generateWeeklyDigest = async (parentId, weekStart = null) => {
     try {
       if (!weekStart) {
-        const lastWeek = new Date()
-        lastWeek.setDate(lastWeek.getDate() - 7)
-        weekStart = lastWeek.toISOString().split('T')[0]
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        weekStart = lastWeek.toISOString().split('T')[0];
       }
 
       // Get parent's children
-      const { data: children } = await db.getChildProfiles(parentId)
+      const { data: children } = await db.getChildProfiles(parentId);
       if (!children || children.length === 0) {
-        return null
+        return null;
       }
 
       // Generate digest for each child
-      const childDigests = []
+      const childDigests = [];
       for (const child of children) {
-        const childDigest = await generateChildDigest(child, weekStart)
+        const childDigest = await generateChildDigest(child, weekStart);
         if (childDigest) {
-          childDigests.push(childDigest)
+          childDigests.push(childDigest);
         }
       }
 
       const weeklyDigest = {
         parent_id: parentId,
         week_start: weekStart,
-        week_end: new Date(new Date(weekStart).getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        week_end: new Date(new Date(weekStart).getTime() + 6 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
         children: childDigests,
-        generated_at: new Date().toISOString()
-      }
+        generated_at: new Date().toISOString(),
+      };
 
-      return weeklyDigest
+      return weeklyDigest;
     } catch (error) {
-      console.error('Error generating weekly digest:', error)
-      throw error
+      console.error('Error generating weekly digest:', error);
+      throw error;
     }
-  }
+  };
 
   // Generate digest for a single child
   const generateChildDigest = async (child, weekStart) => {
     try {
       // Get child's activity for the week
-      const { data: activities } = await db.getChildActivity(child.id, 100)
-      const weekActivities = activities?.filter(activity => 
-        activity.completed_at && activity.completed_at >= weekStart
-      ) || []
+      const { data: activities } = await db.getChildActivity(child.id, 100);
+      const weekActivities =
+        activities?.filter(
+          (activity) => activity.completed_at && activity.completed_at >= weekStart
+        ) || [];
 
       // Get child's memory verses
-      const { data: verses } = await db.getMemoryVerses(child.id, 'child')
-      const weekVerses = verses?.filter(verse => 
-        verse.assigned_date >= weekStart || verse.memorized_date >= weekStart
-      ) || []
+      const { data: verses } = await db.getMemoryVerses(child.id, 'child');
+      const weekVerses =
+        verses?.filter(
+          (verse) => verse.assigned_date >= weekStart || verse.memorized_date >= weekStart
+        ) || [];
 
       // Get child's badges earned this week
-      const { data: badges } = await db.getBadges(child.id)
-      const weekBadges = badges?.filter(badge => 
-        badge.earned_at && badge.earned_at >= weekStart
-      ) || []
+      const { data: badges } = await db.getBadges(child.id);
+      const weekBadges =
+        badges?.filter((badge) => badge.earned_at && badge.earned_at >= weekStart) || [];
 
       // Calculate statistics
       const stats = {
         totalActivities: weekActivities.length,
         activitiesByType: weekActivities.reduce((acc, activity) => {
-          acc[activity.activity_type] = (acc[activity.activity_type] || 0) + 1
-          return acc
+          acc[activity.activity_type] = (acc[activity.activity_type] || 0) + 1;
+          return acc;
         }, {}),
         totalTimeSpent: weekActivities.reduce((sum, activity) => sum + (activity.duration || 0), 0),
-        versesAssigned: weekVerses.filter(v => v.status === 'assigned').length,
-        versesPracticing: weekVerses.filter(v => v.status === 'practicing').length,
-        versesMemorized: weekVerses.filter(v => v.status === 'memorized').length,
+        versesAssigned: weekVerses.filter((v) => v.status === 'assigned').length,
+        versesPracticing: weekVerses.filter((v) => v.status === 'practicing').length,
+        versesMemorized: weekVerses.filter((v) => v.status === 'memorized').length,
         badgesEarned: weekBadges.length,
-        streak: child.streak || 0
-      }
+        streak: child.streak || 0,
+      };
 
       // Get favorite activities
       const favoriteActivities = Object.entries(stats.activitiesByType)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 3)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3);
 
       return {
         child_id: child.id,
@@ -93,24 +96,24 @@ export function EmailDigestProvider({ children }) {
         favoriteActivities,
         weekActivities: weekActivities.slice(0, 10), // Limit to top 10
         weekVerses: weekVerses.slice(0, 5), // Limit to top 5
-        weekBadges: weekBadges.slice(0, 5) // Limit to top 5
-      }
+        weekBadges: weekBadges.slice(0, 5), // Limit to top 5
+      };
     } catch (error) {
-      console.error('Error generating child digest:', error)
-      return null
+      console.error('Error generating child digest:', error);
+      return null;
     }
-  }
+  };
 
   // Send weekly digest email
   const sendWeeklyDigest = async (parentId, parentEmail, weekStart = null) => {
     try {
-      const digest = await generateWeeklyDigest(parentId, weekStart)
+      const digest = await generateWeeklyDigest(parentId, weekStart);
       if (!digest) {
-        throw new Error('No digest data available')
+        throw new Error('No digest data available');
       }
 
-      const emailContent = formatDigestEmail(digest)
-      
+      const emailContent = formatDigestEmail(digest);
+
       // Send email via backend Resend integration
       const response = await fetch('/api/email/send', {
         method: 'POST',
@@ -120,26 +123,26 @@ export function EmailDigestProvider({ children }) {
         body: JSON.stringify({
           to: parentEmail,
           subject: `📊 Your Weekly BibleFunLand Digest - ${digest.week_end}`,
-          html: emailContent
-        })
-      })
+          html: emailContent,
+        }),
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to send email')
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to send email');
       }
 
-      const result = await response.json()
-      return { success: true, digest, emailId: result.id }
+      const result = await response.json();
+      return { success: true, digest, emailId: result.id };
     } catch (error) {
-      console.error('Error sending weekly digest:', error)
-      throw error
+      console.error('Error sending weekly digest:', error);
+      throw error;
     }
-  }
+  };
 
   // Format digest as HTML email
   const formatDigestEmail = (digest) => {
-    const { children, week_start, week_end } = digest
+    const { children, week_start, week_end } = digest;
 
     let html = `
       <!DOCTYPE html>
@@ -170,12 +173,12 @@ export function EmailDigestProvider({ children }) {
         
         <div class="content">
           <h2>🌟 This Week's Highlights</h2>
-    `
+    `;
 
     // Add each child's digest
-    children.forEach(child => {
-      const { child_name, child_avatar, stats, favoriteActivities, weekBadges } = child
-      
+    children.forEach((child) => {
+      const { child_name, child_avatar, stats, favoriteActivities, weekBadges } = child;
+
       html += `
         <div class="child-card">
           <h3>${child_avatar === 'david' ? '👑' : child_avatar === 'esther' ? '👸' : '👤'} ${child_name}</h3>
@@ -203,26 +206,36 @@ export function EmailDigestProvider({ children }) {
             </div>
           </div>
 
-          ${favoriteActivities.length > 0 ? `
+          ${
+            favoriteActivities.length > 0
+              ? `
             <h4>🎯 Favorite Activities</h4>
             <div class="activity-list">
-              ${favoriteActivities.map(([type, count]) => 
-                `<div class="activity-item">• ${type}: ${count} times</div>`
-              ).join('')}
+              ${favoriteActivities
+                .map(
+                  ([type, count]) => `<div class="activity-item">• ${type}: ${count} times</div>`
+                )
+                .join('')}
             </div>
-          ` : ''}
+          `
+              : ''
+          }
 
-          ${weekBadges.length > 0 ? `
+          ${
+            weekBadges.length > 0
+              ? `
             <h4>🏆 Badges Earned</h4>
             <div>
-              ${weekBadges.map(badge => 
-                `<span class="badge-item">${badge.badge_id}</span>`
-              ).join('')}
+              ${weekBadges
+                .map((badge) => `<span class="badge-item">${badge.badge_id}</span>`)
+                .join('')}
             </div>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
-      `
-    })
+      `;
+    });
 
     html += `
         </div>
@@ -233,24 +246,26 @@ export function EmailDigestProvider({ children }) {
         </div>
       </body>
       </html>
-    `
+    `;
 
-    return html
-  }
+    return html;
+  };
 
   return (
-    <EmailDigestContext.Provider value={{
-      generateWeeklyDigest,
-      sendWeeklyDigest,
-      formatDigestEmail
-    }}>
+    <EmailDigestContext.Provider
+      value={{
+        generateWeeklyDigest,
+        sendWeeklyDigest,
+        formatDigestEmail,
+      }}
+    >
       {children}
     </EmailDigestContext.Provider>
-  )
+  );
 }
 
 export const useEmailDigest = () => {
-  const ctx = useContext(EmailDigestContext)
-  if (!ctx) throw new Error('useEmailDigest must be inside EmailDigestProvider')
-  return ctx
-}
+  const ctx = useContext(EmailDigestContext);
+  if (!ctx) throw new Error('useEmailDigest must be inside EmailDigestProvider');
+  return ctx;
+};

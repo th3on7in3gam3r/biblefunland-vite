@@ -6,7 +6,7 @@ export const CATEGORIES = [
   { id: 'commentaries', label: 'Commentaries', icon: '📚' },
   { id: 'christian-fiction', label: 'Christian Fiction', icon: '✨' },
   { id: 'church-supplies', label: 'Church Supplies', icon: '⛪' },
-  { id: 'online-courses', label: 'Online Courses', icon: '🎓' }
+  { id: 'online-courses', label: 'Online Courses', icon: '🎓' },
 ];
 
 export const PRODUCTS = [
@@ -21,7 +21,7 @@ export const PRODUCTS = [
     price: '$35.99',
     rating: 4.8,
     badge: 'Best Seller',
-    badgeColor: '#F59E0B'
+    badgeColor: '#F59E0B',
   },
   {
     id: 'niv-cultural-backgrounds',
@@ -30,11 +30,12 @@ export const PRODUCTS = [
     description: 'Historical context for every book of the Bible.',
     image: 'https://m.media-amazon.com/images/I/81kFmP7m+0L._AC_UF400,400_QL80_.jpg',
     emoji: '🏺',
-    amazonLink: 'https://www.amazon.com/s?k=NIV+Cultural+Backgrounds+Study+Bible&tag=biblefunland-20',
+    amazonLink:
+      'https://www.amazon.com/s?k=NIV+Cultural+Backgrounds+Study+Bible&tag=biblefunland-20',
     price: '$42.50',
     rating: 4.9,
     badge: 'Top Rated',
-    badgeColor: '#10B981'
+    badgeColor: '#10B981',
   },
   {
     id: 'nkjv-study-bible',
@@ -45,7 +46,7 @@ export const PRODUCTS = [
     emoji: '📜',
     amazonLink: 'https://www.amazon.com/s?k=NKJV+Study+Bible&tag=biblefunland-20',
     price: '$38.99',
-    rating: 4.7
+    rating: 4.7,
   },
   {
     id: 'jesus-storybook-bible',
@@ -58,7 +59,7 @@ export const PRODUCTS = [
     price: '$10.99',
     rating: 4.9,
     badge: 'Kids Fav',
-    badgeColor: '#EC4899'
+    badgeColor: '#EC4899',
   },
   {
     id: 'action-bible',
@@ -71,7 +72,7 @@ export const PRODUCTS = [
     price: '$21.99',
     rating: 4.8,
     badge: 'Ages 8+',
-    badgeColor: '#3B82F6'
+    badgeColor: '#3B82F6',
   },
   {
     id: 'adventure-bible',
@@ -82,7 +83,7 @@ export const PRODUCTS = [
     emoji: '🧭',
     amazonLink: 'https://www.amazon.com/s?k=NIV+Adventure+Bible&tag=biblefunland-20',
     price: '$19.99',
-    rating: 4.8
+    rating: 4.8,
   },
   {
     id: 'jesus-calling',
@@ -95,7 +96,7 @@ export const PRODUCTS = [
     price: '$15.99',
     rating: 4.7,
     badge: '40M+ Sold',
-    badgeColor: '#8B5CF6'
+    badgeColor: '#8B5CF6',
   },
   {
     id: 'morning-and-evening',
@@ -106,7 +107,7 @@ export const PRODUCTS = [
     emoji: '☀️',
     amazonLink: 'https://www.amazon.com/s?k=Morning+and+Evening+Spurgeon&tag=biblefunland-20',
     price: '$14.99',
-    rating: 4.9
+    rating: 4.9,
   },
   {
     id: 'my-utmost',
@@ -117,7 +118,7 @@ export const PRODUCTS = [
     emoji: '⛰️',
     amazonLink: 'https://www.amazon.com/s?k=My+Utmost+for+His+Highest&tag=biblefunland-20',
     price: '$12.99',
-    rating: 4.8
+    rating: 4.8,
   },
   {
     id: 'matthew-henry',
@@ -128,7 +129,7 @@ export const PRODUCTS = [
     emoji: '✍️',
     amazonLink: 'https://www.amazon.com/s?k=Matthew+Henry+Commentary&tag=biblefunland-20',
     price: '$29.99',
-    rating: 4.7
+    rating: 4.7,
   },
   {
     id: 'enduring-word',
@@ -137,9 +138,10 @@ export const PRODUCTS = [
     description: 'Clear verse by verse explanation by Guzik.',
     image: 'https://m.media-amazon.com/images/I/71Xm06f52nL._AC_UF400,400_QL80_.jpg',
     emoji: '📘',
-    amazonLink: 'https://www.amazon.com/s?k=David+Guzik+Enduring+Word+Commentary&tag=biblefunland-20',
+    amazonLink:
+      'https://www.amazon.com/s?k=David+Guzik+Enduring+Word+Commentary&tag=biblefunland-20',
     price: '$19.99',
-    rating: 4.8
+    rating: 4.8,
   },
   {
     id: 'chronicles-of-narnia',
@@ -152,7 +154,7 @@ export const PRODUCTS = [
     price: '$24.99',
     rating: 4.9,
     badge: 'Classic',
-    badgeColor: '#F97316'
+    badgeColor: '#F97316',
   },
   {
     id: 'redeeming-love',
@@ -163,7 +165,7 @@ export const PRODUCTS = [
     emoji: '❤️',
     amazonLink: 'https://www.amazon.com/s?k=Redeeming+Love+Francine+Rivers&tag=biblefunland-20',
     price: '$12.50',
-    rating: 4.8
+    rating: 4.8,
   },
   {
     id: 'communion-cups',
@@ -174,7 +176,7 @@ export const PRODUCTS = [
     emoji: '🍷',
     amazonLink: 'https://www.amazon.com/s?k=Church+Communion+Cups&tag=biblefunland-20',
     price: '$32.00',
-    rating: 4.6
+    rating: 4.6,
   },
   {
     id: 'bulletin-paper',
@@ -185,7 +187,7 @@ export const PRODUCTS = [
     emoji: '📄',
     amazonLink: 'https://www.amazon.com/s?k=Church+bulletin+paper&tag=biblefunland-20',
     price: '$18.50',
-    rating: 4.5
+    rating: 4.5,
   },
   {
     id: 'bible-hermeneutics',
@@ -196,7 +198,7 @@ export const PRODUCTS = [
     emoji: '🔍',
     amazonLink: 'https://www.amazon.com/s?k=Bible+Study+Online+Course&tag=biblefunland-20',
     price: '$49.99',
-    rating: 4.7
+    rating: 4.7,
   },
   {
     id: 'ancient-hebrew',
@@ -209,6 +211,6 @@ export const PRODUCTS = [
     price: '$65.00',
     rating: 4.8,
     badge: 'Popular',
-    badgeColor: '#6366F1'
-  }
+    badgeColor: '#6366F1',
+  },
 ];

@@ -1,38 +1,38 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const NotificationContext = createContext(null)
+const NotificationContext = createContext(null);
 
 export function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState([])
+  const [notifications, setNotifications] = useState([]);
   const [reminders, setReminders] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('bfl_reminders') || '[]')
+      return JSON.parse(localStorage.getItem('bfl_reminders') || '[]');
     } catch {
-      return []
+      return [];
     }
-  })
+  });
 
   // Save reminders to localStorage
   useEffect(() => {
-    localStorage.setItem('bfl_reminders', JSON.stringify(reminders))
-  }, [reminders])
+    localStorage.setItem('bfl_reminders', JSON.stringify(reminders));
+  }, [reminders]);
 
   const addNotification = useCallback((notification) => {
-    const id = Date.now()
-    const notif = { ...notification, id }
-    setNotifications(prev => [...prev, notif])
+    const id = Date.now();
+    const notif = { ...notification, id };
+    setNotifications((prev) => [...prev, notif]);
 
     // Auto-remove after 5 seconds
     setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id))
-    }, notification.duration || 5000)
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    }, notification.duration || 5000);
 
-    return id
-  }, [])
+    return id;
+  }, []);
 
   const removeNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id))
-  }, [])
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
 
   const addReminder = useCallback((reminder) => {
     const newReminder = {
@@ -44,35 +44,33 @@ export function NotificationProvider({ children }) {
       enabled: reminder.enabled !== false,
       days: reminder.days || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       createdAt: new Date().toISOString(),
-    }
-    setReminders(prev => [...prev, newReminder])
-    return newReminder.id
-  }, [])
+    };
+    setReminders((prev) => [...prev, newReminder]);
+    return newReminder.id;
+  }, []);
 
   const updateReminder = useCallback((id, updates) => {
-    setReminders(prev =>
-      prev.map(r => r.id === id ? { ...r, ...updates } : r)
-    )
-  }, [])
+    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, ...updates } : r)));
+  }, []);
 
   const removeReminder = useCallback((id) => {
-    setReminders(prev => prev.filter(r => r.id !== id))
-  }, [])
+    setReminders((prev) => prev.filter((r) => r.id !== id));
+  }, []);
 
   const clearReminders = useCallback(() => {
-    setReminders([])
-  }, [])
+    setReminders([]);
+  }, []);
 
   // Check if a reminder should trigger
   const shouldTriggerReminder = useCallback((reminder) => {
-    if (!reminder.enabled) return false
+    if (!reminder.enabled) return false;
 
-    const now = new Date()
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()]
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()];
 
-    return currentTime === reminder.time && reminder.days.includes(dayName)
-  }, [])
+    return currentTime === reminder.time && reminder.days.includes(dayName);
+  }, []);
 
   return (
     <NotificationContext.Provider
@@ -90,11 +88,11 @@ export function NotificationProvider({ children }) {
     >
       {children}
     </NotificationContext.Provider>
-  )
+  );
 }
 
 export const useNotification = () => {
-  const ctx = useContext(NotificationContext)
-  if (!ctx) throw new Error('useNotification must be used inside NotificationProvider')
-  return ctx
-}
+  const ctx = useContext(NotificationContext);
+  if (!ctx) throw new Error('useNotification must be used inside NotificationProvider');
+  return ctx;
+};

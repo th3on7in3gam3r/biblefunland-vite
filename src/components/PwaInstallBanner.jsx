@@ -1,66 +1,67 @@
-import { useState, useEffect } from 'react'
-import styles from './PwaInstallBanner.module.css'
+import { useState, useEffect } from 'react';
+import styles from './PwaInstallBanner.module.css';
 
 export default function PwaInstallBanner() {
-  const [show, setShow] = useState(false)
-  const [deferredPrompt, setDeferredPrompt] = useState(null)
-  const [installing, setInstalling] = useState(false)
+  const [show, setShow] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
+      e.preventDefault();
+      setDeferredPrompt(e);
       // Show immediately if native prompt is available
-      setShow(true)
-    }
+      setShow(true);
+    };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Fallback: show after 5 seconds if no native prompt
     const timer = setTimeout(() => {
-      if (!deferredPrompt) setShow(true)
-    }, 5000)
+      if (!deferredPrompt) setShow(true);
+    }, 5000);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      clearTimeout(timer)
-    }
-  }, [deferredPrompt])
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      clearTimeout(timer);
+    };
+  }, [deferredPrompt]);
 
-  if (!show) return null
+  if (!show) return null;
 
   async function handleInstall() {
-    setInstalling(true)
-    
+    setInstalling(true);
+
     if (deferredPrompt) {
-      deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        setDeferredPrompt(null)
-        setShow(false)
+        setDeferredPrompt(null);
+        setShow(false);
       }
     } else {
       // Fallback instructions
-      const ua = navigator.userAgent.toLowerCase()
-      let instructions = "To install: use your browser menu → 'Add to Home Screen' or 'Install App'"
-      
+      const ua = navigator.userAgent.toLowerCase();
+      let instructions =
+        "To install: use your browser menu → 'Add to Home Screen' or 'Install App'";
+
       if (ua.includes('iphone') || ua.includes('ipad')) {
-        instructions = "Tap Share → Add to Home Screen"
+        instructions = 'Tap Share → Add to Home Screen';
       } else if (ua.includes('android')) {
-        instructions = "Tap Menu → Install App or Add to Home Screen"
+        instructions = 'Tap Menu → Install App or Add to Home Screen';
       }
-      
-      alert(instructions)
+
+      alert(instructions);
     }
-    
-    setInstalling(false)
+
+    setInstalling(false);
   }
 
   return (
     <div className={styles.banner}>
       {/* Background gradient */}
       <div className={styles.bgGradient} />
-      
+
       {/* Content */}
       <div className={styles.content}>
         <div className={styles.icon}>📖</div>
@@ -79,7 +80,17 @@ export default function PwaInstallBanner() {
           aria-label="Install app"
         >
           {installing ? (
-            <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,.3)', borderTopColor: 'white', animation: 'spin .7s linear infinite' }} />
+            <span
+              style={{
+                display: 'inline-block',
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                border: '2px solid rgba(255,255,255,.3)',
+                borderTopColor: 'white',
+                animation: 'spin .7s linear infinite',
+              }}
+            />
           ) : (
             '📲 Install'
           )}
@@ -98,5 +109,5 @@ export default function PwaInstallBanner() {
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
-  )
+  );
 }

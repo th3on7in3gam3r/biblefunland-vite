@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function ResourceCard({ resource, onUnauthorizedClick }) {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   function handleClick(e) {
     if (!user && onUnauthorizedClick) {
-      e.preventDefault()
-      onUnauthorizedClick()
+      e.preventDefault();
+      onUnauthorizedClick();
     }
   }
 
@@ -23,7 +23,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-  }
+  };
 
   const iconBoxStyle = {
     width: 56,
@@ -35,7 +35,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     justifyContent: 'center',
     fontSize: '1.8rem',
     marginBottom: 14,
-  }
+  };
 
   const badgeStyle = {
     fontSize: '.65rem',
@@ -44,7 +44,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 8,
-  }
+  };
 
   const titleStyle = {
     fontFamily: "'Baloo 2', cursive",
@@ -53,7 +53,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     color: 'var(--ink)',
     marginBottom: 8,
     lineHeight: 1.3,
-  }
+  };
 
   const descStyle = {
     fontSize: '.78rem',
@@ -62,14 +62,14 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     marginBottom: 12,
     lineHeight: 1.5,
     flex: 1,
-  }
+  };
 
   const tagsStyle = {
     display: 'flex',
     gap: 6,
     flexWrap: 'wrap',
     marginBottom: 14,
-  }
+  };
 
   const tagStyle = {
     fontSize: '.62rem',
@@ -79,7 +79,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     background: 'var(--bg2)',
     color: 'var(--ink3)',
     border: '1px solid var(--border)',
-  }
+  };
 
   const actionStyle = {
     display: 'flex',
@@ -88,7 +88,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     justifyContent: 'space-between',
     paddingTop: 12,
     borderTop: '1px solid var(--border)',
-  }
+  };
 
   const linkStyle = {
     flex: 1,
@@ -106,18 +106,18 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     transition: 'all 0.2s',
     border: `1.5px solid ${resource.role === 'Teacher' ? 'var(--purple)' : 'var(--blue)'}`,
     cursor: 'pointer',
-  }
+  };
 
   return (
     <div
       style={cardStyle}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)'
-        e.currentTarget.style.boxShadow = 'var(--sh-lg)'
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = 'var(--sh-lg)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'var(--sh)'
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'var(--sh)';
       }}
     >
       {/* Icon */}
@@ -134,9 +134,7 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
 
       {/* Tags */}
       <div style={tagsStyle}>
-        {resource.ageRange && (
-          <div style={tagStyle}>👶 Ages {resource.ageRange}</div>
-        )}
+        {resource.ageRange && <div style={tagStyle}>👶 Ages {resource.ageRange}</div>}
         {resource.role && (
           <div style={tagStyle}>
             {resource.role === 'Teacher' ? '🏫' : '👨‍👩‍👧'} {resource.role}
@@ -154,10 +152,10 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
             style={linkStyle}
             onClick={handleClick}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8'
+              e.currentTarget.style.opacity = '0.8';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1'
+              e.currentTarget.style.opacity = '1';
             }}
           >
             {resource.downloadable ? '⬇️ Download' : '🔗 View'}
@@ -167,10 +165,10 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
             style={linkStyle}
             onClick={handleClick}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8'
+              e.currentTarget.style.opacity = '0.8';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1'
+              e.currentTarget.style.opacity = '1';
             }}
           >
             {resource.downloadable ? '⬇️ Download' : '📖 View'}
@@ -178,5 +176,5 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
         )}
       </div>
     </div>
-  )
+  );
 }

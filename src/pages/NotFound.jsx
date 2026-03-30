@@ -1,20 +1,26 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useState } from 'react'
-import styles from './NotFound.module.css'
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import styles from './NotFound.module.css';
 
 const VERSES = [
-  { text: '"I know the plans I have for you, declares the Lord — plans to prosper you."', ref: 'Jeremiah 29:11' },
+  {
+    text: '"I know the plans I have for you, declares the Lord — plans to prosper you."',
+    ref: 'Jeremiah 29:11',
+  },
   { text: '"For the Son of Man came to seek and to save the lost."', ref: 'Luke 19:10' },
   { text: '"I am the way, the truth and the life."', ref: 'John 14:6' },
   { text: '"All things work together for good to those who love God."', ref: 'Romans 8:28' },
-  { text: '"Trust in the Lord with all your heart and lean not on your own understanding."', ref: 'Proverbs 3:5' },
-]
+  {
+    text: '"Trust in the Lord with all your heart and lean not on your own understanding."',
+    ref: 'Proverbs 3:5',
+  },
+];
 
 export default function NotFound() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [verse] = useState(VERSES[Math.floor(Math.random() * VERSES.length)])
-  const [searchQuery, setSearchQuery] = useState('')
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [verse] = useState(VERSES[Math.floor(Math.random() * VERSES.length)]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const suggestedPages = [
     { title: 'Home', icon: '🏠', to: '/' },
@@ -25,7 +31,7 @@ export default function NotFound() {
     { title: 'Dashboard', icon: '📊', to: '/dashboard' },
     { title: 'Bible Map', icon: '🗺️', to: '/map' },
     { title: 'Share Cards', icon: '🔗', to: '/share' },
-  ]
+  ];
 
   return (
     <div className={styles.container}>
@@ -42,16 +48,15 @@ export default function NotFound() {
 
         {/* Inspiring Quote */}
         <div className={styles.quoteBox}>
-          <blockquote className={styles.verse}>
-            {verse.text}
-          </blockquote>
+          <blockquote className={styles.verse}>{verse.text}</blockquote>
           <cite className={styles.verseRef}>— {verse.ref}</cite>
         </div>
 
         {/* Description */}
         <div className={styles.description}>
           <p>
-            Even the wise men had to search — but they found what they were looking for. Let's get you back on the right path.
+            Even the wise men had to search — but they found what they were looking for. Let's get
+            you back on the right path.
           </p>
         </div>
 
@@ -63,7 +68,9 @@ export default function NotFound() {
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && searchQuery && console.log('Search:', searchQuery)}
+            onKeyDown={(e) =>
+              e.key === 'Enter' && searchQuery && console.log('Search:', searchQuery)
+            }
           />
           <div className={styles.searchHint}>
             Press <kbd>⌘K</kbd> for advanced search
@@ -84,12 +91,8 @@ export default function NotFound() {
         <div className={styles.suggestedSection}>
           <h2 className={styles.suggestedTitle}>Popular Pages</h2>
           <div className={styles.pageGrid}>
-            {suggestedPages.map(page => (
-              <Link
-                key={page.to}
-                to={page.to}
-                className={styles.pageCard}
-              >
+            {suggestedPages.map((page) => (
+              <Link key={page.to} to={page.to} className={styles.pageCard}>
                 <span className={styles.pageIcon}>{page.icon}</span>
                 <span className={styles.pageTitle}>{page.title}</span>
               </Link>
@@ -102,12 +105,18 @@ export default function NotFound() {
           <div className={styles.devInfo}>
             <details>
               <summary>📋 Debug Info</summary>
-              <pre>{JSON.stringify({
-                pathname: location.pathname,
-                search: location.search,
-                hash: location.hash,
-                timestamp: new Date().toISOString()
-              }, null, 2)}</pre>
+              <pre>
+                {JSON.stringify(
+                  {
+                    pathname: location.pathname,
+                    search: location.search,
+                    hash: location.hash,
+                    timestamp: new Date().toISOString(),
+                  },
+                  null,
+                  2
+                )}
+              </pre>
             </details>
           </div>
         )}
@@ -115,9 +124,16 @@ export default function NotFound() {
         {/* Footer Help */}
         <div className={styles.footer}>
           <p>
-            <strong>Can't find what you're looking for?</strong><br />
-            Check our <Link to="/blog" className={styles.link}>blog</Link> or{' '}
-            <a href="mailto:hello@biblefunland.com" className={styles.link}>contact support</a>
+            <strong>Can't find what you're looking for?</strong>
+            <br />
+            Check our{' '}
+            <Link to="/blog" className={styles.link}>
+              blog
+            </Link>{' '}
+            or{' '}
+            <a href="mailto:hello@biblefunland.com" className={styles.link}>
+              contact support
+            </a>
           </p>
         </div>
       </div>
@@ -130,5 +146,5 @@ export default function NotFound() {
         <div className={`${styles.float} ${styles.float4}`}>⭐</div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-import { useState, useRef } from 'react'
-import emailjs from '@emailjs/browser'
-import styles from './Affiliate.module.css'
+import { useState, useRef } from 'react';
+import emailjs from '@emailjs/browser';
+import styles from './Affiliate.module.css';
 
 // ─── EmailJS Config ─────────────────────────────────────────────────────────
 // Service ID → EmailJS Dashboard → Email Services → Service ID
 // Template ID → EmailJS Dashboard → Email Templates → Template ID
-const EMAILJS_SERVICE_ID  = 'service_lj55mn5'   // ✅ Set (Gmail)
-const EMAILJS_TEMPLATE_ID = 'template_wgqpffy'  // ✅ Set
-const EMAILJS_PUBLIC_KEY  = 'nrGYIKFTFPWeBJTBf' // ✅ Set
+const EMAILJS_SERVICE_ID = 'service_lj55mn5'; // ✅ Set (Gmail)
+const EMAILJS_TEMPLATE_ID = 'template_wgqpffy'; // ✅ Set
+const EMAILJS_PUBLIC_KEY = 'nrGYIKFTFPWeBJTBf'; // ✅ Set
 // ────────────────────────────────────────────────────────────────────────────
 
 const TIERS = [
@@ -68,7 +68,7 @@ const TIERS = [
     ctaStyle: 'outline',
     featured: false,
   },
-]
+];
 
 const REAL_PARTNERS = [
   {
@@ -78,7 +78,7 @@ const REAL_PARTNERS = [
     region: 'Kingdom Friend Partner',
     founding: true,
   },
-]
+];
 
 const PLACEHOLDER_SLOTS = [
   { icon: '📚', label: 'Your Ministry Here', region: 'Southeast USA' },
@@ -86,7 +86,7 @@ const PLACEHOLDER_SLOTS = [
   { icon: '✝️', label: 'Your Business Here', region: 'West Coast USA' },
   { icon: '🌍', label: 'Your Church Here', region: 'International' },
   { icon: '🤝', label: 'Your Ministry Here', region: 'Southwest USA' },
-]
+];
 
 const FAQS = [
   {
@@ -107,13 +107,13 @@ const FAQS = [
   },
   {
     q: 'What does "co-branded" mean?',
-    a: 'For Mission Ally and higher, we create a dedicated page on BibleFunLand.com featuring your organization\'s name, logo, description, and links to your website and events.',
+    a: "For Mission Ally and higher, we create a dedicated page on BibleFunLand.com featuring your organization's name, logo, description, and links to your website and events.",
   },
   {
     q: 'How does revenue sharing work for Kingdom Partners?',
     a: 'Kingdom Partners can participate in our affiliate and co-promotion programs, earning a percentage of referred Premium subscriptions. Full details are shared during the onboarding call.',
   },
-]
+];
 
 const EMPTY_FORM = {
   name: '',
@@ -125,79 +125,82 @@ const EMPTY_FORM = {
   location: '',
   tier: '',
   message: '',
-}
+};
 
 export default function Affiliate() {
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [sending, setSending] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState('')
-  const formRef = useRef(null)
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const formRef = useRef(null);
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-    if (error) setError('')
-  }
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError('');
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
 
     // Basic validation
     if (!form.name || !form.organization || !form.email || !form.orgType || !form.tier) {
-      setError('Please fill in all required fields.')
-      return
+      setError('Please fill in all required fields.');
+      return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address.')
-      return
+      setError('Please enter a valid email address.');
+      return;
     }
 
-    setSending(true)
+    setSending(true);
     try {
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
-          from_name:    form.name,
+          from_name: form.name,
           organization: form.organization,
-          org_type:     form.orgType,
-          website:      form.website || 'N/A',
-          reply_to:     form.email,
-          phone:        form.phone || 'N/A',
-          location:     form.location || 'N/A',
-          tier:         form.tier,
-          message:      form.message || 'No additional message provided.',
+          org_type: form.orgType,
+          website: form.website || 'N/A',
+          reply_to: form.email,
+          phone: form.phone || 'N/A',
+          location: form.location || 'N/A',
+          tier: form.tier,
+          message: form.message || 'No additional message provided.',
         },
         EMAILJS_PUBLIC_KEY
-      )
-      setSent(true)
-      setForm(EMPTY_FORM)
+      );
+      setSent(true);
+      setForm(EMPTY_FORM);
     } catch (err) {
-      console.error('EmailJS error:', err)
-      setError('Something went wrong sending your application. Please try emailing us directly at hello@biblefunland.com')
+      console.error('EmailJS error:', err);
+      setError(
+        'Something went wrong sending your application. Please try emailing us directly at hello@biblefunland.com'
+      );
     } finally {
-      setSending(false)
+      setSending(false);
     }
-  }
+  };
 
   const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className={styles.page}>
-
       {/* ── Hero ── */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <div className={styles.heroBadge}>🏛️ Partnership Program</div>
           <h1 className={styles.heroTitle}>
-            Unite Your Mission<br />with BibleFunLand
+            Unite Your Mission
+            <br />
+            with BibleFunLand
           </h1>
           <p className={styles.heroSub}>
-            Whether you're a local church, a faith-based school, or a Christian business —
-            partner with us to reach thousands of families growing in God's Word together.
+            Whether you're a local church, a faith-based school, or a Christian business — partner
+            with us to reach thousands of families growing in God's Word together.
           </p>
           <div className={styles.heroActions}>
             <button onClick={scrollToForm} className={styles.btnPrimary}>
@@ -236,19 +239,43 @@ export default function Affiliate() {
           <span className={styles.sectionEyebrow}>✨ Why Partner With Us</span>
           <h2 className={styles.sectionTitle}>Kingdom Impact, Together</h2>
           <p className={styles.sectionSub}>
-            When your organization unites with BibleFunLand, you gain a platform, a community,
-            and a co-laborer in the great commission.
+            When your organization unites with BibleFunLand, you gain a platform, a community, and a
+            co-laborer in the great commission.
           </p>
         </div>
         <div className={styles.valuesGrid}>
           {[
-            { icon: '📡', title: 'Massive Reach', desc: 'Gain visibility with thousands of Christian families across 40+ countries actively engaging with our platform daily.' },
-            { icon: '🤝', title: 'Trusted Branding', desc: 'Being listed as a BibleFunLand partner signals trust and spiritual integrity to your community and beyond.' },
-            { icon: '🛠️', title: 'Shared Tools', desc: 'Co-branded resources, printable materials, and digital tools your congregation can use immediately.' },
-            { icon: '💬', title: 'Community Voice', desc: 'Share your events, sermons, and announcements with an engaged faith audience that\'s already plugged in.' },
-            { icon: '📈', title: 'Growth Opportunities', desc: 'Kingdom Partners can participate in revenue sharing, helping fund your ministry\'s next chapter.' },
-            { icon: '❤️', title: 'Shared Values', desc: 'We only partner with organizations that share our commitment to Scripture, family, and the love of Christ.' },
-          ].map(v => (
+            {
+              icon: '📡',
+              title: 'Massive Reach',
+              desc: 'Gain visibility with thousands of Christian families across 40+ countries actively engaging with our platform daily.',
+            },
+            {
+              icon: '🤝',
+              title: 'Trusted Branding',
+              desc: 'Being listed as a BibleFunLand partner signals trust and spiritual integrity to your community and beyond.',
+            },
+            {
+              icon: '🛠️',
+              title: 'Shared Tools',
+              desc: 'Co-branded resources, printable materials, and digital tools your congregation can use immediately.',
+            },
+            {
+              icon: '💬',
+              title: 'Community Voice',
+              desc: "Share your events, sermons, and announcements with an engaged faith audience that's already plugged in.",
+            },
+            {
+              icon: '📈',
+              title: 'Growth Opportunities',
+              desc: "Kingdom Partners can participate in revenue sharing, helping fund your ministry's next chapter.",
+            },
+            {
+              icon: '❤️',
+              title: 'Shared Values',
+              desc: 'We only partner with organizations that share our commitment to Scripture, family, and the love of Christ.',
+            },
+          ].map((v) => (
             <div key={v.title} className={styles.valueCard}>
               <span className={styles.valueIcon}>{v.icon}</span>
               <div className={styles.valueTitle}>{v.title}</div>
@@ -270,22 +297,22 @@ export default function Affiliate() {
           </p>
         </div>
         <div className={styles.tiersGrid}>
-          {TIERS.map(tier => (
+          {TIERS.map((tier) => (
             <div
               key={tier.id}
               className={`${styles.tierCard} ${tier.featured ? styles.tierCardFeatured : ''}`}
             >
-              {tier.featured && (
-                <div className={styles.tierPopularBadge}>⭐ Most Popular</div>
-              )}
+              {tier.featured && <div className={styles.tierPopularBadge}>⭐ Most Popular</div>}
               <div className={styles.tierIcon}>{tier.icon}</div>
               <div>
                 <div className={styles.tierName}>{tier.name}</div>
                 <div className={styles.tierTagline}>{tier.tagline}</div>
               </div>
-              <div className={styles.tierBadge} style={tier.badgeStyle}>{tier.badge}</div>
+              <div className={styles.tierBadge} style={tier.badgeStyle}>
+                {tier.badge}
+              </div>
               <ul className={styles.tierPerks}>
-                {tier.perks.map(perk => (
+                {tier.perks.map((perk) => (
                   <li key={perk} className={styles.tierPerk}>
                     <span className={styles.tierPerkCheck}>✓</span>
                     {perk}
@@ -332,21 +359,26 @@ export default function Affiliate() {
               >
                 <span className={styles.partnerSlotIcon}>{p.icon}</span>
                 <div className={styles.partnerSlotLabel}>
-                  <strong style={{ color: 'var(--ink)' }}>{p.name}</strong><br />
+                  <strong style={{ color: 'var(--ink)' }}>{p.name}</strong>
+                  <br />
                   <span style={{ fontSize: '0.7rem', color: '#a78bfa' }}>{p.region}</span>
                   {p.founding && (
-                    <div style={{
-                      marginTop: 6,
-                      fontSize: '0.6rem',
-                      background: 'rgba(139,92,246,0.15)',
-                      color: '#a78bfa',
-                      border: '1px solid rgba(139,92,246,0.3)',
-                      borderRadius: 100,
-                      padding: '2px 8px',
-                      fontWeight: 800,
-                      letterSpacing: 1,
-                      textTransform: 'uppercase',
-                    }}>⭐ Founding Partner</div>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: '0.6rem',
+                        background: 'rgba(139,92,246,0.15)',
+                        color: '#a78bfa',
+                        border: '1px solid rgba(139,92,246,0.3)',
+                        borderRadius: 100,
+                        padding: '2px 8px',
+                        fontWeight: 800,
+                        letterSpacing: 1,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      ⭐ Founding Partner
+                    </div>
                   )}
                 </div>
               </a>
@@ -356,7 +388,8 @@ export default function Affiliate() {
               <div key={i} className={`${styles.partnerSlot} ${styles.partnerSlotEmpty}`}>
                 <span className={styles.partnerSlotIcon}>{slot.icon}</span>
                 <div className={styles.partnerSlotLabel}>
-                  <strong>{slot.label}</strong><br />
+                  <strong>{slot.label}</strong>
+                  <br />
                   <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{slot.region}</span>
                 </div>
               </div>
@@ -375,8 +408,12 @@ export default function Affiliate() {
       <section className={`${styles.formSection}`} ref={formRef}>
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionEyebrow} style={{ color: '#a78bfa' }}>📬 Apply Now</span>
-            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>Start Your Partnership Application</h2>
+            <span className={styles.sectionEyebrow} style={{ color: '#a78bfa' }}>
+              📬 Apply Now
+            </span>
+            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>
+              Start Your Partnership Application
+            </h2>
             <p className={styles.sectionSub} style={{ color: 'rgba(255,255,255,0.45)' }}>
               Fill out the form below and we'll get back to you within 3–5 business days.
             </p>
@@ -389,8 +426,8 @@ export default function Affiliate() {
                 <div className={styles.successTitle}>Application Received!</div>
                 <p className={styles.successText}>
                   Thank you for applying to partner with BibleFunLand! We'll review your application
-                  and reach out to {form.email || 'you'} within 3–5 business days.
-                  In the meantime, feel free to explore everything our platform has to offer. God bless!
+                  and reach out to {form.email || 'you'} within 3–5 business days. In the meantime,
+                  feel free to explore everything our platform has to offer. God bless!
                 </p>
               </div>
             </div>
@@ -398,10 +435,11 @@ export default function Affiliate() {
             <div className={styles.formCard}>
               <form onSubmit={handleSubmit} noValidate>
                 <div className={styles.formGrid}>
-
                   {/* Name */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-name">Your Name *</label>
+                    <label className={styles.formLabel} htmlFor="aff-name">
+                      Your Name *
+                    </label>
                     <input
                       id="aff-name"
                       name="name"
@@ -415,7 +453,9 @@ export default function Affiliate() {
 
                   {/* Organization */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-org">Organization Name *</label>
+                    <label className={styles.formLabel} htmlFor="aff-org">
+                      Organization Name *
+                    </label>
                     <input
                       id="aff-org"
                       name="organization"
@@ -429,7 +469,9 @@ export default function Affiliate() {
 
                   {/* Org Type */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-type">Organization Type *</label>
+                    <label className={styles.formLabel} htmlFor="aff-type">
+                      Organization Type *
+                    </label>
                     <select
                       id="aff-type"
                       name="orgType"
@@ -450,7 +492,9 @@ export default function Affiliate() {
 
                   {/* Tier Interest */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-tier">Partnership Tier *</label>
+                    <label className={styles.formLabel} htmlFor="aff-tier">
+                      Partnership Tier *
+                    </label>
                     <select
                       id="aff-tier"
                       name="tier"
@@ -469,7 +513,9 @@ export default function Affiliate() {
 
                   {/* Email */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-email">Email Address *</label>
+                    <label className={styles.formLabel} htmlFor="aff-email">
+                      Email Address *
+                    </label>
                     <input
                       id="aff-email"
                       name="email"
@@ -484,7 +530,9 @@ export default function Affiliate() {
 
                   {/* Phone */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-phone">Phone (optional)</label>
+                    <label className={styles.formLabel} htmlFor="aff-phone">
+                      Phone (optional)
+                    </label>
                     <input
                       id="aff-phone"
                       name="phone"
@@ -498,7 +546,9 @@ export default function Affiliate() {
 
                   {/* Website */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-website">Website (optional)</label>
+                    <label className={styles.formLabel} htmlFor="aff-website">
+                      Website (optional)
+                    </label>
                     <input
                       id="aff-website"
                       name="website"
@@ -512,7 +562,9 @@ export default function Affiliate() {
 
                   {/* Location */}
                   <div>
-                    <label className={styles.formLabel} htmlFor="aff-location">City, State / Country</label>
+                    <label className={styles.formLabel} htmlFor="aff-location">
+                      City, State / Country
+                    </label>
                     <input
                       id="aff-location"
                       name="location"
@@ -525,7 +577,9 @@ export default function Affiliate() {
 
                   {/* Message */}
                   <div className={styles.formGroupFull}>
-                    <label className={styles.formLabel} htmlFor="aff-message">Tell Us About Your Organization</label>
+                    <label className={styles.formLabel} htmlFor="aff-message">
+                      Tell Us About Your Organization
+                    </label>
                     <textarea
                       id="aff-message"
                       name="message"
@@ -535,19 +589,20 @@ export default function Affiliate() {
                       className={styles.formTextarea}
                     />
                   </div>
-
                 </div>
 
                 {error && (
-                  <div style={{
-                    marginTop: 16,
-                    padding: '12px 16px',
-                    borderRadius: 10,
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    color: '#f87171',
-                    fontSize: '0.88rem',
-                  }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      padding: '12px 16px',
+                      borderRadius: 10,
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      color: '#f87171',
+                      fontSize: '0.88rem',
+                    }}
+                  >
                     ⚠️ {error}
                   </div>
                 )}
@@ -558,8 +613,11 @@ export default function Affiliate() {
                   </button>
                   <p className={styles.formDisclaimer}>
                     By applying, you agree to our{' '}
-                    <a href="/terms" style={{ color: '#a78bfa' }}>Terms of Service</a>.
-                    We never share your information. We'll only contact you about your partnership.
+                    <a href="/terms" style={{ color: '#a78bfa' }}>
+                      Terms of Service
+                    </a>
+                    . We never share your information. We'll only contact you about your
+                    partnership.
                   </p>
                 </div>
               </form>
@@ -583,7 +641,6 @@ export default function Affiliate() {
           ))}
         </div>
       </section>
-
     </div>
-  )
+  );
 }

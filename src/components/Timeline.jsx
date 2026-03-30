@@ -2,36 +2,63 @@ import styles from './Timeline.module.css';
 
 const TYPE_CONFIG = {
   milestone: { icon: '✨', label: 'Milestone', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.08)' },
-  mentor:    { icon: '👥', label: 'Mentor',    color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.08)' },
-  verse:     { icon: '📖', label: 'Scripture', color: '#10B981', bg: 'rgba(16, 185, 129, 0.08)' },
-  prayer:    { icon: '🙏', label: 'Prayer Answer', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.08)' },
+  mentor: { icon: '👥', label: 'Mentor', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.08)' },
+  verse: { icon: '📖', label: 'Scripture', color: '#10B981', bg: 'rgba(16, 185, 129, 0.08)' },
+  prayer: { icon: '🙏', label: 'Prayer Answer', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.08)' },
 };
 
 function fmt(dateStr) {
   if (!dateStr) return '—';
   try {
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
-  } catch { return dateStr; }
+  } catch {
+    return dateStr;
+  }
 }
 
 const Timeline = ({ data, onEdit, onDelete }) => {
   const allEvents = [
-    ...data.milestones.map(m => ({ type: 'milestone', date: m.milestone_date, title: m.title, desc: m.description, sub: m.category, item: m })),
-    ...data.mentors.map(m => ({ type: 'mentor', date: m.meeting_date, title: m.name, desc: m.how_they_shaped, sub: m.relationship, item: m })),
-    ...data.verses.map(v => ({ type: 'verse', date: v.season_date, title: v.reference, desc: `"${v.text}"`, sub: 'Comforting Scripture', item: v })),
-    ...data.prayers.map(p => ({ 
-      type: 'prayer', 
-      date: p.answer_date, 
-      title: 'Prayer Answered', 
-      desc: p.answer_text, 
-      sub: p.prayer_date ? `${Math.max(0, Math.floor((new Date(p.answer_date) - new Date(p.prayer_date)) / 86400000))} day wait` : '', 
-      item: p 
+    ...data.milestones.map((m) => ({
+      type: 'milestone',
+      date: m.milestone_date,
+      title: m.title,
+      desc: m.description,
+      sub: m.category,
+      item: m,
     })),
-  ].filter(e => e.date).sort((a, b) => new Date(b.date) - new Date(a.date));
+    ...data.mentors.map((m) => ({
+      type: 'mentor',
+      date: m.meeting_date,
+      title: m.name,
+      desc: m.how_they_shaped,
+      sub: m.relationship,
+      item: m,
+    })),
+    ...data.verses.map((v) => ({
+      type: 'verse',
+      date: v.season_date,
+      title: v.reference,
+      desc: `"${v.text}"`,
+      sub: 'Comforting Scripture',
+      item: v,
+    })),
+    ...data.prayers.map((p) => ({
+      type: 'prayer',
+      date: p.answer_date,
+      title: 'Prayer Answered',
+      desc: p.answer_text,
+      sub: p.prayer_date
+        ? `${Math.max(0, Math.floor((new Date(p.answer_date) - new Date(p.prayer_date)) / 86400000))} day wait`
+        : '',
+      item: p,
+    })),
+  ]
+    .filter((e) => e.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const stats = [
     { label: 'Milestones', value: data.milestones.length, icon: '✨', color: '#8B5CF6' },
@@ -55,11 +82,15 @@ const Timeline = ({ data, onEdit, onDelete }) => {
         </div>
 
         <div className={styles.stickyPanel}>
-          <h3 className={styles.panelTitle} style={{ fontSize: '1rem' }}>🔖 Legend</h3>
+          <h3 className={styles.panelTitle} style={{ fontSize: '1rem' }}>
+            🔖 Legend
+          </h3>
           <div className={styles.legendList}>
             {Object.entries(TYPE_CONFIG).map(([type, cfg]) => (
               <div key={type} className={styles.legendItem}>
-                <div className={styles.legendIcon} style={{ background: cfg.bg, color: cfg.color }}>{cfg.icon}</div>
+                <div className={styles.legendIcon} style={{ background: cfg.bg, color: cfg.color }}>
+                  {cfg.icon}
+                </div>
                 <span className={styles.legendLabel}>{cfg.label}</span>
               </div>
             ))}
@@ -73,26 +104,34 @@ const Timeline = ({ data, onEdit, onDelete }) => {
           <div className={styles.emptyTimeline}>
             <div className={styles.journeyIcon}>🛤️</div>
             <h3 className={styles.emptyTitle}>Your sacred story begins here</h3>
-            <p className={styles.emptyDesc}>Start recording milestones, mentors, and answered prayers to see your journey unfold.</p>
+            <p className={styles.emptyDesc}>
+              Start recording milestones, mentors, and answered prayers to see your journey unfold.
+            </p>
           </div>
         ) : (
           <div className={styles.feed}>
             {allEvents.map((event, i) => {
               const cfg = TYPE_CONFIG[event.type];
               return (
-                <article 
-                  key={`${event.type}-${event.item.id}-${i}`} 
+                <article
+                  key={`${event.type}-${event.item.id}-${i}`}
                   className={styles.eventCard}
                   style={{ '--event-color': cfg.color, '--event-bg': cfg.bg }}
                 >
                   <div className={styles.eventHeader}>
-                    <div className={styles.eventIcon} style={{ background: cfg.bg, color: cfg.color }}>
+                    <div
+                      className={styles.eventIcon}
+                      style={{ background: cfg.bg, color: cfg.color }}
+                    >
                       {cfg.icon}
                     </div>
                     <div className={styles.eventTitleGroup}>
                       <h4 className={styles.eventTitle}>{event.title}</h4>
                       <div className={styles.eventMeta}>
-                        <span className={styles.typeBadge} style={{ background: cfg.bg, color: cfg.color }}>
+                        <span
+                          className={styles.typeBadge}
+                          style={{ background: cfg.bg, color: cfg.color }}
+                        >
                           {cfg.label}
                         </span>
                         {event.sub && <span className={styles.eventDate}>• {event.sub}</span>}
@@ -104,13 +143,13 @@ const Timeline = ({ data, onEdit, onDelete }) => {
                   {event.desc && <p className={styles.eventDesc}>{event.desc}</p>}
 
                   <div className={styles.actions}>
-                    <button 
+                    <button
                       onClick={() => onEdit(event.type, event.item)}
                       className={styles.btnEditTimeline}
                     >
                       ✏️ Edit
                     </button>
-                    <button 
+                    <button
                       onClick={() => onDelete(event.type, event.item.id)}
                       className={styles.btnDeleteTimeline}
                     >
@@ -128,12 +167,22 @@ const Timeline = ({ data, onEdit, onDelete }) => {
 };
 
 const StatRow = ({ icon, label, value, color }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '10px 0',
+      borderBottom: '1px solid var(--border)',
+    }}
+  >
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <span style={{ fontSize: '1.2rem' }}>{icon}</span>
       <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink2)' }}>{label}</span>
     </div>
-    <span style={{ fontFamily: 'Baloo 2, cursive', fontWeight: 900, fontSize: '1.2rem', color }}>{value}</span>
+    <span style={{ fontFamily: 'Baloo 2, cursive', fontWeight: 900, fontSize: '1.2rem', color }}>
+      {value}
+    </span>
   </div>
 );
 

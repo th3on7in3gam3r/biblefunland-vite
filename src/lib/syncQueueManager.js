@@ -11,23 +11,23 @@ import {
   getFromStore,
   getAllFromStore,
   getFromStoreByIndex,
-  STORES
-} from './indexedDB'
-import { encryptSyncQueueEntry, decryptSyncQueueEntry, deriveEncryptionKey } from './encryption'
+  STORES,
+} from './indexedDB';
+import { encryptSyncQueueEntry, decryptSyncQueueEntry, deriveEncryptionKey } from './encryption';
 
-const MAX_RETRIES = 5
-const RETRY_DELAY = 30000 // 30 seconds
+const MAX_RETRIES = 5;
+const RETRY_DELAY = 30000; // 30 seconds
 
 /**
  * Generate a simple UUID v4
  * @returns {string} UUID string
  */
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
-    return v.toString(16)
-  })
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 /**
@@ -51,21 +51,21 @@ export async function addToQueue(userId, actionType, payload) {
       errorMessage: null,
       encrypted: false,
       createdAt: Date.now(),
-      updatedAt: Date.now()
-    }
+      updatedAt: Date.now(),
+    };
 
     // Encrypt the payload
-    const encryptionKey = await deriveEncryptionKey(userId)
-    const encryptedEntry = await encryptSyncQueueEntry(queueEntry, encryptionKey)
+    const encryptionKey = await deriveEncryptionKey(userId);
+    const encryptedEntry = await encryptSyncQueueEntry(queueEntry, encryptionKey);
 
     // Add to IndexedDB
-    const id = await addToStore(STORES.SYNC_QUEUE, encryptedEntry)
-    console.log(`✅ Action added to sync queue: ${actionType} (${id})`)
-    
-    return id
+    const id = await addToStore(STORES.SYNC_QUEUE, encryptedEntry);
+    console.log(`✅ Action added to sync queue: ${actionType} (${id})`);
+
+    return id;
   } catch (error) {
-    console.error('❌ Error adding to sync queue:', error)
-    throw error
+    console.error('❌ Error adding to sync queue:', error);
+    throw error;
   }
 }
 
@@ -76,29 +76,29 @@ export async function addToQueue(userId, actionType, payload) {
  */
 export async function getPendingActions(userId = null) {
   try {
-    let actions = await getFromStoreByIndex(STORES.SYNC_QUEUE, 'status', 'pending')
-    
+    let actions = await getFromStoreByIndex(STORES.SYNC_QUEUE, 'status', 'pending');
+
     if (userId) {
-      actions = actions.filter(action => action.userId === userId)
+      actions = actions.filter((action) => action.userId === userId);
     }
 
     // Decrypt payloads
     const decryptedActions = await Promise.all(
       actions.map(async (action) => {
         try {
-          const encryptionKey = await deriveEncryptionKey(action.userId)
-          return await decryptSyncQueueEntry(action, encryptionKey)
+          const encryptionKey = await deriveEncryptionKey(action.userId);
+          return await decryptSyncQueueEntry(action, encryptionKey);
         } catch (error) {
-          console.error('❌ Error decrypting action:', error)
-          return action
+          console.error('❌ Error decrypting action:', error);
+          return action;
         }
       })
-    )
+    );
 
-    return decryptedActions
+    return decryptedActions;
   } catch (error) {
-    console.error('❌ Error getting pending actions:', error)
-    throw error
+    console.error('❌ Error getting pending actions:', error);
+    throw error;
   }
 }
 
@@ -109,29 +109,29 @@ export async function getPendingActions(userId = null) {
  */
 export async function getFailedActions(userId = null) {
   try {
-    let actions = await getFromStoreByIndex(STORES.SYNC_QUEUE, 'status', 'failed')
-    
+    let actions = await getFromStoreByIndex(STORES.SYNC_QUEUE, 'status', 'failed');
+
     if (userId) {
-      actions = actions.filter(action => action.userId === userId)
+      actions = actions.filter((action) => action.userId === userId);
     }
 
     // Decrypt payloads
     const decryptedActions = await Promise.all(
       actions.map(async (action) => {
         try {
-          const encryptionKey = await deriveEncryptionKey(action.userId)
-          return await decryptSyncQueueEntry(action, encryptionKey)
+          const encryptionKey = await deriveEncryptionKey(action.userId);
+          return await decryptSyncQueueEntry(action, encryptionKey);
         } catch (error) {
-          console.error('❌ Error decrypting action:', error)
-          return action
+          console.error('❌ Error decrypting action:', error);
+          return action;
         }
       })
-    )
+    );
 
-    return decryptedActions
+    return decryptedActions;
   } catch (error) {
-    console.error('❌ Error getting failed actions:', error)
-    throw error
+    console.error('❌ Error getting failed actions:', error);
+    throw error;
   }
 }
 
@@ -141,25 +141,25 @@ export async function getFailedActions(userId = null) {
  */
 export async function getAllQueueEntries() {
   try {
-    const entries = await getAllFromStore(STORES.SYNC_QUEUE)
-    
+    const entries = await getAllFromStore(STORES.SYNC_QUEUE);
+
     // Decrypt payloads
     const decryptedEntries = await Promise.all(
       entries.map(async (entry) => {
         try {
-          const encryptionKey = await deriveEncryptionKey(entry.userId)
-          return await decryptSyncQueueEntry(entry, encryptionKey)
+          const encryptionKey = await deriveEncryptionKey(entry.userId);
+          return await decryptSyncQueueEntry(entry, encryptionKey);
         } catch (error) {
-          console.error('❌ Error decrypting entry:', error)
-          return entry
+          console.error('❌ Error decrypting entry:', error);
+          return entry;
         }
       })
-    )
+    );
 
-    return decryptedEntries
+    return decryptedEntries;
   } catch (error) {
-    console.error('❌ Error getting all queue entries:', error)
-    throw error
+    console.error('❌ Error getting all queue entries:', error);
+    throw error;
   }
 }
 
@@ -172,28 +172,28 @@ export async function getAllQueueEntries() {
  */
 export async function updateQueueEntryStatus(queueId, status, errorMessage = null) {
   try {
-    const entry = await getFromStore(STORES.SYNC_QUEUE, queueId)
+    const entry = await getFromStore(STORES.SYNC_QUEUE, queueId);
     if (!entry) {
-      throw new Error(`Queue entry not found: ${queueId}`)
+      throw new Error(`Queue entry not found: ${queueId}`);
     }
 
     const updatedEntry = {
       ...entry,
       status,
       errorMessage,
-      updatedAt: Date.now()
-    }
+      updatedAt: Date.now(),
+    };
 
     if (status === 'failed') {
-      updatedEntry.retryCount = (entry.retryCount || 0) + 1
-      updatedEntry.lastRetryTime = Date.now()
+      updatedEntry.retryCount = (entry.retryCount || 0) + 1;
+      updatedEntry.lastRetryTime = Date.now();
     }
 
-    await updateInStore(STORES.SYNC_QUEUE, updatedEntry)
-    console.log(`✅ Queue entry updated: ${queueId} -> ${status}`)
+    await updateInStore(STORES.SYNC_QUEUE, updatedEntry);
+    console.log(`✅ Queue entry updated: ${queueId} -> ${status}`);
   } catch (error) {
-    console.error('❌ Error updating queue entry status:', error)
-    throw error
+    console.error('❌ Error updating queue entry status:', error);
+    throw error;
   }
 }
 
@@ -204,11 +204,11 @@ export async function updateQueueEntryStatus(queueId, status, errorMessage = nul
  */
 export async function removeFromQueue(queueId) {
   try {
-    await deleteFromStore(STORES.SYNC_QUEUE, queueId)
-    console.log(`✅ Queue entry removed: ${queueId}`)
+    await deleteFromStore(STORES.SYNC_QUEUE, queueId);
+    console.log(`✅ Queue entry removed: ${queueId}`);
   } catch (error) {
-    console.error('❌ Error removing from queue:', error)
-    throw error
+    console.error('❌ Error removing from queue:', error);
+    throw error;
   }
 }
 
@@ -218,12 +218,12 @@ export async function removeFromQueue(queueId) {
  */
 export async function clearQueue() {
   try {
-    const entries = await getAllFromStore(STORES.SYNC_QUEUE)
-    await Promise.all(entries.map(entry => removeFromQueue(entry.id)))
-    console.log('✅ Sync queue cleared')
+    const entries = await getAllFromStore(STORES.SYNC_QUEUE);
+    await Promise.all(entries.map((entry) => removeFromQueue(entry.id)));
+    console.log('✅ Sync queue cleared');
   } catch (error) {
-    console.error('❌ Error clearing queue:', error)
-    throw error
+    console.error('❌ Error clearing queue:', error);
+    throw error;
   }
 }
 
@@ -234,11 +234,11 @@ export async function clearQueue() {
  */
 export async function getPendingActionCount(userId = null) {
   try {
-    const actions = await getPendingActions(userId)
-    return actions.length
+    const actions = await getPendingActions(userId);
+    return actions.length;
   } catch (error) {
-    console.error('❌ Error getting pending action count:', error)
-    return 0
+    console.error('❌ Error getting pending action count:', error);
+    return 0;
   }
 }
 
@@ -250,53 +250,49 @@ export async function getPendingActionCount(userId = null) {
  */
 export async function syncQueue(userId, syncEndpoint) {
   try {
-    const pendingActions = await getPendingActions(userId)
-    
+    const pendingActions = await getPendingActions(userId);
+
     if (pendingActions.length === 0) {
-      console.log('✅ No pending actions to sync')
-      return { synced: [], failed: [] }
+      console.log('✅ No pending actions to sync');
+      return { synced: [], failed: [] };
     }
 
-    console.log(`🔄 Syncing ${pendingActions.length} pending actions...`)
+    console.log(`🔄 Syncing ${pendingActions.length} pending actions...`);
 
     // Update all to syncing status
-    await Promise.all(
-      pendingActions.map(action => 
-        updateQueueEntryStatus(action.id, 'syncing')
-      )
-    )
+    await Promise.all(pendingActions.map((action) => updateQueueEntryStatus(action.id, 'syncing')));
 
     // Call sync endpoint
-    const result = await syncEndpoint(pendingActions)
+    const result = await syncEndpoint(pendingActions);
 
     // Process results
-    const synced = []
-    const failed = []
+    const synced = [];
+    const failed = [];
 
     for (const action of result.synced || []) {
-      await removeFromQueue(action.id)
-      synced.push(action)
+      await removeFromQueue(action.id);
+      synced.push(action);
     }
 
     for (const action of result.failed || []) {
-      const entry = await getFromStore(STORES.SYNC_QUEUE, action.id)
-      
+      const entry = await getFromStore(STORES.SYNC_QUEUE, action.id);
+
       if (entry.retryCount >= MAX_RETRIES) {
-        await updateQueueEntryStatus(action.id, 'failed', action.error)
+        await updateQueueEntryStatus(action.id, 'failed', action.error);
       } else {
-        await updateQueueEntryStatus(action.id, 'pending', action.error)
+        await updateQueueEntryStatus(action.id, 'pending', action.error);
         // Schedule retry
-        scheduleRetry(action.id, userId, syncEndpoint)
+        scheduleRetry(action.id, userId, syncEndpoint);
       }
-      
-      failed.push(action)
+
+      failed.push(action);
     }
 
-    console.log(`✅ Sync complete: ${synced.length} synced, ${failed.length} failed`)
-    return { synced, failed }
+    console.log(`✅ Sync complete: ${synced.length} synced, ${failed.length} failed`);
+    return { synced, failed };
   } catch (error) {
-    console.error('❌ Error syncing queue:', error)
-    throw error
+    console.error('❌ Error syncing queue:', error);
+    throw error;
   }
 }
 
@@ -309,15 +305,15 @@ export async function syncQueue(userId, syncEndpoint) {
 function scheduleRetry(queueId, userId, syncEndpoint) {
   setTimeout(async () => {
     try {
-      const entry = await getFromStore(STORES.SYNC_QUEUE, queueId)
+      const entry = await getFromStore(STORES.SYNC_QUEUE, queueId);
       if (entry && entry.status === 'pending' && entry.retryCount < MAX_RETRIES) {
-        console.log(`🔄 Retrying action: ${queueId}`)
-        await syncQueue(userId, syncEndpoint)
+        console.log(`🔄 Retrying action: ${queueId}`);
+        await syncQueue(userId, syncEndpoint);
       }
     } catch (error) {
-      console.error('❌ Error during retry:', error)
+      console.error('❌ Error during retry:', error);
     }
-  }, RETRY_DELAY)
+  }, RETRY_DELAY);
 }
 
 /**
@@ -326,20 +322,20 @@ function scheduleRetry(queueId, userId, syncEndpoint) {
  */
 export async function getQueueStats() {
   try {
-    const allEntries = await getAllFromStore(STORES.SYNC_QUEUE)
-    const pending = allEntries.filter(e => e.status === 'pending').length
-    const failed = allEntries.filter(e => e.status === 'failed').length
-    const syncing = allEntries.filter(e => e.status === 'syncing').length
+    const allEntries = await getAllFromStore(STORES.SYNC_QUEUE);
+    const pending = allEntries.filter((e) => e.status === 'pending').length;
+    const failed = allEntries.filter((e) => e.status === 'failed').length;
+    const syncing = allEntries.filter((e) => e.status === 'syncing').length;
 
     return {
       total: allEntries.length,
       pending,
       failed,
       syncing,
-      completed: allEntries.filter(e => e.status === 'completed').length
-    }
+      completed: allEntries.filter((e) => e.status === 'completed').length,
+    };
   } catch (error) {
-    console.error('❌ Error getting queue stats:', error)
-    return { total: 0, pending: 0, failed: 0, syncing: 0, completed: 0 }
+    console.error('❌ Error getting queue stats:', error);
+    return { total: 0, pending: 0, failed: 0, syncing: 0, completed: 0 };
   }
 }

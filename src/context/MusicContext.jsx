@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, useEffect } from 'react'
+import { createContext, useContext, useRef, useState, useEffect } from 'react';
 
 export const TRACKS = [
   {
@@ -32,101 +32,112 @@ export const TRACKS = [
     duration: '4:07',
     src: '/music/good-good-father.mp3',
   },
-]
+];
 
-const MusicContext = createContext(null)
+const MusicContext = createContext(null);
 
 export function MusicProvider({ children }) {
-  const audioRef = useRef(new Audio())
-  const [trackIndex, setTrackIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(0.7)
-  const [expanded, setExpanded] = useState(false)
+  const audioRef = useRef(new Audio());
+  const [trackIndex, setTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [expanded, setExpanded] = useState(false);
 
-  const audio = audioRef.current
+  const audio = audioRef.current;
 
   useEffect(() => {
-    audio.src = TRACKS[trackIndex].src
-    audio.volume = volume
-    audio.load()
+    audio.src = TRACKS[trackIndex].src;
+    audio.volume = volume;
+    audio.load();
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
-    const onDurationChange = () => setDuration(audio.duration || 0)
-    const onEnded = () => nextTrack()
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onDurationChange = () => setDuration(audio.duration || 0);
+    const onEnded = () => nextTrack();
 
-    audio.addEventListener('timeupdate', onTimeUpdate)
-    audio.addEventListener('durationchange', onDurationChange)
-    audio.addEventListener('ended', onEnded)
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('durationchange', onDurationChange);
+    audio.addEventListener('ended', onEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate)
-      audio.removeEventListener('durationchange', onDurationChange)
-      audio.removeEventListener('ended', onEnded)
-    }
-  }, [trackIndex])
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('durationchange', onDurationChange);
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, [trackIndex]);
 
   useEffect(() => {
-    audio.volume = volume
-  }, [volume])
+    audio.volume = volume;
+  }, [volume]);
 
   const play = async () => {
     try {
-      await audio.play()
-      setIsPlaying(true)
+      await audio.play();
+      setIsPlaying(true);
     } catch (e) {
       // Autoplay blocked by browser — user must interact first
-      console.warn('Audio play blocked:', e.message)
+      console.warn('Audio play blocked:', e.message);
     }
-  }
+  };
 
   const pause = () => {
-    audio.pause()
-    setIsPlaying(false)
-  }
+    audio.pause();
+    setIsPlaying(false);
+  };
 
-  const togglePlay = () => (isPlaying ? pause() : play())
+  const togglePlay = () => (isPlaying ? pause() : play());
 
   const nextTrack = () => {
-    const next = (trackIndex + 1) % TRACKS.length
-    setTrackIndex(next)
-    if (isPlaying) setTimeout(() => play(), 100)
-  }
+    const next = (trackIndex + 1) % TRACKS.length;
+    setTrackIndex(next);
+    if (isPlaying) setTimeout(() => play(), 100);
+  };
 
   const prevTrack = () => {
-    const prev = (trackIndex - 1 + TRACKS.length) % TRACKS.length
-    setTrackIndex(prev)
-    if (isPlaying) setTimeout(() => play(), 100)
-  }
+    const prev = (trackIndex - 1 + TRACKS.length) % TRACKS.length;
+    setTrackIndex(prev);
+    if (isPlaying) setTimeout(() => play(), 100);
+  };
 
   const seek = (pct) => {
-    if (!duration) return
-    audio.currentTime = (pct / 100) * duration
-  }
+    if (!duration) return;
+    audio.currentTime = (pct / 100) * duration;
+  };
 
   const formatTime = (s) => {
-    if (!s || isNaN(s)) return '0:00'
-    const m = Math.floor(s / 60)
-    const sec = Math.floor(s % 60)
-    return `${m}:${String(sec).padStart(2, '0')}`
-  }
+    if (!s || isNaN(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, '0')}`;
+  };
 
   return (
-    <MusicContext.Provider value={{
-      tracks: TRACKS,
-      trackIndex, setTrackIndex,
-      isPlaying, play, pause, togglePlay,
-      currentTime, duration, seek,
-      volume, setVolume,
-      expanded, setExpanded,
-      nextTrack, prevTrack,
-      formatTime,
-      currentTrack: TRACKS[trackIndex],
-    }}>
+    <MusicContext.Provider
+      value={{
+        tracks: TRACKS,
+        trackIndex,
+        setTrackIndex,
+        isPlaying,
+        play,
+        pause,
+        togglePlay,
+        currentTime,
+        duration,
+        seek,
+        volume,
+        setVolume,
+        expanded,
+        setExpanded,
+        nextTrack,
+        prevTrack,
+        formatTime,
+        currentTrack: TRACKS[trackIndex],
+      }}
+    >
       {children}
     </MusicContext.Provider>
-  )
+  );
 }
 
-export const useMusic = () => useContext(MusicContext)
+export const useMusic = () => useContext(MusicContext);

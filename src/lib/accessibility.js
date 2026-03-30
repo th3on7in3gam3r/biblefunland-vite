@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
-import { axe, toHaveNoViolations } from 'jest-axe'
+import { useEffect } from 'react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 // Enable jest-axe matchers
-expect.extend(toHaveNoViolations)
+expect.extend(toHaveNoViolations);
 
 /**
  * Development-only accessibility testing hook
@@ -11,28 +11,28 @@ expect.extend(toHaveNoViolations)
  */
 export function useAccessibilityAudit(containerRef, componentName = 'Component') {
   useEffect(() => {
-    if (!import.meta.env.DEV || !containerRef?.current) return
+    if (!import.meta.env.DEV || !containerRef?.current) return;
 
     async function runAudit() {
       try {
-        const results = await axe(containerRef.current)
+        const results = await axe(containerRef.current);
         if (results.violations.length > 0) {
-          console.warn(`♿ A11y violations in ${componentName}:`)
+          console.warn(`♿ A11y violations in ${componentName}:`);
           results.violations.forEach((violation) => {
-            console.warn(`  ⚠️  ${violation.description}`, violation)
-          })
+            console.warn(`  ⚠️  ${violation.description}`, violation);
+          });
         } else {
-          console.log(`✅ ${componentName} passed accessibility audit`)
+          console.log(`✅ ${componentName} passed accessibility audit`);
         }
       } catch (error) {
-        console.error('Accessibility audit error:', error)
+        console.error('Accessibility audit error:', error);
       }
     }
 
     // Run audit after component mounts and renders
-    const timer = setTimeout(runAudit, 1000)
-    return () => clearTimeout(timer)
-  }, [containerRef, componentName])
+    const timer = setTimeout(runAudit, 1000);
+    return () => clearTimeout(timer);
+  }, [containerRef, componentName]);
 }
 
 /**
@@ -98,17 +98,17 @@ export const A11yChecklist = {
     description: 'Page language declared for screen readers',
     example: '<html lang="en">',
   },
-}
+};
 
 /**
  * Print accessibility checklist to console
  */
 export function printA11yChecklist() {
-  console.log('♿ BibleFunLand Accessibility Checklist:')
+  console.log('♿ BibleFunLand Accessibility Checklist:');
   Object.entries(A11yChecklist).forEach(([key, value]) => {
-    console.log(`  ✓ ${value.description}`)
-    console.log(`    Example: ${value.example}`)
-  })
+    console.log(`  ✓ ${value.description}`);
+    console.log(`    Example: ${value.example}`);
+  });
 }
 
-export default useAccessibilityAudit
+export default useAccessibilityAudit;

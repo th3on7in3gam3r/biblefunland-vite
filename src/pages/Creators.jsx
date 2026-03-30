@@ -1,105 +1,130 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import styles from './Creators.module.css'
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import styles from './Creators.module.css';
 
 // ProPlan pricing for earnings calculator
-const PRO_PRICE = 9.99
-const COMMISSION_RATE = 0.20
+const PRO_PRICE = 9.99;
+const COMMISSION_RATE = 0.2;
 
 const FAQS = [
-  { q: 'How do I get paid?', a: 'We track referrals manually and pay out via PayPal or Venmo on the 1st of each month for the previous month\'s conversions. A minimum payout threshold of $10 applies.' },
-  { q: 'How does the tracking work?', a: 'Your unique link adds ?ref=yourname to the URL. When a visitor clicks it, we store that code in their browser. If they upgrade to Pro within 30 days, you earn 20% of their subscription.' },
-  { q: 'Who is eligible?', a: 'Any Christian content creator — YouTubers, podcasters, bloggers, TikTokers, Instagram ministers — is welcome. We just ask that your content aligns with our faith values.' },
-  { q: 'Is there a limit to how much I can earn?', a: 'No cap! The more your audience converts, the more you earn. Some creators can significantly fund their ministry through referrals alone.' },
-  { q: 'How do I verify my dashboard stats are accurate?', a: 'The dashboard shows locally tracked data from your browser. For verified conversion reports, email us at hello@biblefunland.com and we\'ll send your official report.' },
-]
+  {
+    q: 'How do I get paid?',
+    a: "We track referrals manually and pay out via PayPal or Venmo on the 1st of each month for the previous month's conversions. A minimum payout threshold of $10 applies.",
+  },
+  {
+    q: 'How does the tracking work?',
+    a: 'Your unique link adds ?ref=yourname to the URL. When a visitor clicks it, we store that code in their browser. If they upgrade to Pro within 30 days, you earn 20% of their subscription.',
+  },
+  {
+    q: 'Who is eligible?',
+    a: 'Any Christian content creator — YouTubers, podcasters, bloggers, TikTokers, Instagram ministers — is welcome. We just ask that your content aligns with our faith values.',
+  },
+  {
+    q: 'Is there a limit to how much I can earn?',
+    a: 'No cap! The more your audience converts, the more you earn. Some creators can significantly fund their ministry through referrals alone.',
+  },
+  {
+    q: 'How do I verify my dashboard stats are accurate?',
+    a: "The dashboard shows locally tracked data from your browser. For verified conversion reports, email us at hello@biblefunland.com and we'll send your official report.",
+  },
+];
 
 // localStorage key
-const STORAGE_KEY = 'bfl_creator_stats'
+const STORAGE_KEY = 'bfl_creator_stats';
 
 function loadStats() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { clicks: 0, visits: [], handle: '' }
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { clicks: 0, visits: [], handle: '' };
   } catch {
-    return { clicks: 0, visits: [], handle: '' }
+    return { clicks: 0, visits: [], handle: '' };
   }
 }
 
 function saveStats(stats) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stats)) } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+  } catch {}
 }
 
 export default function Creators() {
-  const [handle, setHandle] = useState('')
-  const [generatedLink, setGeneratedLink] = useState('')
-  const [copied, setCopied] = useState(false)
-  const [followers, setFollowers] = useState(1000)
-  const [stats, setStats] = useState(loadStats)
-  const genRef = useRef(null)
+  const [handle, setHandle] = useState('');
+  const [generatedLink, setGeneratedLink] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [followers, setFollowers] = useState(1000);
+  const [stats, setStats] = useState(loadStats);
+  const genRef = useRef(null);
 
   // Load saved handle on mount
   useEffect(() => {
-    const saved = loadStats()
+    const saved = loadStats();
     if (saved.handle) {
-      setHandle(saved.handle)
-      setGeneratedLink(`https://biblefunland.com/?ref=${saved.handle}`)
+      setHandle(saved.handle);
+      setGeneratedLink(`https://biblefunland.com/?ref=${saved.handle}`);
     }
-  }, [])
+  }, []);
 
   const generateLink = () => {
-    const clean = handle.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '')
-    if (!clean) return
-    const link = `https://biblefunland.com/?ref=${clean}`
-    setGeneratedLink(link)
+    const clean = handle
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, '');
+    if (!clean) return;
+    const link = `https://biblefunland.com/?ref=${clean}`;
+    setGeneratedLink(link);
     // Save handle to stats
-    const updated = { ...stats, handle: clean }
-    setStats(updated)
-    saveStats(updated)
-  }
+    const updated = { ...stats, handle: clean };
+    setStats(updated);
+    saveStats(updated);
+  };
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(generatedLink)
-      setCopied(true)
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
       // Record a simulated click
       const updated = {
         ...stats,
         clicks: stats.clicks + 1,
         visits: [...(stats.visits || []), Date.now()],
         handle: handle.trim(),
-      }
-      setStats(updated)
-      saveStats(updated)
-      setTimeout(() => setCopied(false), 2000)
+      };
+      setStats(updated);
+      saveStats(updated);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      setCopied(false)
+      setCopied(false);
     }
-  }
+  };
 
   const resetStats = () => {
-    const fresh = { clicks: 0, visits: [], handle: stats.handle }
-    setStats(fresh)
-    saveStats(fresh)
-  }
+    const fresh = { clicks: 0, visits: [], handle: stats.handle };
+    setStats(fresh);
+    saveStats(fresh);
+  };
 
   // Earnings calc
-  const conversionRate = 0.02 // 2% estimated
-  const conversions = Math.round(followers * conversionRate)
-  const monthlyEarning = (conversions * PRO_PRICE * COMMISSION_RATE).toFixed(2)
-  const annualEarning = (parseFloat(monthlyEarning) * 12).toFixed(2)
+  const conversionRate = 0.02; // 2% estimated
+  const conversions = Math.round(followers * conversionRate);
+  const monthlyEarning = (conversions * PRO_PRICE * COMMISSION_RATE).toFixed(2);
+  const annualEarning = (parseFloat(monthlyEarning) * 12).toFixed(2);
 
-  const scrollToGen = () => genRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const scrollToGen = () => genRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
     <div className={styles.page}>
-
       {/* ── Hero ── */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <div className={styles.heroBadge}>🎙️ Creator Affiliate Program</div>
-          <h1 className={styles.heroTitle}>Turn Your Audience into<br />Kingdom Income</h1>
+          <h1 className={styles.heroTitle}>
+            Turn Your Audience into
+            <br />
+            Kingdom Income
+          </h1>
           <p className={styles.heroSub}>
-            You share the link. Your followers discover BibleFunLand. You earn <strong style={{ color: '#fb923c' }}>20% commission</strong> on every Pro upgrade from your referrals — for as long as they're subscribed.
+            You share the link. Your followers discover BibleFunLand. You earn{' '}
+            <strong style={{ color: '#fb923c' }}>20% commission</strong> on every Pro upgrade from
+            your referrals — for as long as they're subscribed.
           </p>
           <div className={styles.heroActions}>
             <button onClick={scrollToGen} className={styles.btnPrimary}>
@@ -121,10 +146,22 @@ export default function Creators() {
         </div>
         <div className={styles.stepsRow}>
           {[
-            { n: 1, title: 'Get Your Link', desc: 'Enter your creator handle below to generate your unique referral URL.' },
-            { n: 2, title: 'Share It', desc: 'Add it to YouTube descriptions, podcast show notes, Instagram bio, blog posts — anywhere.' },
-            { n: 3, title: 'Earn 20%', desc: 'When a follower upgrades to Pro within 30 days, you earn 20% of their subscription.' },
-          ].map(s => (
+            {
+              n: 1,
+              title: 'Get Your Link',
+              desc: 'Enter your creator handle below to generate your unique referral URL.',
+            },
+            {
+              n: 2,
+              title: 'Share It',
+              desc: 'Add it to YouTube descriptions, podcast show notes, Instagram bio, blog posts — anywhere.',
+            },
+            {
+              n: 3,
+              title: 'Earn 20%',
+              desc: 'When a follower upgrades to Pro within 30 days, you earn 20% of their subscription.',
+            },
+          ].map((s) => (
             <div key={s.n} className={styles.step}>
               <div className={styles.stepNum}>{s.n}</div>
               <div className={styles.stepTitle}>{s.title}</div>
@@ -151,7 +188,7 @@ export default function Creators() {
             max={100000}
             step={100}
             value={followers}
-            onChange={e => setFollowers(Number(e.target.value))}
+            onChange={(e) => setFollowers(Number(e.target.value))}
             className={styles.calcSlider}
           />
           <div className={styles.calcValues}>
@@ -164,7 +201,8 @@ export default function Creators() {
           <div className={styles.calcResult}>
             <div className={styles.calcEarning}>${monthlyEarning}/mo</div>
             <div className={styles.calcEarningLabel}>
-              ~{conversions} conversions × 20% = <strong>${monthlyEarning}/month</strong> · ${annualEarning}/year
+              ~{conversions} conversions × 20% = <strong>${monthlyEarning}/month</strong> · $
+              {annualEarning}/year
             </div>
           </div>
         </div>
@@ -176,8 +214,12 @@ export default function Creators() {
       <section className={`${styles.generatorSection}`} ref={genRef}>
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <span className={styles.eyebrow} style={{ color: '#fb923c' }}>🔗 Your Link</span>
-            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>Generate Your Referral Link</h2>
+            <span className={styles.eyebrow} style={{ color: '#fb923c' }}>
+              🔗 Your Link
+            </span>
+            <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>
+              Generate Your Referral Link
+            </h2>
             <p className={styles.sectionSub} style={{ color: 'rgba(255,255,255,0.4)' }}>
               Enter your creator handle (YouTube channel name, podcast name, etc.)
             </p>
@@ -188,8 +230,8 @@ export default function Creators() {
             <div className={styles.genInputRow}>
               <input
                 value={handle}
-                onChange={e => setHandle(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && generateLink()}
+                onChange={(e) => setHandle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && generateLink()}
                 placeholder="e.g. graceministry, biblewithjohn, faithpodcast"
                 className={styles.genInput}
               />
@@ -210,8 +252,8 @@ export default function Creators() {
                   </button>
                 </div>
                 <p className={styles.genHint}>
-                  📋 Copy this link and add it to your YouTube description, Instagram bio, or podcast show notes.
-                  Every click is tracked and stored right here.
+                  📋 Copy this link and add it to your YouTube description, Instagram bio, or
+                  podcast show notes. Every click is tracked and stored right here.
                 </p>
               </>
             )}
@@ -239,7 +281,13 @@ export default function Creators() {
               {stats.clicks > 0 && (
                 <button
                   onClick={resetStats}
-                  style={{ background: 'none', border: 'none', color: 'var(--ink3)', fontSize: '0.75rem', cursor: 'pointer' }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--ink3)',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                  }}
                 >
                   Reset
                 </button>
@@ -254,7 +302,10 @@ export default function Creators() {
             <div className={styles.dashStat}>
               <div className={styles.dashStatNum}>
                 {stats.visits?.length > 0
-                  ? new Date(Math.max(...stats.visits)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                  ? new Date(Math.max(...stats.visits)).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })
                   : '—'}
               </div>
               <div className={styles.dashStatLabel}>Last Activity</div>
@@ -267,8 +318,8 @@ export default function Creators() {
             </div>
           </div>
           <div className={styles.dashNote}>
-            📌 This dashboard uses your browser's local storage for a preview only. For your official verified
-            conversion report and payout details, email{' '}
+            📌 This dashboard uses your browser's local storage for a preview only. For your
+            official verified conversion report and payout details, email{' '}
             <a href="mailto:hello@biblefunland.com" className={styles.dashNoteLink}>
               hello@biblefunland.com
             </a>{' '}
@@ -294,7 +345,6 @@ export default function Creators() {
           ))}
         </div>
       </section>
-
     </div>
-  )
+  );
 }

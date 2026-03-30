@@ -18,18 +18,34 @@ const TABS = [
   { id: 'prayers', label: 'Prayers', icon: '🙏' },
 ];
 
-const SINGULAR = { 
-  milestones: 'milestone', 
-  mentors: 'mentor', 
-  verses: 'verse', 
-  prayers: 'prayer' 
+const SINGULAR = {
+  milestones: 'milestone',
+  mentors: 'mentor',
+  verses: 'verse',
+  prayers: 'prayer',
 };
 
 const EMPTY_MESSAGES = {
-  milestones: { icon: '✨', title: 'Start Your Record', text: 'No milestones yet. Add your first sacred moment!' },
-  mentors: { icon: '👥', title: 'Honor Your Mentors', text: 'No mentors recorded. Add the people who shaped your faith!' },
-  verses: { icon: '📖', title: 'Scripture Strength', text: 'No verses recorded. Add the scriptures God gave you in hard seasons!' },
-  prayers: { icon: '🙏', title: 'Miracle Journal', text: 'No answered prayers recorded yet. Add the prayers God has answered!' },
+  milestones: {
+    icon: '✨',
+    title: 'Start Your Record',
+    text: 'No milestones yet. Add your first sacred moment!',
+  },
+  mentors: {
+    icon: '👥',
+    title: 'Honor Your Mentors',
+    text: 'No mentors recorded. Add the people who shaped your faith!',
+  },
+  verses: {
+    icon: '📖',
+    title: 'Scripture Strength',
+    text: 'No verses recorded. Add the scriptures God gave you in hard seasons!',
+  },
+  prayers: {
+    icon: '🙏',
+    title: 'Miracle Journal',
+    text: 'No answered prayers recorded yet. Add the prayers God has answered!',
+  },
 };
 
 const today = () => new Date().toISOString().split('T')[0];
@@ -53,12 +69,33 @@ const MODAL_CONFIGS = {
         ],
       },
       { name: 'title', label: 'Title *', required: true, placeholder: 'Give this moment a title' },
-      { name: 'milestone_date', label: 'Date *', type: 'date', required: true, defaultValue: today() },
-      { name: 'description', label: 'Description', type: 'textarea', placeholder: 'What happened on this day?' },
-      { name: 'impact_story', label: 'Impact Story', type: 'textarea', placeholder: 'How did this moment change your faith?' },
+      {
+        name: 'milestone_date',
+        label: 'Date *',
+        type: 'date',
+        required: true,
+        defaultValue: today(),
+      },
+      {
+        name: 'description',
+        label: 'Description',
+        type: 'textarea',
+        placeholder: 'What happened on this day?',
+      },
+      {
+        name: 'impact_story',
+        label: 'Impact Story',
+        type: 'textarea',
+        placeholder: 'How did this moment change your faith?',
+      },
       { name: 'photo_url', label: 'Photo URL', type: 'url', placeholder: 'https://...' },
       { name: 'tags', label: 'Tags', placeholder: 'e.g., family, church' },
-      { name: 'is_public', label: 'Share with the community', type: 'checkbox', defaultValue: false },
+      {
+        name: 'is_public',
+        label: 'Share with the community',
+        type: 'checkbox',
+        defaultValue: false,
+      },
     ],
   },
   mentor: {
@@ -81,11 +118,21 @@ const MODAL_CONFIGS = {
           { value: 'other', label: '➕ Other' },
         ],
       },
-      { name: 'how_they_shaped', label: 'How They Shaped You', type: 'textarea', placeholder: 'Their influence in your life' },
+      {
+        name: 'how_they_shaped',
+        label: 'How They Shaped You',
+        type: 'textarea',
+        placeholder: 'Their influence in your life',
+      },
       { name: 'meeting_date', label: 'When You Met Them', type: 'date', defaultValue: today() },
       { name: 'photo_url', label: 'Photo URL', type: 'url', placeholder: 'https://...' },
       { name: 'contact_info', label: 'Contact Info', placeholder: 'Optional phone or email' },
-      { name: 'still_connected', label: 'Still in touch with this mentor', type: 'checkbox', defaultValue: true },
+      {
+        name: 'still_connected',
+        label: 'Still in touch with this mentor',
+        type: 'checkbox',
+        defaultValue: true,
+      },
     ],
   },
   verse: {
@@ -93,12 +140,45 @@ const MODAL_CONFIGS = {
     label: 'Verse',
     endpoint: 'verses',
     fields: [
-      { name: 'reference', label: 'Scripture Reference *', required: true, placeholder: 'e.g., John 3:16' },
-      { name: 'text', label: 'Full Verse Text *', type: 'textarea', required: true, placeholder: 'The full text of the verse' },
-      { name: 'what_was_hard', label: 'What Was the Difficulty? *', type: 'textarea', required: true, placeholder: 'Describe the season' },
-      { name: 'how_it_helped', label: 'How Did It Help?', type: 'textarea', placeholder: 'How did this scripture give you strength?' },
-      { name: 'season_date', label: 'When Was This? *', type: 'date', required: true, defaultValue: today() },
-      { name: 'still_meaningful', label: 'This verse is still meaningful', type: 'checkbox', defaultValue: true },
+      {
+        name: 'reference',
+        label: 'Scripture Reference *',
+        required: true,
+        placeholder: 'e.g., John 3:16',
+      },
+      {
+        name: 'text',
+        label: 'Full Verse Text *',
+        type: 'textarea',
+        required: true,
+        placeholder: 'The full text of the verse',
+      },
+      {
+        name: 'what_was_hard',
+        label: 'What Was the Difficulty? *',
+        type: 'textarea',
+        required: true,
+        placeholder: 'Describe the season',
+      },
+      {
+        name: 'how_it_helped',
+        label: 'How Did It Help?',
+        type: 'textarea',
+        placeholder: 'How did this scripture give you strength?',
+      },
+      {
+        name: 'season_date',
+        label: 'When Was This? *',
+        type: 'date',
+        required: true,
+        defaultValue: today(),
+      },
+      {
+        name: 'still_meaningful',
+        label: 'This verse is still meaningful',
+        type: 'checkbox',
+        defaultValue: true,
+      },
     ],
   },
   prayer: {
@@ -106,13 +186,52 @@ const MODAL_CONFIGS = {
     label: 'Answered Prayer',
     endpoint: 'prayers',
     fields: [
-      { name: 'prayer_text', label: 'What Did You Pray For? *', type: 'textarea', required: true, placeholder: 'Describe your request' },
-      { name: 'answer_text', label: 'How Did God Answer? *', type: 'textarea', required: true, placeholder: 'Describe the answer' },
-      { name: 'prayer_date', label: 'When Did You Pray? *', type: 'date', required: true, defaultValue: today() },
-      { name: 'answer_date', label: 'When Was It Answered? *', type: 'date', required: true, defaultValue: today() },
-      { name: 'impact_story', label: 'Impact on Your Faith', type: 'textarea', placeholder: 'Strength of faith' },
-      { name: 'photos', label: 'Photo URLs (comma-separated)', type: 'textarea', placeholder: 'https://...' },
-      { name: 'is_public', label: 'Share with the community', type: 'checkbox', defaultValue: false },
+      {
+        name: 'prayer_text',
+        label: 'What Did You Pray For? *',
+        type: 'textarea',
+        required: true,
+        placeholder: 'Describe your request',
+      },
+      {
+        name: 'answer_text',
+        label: 'How Did God Answer? *',
+        type: 'textarea',
+        required: true,
+        placeholder: 'Describe the answer',
+      },
+      {
+        name: 'prayer_date',
+        label: 'When Did You Pray? *',
+        type: 'date',
+        required: true,
+        defaultValue: today(),
+      },
+      {
+        name: 'answer_date',
+        label: 'When Was It Answered? *',
+        type: 'date',
+        required: true,
+        defaultValue: today(),
+      },
+      {
+        name: 'impact_story',
+        label: 'Impact on Your Faith',
+        type: 'textarea',
+        placeholder: 'Strength of faith',
+      },
+      {
+        name: 'photos',
+        label: 'Photo URLs (comma-separated)',
+        type: 'textarea',
+        placeholder: 'https://...',
+      },
+      {
+        name: 'is_public',
+        label: 'Share with the community',
+        type: 'checkbox',
+        defaultValue: false,
+      },
     ],
   },
 };
@@ -151,7 +270,14 @@ const FaithMilestones = () => {
 
   const handleDelete = async (type, id) => {
     if (!window.confirm('Delete this sacred memory?')) return;
-    const endpoint = type === 'milestone' ? 'milestones' : type === 'mentor' ? 'mentors' : type === 'verse' ? 'verses' : 'prayers';
+    const endpoint =
+      type === 'milestone'
+        ? 'milestones'
+        : type === 'mentor'
+          ? 'mentors'
+          : type === 'verse'
+            ? 'verses'
+            : 'prayers';
     try {
       const response = await fetch(`/api/faith-milestones/${endpoint}/${id}`, {
         method: 'DELETE',
@@ -185,7 +311,10 @@ const FaithMilestones = () => {
       {/* ── Hero Section ── */}
       <section className={styles.hero}>
         <h1>Faith Milestones</h1>
-        <p>A personal record of your spiritual journey, answered prayers, and the mentors who shaped your walk with God.</p>
+        <p>
+          A personal record of your spiritual journey, answered prayers, and the mentors who shaped
+          your walk with God.
+        </p>
       </section>
 
       {/* ── Quick Stats Bar ── */}
@@ -193,7 +322,12 @@ const FaithMilestones = () => {
         <div className={styles.statCard}>
           <span className={styles.statIcon}>🛤️</span>
           <div className={styles.statInfo}>
-            <span className={styles.statValue}>{data.milestones.length + data.mentors.length + data.verses.length + data.prayers.length}</span>
+            <span className={styles.statValue}>
+              {data.milestones.length +
+                data.mentors.length +
+                data.verses.length +
+                data.prayers.length}
+            </span>
             <span className={styles.statLabel}>Total Memories</span>
           </div>
         </div>
@@ -277,7 +411,7 @@ const GridView = ({ type, data, onAdd, onEdit, onDelete }) => {
   return (
     <div className={styles.viewHeaderWrapper}>
       <div className={styles.viewHeader}>
-        <h2 className={styles.viewTitle}>{TABS.find(t => t.id === type)?.label} Collection</h2>
+        <h2 className={styles.viewTitle}>{TABS.find((t) => t.id === type)?.label} Collection</h2>
         <button className={styles.fabAdd} onClick={onAdd}>
           <span>+</span> Add {capitalizedSingular}
         </button>
@@ -289,13 +423,19 @@ const GridView = ({ type, data, onAdd, onEdit, onDelete }) => {
           <h4>{empty.title}</h4>
           <p>{empty.text}</p>
           <button className={styles.fabAdd} style={{ margin: '20px auto' }} onClick={onAdd}>
-             Record Your First {capitalizedSingular}
+            Record Your First {capitalizedSingular}
           </button>
         </div>
       ) : (
         <div className={styles.grid}>
           {data.map((item) => (
-            <EnhancedCard key={item.id} type={type} item={item} onEdit={onEdit} onDelete={onDelete} />
+            <EnhancedCard
+              key={item.id}
+              type={type}
+              item={item}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           ))}
         </div>
       )}
@@ -318,8 +458,12 @@ const EnhancedCard = ({ type, item, onEdit, onDelete }) => {
     <article className={styles.card}>
       <Renderer item={item} />
       <div className={styles.cardFooter}>
-        <button className={styles.btnEdit} onClick={() => onEdit(item)}>✏️ Edit</button>
-        <button className={styles.btnDelete} onClick={() => onDelete(item.id)}>🗑️ Delete</button>
+        <button className={styles.btnEdit} onClick={() => onEdit(item)}>
+          ✏️ Edit
+        </button>
+        <button className={styles.btnDelete} onClick={() => onDelete(item.id)}>
+          🗑️ Delete
+        </button>
       </div>
     </article>
   );
@@ -329,14 +473,27 @@ const EnhancedCard = ({ type, item, onEdit, onDelete }) => {
 
 const LoadingView = () => (
   <div className={styles.emptyView} style={{ border: 'none' }}>
-    <div style={{ width: 40, height: 40, border: '3px solid var(--blue)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+    <div
+      style={{
+        width: 40,
+        height: 40,
+        border: '3px solid var(--blue)',
+        borderTopColor: 'transparent',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+        margin: '0 auto 16px',
+      }}
+    />
     <p>Journeying back through your memories...</p>
     <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
   </div>
 );
 
 const FullLoading = () => (
-  <div className={styles.container} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  <div
+    className={styles.container}
+    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+  >
     <LoadingView />
   </div>
 );
