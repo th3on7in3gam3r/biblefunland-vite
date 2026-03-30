@@ -205,6 +205,30 @@
   .mobileSearch { display: block; }
 }
 
+@media (max-width: 1100px) {
+  .bedtimeHide, .bedtimeBtn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .mobileHide {
+    display: none !important;
+  }
+  .kidsToggle :global(.kids-mode-label) {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav {
+    padding: 0 12px;
+  }
+  .logoText {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .nav { padding: 0 16px; }
 }

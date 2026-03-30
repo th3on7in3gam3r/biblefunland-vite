@@ -234,12 +234,13 @@ export default function Nav() {
             <GlobalSearch />
           </div>
 
-          <KidsModeToggle />
+          <KidsModeToggle className={styles.kidsToggle} />
 
           {isPastor || userRole === 'parent' || (userRole === 'teacher' && <ChildSwitcherButton />)}
 
           <button
             onClick={() => setSleepOpen(true)}
+            className={styles.bedtimeBtn}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -266,10 +267,10 @@ export default function Nav() {
               e.currentTarget.style.color = 'var(--ink3)';
             }}
           >
-            🌙 Bedtime Bible
+            🌙 <span className={styles.bedtimeText}>Bedtime Bible</span>
           </button>
 
-          <NavLink to="/dashboard" className={styles.streakBadge} title="My Progress">
+          <NavLink to="/dashboard" className={`${styles.streakBadge} ${styles.mobileHide}`} title="My Progress">
             🔥 {streak}
           </NavLink>
 
@@ -310,6 +311,19 @@ export default function Nav() {
       <div className={`${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
         <div className={styles.mobileSearch}>
           <GlobalSearch />
+        </div>
+
+        <div className={styles.drawerSection}>
+          <span className={styles.drawerLabel}>Quick Access</span>
+          <button
+            onClick={() => {
+              setSleepOpen(true);
+              closeDrawer();
+            }}
+          >
+            🌙 Bedtime Bible
+          </button>
+          <KidsModeToggle />
         </div>
 
         {DRAWER_SECTIONS.map((section) => (

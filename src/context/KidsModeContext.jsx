@@ -289,15 +289,17 @@ function PinModal({ onConfirm, onClose, getPin }) {
 }
 
 // ── Kids Mode Toggle Button (drop into Nav) ────────────────────────────
-export function KidsModeToggle() {
+export function KidsModeToggle({ className = '' }) {
   const { kidsMode, requestToggle } = useKidsMode();
   return (
     <button
       onClick={() => requestToggle(kidsMode ? 'disable' : 'enable')}
       title={kidsMode ? 'Exit Kids Mode (PIN required)' : 'Switch to Kids Mode'}
+      className={className}
       style={{
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 6,
         padding: '6px 12px',
         borderRadius: 100,
@@ -311,7 +313,10 @@ export function KidsModeToggle() {
         transition: 'all .2s',
       }}
     >
-      {kidsMode ? '👶 Kids Mode ON' : '👶 Kids Mode'}
+      <span style={{ fontSize: '1.1rem' }}>👶</span>
+      <span className="kids-mode-label" style={{ display: 'inline-block' }}>
+        {kidsMode ? 'Kids Mode ON' : 'Kids Mode'}
+      </span>
     </button>
   );
 }
