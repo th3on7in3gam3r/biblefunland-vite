@@ -4,12 +4,13 @@
   "type": "commonjs",
   "main": "index.js",
   "dependencies": {
-    "@libsql/client": "latest",
-    "cors": "latest",
-    "express": "^5.2.1",
-    "helmet": "latest",
-    "express-rate-limit": "latest",
-    "stripe": "latest",
-    "dotenv": "latest"
+    "@libsql/client": "0.14.0",
+    "cors": "2.8.5",
+    "express": "5.0.1",
+    "helmet": "7.1.0",
+    "express-rate-limit": "7.2.0",
+    "stripe": "14.21.0",
+    "@clerk/clerk-sdk-node": "5.0.7",
+    "dotenv": "16.4.5"
   }
 }
