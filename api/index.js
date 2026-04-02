@@ -1,28 +1,38 @@
-/**
- * api/index.js
- * Vercel Serverless Function — wraps the Express server for production
- */
+// api/index.js — Vercel entry point
+const express = require('express');
+
+let app;
 try {
-  // Load .env only when running locally (npm run dev)
+  // If we are in production, we skip .env loading for performance/safety
   if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config({ path: require('path').join(__dirname, '../server/.env') });
+    try {
+      require('dotenv').config({ path: require('path').join(__dirname, '../server/.env') });
+    } catch (e) {
+      console.warn('Dotenv not loaded (may be missing or in production)');
+    }
   }
 
-  const app = require('../server/index.js');
+  // Require the actual Express app from the server directory
+  // We use a relative path from the api folder
+  app = require('../server/index.js');
 
-  module.exports = app;
+  // If for some reason it didn't export an app, create one
+  if (!app || typeof app !== 'function') {
+    throw new Error('Server/index.js did not export a valid Express app');
+  }
 } catch (err) {
-  console.error('CRITICAL STARTUP ERROR:', err);
+  console.error('CRITICAL BACKEND STARTUP ERROR:', err.message);
+  console.error(err.stack);
   
-  // Return the error as a response so we can see it in the browser!
-  const express = require('express');
-  const app = express();
+  // Create a minimal fallback app to return the error
+  app = express();
   app.all('*', (req, res) => {
     res.status(500).json({
-      error: 'CRITICAL STARTUP ERROR',
+      error: 'CRITICAL BACKEND STARTUP ERROR',
       message: err.message,
-      stack: err.stack
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   });
-  module.exports = app;
 }
+
+module.exports = app;

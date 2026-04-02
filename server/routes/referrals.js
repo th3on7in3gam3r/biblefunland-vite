@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@libsql/client');
+const { client: db, query, queryOne, execute } = require('../lib/turso');
 const { v4: uuidv4 } = require('uuid');
-
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL || '',
-  authToken: process.env.TURSO_AUTH_TOKEN || '',
-});
 
 async function ensureTables() {
   await db.executeMultiple(`
@@ -36,7 +31,9 @@ async function ensureTables() {
     );
   `);
 }
-ensureTables().catch(err => console.error('[referrals] table init:', err.message));
+
+// 🚧 Tables should be ensured via migrations or separate init scripts to avoid startup crashes in serverless
+// ensureTables().catch(err => console.error('[referrals] table init:', err.message));
 
 // POST /api/referrals/generate — create or get referral code for a user
 router.post('/generate', async (req, res) => {

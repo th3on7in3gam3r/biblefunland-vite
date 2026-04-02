@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@libsql/client');
 const fetch = require('node-fetch');
-
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL || 'file:memory.db',
-  authToken: process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN || '',
-});
+const { client: turso } = require('../lib/turso');
 
 async function setTursoSubscription(userId, subscriptionId, status, plan, expiresAt) {
   if (!userId) return;

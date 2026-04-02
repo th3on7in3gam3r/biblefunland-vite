@@ -1,39 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@libsql/client');
+const { client: db, query, queryOne, execute } = require('../lib/turso');
 
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL || '',
-  authToken: process.env.TURSO_AUTH_TOKEN || '',
-});
-
-// Ensure tables exist
-async function ensureTables() {
-  await db.executeMultiple(`
-    CREATE TABLE IF NOT EXISTS ab_impressions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      test_id TEXT NOT NULL,
-      variant_id TEXT NOT NULL,
-      user_id TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS ab_conversions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      test_id TEXT NOT NULL,
-      variant_id TEXT NOT NULL,
-      user_id TEXT,
-      goal TEXT DEFAULT 'click',
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS ab_winners (
-      test_id TEXT PRIMARY KEY,
-      variant_id TEXT NOT NULL,
-      applied INTEGER DEFAULT 0,
-      set_at TEXT DEFAULT (datetime('now'))
-    );
-  `);
-}
-ensureTables().catch(err => console.error('[abtest] table init error:', err.message));
+// 🚧 Tables should be ensured via migrations or separate init scripts to avoid startup crashes in serverless
+// ensureTables().catch(err => console.error('[abtest] table init error:', err.message));
 
 // POST /api/abtest/impression
 router.post('/impression', async (req, res) => {

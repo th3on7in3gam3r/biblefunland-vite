@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Stripe = require('stripe');
-const { createClient } = require('@libsql/client');
+const { client: turso } = require('../lib/turso');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL || 'file:memory.db',
-  authToken: process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN || '',
-});
 
 // ─── Create Checkout Session ──────────────────────────────────────────────────
 router.post('/create-session', async (req, res) => {
