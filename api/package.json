@@ -1,15 +1,1 @@
-{
-  "name": "biblefunland-api",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "main": "main.js",
-  "dependencies": {
-    "@libsql/client": "latest",
-    "cors": "latest",
-    "express": "^5.2.1",
-    "helmet": "latest",
-    "express-rate-limit": "latest",
-    "stripe": "latest",
-    "dotenv": "latest"
-  }
-}
+{"type": "commonjs"}
