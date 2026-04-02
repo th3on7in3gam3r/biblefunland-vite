@@ -13,17 +13,21 @@ try {
 }
 
 module.exports = (req, res) => {
-  // 🩺 High-level health check
+  // 🩺 High-level health check (Using native Node.js res methods)
   if (req.url === '/api/health' || req.originalUrl === '/api/health') {
-    return res.status(200).send('✅ BFL BACKEND IS LIVE (Node ' + process.version + ')');
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.end('✅ BFL BACKEND IS LIVE (Node ' + process.version + ')');
   }
 
   // 🛡️ Guard against loading failures
   if (!app) {
-    return res.status(500).json({
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({
       error: 'BACKEND_NOT_LOADED',
       message: 'The internal server logic failed to load during function boot.'
-    });
+    }));
   }
 
   // 🚀 Delegate to the actual Express app

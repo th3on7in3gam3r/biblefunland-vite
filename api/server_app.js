@@ -41,9 +41,13 @@ mount('/api/prayers', communityLimiter, require('./routes/prayers'));
 mount('/api/clerk-webhook', require('./routes/clerkWebhook'));
 mount('/api/checkout', require('./routes/stripe'));
 
-// Error Handlers (Express 4 Standard)
-app.use('*', (req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
-
+// Error Handlers (Universal version-agnostic 404 catching)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Route not found', path: req.path });
+  }
+  next();
+});
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.message);
   res.status(500).json({ error: err.message || 'Internal Server Error' });
