@@ -1,4 +1,4 @@
-// api/index.js — Vercel entry point
+// api/main.js — Vercel entry point
 module.exports = (req, res) => {
   // 🩺 High-level health check: proof-of-life before loading anything else
   if (req.url === '/api/health' || req.originalUrl === '/api/health') {
@@ -6,14 +6,14 @@ module.exports = (req, res) => {
   }
 
   try {
-    // Determine the server directory path
+    // Determine the server directory path (now nested inside api/)
     const path = require('path');
-    const serverPath = path.resolve(__dirname, '../server/index.js');
+    const serverPath = path.resolve(__dirname, './server/index.js');
     
     // Load .env only when running locally
     if (process.env.NODE_ENV !== 'production') {
       try {
-        require('dotenv').config({ path: path.resolve(__dirname, '../server/.env') });
+        require('dotenv').config({ path: path.resolve(__dirname, './server/.env') });
       } catch (e) {}
     }
 
@@ -26,7 +26,7 @@ module.exports = (req, res) => {
       error: 'CRITICAL BACKEND STARTUP ERROR',
       message: err.message,
       stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-      path_attempted: require('path').resolve(__dirname, '../server/index.js')
+      path_attempted: path.resolve(__dirname, './server/index.js')
     });
   }
 };
