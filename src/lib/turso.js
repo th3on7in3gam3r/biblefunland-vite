@@ -16,7 +16,7 @@ import API_URL from './api-config';
 async function apiCall(endpoint, body = {}) {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     const response = await fetch(`${API_URL}/api/db${endpoint}`, {
       method: 'POST',
@@ -28,23 +28,20 @@ async function apiCall(endpoint, body = {}) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const error = new Error('Database request failed');
-      error.status = response.status;
-
-      const errorData = await response.json();
-      error.message = errorData.error || error.message;
-      console.warn('[Turso API] Request failed (retry may help):', error.message);
-      throw error;
+      // Return error but DON'T THROW - allow UI to handle gracefully
+      return { data: [], error: `Server returned ${response.status}`, success: false };
     }
 
-    const result = await response.json();
-    return result;
+    return await response.json();
   } catch (err) {
-    if (err.name === 'AbortError') {
-      console.warn('[Turso API] Request timeout');
-      throw new Error('Request timeout - backend server may not be running');
+    if (import.meta.env.DEV) {
+      console.warn(`[Turso API Error] ${endpoint}:`, err.message);
     }
-    throw err;
+    return { 
+      data: [], 
+      error: err.name === 'AbortError' ? 'Request timeout' : err.message, 
+      success: false 
+    };
   }
 }
 
@@ -52,50 +49,35 @@ async function apiCall(endpoint, body = {}) {
  * Generic query - returns array of rows
  */
 export async function query(sql, args = []) {
-  return apiCall('/query', { sql, args });
+  try {
+    const result = await apiCall('/query', { sql, args });
+    return { data: result.data || [], error: result.error, success: result.success };
+  } catch (e) {
+    return { data: [], error: e.message, success: false };
+  }
 }
 
 /**
  * Get single row or null
  */
 export async function queryOne(sql, args = []) {
-  const result = await apiCall('/query', { sql, args });
-  if (result.error) return { data: null, error: result.error };
-  return { data: result.data?.[0] ?? null, error: null };
+  try {
+    const result = await apiCall('/query', { sql, args });
+    return { data: result.data?.[0] ?? null, error: result.error, success: result.success };
+  } catch (e) {
+    return { data: null, error: e.message, success: false };
+  }
 }
 
 /**
  * Execute without expecting rows (INSERT, UPDATE, DELETE)
- * Bypasses the queue for immediate execution since writes are critical
  */
 export async function execute(sql, args = []) {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    const response = await fetch(`${API_URL}/api/db/execute`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sql, args }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.warn('[Turso] Execute error:', errorData.error);
-      return { data: null, error: errorData.error || 'Database request failed' };
-    }
-
-    const result = await response.json();
-    return result;
+    const result = await apiCall('/execute', { sql, args });
+    return { data: result.data, error: result.error, success: result.success };
   } catch (err) {
-    if (err.name === 'AbortError') {
-      console.warn('[Turso] Execute timeout');
-      return { data: null, error: 'Request timeout - backend server may not be running' };
-    }
-    return { data: null, error: err.message || err };
+    return { data: null, error: err.message, success: false };
   }
 }
 

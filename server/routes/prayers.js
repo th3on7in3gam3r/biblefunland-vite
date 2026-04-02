@@ -23,18 +23,13 @@ function broadcast(event, data) {
 
 // Sticky default: approved prayers only
 router.get('/recent', async (req, res) => {
-  try {
-    const { data: prayers } = await query(
-      `SELECT id, user_id, name, category, text, pray_count, country, city, lat, lng, created_at
-       FROM prayers
-       ORDER BY created_at DESC
-       LIMIT 100`
-    );
-    res.json({ data: prayers || [] });
-  } catch (err) {
-    console.error('[Prayers /recent]', err);
-    res.status(500).json({ error: 'Could not load prayers' });
-  }
+  const { data: prayers, success, error } = await query(
+    `SELECT id, user_id, name, category, text, pray_count, country, city, lat, lng, created_at
+     FROM prayers
+     ORDER BY created_at DESC
+     LIMIT 100`
+  );
+  res.json({ data: prayers || [], success, error });
 });
 
 // Main submission: goes to moderation queue
@@ -52,36 +47,34 @@ router.post('/submit', async (req, res) => {
   const createdAt = new Date().toISOString();
 
   try {
-    await execute(
+    const { success, error } = await execute(
       `INSERT INTO prayer_submissions
          (id, user_id, name, category, text, country, city, lat, lng, bible_ref, status, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
       [id, userId || null, name || 'Anonymous', category || 'General', text, country || null, city || null, lat || null, lng || null, bibleReference || null, createdAt]
     );
 
-    broadcast('new_submission', { id, userId, name, category, createdAt });
+    if (!success) {
+      return res.status(500).json({ error: 'Failed to submit prayer to database', details: error });
+    }
 
+    broadcast('new_submission', { id, userId, name, category, createdAt });
     return res.status(201).json({ success: true, id });
   } catch (err) {
     console.error('[Prayers /submit]', err);
-    return res.status(500).json({ error: 'Failed to submit prayer' });
+    return res.status(500).json({ error: 'Failed to submit prayer (unexpected error)' });
   }
 });
 
 router.get('/pending', async (req, res) => {
-  try {
-    const { data } = await query(
-      `SELECT id, user_id, name, category, text, country, city, lat, lng, bible_ref, created_at
-       FROM prayer_submissions
-       WHERE status = 'pending'
-       ORDER BY created_at ASC
-       LIMIT 100`
-    );
-    res.json({ data: data || [] });
-  } catch (err) {
-    console.error('[Prayers /pending]', err);
-    res.status(500).json({ error: 'Could not load pending prayers' });
-  }
+  const { data, success, error } = await query(
+    `SELECT id, user_id, name, category, text, country, city, lat, lng, bible_ref, created_at
+     FROM prayer_submissions
+     WHERE status = 'pending'
+     ORDER BY created_at ASC
+     LIMIT 100`
+  );
+  res.json({ data: data || [], success, error });
 });
 
 router.post('/moderate/:id', async (req, res) => {

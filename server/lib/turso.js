@@ -29,18 +29,18 @@ const client = createClient({
 });
 
 /**
- * Execute a query and return { data, error }
- * Matches the frontend interface for compatibility
+ * Execute a query and return { data, error, success }
  */
 async function query(sql, args = []) {
   try {
     const result = await client.execute({ sql, args });
-    return { data: result.rows, error: null };
+    return { data: result.rows, error: null, success: true };
   } catch (err) {
+    // Only log once to avoid terminal spam
     if (!err.message?.includes('no such table')) {
-      console.error('[Turso]', err);
+      console.warn(`[Turso Query Error] SQL: ${sql.slice(0, 50)}... | Error: ${err.message}`);
     }
-    return { data: null, error: err };
+    return { data: [], error: err.message, success: false };
   }
 }
 
@@ -48,8 +48,12 @@ async function query(sql, args = []) {
  * Get a single row or null
  */
 async function queryOne(sql, args = []) {
-  const { data, error } = await query(sql, args);
-  return { data: data?.[0] ?? null, error };
+  try {
+    const { data, success, error } = await query(sql, args);
+    return { data: data?.[0] ?? null, error, success };
+  } catch (err) {
+    return { data: null, error: err.message, success: false };
+  }
 }
 
 /**
@@ -58,10 +62,10 @@ async function queryOne(sql, args = []) {
 async function execute(sql, args = []) {
   try {
     const result = await client.execute({ sql, args });
-    return { data: result, error: null };
+    return { data: result, error: null, success: true };
   } catch (err) {
-    console.error('[Turso Execute]', err);
-    return { data: null, error: err };
+    console.error(`[Turso Execute Error] SQL: ${sql.slice(0, 50)}... | Error: ${err.message}`);
+    return { data: null, error: err.message, success: false };
   }
 }
 

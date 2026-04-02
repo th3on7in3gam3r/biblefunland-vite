@@ -12,14 +12,21 @@ const TABS = [
   { id: 'trivia', label: '🎯 Trivia Champions' },
 ];
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+import API_URL from '../lib/api-config';
 
 async function fetchLeaderboard(category, userId) {
-  const url = `${API_BASE}/leaderboard/${category}${userId ? `?userId=${userId}` : ''}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`);
-  return res.json();
+  try {
+    const url = `${API_URL}/api/leaderboard/${category}${userId ? `?userId=${userId}` : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+       console.warn(`[Leaderboard API] ${res.status} error`);
+       return { entries: [], currentUser: null, success: false };
+    }
+    return await res.json();
+  } catch (err) {
+    console.error('[Leaderboard API] Fetch error:', err.message);
+    return { entries: [], currentUser: null, success: false };
+  }
 }
 
 export default function Leaderboard() {

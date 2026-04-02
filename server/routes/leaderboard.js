@@ -208,23 +208,37 @@ router.get('/:category', async (req, res) => {
     // Check cache
     const cached = cache.get(category);
     let entries;
+    let localSuccess = true;
+    let localError = null;
+
     if (cached && Date.now() < cached.expiresAt) {
       entries = cached.data;
     } else {
-      entries = await getEntries(category);
-      cache.set(category, { data: entries, expiresAt: Date.now() + CACHE_TTL });
+      try {
+        entries = await getEntries(category);
+        cache.set(category, { data: entries, expiresAt: Date.now() + CACHE_TTL });
+      } catch (e) {
+        entries = [];
+        localSuccess = false;
+        localError = e.message;
+      }
     }
 
     // Current user rank (never cached)
     let currentUser = null;
-    if (userId) {
+    if (userId && localSuccess) {
       currentUser = await getCurrentUserEntry(category, userId, entries);
     }
 
-    res.json({ entries, currentUser });
+    res.json({ 
+      entries: entries || [], 
+      currentUser, 
+      success: localSuccess, 
+      error: localError 
+    });
   } catch (err) {
-    console.error(`[Leaderboard] Error fetching ${category}:`, err);
-    res.status(500).json({ error: 'Failed to load leaderboard' });
+    console.error(`[Leaderboard Top] Error:`, err);
+    res.json({ entries: [], success: false, error: err.message });
   }
 });
 
