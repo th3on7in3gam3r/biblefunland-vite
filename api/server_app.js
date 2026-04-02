@@ -41,8 +41,8 @@ mount('/api/prayers', communityLimiter, require('./routes/prayers'));
 mount('/api/clerk-webhook', require('./routes/clerkWebhook'));
 mount('/api/checkout', require('./routes/stripe'));
 
-// Error Handlers (Express 5 Compliant)
-app.use('(.*)', (req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
+// Error Handlers (Express 4 Standard)
+app.use('*', (req, res) => res.status(404).json({ error: 'Route not found', path: req.path }));
 
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.message);

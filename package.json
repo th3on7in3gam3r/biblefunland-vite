@@ -33,7 +33,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1",
+    "express": "^4.21.2",
     "express-rate-limit": "^8.3.1",
     "framer-motion": "^12.38.0",
     "helmet": "^8.1.0",
@@ -46,8 +46,7 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.26.0",
     "resend": "^6.9.4",
-    "stripe": "^21.0.1",
-    "uuid": "^13.0.0"
+    "stripe": "^21.0.1"
   },
   "devDependencies": {
     "@axe-core/react": "^4.10.1",
