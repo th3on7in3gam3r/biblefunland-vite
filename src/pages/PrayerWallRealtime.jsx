@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useT } from '../i18n/useT';
 import { SkeletonPrayerCard } from '../components/Skeleton';
-import { getPrayers, insertPrayer, incrementPrayCount } from '../lib/db';
+import {
+  getPrayers,
+  insertPrayer,
+  incrementPrayCount,
+  getPendingPrayers,
+  moderatePrayer,
+} from '../lib/db';
+import { useRealTime } from '../context/RealTimeContext';
 
 const CATS = ['General', 'Healing', 'Family', 'Provision', 'Guidance', 'Salvation', 'Praise'];
 const CCOLORS = {
@@ -94,27 +102,112 @@ export default function PrayerWallRealtime() {
   const [submitted, setSubmitted] = useState(false);
   const [prayedIds, setPrayedIds] = useState(new Set());
   const [liveCount, setLiveCount] = useState(0);
+  const [pendingPrayers, setPendingPrayers] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0);
   const channelRef = useRef(null);
+
+  const { user, profile } = useAuth();
+  const { prayers: livePrayers, refresh } = useRealTime();
+  const isParentOrTeacher =
+    profile?.role?.toLowerCase() === 'parent' || profile?.role?.toLowerCase() === 'teacher';
+
+  // Sync live prayers from RealTimeContext when available
+  useEffect(() => {
+    if (livePrayers?.live && livePrayers.items?.length) {
+      const nextCount = Math.max(0, livePrayers.items.length - (prayers?.length || 0));
+      if (nextCount > 0) setLiveCount(nextCount);
+      setPrayers(livePrayers.items);
+      setUsingBackend(true);
+      setLoading(false);
+    }
+  }, [livePrayers]);
 
   useEffect(() => {
     loadPrayers();
-    return () => {
-      channelRef.current?.unsubscribe();
-    };
-  }, []);
+    if (isParentOrTeacher) loadPending();
 
-  async function loadPrayers() {
+    const interval = setInterval(() => {
+      loadPrayers(true);
+      if (isParentOrTeacher) loadPending();
+    }, 12000);
+
+    // SSE fallback for live updates
+    try {
+      const source = new EventSource(`${import.meta.env.VITE_API_URL || ''}/api/prayers/stream`);
+      channelRef.current = source;
+
+      source.addEventListener('prayer_approved', () => {
+        loadPrayers(true);
+      });
+
+      source.addEventListener('new_submission', ({ data }) => {
+        const parsed = JSON.parse(data);
+        setPendingCount((c) => c + 1);
+        if (parsed && parsed.userId === user?.id) {
+          setSubmitted(true);
+          setTimeout(() => setSubmitted(false), 2500);
+        }
+      });
+
+      source.addEventListener('pray_count', ({ data }) => {
+        const payload = JSON.parse(data);
+        setPrayers((prev) =>
+          prev.map((p) => (p.id === payload.id ? { ...p, pray_count: payload.pray_count } : p))
+        );
+      });
+
+      source.onerror = () => {
+        source.close();
+      };
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      clearInterval(interval);
+      channelRef.current?.close?.();
+    };
+  }, [user?.id, isParentOrTeacher]);
+
+  async function loadPrayers(pushCount = false) {
     setLoading(true);
     try {
-      const { data, error } = await getPrayers();
-      if (error || !data) throw error;
+      const response = await getPrayers();
+      const data = response?.data || [];
+      if (pushCount) {
+        const nextCount = Math.max(0, data.length - (prayers?.length || 0));
+        if (nextCount > 0) setLiveCount(nextCount);
+      }
       setPrayers(data);
       setUsingBackend(true);
-    } catch {
+    } catch (err) {
+      console.warn('[PrayerWall] loadPrayers fallback', err?.message);
       setPrayers(FALLBACK);
       setUsingBackend(false);
     }
     setLoading(false);
+  }
+
+  async function loadPending() {
+    try {
+      const { data = [] } = await getPendingPrayers();
+      setPendingPrayers(data);
+      setPendingCount(data.length);
+    } catch {
+      setPendingCount(0);
+    }
+  }
+
+  async function handleModeratePrayer(prayerId, action) {
+    try {
+      await moderatePrayer(prayerId, action, user?.id || 'system');
+      await loadPending();
+      if (action === 'approve') {
+        await loadPrayers(true);
+      }
+    } catch (err) {
+      console.warn('[PrayerWall] moderate error', err.message);
+    }
   }
 
   async function submitPrayer() {
@@ -147,6 +240,7 @@ export default function PrayerWallRealtime() {
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
     setSubmitting(false);
+    refresh('prayers');
   }
 
   async function prayFor(prayer) {
@@ -374,6 +468,79 @@ export default function PrayerWallRealtime() {
             ({prayers.length} {t('prayer.requests')})
           </span>
         </div>
+
+        {/* Moderation queue for parent/teacher */}
+        {isParentOrTeacher && (
+          <div
+            style={{
+              marginBottom: 18,
+              padding: 14,
+              borderRadius: 14,
+              background: 'rgba(59,130,246,.08)',
+              border: '1px solid rgba(59,130,246,.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <div>
+              <strong>🛡️ Pending prayers:</strong> {pendingCount}
+              <small style={{ color: '#3b82f6', marginLeft: 8 }}>(auto-refreshing)</small>
+            </div>
+            <button
+              onClick={loadPending}
+              className="btn btn-outline"
+              style={{ padding: '8px 12px' }}
+            >
+              Refresh Queue
+            </button>
+          </div>
+        )}
+
+        {isParentOrTeacher && pendingPrayers.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: '.9rem', fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>
+              🧾 Moderation Queue
+            </div>
+            <div style={{ display: 'grid', gap: 10 }}>
+              {pendingPrayers.map((pending) => (
+                <div
+                  key={pending.id}
+                  style={{
+                    background: 'white',
+                    border: '1px solid #dbeafe',
+                    borderRadius: 12,
+                    padding: 10,
+                  }}
+                >
+                  <div style={{ fontSize: '.76rem', color: '#475569', marginBottom: 4 }}>
+                    {pending.name} • {pending.category} • {timeAgo(pending.created_at)}
+                  </div>
+                  <div style={{ color: 'var(--ink2)', fontSize: '.85rem', marginBottom: 8 }}>
+                    {pending.text}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => handleModeratePrayer(pending.id, 'approve')}
+                      className="btn btn-green"
+                      style={{ fontSize: '.7rem', padding: '6px 10px' }}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleModeratePrayer(pending.id, 'reject')}
+                      className="btn btn-red"
+                      style={{ fontSize: '.7rem', padding: '6px 10px' }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Cards */}
         {loading ? (

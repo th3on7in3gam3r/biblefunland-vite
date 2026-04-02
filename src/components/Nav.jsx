@@ -9,83 +9,77 @@ import SleepMode from './SleepMode';
 import GlobalSearch from './GlobalSearch';
 import styles from './Nav.module.css';
 
-const MORE_LINKS = [
-  { to: '/apologetics', label: '🤔 Apologetics Q&A' },
-  { to: '/bible', label: '📖 Bible Explorer' },
-  { to: '/map', label: '🗺️ Bible Map' },
-  { to: '/names', label: '🔤 Bible Names' },
-  { to: '/timeline', label: '📜 Bible Timeline' },
-  { to: '/finance', label: '💸 Biblical Finance' },
-  { to: '/blog', label: '✍️ Blog', kidsHide: true },
-  { to: '/bookmarks', label: '🔖 Bookmarks' },
-  { to: '/certification', label: '🎓 Certification' },
-  { to: '/church-finder', label: '⛪ Church Finder' },
-  { to: '/creators', label: '🎙️ Creator Program', kidsHide: true },
-  { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
-  { to: '/faith-milestones', label: '📿 Faith Milestones' },
-  { to: '/family-tree', label: '🌳 Family Tree' },
-  { to: '/fasting', label: '⏳ Fasting Tracker', kidsHide: true },
-  { to: '/flashcards', label: '🧠 Flashcards' },
-  { to: '/hymns', label: '🎵 Hymn Explorer' },
-  { to: '/leaderboard', label: '🏆 Leaderboard' },
-  { to: '/notes', label: '📝 Notes', kidsHide: true },
-  { to: '/affiliate', label: '🏛️ Partner With Us', kidsHide: true },
-  { to: '/partner', label: '⛪ Partnership', kidsHide: true },
-  { to: '/podcast', label: '🎙️ Podcast' },
-  { to: '/prayer-beads', label: '📿 Prayer Beads' },
-  { to: '/prayer-partner', label: '🤝 Prayer Partner' },
-  { to: '/prayer', label: '🌍 Prayer Wall' },
-  { to: '/reading-plan', label: '📅 Reading Plan' },
-  { to: '/resources', label: '💰 Resources' },
-  { to: '/share', label: '🔗 Share Cards' },
-  { to: '/spiritual-gifts', label: '🧬 Spiritual Gifts' },
-  { to: '/videos', label: '🎬 Videos' },
-  { to: '/worship', label: '🎸 Worship', kidsHide: true },
+// ── Primary nav links (Consolidated & Clean) ──────────────────────────────────
+const PRIMARY_NAV = [
+  { to: '/', label: 'Home', end: true },
+  {
+    to: '/play',
+    label: '🎲 Play',
+    dropdown: [
+      { to: '/play', label: '🏰 Games Hub' },
+      { to: '/play/trivia', label: '🎮 Scripture Trivia' },
+      { to: '/play/activity-sheets', label: '🖨️ Activity Sheets' },
+    ],
+  },
+  {
+    to: '/explore',
+    label: '🔍 Explore',
+    dropdown: [
+       { to: '/explore', label: '🧭 Explore Hub' },
+       { to: '/explore/world', label: '🌍 Virtual Bible World' },
+       { to: '/explore/timeline', label: '📜 Bible Timeline' },
+       { to: '/family-tree', label: '🌳 Family Tree' },
+       { to: '/names', label: '🔤 Bible Names' },
+       { to: '/explore/voice-reader', label: '🎙️ Voice Bible Reader' },
+    ]
+  },
+  { to: '/ai', label: '🤖 AI Fun' },
+  { to: '/grow', label: '🌱 Grow' },
+  {
+    to: '/community',
+    label: '🌐 Community',
+    dropdown: [
+       { to: '/community', label: '🤝 Community Hub' },
+       { to: '/prayer', label: '🌍 Prayer Wall' },
+       { to: '/leaderboard', label: '🏆 Leaderboard' },
+       { to: '/podcast', label: '🎙️ Podcast' },
+    ]
+  },
+  { to: '/parents', label: '🏫 Parents' },
 ];
 
-const PRIMARY_LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/trivia', label: '🎮 Trivia' },
-  { to: '/devotional', label: '🙏 Devotional' },
-];
-
+// ── Mobile drawer sections ────────────────────────────────────────────────────
 const DRAWER_SECTIONS = [
   {
     label: 'Explore',
     items: [
       { to: '/', label: '🏠 Home' },
-      { to: '/trivia', label: '🎮 Scripture Trivia' },
-      { to: '/devotional', label: '🙏 AI Devotional', kidsHide: true },
-      { to: '/flashcards', label: '🧠 Flashcards' },
+      { to: '/play/trivia', label: '🎮 Scripture Trivia' },
+      { to: '/ai/devotional', label: '🙏 AI Devotional', kidsHide: true },
+      { to: '/play/flashcards', label: '🧠 Flashcards' },
       { to: '/apologetics', label: '🤔 Apologetics Q&A' },
       { to: '/spiritual-gifts', label: '🧬 Spiritual Gifts' },
-      { to: '/bible', label: '🧭 Bible Explorer' },
-      { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
+      { to: '/explore/bible', label: '🧭 Bible Explorer' },
       { to: '/names', label: '🔤 Bible Names' },
       { to: '/reading-plan', label: '📅 Reading Plan' },
       { to: '/hymns', label: '🎵 Hymn Explorer' },
-      { to: '/finance', label: '💸 Biblical Finance' },
       { to: '/map', label: '🗺️ Bible Map' },
+      { to: '/explore/voice-reader', label: '🎙️ Voice Bible Reader' },
       { to: '/family-tree', label: '🌳 Family Tree' },
       { to: '/faith-milestones', label: '📿 Faith Milestones' },
       { to: '/timeline', label: '📜 Bible Timeline' },
       { to: '/resources', label: '💰 Resources' },
-      { to: '/affiliate', label: '🏛️ Partner With Us', kidsHide: true },
-      { to: '/partner', label: '⛪ Ministry Partnership', kidsHide: true },
-      { to: '/creators', label: '🎙️ Creator Program', kidsHide: true },
     ],
   },
   {
     label: 'Create & Play',
     items: [
-      { to: '/notes', label: '📝 Sermon Notes', kidsHide: true },
       { to: '/share', label: '🔗 Share Cards' },
       { to: '/videos', label: '🎬 Videos' },
       { to: '/blog', label: '✍️ Blog', kidsHide: true },
-      { to: '/read', label: '📖 Read' },
-      { to: '/worship', label: '🎸 Worship', kidsHide: true },
-      { to: '/certification', label: '🎓 Certification' },
-      { to: '/activity-sheets', label: '🖨️ Activity Sheets' },
+      { to: '/explore/bible', label: '📖 Read the Bible' },
+      { to: '/grow/certification', label: '🎓 Certification' },
+      { to: '/play/activity-sheets', label: '🖨️ Activity Sheets' },
     ],
   },
   {
@@ -94,14 +88,12 @@ const DRAWER_SECTIONS = [
       { to: '/prayer', label: '🌍 Prayer Wall' },
       { to: '/prayer-partner', label: '🤝 Prayer Partner' },
       { to: '/prayer-beads', label: '📿 Prayer Beads' },
-      { to: '/fasting', label: '⏳ Fasting Tracker', kidsHide: true },
       { to: '/leaderboard', label: '🏆 Leaderboard' },
       { to: '/podcast', label: '🎙️ Podcast' },
       { to: '/bookmarks', label: '🔖 My Bookmarks' },
       { to: '/church-finder', label: '⛪ Church Finder' },
       { to: '/community/chat', label: '💬 Chat Rooms' },
       { to: '/community/family', label: '👨‍👩‍👧 Family Groups' },
-      { to: '/community/events', label: '⛪ Church Events' },
     ],
   },
 ];
@@ -114,16 +106,23 @@ export default function Nav() {
   const { kidsMode } = useKidsMode();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null); // Track which dropdown is open
   const [logoClicks, setLogoClicks] = useState(0);
   const [logoTimer, setLogoTimer] = useState(null);
-  const moreRef = useRef(null);
+  
+  const avatarRef = useRef(null);
+  const navRef = useRef(null);
 
-  // Close "More" dropdown on outside click or Escape key
+  // Close dropdowns on outside click / Escape
   useEffect(() => {
     function handler(e) {
-      if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false);
-      if (e.key === 'Escape') setMoreOpen(false);
+      if (avatarRef.current && !avatarRef.current.contains(e.target)) setAvatarOpen(false);
+      if (navRef.current && !navRef.current.contains(e.target)) setActiveMenu(null);
+      if (e.key === 'Escape') {
+        setAvatarOpen(false);
+        setActiveMenu(null);
+      }
     }
     document.addEventListener('mousedown', handler);
     document.addEventListener('keydown', handler);
@@ -151,13 +150,12 @@ export default function Nav() {
 
   const userRole = profile?.role?.toLowerCase() || '';
   const isPastor = userRole === 'pastor' || userRole === 'leader' || userRole === 'admin';
-  console.log('⛪ Current User Role:', userRole, '| Is Leader:', isPastor);
 
   const churchLink = isPastor
     ? { to: '/church/dashboard', label: '⛪ Church Hub' }
     : { to: '/church/join', label: '🤝 Join Church' };
 
-  const visibleMore = [churchLink, ...MORE_LINKS.filter((l) => !(kidsMode && l.kidsHide))];
+  const avatarInitial = user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || '👤';
 
   return (
     <>
@@ -171,128 +169,142 @@ export default function Nav() {
         </div>
 
         {/* Desktop primary links */}
-        <ul className={styles.links}>
-          {PRIMARY_LINKS.map((link) => (
-            <li key={link.to}>
-              <NavLink
-                to={link.to}
-                end={link.to === '/'}
-                className={({ isActive }) => (isActive ? styles.active : '')}
-              >
-                {link.label}
-              </NavLink>
-            </li>
-          ))}
-          {!kidsMode && user && (isPastor || userRole === 'parent' || userRole === 'teacher') && (
-            <li>
-              <NavLink
-                to="/parent-hub"
-                className={({ isActive }) => (isActive ? styles.active : '')}
-              >
-                🏫 Hub
-              </NavLink>
-            </li>
-          )}
-          {!kidsMode && (
-            <li>
-              <NavLink to="/premium" className={({ isActive }) => (isActive ? styles.active : '')}>
-                💎 Pro
-              </NavLink>
-            </li>
-          )}
-
-          {/* More dropdown */}
-          <li ref={moreRef} className={styles.moreWrap}>
-            <button
-              className={`${styles.moreBtn} ${moreOpen ? styles.moreBtnOpen : ''}`}
-              onClick={() => setMoreOpen((o) => !o)}
-              aria-haspopup="true"
-              aria-expanded={moreOpen}
-            >
-              More <span className={styles.moreCaret}>▾</span>
-            </button>
-            {moreOpen && (
-              <div className={styles.moreDropdown}>
-                {visibleMore.map((l) => (
+        <ul className={styles.links} ref={navRef}>
+          {PRIMARY_NAV.map((link) => {
+            if (link.dropdown) {
+              const isOpen = activeMenu === link.label;
+              return (
+                <li 
+                  key={link.to} 
+                  className={styles.moreWrap}
+                  onMouseEnter={() => setActiveMenu(link.label)}
+                  onMouseLeave={() => setActiveMenu(null)}
+                >
                   <NavLink
-                    key={l.to}
-                    to={l.to}
-                    className={({ isActive }) => (isActive ? styles.dropActive : '')}
-                    onClick={() => setMoreOpen(false)}
+                    to={link.to}
+                    className={({ isActive }) => 
+                      `${styles.moreBtn} ${isActive || isOpen ? styles.moreBtnOpen : ''}`
+                    }
+                    onClick={() => setActiveMenu(null)}
                   >
-                    {l.label}
+                    {link.label}
+                    <span className={styles.moreCaret}>▾</span>
                   </NavLink>
-                ))}
-              </div>
-            )}
-          </li>
+                  {isOpen && (
+                    <div className={styles.moreDropdown} role="menu">
+                      {link.dropdown.map((item) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          className={({ isActive }) => (isActive ? styles.dropActive : '')}
+                          onClick={() => setActiveMenu(null)}
+                        >
+                          {item.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            }
+
+            return (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => (isActive ? styles.active : '')}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
 
         {/* Right side */}
         <div className={styles.right}>
+          {/* Search */}
           <div className={styles.desktopSearch}>
             <GlobalSearch />
           </div>
 
+          {/* Kids Mode toggle */}
           <KidsModeToggle className={styles.kidsToggle} />
 
-          {isPastor || userRole === 'parent' || (userRole === 'teacher' && <ChildSwitcherButton />)}
+          {/* Child switcher for parents */}
+          {(isPastor || userRole === 'parent' || userRole === 'teacher') && <ChildSwitcherButton />}
 
-          <button
-            onClick={() => setSleepOpen(true)}
-            className={styles.bedtimeBtn}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '6px 12px',
-              borderRadius: 100,
-              border: '2px solid rgba(159, 122, 234, 0.4)',
-              background: 'transparent',
-              color: 'var(--ink3)',
-              cursor: 'pointer',
-              fontFamily: 'Poppins,sans-serif',
-              fontSize: '.72rem',
-              fontWeight: 700,
-              transition: 'all .2s',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(159, 122, 234, 0.08)';
-              e.currentTarget.style.borderColor = '#9F7AEA';
-              e.currentTarget.style.color = '#9F7AEA';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = 'rgba(159, 122, 234, 0.4)';
-              e.currentTarget.style.color = 'var(--ink3)';
-            }}
-          >
-            🌙 <span className={styles.bedtimeText}>Bedtime Bible</span>
-          </button>
+          {/* User Section */}
+          <div ref={avatarRef} className={styles.userSection}>
+            {!user ? (
+               <NavLink to="/auth" className={styles.signInBtn}>
+                 🔐 Sign In
+               </NavLink>
+            ) : (
+              <div className={styles.avatarWrap}>
+                <button
+                  className={styles.avatarBtn}
+                  onClick={() => setAvatarOpen((o) => !o)}
+                  title="My Account"
+                >
+                  {avatarInitial}
+                </button>
 
-          <NavLink to="/dashboard" className={`${styles.streakBadge} ${styles.mobileHide}`} title="My Progress">
-            🔥 {streak}
-          </NavLink>
+                {avatarOpen && (
+                  <div className={styles.avatarDropdown}>
+                    <div className={styles.avatarDropdownSection}>
+                      <div className={styles.userName}>
+                        {user.firstName || user.email || 'My Account'}
+                      </div>
+                      <div className={styles.userMeta}>
+                         <span className={styles.streakPill}>🔥 {streak} Streak</span>
+                         <span className={styles.roleTag}>{userRole || 'Member'}</span>
+                      </div>
+                    </div>
 
-          <button
-            className={`${styles.darkToggle} ${theme === 'dark' ? styles.dark : ''}`}
-            onClick={toggleTheme}
-            title="Toggle dark mode"
-            aria-label="Toggle dark mode"
-          >
-            <span className={styles.darkToggleThumb} />
-          </button>
+                    <div className={styles.avatarDropdownSection}>
+                      <button className={styles.avatarMenuToggle} onClick={() => { toggleTheme(); setAvatarOpen(false); }}>
+                        {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                      </button>
+                    </div>
 
-          {user ? (
-            <NavLink to="/profile" className={styles.avatarBtn} title="My Profile">
-              👤
-            </NavLink>
-          ) : (
-            <NavLink to="/auth" className="btn btn-blue btn-sm">
-              Sign In
-            </NavLink>
-          )}
+                    {[
+                      { to: '/dashboard', label: '📊 My Progress' },
+                      { to: '/bookmarks', label: '🔖 Bookmarks' },
+                      { to: '/profile', label: '👤 Profile & Settings' },
+                      ...(isPastor || userRole === 'parent' || userRole === 'teacher'
+                        ? [{ to: '/parents', label: '🏫 Parents Hub' }]
+                        : []),
+                    ].map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setAvatarOpen(false)}
+                        className={styles.avatarDropLink}
+                      >
+                        {item.label}
+                      </NavLink>
+                    ))}
 
+                    <div className={styles.avatarDropdownSection} style={{ border: 'none', marginTop: 8 }}>
+                      <button
+                        onClick={() => {
+                          signOut();
+                          setAvatarOpen(false);
+                        }}
+                        className={styles.avatarSignOutBtn}
+                      >
+                        👋 Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Hamburger (Mobile) */}
           <button
             className={`${styles.hamburger} ${drawerOpen ? styles.open : ''}`}
             onClick={() => setDrawerOpen(!drawerOpen)}
@@ -350,14 +362,14 @@ export default function Nav() {
             <NavLink to="/dashboard" onClick={closeDrawer}>
               📊 My Progress
             </NavLink>
-            <NavLink to="/profile" onClick={closeDrawer}>
-              👤 My Profile
+            <NavLink to="/bookmarks" onClick={closeDrawer}>
+              🔖 Bookmarks
             </NavLink>
-            <NavLink to="/bedtime-settings" onClick={closeDrawer}>
-              🌙 Bedtime Settings
+            <NavLink to="/profile" onClick={closeDrawer}>
+              👤 Profile & Settings
             </NavLink>
             {!kidsMode && (isPastor || userRole === 'parent' || userRole === 'teacher') && (
-              <NavLink to="/parent-hub" onClick={closeDrawer}>
+              <NavLink to="/parents" onClick={closeDrawer}>
                 🏫 Parents & Teachers Hub
               </NavLink>
             )}
@@ -371,8 +383,12 @@ export default function Nav() {
             </NavLink>
           )}
           {!user ? (
-            <NavLink to="/auth" onClick={closeDrawer}>
-              🔑 Sign In / Sign Up
+            <NavLink
+              to="/auth"
+              onClick={closeDrawer}
+              className={styles.drawerAuthBtn}
+            >
+              🔐 Sign In / Sign Up
             </NavLink>
           ) : (
             <button
@@ -388,6 +404,8 @@ export default function Nav() {
       </div>
 
       {sleepOpen && <SleepMode onClose={() => setSleepOpen(false)} />}
+
+      <style>{`@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}`}</style>
     </>
   );
 }

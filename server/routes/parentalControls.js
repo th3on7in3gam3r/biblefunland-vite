@@ -37,7 +37,9 @@ router.get('/:parentId', async (req, res) => {
       parent_id: parentId,
       parent_pin: '4318',
       ai_toggles: {},
-      daily_limit: 0
+      daily_limit: 0,
+      kids_mode_lock: 0,
+      blocked_topics: '[]'
     };
 
     res.json({ data: result });
@@ -91,26 +93,40 @@ router.put('/:parentId', async (req, res) => {
       }
     }
 
+    // Validate kids_mode_lock
+    const kidsModeLock = Number(!!req.body.kids_mode_lock);
+    const blockedTopics = Array.isArray(req.body.blocked_topics)
+      ? JSON.stringify(req.body.blocked_topics)
+      : typeof req.body.blocked_topics === 'string'
+      ? req.body.blocked_topics
+      : '[]';
+
     // Prepare ai_toggles JSON string
     const aiTogglesStr = ai_toggles ? JSON.stringify(ai_toggles) : null;
 
     // Update parental controls
     const { error } = await execute(
-      `INSERT INTO parental_controls (parent_id, parent_pin, ai_toggles, daily_limit, updated_at)
-       VALUES (?, ?, ?, ?, datetime('now'))
+      `INSERT INTO parental_controls (parent_id, parent_pin, ai_toggles, daily_limit, kids_mode_lock, blocked_topics, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
        ON CONFLICT(parent_id) DO UPDATE SET
          parent_pin = COALESCE(?, parent_pin),
          ai_toggles = COALESCE(?, ai_toggles),
          daily_limit = COALESCE(?, daily_limit),
+         kids_mode_lock = COALESCE(?, kids_mode_lock),
+         blocked_topics = COALESCE(?, blocked_topics),
          updated_at = datetime('now')`,
       [
         parentId,
         new_pin || currentPin,
         aiTogglesStr,
         daily_limit ?? null,
+        kidsModeLock,
+        blockedTopics,
         new_pin || null,
         aiTogglesStr,
-        daily_limit ?? null
+        daily_limit ?? null,
+        kidsModeLock,
+        blockedTopics,
       ]
     );
 

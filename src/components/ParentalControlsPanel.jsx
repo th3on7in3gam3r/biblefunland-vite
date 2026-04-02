@@ -20,6 +20,8 @@ export default function ParentalControlsPanel() {
   const [pinShake, setPinShake] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [activityHistory, setActivityHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Show/hide toggle for PIN field
   const [showNewPin, setShowNewPin] = useState(false);
@@ -115,6 +117,33 @@ export default function ParentalControlsPanel() {
       setSaving(false);
     }
   };
+
+  async function loadActivityHistory() {
+    if (!user?.id) return;
+    setHistoryLoading(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/db/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sql: `SELECT ca.child_id, ca.activity_type, ca.activity_data, ca.duration, ca.completed_at, cp.display_name AS child_name
+                FROM child_activity ca
+                LEFT JOIN child_profiles cp ON cp.id = ca.child_id
+                WHERE cp.parent_id = ?
+                ORDER BY ca.completed_at DESC
+                LIMIT 20`,
+          args: [user.id],
+        }),
+      });
+      const result = await response.json();
+      setActivityHistory(result.data || []);
+    } catch (err) {
+      console.warn('[ParentalControlsPanel] loadHistory', err);
+      setActivityHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
 
   return (
     <div
@@ -352,6 +381,84 @@ export default function ParentalControlsPanel() {
         {saveError && (
           <div style={{ fontSize: '.76rem', color: 'var(--red)', fontWeight: 600 }}>
             ⚠️ {saveError}
+          </div>
+        )}
+      </div>
+
+      {/* Activity History */}
+      <div style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 12,
+          }}
+        >
+          <div style={{ fontSize: '.82rem', fontWeight: 700, color: 'var(--ink)' }}>
+            🗂️ Child Activity History
+          </div>
+          <button
+            onClick={loadActivityHistory}
+            disabled={historyLoading}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 10,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--ink)',
+              fontSize: '.72rem',
+              fontWeight: 700,
+              cursor: historyLoading ? 'default' : 'pointer',
+            }}
+          >
+            {historyLoading ? 'Loading...' : 'Refresh'}
+          </button>
+        </div>
+        {activityHistory.length === 0 ? (
+          <div style={{ fontSize: '.72rem', color: 'var(--ink3)' }}>
+            No activity history yet. Click refresh.
+          </div>
+        ) : (
+          <div
+            style={{
+              maxHeight: 220,
+              overflow: 'auto',
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+              background: 'var(--bg2)',
+            }}
+          >
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.72rem' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '8px 10px', fontWeight: 700 }}>Child</th>
+                  <th style={{ textAlign: 'left', padding: '8px 10px', fontWeight: 700 }}>
+                    Activity
+                  </th>
+                  <th style={{ textAlign: 'left', padding: '8px 10px', fontWeight: 700 }}>
+                    Details
+                  </th>
+                  <th style={{ textAlign: 'left', padding: '8px 10px', fontWeight: 700 }}>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityHistory.map((item, idx) => (
+                  <tr key={idx} style={{ borderTop: idx > 0 ? '1px solid var(--border)' : 'none' }}>
+                    <td style={{ padding: '8px 10px' }}>{item.child_name || item.child_id}</td>
+                    <td style={{ padding: '8px 10px', textTransform: 'capitalize' }}>
+                      {item.activity_type}
+                    </td>
+                    <td style={{ padding: '8px 10px' }}>
+                      {item.activity_data || item.duration ? `${item.duration || 0} mins` : '-'}
+                    </td>
+                    <td style={{ padding: '8px 10px' }}>
+                      {new Date(item.completed_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

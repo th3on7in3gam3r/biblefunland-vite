@@ -8,8 +8,8 @@ const express = require('express');
 const router = express.Router();
 const { query, queryOne } = require('../lib/turso');
 
-const VALID_CATEGORIES = ['streaks', 'badges', 'trivia'];
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const VALID_CATEGORIES = ['streaks', 'badges', 'trivia', 'points'];
+const CACHE_TTL = 12 * 1000; // 12 seconds for near-real-time updates
 
 // In-memory cache: category → { data: LeaderboardEntry[], expiresAt: number }
 const cache = new Map();
@@ -70,6 +70,22 @@ async function queryBadges() {
   return toEntries(data || []);
 }
 
+async function queryPoints() {
+  const { data, error } = await query(
+    `SELECT up.clerk_user_id AS user_id,
+            COALESCE(NULLIF(TRIM(p.display_name), ''), 'Anonymous') AS display_name,
+            p.avatar_url,
+            up.points AS score
+     FROM user_progress up
+     LEFT JOIN profiles p ON p.id = up.clerk_user_id
+     ORDER BY up.points DESC
+     LIMIT 25`,
+    []
+  );
+  if (error) throw error;
+  return toEntries(data || []);
+}
+
 async function queryTrivia() {
   const { data, error } = await query(
     `SELECT ca.child_id AS user_id,
@@ -98,6 +114,7 @@ async function getEntries(category) {
     case 'streaks': return queryStreaks();
     case 'badges':  return queryBadges();
     case 'trivia':  return queryTrivia();
+    case 'points':  return queryPoints();
     default: throw new Error('Invalid category');
   }
 }

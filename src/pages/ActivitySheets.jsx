@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const SHEETS = [
   {
@@ -10,6 +11,9 @@ const SHEETS = [
     color: '#3B82F6',
     bg: '#EFF6FF',
     pro: false,
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Heroes'],
+    itemType: 'Printable',
   },
   {
     id: 'crossword',
@@ -20,6 +24,9 @@ const SHEETS = [
     color: '#8B5CF6',
     bg: '#F5F3FF',
     pro: false,
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Faith'],
+    itemType: 'Printable',
   },
   {
     id: 'coloring',
@@ -30,6 +37,9 @@ const SHEETS = [
     color: '#EC4899',
     bg: '#FDF2F8',
     pro: false,
+    ageGroup: 'Preschool',
+    topics: ['Old Testament', 'Heroes'],
+    itemType: 'Printable',
   },
   {
     id: 'memorygame',
@@ -40,6 +50,9 @@ const SHEETS = [
     color: '#10B981',
     bg: '#ECFDF5',
     pro: false,
+    ageGroup: 'Preschool',
+    topics: ['New Testament', 'Heroes'],
+    itemType: 'Printable',
   },
   {
     id: 'journaling',
@@ -50,6 +63,9 @@ const SHEETS = [
     color: '#F97316',
     bg: '#FFF7ED',
     pro: true,
+    ageGroup: 'Family',
+    topics: ['Faith', 'Jesus', 'New Testament'],
+    itemType: 'Printable',
   },
   {
     id: 'dotdot',
@@ -60,6 +76,9 @@ const SHEETS = [
     color: '#F59E0B',
     bg: '#FFFBEB',
     pro: false,
+    ageGroup: 'Preschool',
+    topics: ['Jesus', 'Faith'],
+    itemType: 'Printable',
   },
   {
     id: 'maze',
@@ -70,6 +89,9 @@ const SHEETS = [
     color: '#14B8A6',
     bg: '#F0FDFA',
     pro: false,
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Heroes'],
+    itemType: 'Printable',
   },
   {
     id: 'versecard',
@@ -80,8 +102,25 @@ const SHEETS = [
     color: '#6366F1',
     bg: '#EEF2FF',
     pro: true,
+    ageGroup: 'Family',
+    topics: ['Faith', 'New Testament', 'Old Testament'],
+    itemType: 'Printable',
   },
 ];
+
+const AGE_OPTIONS = ['All', 'Preschool', 'Elementary', 'Tweens', 'Family'];
+const TOPIC_OPTIONS = [
+  'All',
+  'Old Testament',
+  'New Testament',
+  'Jesus',
+  'Heroes',
+  'Faith',
+  'Parables',
+  'Stories',
+  'General',
+];
+const TYPE_OPTIONS = ['All', 'Printable'];
 
 // Generate printable HTML for each sheet type
 function generateSheet(id) {
@@ -434,6 +473,36 @@ ${generateCrossword()}
 }
 
 export default function ActivitySheets() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [ageFilter, setAgeFilter] = useState(searchParams.get('age') || 'All');
+  const [topicFilter, setTopicFilter] = useState(searchParams.get('topic') || 'All');
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'All');
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+
+    if (ageFilter && ageFilter !== 'All') params.set('age', ageFilter);
+    else params.delete('age');
+
+    if (topicFilter && topicFilter !== 'All') params.set('topic', topicFilter);
+    else params.delete('topic');
+
+    if (typeFilter && typeFilter !== 'All') params.set('type', typeFilter);
+    else params.delete('type');
+
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ageFilter, topicFilter, typeFilter]);
+
+  const filteredSheets = useMemo(() => {
+    return SHEETS.filter((sheet) => {
+      const ageOk = ageFilter === 'All' || sheet.ageGroup === ageFilter;
+      const topicOk = topicFilter === 'All' || sheet.topics.includes(topicFilter);
+      const typeOk = typeFilter === 'All' || sheet.itemType === typeFilter;
+      return ageOk && topicOk && typeOk;
+    });
+  }, [ageFilter, topicFilter, typeFilter]);
+
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
       <div
@@ -487,8 +556,99 @@ export default function ActivitySheets() {
         </p>
       </div>
       <div style={{ maxWidth: 1060, margin: '0 auto', padding: '44px 24px' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 12,
+            marginBottom: 22,
+            justifyContent: 'center',
+          }}
+        >
+          <select
+            value={ageFilter}
+            onChange={(e) => setAgeFilter(e.target.value)}
+            style={{
+              minWidth: 160,
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: '1px solid #D1D5DB',
+              fontSize: '.9rem',
+            }}
+          >
+            {AGE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          <select
+            value={topicFilter}
+            onChange={(e) => setTopicFilter(e.target.value)}
+            style={{
+              minWidth: 180,
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: '1px solid #D1D5DB',
+              fontSize: '.9rem',
+            }}
+          >
+            {TOPIC_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{
+              minWidth: 150,
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: '1px solid #D1D5DB',
+              fontSize: '.9rem',
+            }}
+          >
+            {TYPE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              setAgeFilter('All');
+              setTopicFilter('All');
+              setTypeFilter('All');
+            }}
+            style={{
+              border: '1px solid #E5E7EB',
+              background: '#fff',
+              borderRadius: 10,
+              padding: '10px 14px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            Reset
+          </button>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 18 }}>
-          {SHEETS.map((s) => (
+          {filteredSheets.length === 0 && (
+            <div
+              style={{
+                gridColumn: '1 / -1',
+                padding: '20px',
+                color: '#6B7280',
+                textAlign: 'center',
+              }}
+            >
+              No printable activity sheets match your filters.
+            </div>
+          )}
+          {filteredSheets.map((s) => (
             <div
               key={s.id}
               style={{

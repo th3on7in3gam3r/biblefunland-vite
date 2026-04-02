@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import usePageMetadata from '../hooks/usePageMetadata';
+import { Analytics } from '../lib/analytics';
 
 const FRUITS = ['❤️', '😊', '☮️', '😌', '🫶', '🌟', '🤲', '💝'];
 const FRUIT_NAMES = [
@@ -24,6 +26,14 @@ const GRAVITY = 0.7,
   GAME_SPEED = 5;
 
 export default function ScriptureRunner() {
+  usePageMetadata({
+    title: 'Scripture Runner Game',
+    description:
+      'Jump, collect goodness, and avoid temptation in this Bible-themed runner. Perfect for kids and youth groups.',
+    image:
+      'https://images.unsplash.com/photo-1512499617640-c2f999b0bca4?auto=format&fit=crop&w=1200&q=80',
+  });
+
   const canvasRef = useRef(null);
   const stateRef = useRef({
     player: { x: 80, y: GROUND_Y - PLAYER_H, vy: 0, onGround: true },
@@ -40,6 +50,7 @@ export default function ScriptureRunner() {
     cloudX: 0,
   });
   const animRef = useRef(null);
+  const [showCanvas, setShowCanvas] = useState(false);
   const [phase, setPhase] = useState('menu'); // menu | playing | dead
   const [score, setScore] = useState(0);
   const [collected, setCollected] = useState([]);
@@ -55,6 +66,8 @@ export default function ScriptureRunner() {
   }, []);
 
   function startGame() {
+    Analytics.gameStarted('ScriptureRunner', 'standard');
+    setShowCanvas(true);
     const s = stateRef.current;
     s.player = { x: 80, y: GROUND_Y - PLAYER_H, vy: 0, onGround: true };
     s.obstacles = [];
@@ -140,6 +153,7 @@ export default function ScriptureRunner() {
         s.dead = true;
         const hs = Math.max(s.score, parseInt(localStorage.getItem('bfl_runner_hs') || '0'));
         localStorage.setItem('bfl_runner_hs', hs);
+        Analytics.gameCompleted('ScriptureRunner', s.score);
         setDeathLabel(OBSTACLE_LABELS[o.type]);
         setPhase('dead');
         setScore(s.score);
@@ -462,20 +476,51 @@ export default function ScriptureRunner() {
               </div>
             </div>
 
-            <canvas
-              ref={canvasRef}
-              width={W}
-              height={H}
-              style={{
-                borderRadius: 16,
-                boxShadow: '0 20px 60px rgba(0,0,0,.18)',
-                display: 'block',
-                width: '100%',
-                cursor: 'pointer',
-                border: '2px solid var(--border)',
-              }}
-              onClick={jump}
-            />
+            {!showCanvas ? (
+              <div
+                style={{
+                  width: '100%',
+                  height: 340,
+                  borderRadius: 16,
+                  border: '2px dashed var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--ink3)',
+                  marginBottom: 16,
+                }}
+              >
+                <button
+                  onClick={() => startGame()}
+                  style={{
+                    padding: '12px 22px',
+                    borderRadius: 12,
+                    border: 'none',
+                    background: 'var(--blue)',
+                    color: 'white',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Launch Scripture Runner
+                </button>
+              </div>
+            ) : (
+              <canvas
+                ref={canvasRef}
+                width={W}
+                height={H}
+                style={{
+                  borderRadius: 16,
+                  boxShadow: '0 20px 60px rgba(0,0,0,.18)',
+                  display: 'block',
+                  width: '100%',
+                  cursor: 'pointer',
+                  border: '2px solid var(--border)',
+                }}
+                onClick={jump}
+              />
+            )}
 
             {phase === 'dead' && (
               <div

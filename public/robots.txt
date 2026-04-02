@@ -1,23 +1,2 @@
-# BibleFunLand — robots.txt
-# Allow all crawlers on all public pages
-# Block private/authenticated routes
-
 User-agent: *
-Allow: /
-
-# Block private user pages
-Disallow: /dashboard
-Disallow: /profile
-Disallow: /admin
-Disallow: /admin/login
-
-# Block API and auth routes
-Disallow: /api/
-Disallow: /auth/callback
-
-# Sitemap location
-Sitemap: https://biblefunland.com/sitemap.xml
-
-# Allow Google AdSense crawler specifically
-User-agent: Mediapartners-Google
 Allow: /

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import usePageMetadata from '../hooks/usePageMetadata';
+import { getCache, setCache } from '../lib/cache';
 
 const DEFAULT_BIBLE_ID = 'de4e12af7f28f599-02'; // KJV
 
@@ -77,6 +79,12 @@ export default function BibleBookExplorer() {
   const { user } = useAuth();
   const userId = user?.id || null;
 
+  usePageMetadata({
+    title: 'Bible Reading Explorer',
+    description:
+      'Browse multiple Bible translations, read chapters, and highlight scripture with ease.',
+  });
+
   // Translation / navigation state
   const [bibles, setBibles] = useState([]);
   const [selectedBible, setSelectedBible] = useState(
@@ -114,18 +122,26 @@ export default function BibleBookExplorer() {
   const chapterRef = useRef(null);
   const apiFetch = useCallback(makeApiFetch(userId), [userId]);
 
-  // ─── Load bibles on mount ────────────────────────────────────────────────
+  // ─── Load bibles on mount (cache/ISR-like) ────────────────────────────────
   useEffect(() => {
+    const cached = getCache('bibles');
+    if (cached && cached.length) {
+      setBibles(cached);
+      return;
+    }
+
     apiFetch('/bibles')
-      .then((json) =>
-        setBibles(
-          (json.data || FALLBACK_BIBLES).sort((a, b) => a.nameLocal.localeCompare(b.nameLocal))
-        )
-      )
+      .then((json) => {
+        const list = (json.data || FALLBACK_BIBLES).sort((a, b) =>
+          a.nameLocal.localeCompare(b.nameLocal)
+        );
+        setBibles(list);
+        setCache('bibles', list, 1000 * 60 * 60 * 6);
+      })
       .catch(() => setBibles(FALLBACK_BIBLES));
   }, [apiFetch]);
 
-  // ─── Load books when bible changes ──────────────────────────────────────
+  // ─── Load books when bible changes (cache/ISR-like) ──────────────────────
   useEffect(() => {
     if (!selectedBible) return;
     setBooks([]);
@@ -133,21 +149,42 @@ export default function BibleBookExplorer() {
     setChapters([]);
     setSelectedChapter(null);
     setChapterContent(null);
+
+    const cacheKey = `books:${selectedBible}`;
+    const cachedBooks = getCache(cacheKey);
+    if (cachedBooks && cachedBooks.length) {
+      setBooks(cachedBooks);
+      return;
+    }
+
     apiFetch(`/${selectedBible}/books`)
-      .then((json) => setBooks(json.data || []))
+      .then((json) => {
+        const list = json.data || [];
+        setBooks(list);
+        setCache(cacheKey, list, 1000 * 60 * 60 * 6);
+      })
       .catch((err) => console.error('Books fetch error:', err));
   }, [selectedBible, apiFetch]);
 
-  // ─── Load chapters when book changes ────────────────────────────────────
+  // ─── Load chapters when book changes (cache/ISR-like) ────────────────────
   useEffect(() => {
     if (!selectedBook) return;
     setChapters([]);
     setSelectedChapter(null);
     setChapterContent(null);
+
+    const cacheKey = `chapters:${selectedBible}:${selectedBook.id}`;
+    const cachedChapters = getCache(cacheKey);
+    if (cachedChapters && cachedChapters.length) {
+      setChapters(cachedChapters);
+      return;
+    }
+
     apiFetch(`/${selectedBible}/chapters/${selectedBook.id}`)
       .then((json) => {
         const real = (json.data || []).filter((c) => !c.id.endsWith('intro'));
         setChapters(real);
+        setCache(cacheKey, real, 1000 * 60 * 60 * 6);
       })
       .catch((err) => console.error('Chapters fetch error:', err));
   }, [selectedBook, selectedBible, apiFetch]);
@@ -172,13 +209,22 @@ export default function BibleBookExplorer() {
         if (book) {
           setSelectedBook(book);
           // Pre-emptively load chapter content without waiting for chapters array
-          apiFetch(`/${selectedBible}/chapter/${book.id}.${chapterNum}`)
-            .then((json) => {
-              setChapterContent(json.data);
-              setSelectedChapter(json.data);
-              setTab('read');
-            })
-            .catch((err) => console.error(err));
+          const cacheKey = `chapterContent:${selectedBible}:${book.id}.${chapterNum}`;
+          const cached = getCache(cacheKey);
+          if (cached) {
+            setChapterContent(cached);
+            setSelectedChapter(cached);
+            setTab('read');
+          } else {
+            apiFetch(`/${selectedBible}/chapter/${book.id}.${chapterNum}`)
+              .then((json) => {
+                setChapterContent(json.data);
+                setSelectedChapter(json.data);
+                setTab('read');
+                setCache(cacheKey, json.data, 1000 * 60 * 60 * 6);
+              })
+              .catch((err) => console.error(err));
+          }
 
           // Clear query to prevent re-triggering
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -200,9 +246,18 @@ export default function BibleBookExplorer() {
       setChapterContent(null);
       setActiveVerse(null);
       try {
+        const cacheKey = `chapterContent:${selectedBible}:${chapterId}`;
+        const cached = getCache(cacheKey);
+        if (cached) {
+          setChapterContent(cached);
+          setSelectedChapter(cached);
+          return;
+        }
+
         const json = await apiFetch(`/${selectedBible}/chapter/${chapterId}`);
         setChapterContent(json.data);
         setSelectedChapter(json.data);
+        setCache(cacheKey, json.data, 1000 * 60 * 60 * 6);
       } catch (err) {
         setError(err.message);
       } finally {

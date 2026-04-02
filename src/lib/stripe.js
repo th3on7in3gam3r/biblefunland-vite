@@ -17,7 +17,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? 
 // ── Price IDs from your Stripe Dashboard ──
 // Create these in: Stripe Dashboard → Products → Add Product
 export const STRIPE_PRICES = {
-  pro_monthly: 'price_pro_monthly_id_here', // $4.99/mo
+  pro_monthly: 'price_pro_monthly_id_here', // $3.99/mo
   pro_annual: 'price_pro_annual_id_here', // $35.88/yr
   family_monthly: 'price_family_monthly_id_here', // $9.99/mo
   family_annual: 'price_family_annual_id_here', // $71.88/yr

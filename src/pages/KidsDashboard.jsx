@@ -12,7 +12,7 @@ export const STICKERS = [
     name: 'King David',
     color: '#F59E0B',
     task: 'Play Bible Trivia',
-    route: '/trivia',
+    route: '/play/trivia',
   },
   {
     id: 's02',
@@ -108,7 +108,7 @@ export const STICKERS = [
     name: 'Paul',
     color: '#8B5CF6',
     task: 'Play Bible Trivia 3 times',
-    route: '/trivia',
+    route: '/play/trivia',
   },
   {
     id: 's14',
@@ -212,7 +212,7 @@ export const STICKERS = [
     name: 'Stone of David',
     color: '#9CA3AF',
     task: 'Win Bible Trivia Perfect',
-    route: '/trivia',
+    route: '/play/trivia',
   },
   {
     id: 's27',
@@ -316,7 +316,7 @@ const FEATURES = [
     emoji: '🎮',
     label: 'Bible Trivia',
     desc: "Fun quiz about God's Word!",
-    route: '/trivia',
+    route: '/play/trivia',
     color: '#EF4444',
   },
   {

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BIBLE_BOOKS, resolveBook } from '../lib/bibleMap';
+import { API_URL as API } from '../lib/api-config';
 
 const DEFAULT_BIBLE_ID = 'de4e12af7f28f599-02'; // KJV
 const FALLBACK_BIBLES = [
@@ -112,26 +113,36 @@ export default function BibleReader() {
 
   // API helpers
   const apiFetch = useCallback(
-    async (path) => {
+  async (path) => {
+    try {
       const headers = { 'Content-Type': 'application/json' };
       if (userId) headers['Authorization'] = `Bearer ${userId}`;
-      const res = await fetch('/api/bible' + path, { headers });
+      const res = await fetch(`${API}/api/bible${path}`, { headers });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       return res.json();
-    },
-    [userId]
-  );
+    } catch (err) {
+      if (import.meta.env.DEV) console.error('📖 BibleReader Fetch Error:', err);
+      throw err;
+    }
+  },
+  [userId]
+);
 
-  const apiPost = async (path, body) => {
+const apiPost = async (path, body) => {
+  try {
     const headers = { 'Content-Type': 'application/json' };
     if (userId) headers['Authorization'] = `Bearer ${userId}`;
-    const res = await fetch('/api/bible' + path, {
+    const res = await fetch(`${API}/api/bible${path}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
     });
     return res.json();
-  };
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('📖 BibleReader Post Error:', err);
+    return { error: true };
+  }
+};
 
   // Load Bibles
   useEffect(() => {

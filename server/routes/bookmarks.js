@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { execute, query } = require('../lib/turso');
+const asyncHandler = require('../lib/asyncHandler');
 const crypto = require('crypto');
 
 const DEFAULT_FOLDERS = ['Favorites', 'Morning Prayer', 'Memorizing', 'Sermon Prep'];
@@ -56,7 +57,7 @@ function requireAuth(req, res) {
 }
 
 // ─── GET /api/bookmarks — all bookmarks for user, grouped by folder ───────────
-router.get('/', async (req, res) => {
+router.get('/', asyncHandler(async (req, res) => {
   const userId = requireAuth(req, res);
   if (!userId) return;
 
@@ -64,19 +65,25 @@ router.get('/', async (req, res) => {
     `SELECT * FROM verse_bookmarks WHERE user_id = ? ORDER BY folder, created_at DESC`,
     [userId]
   );
-  if (error) return res.status(500).json({ error: 'Failed to fetch bookmarks' });
+
+  if (error) {
+    console.error('[Bookmarks] query error on GET /api/bookmarks', error);
+    return res.status(500).json({ error: 'Failed to fetch bookmarks' });
+  }
 
   // Group by folder
   const grouped = {};
-  DEFAULT_FOLDERS.forEach(f => { grouped[f] = [] });
-  for (const row of (data || [])) {
+  DEFAULT_FOLDERS.forEach((f) => {
+    grouped[f] = [];
+  });
+  for (const row of data || []) {
     const folder = row.folder || 'Favorites';
     if (!grouped[folder]) grouped[folder] = [];
     grouped[folder].push(row);
   }
 
   res.json({ bookmarks: data || [], grouped, folders: Object.keys(grouped) });
-});
+}));
 
 // ─── POST /api/bookmarks — create or update bookmark ─────────────────────────
 router.post('/', async (req, res) => {

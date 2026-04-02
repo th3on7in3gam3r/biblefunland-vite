@@ -275,7 +275,9 @@
 .tierCardFeatured {
   border-color: rgba(124, 58, 237, 0.5);
   background: linear-gradient(145deg, rgba(124, 58, 237, 0.06) 0%, var(--surface) 50%);
-  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.15), 0 12px 40px rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(124, 58, 237, 0.15),
+    0 12px 40px rgba(124, 58, 237, 0.12);
 }
 
 .tierPopularBadge {
@@ -389,7 +391,7 @@
 
 /* ── Partner Showcase ──────────────────────────────────── */
 .partnerShowcase {
-  background: var(--bg2, rgba(0,0,0,0.02));
+  background: var(--bg2, rgba(0, 0, 0, 0.02));
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -457,7 +459,11 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 70% 60% at 30% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 70% 60% at 30% 50%,
+    rgba(139, 92, 246, 0.1) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 

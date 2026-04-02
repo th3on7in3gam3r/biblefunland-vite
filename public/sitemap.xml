@@ -1,305 +1,58 @@
-<!-- public/sitemap.xml -->
-<!-- ─────────────────────────────────────────────────────
-  BibleFunLand Sitemap
-  Submit to: https://search.google.com/search-console
-  URL: https://biblefunland.com/sitemap.xml
-  Last Updated: 2026-03-23
-───────────────────────────────────────────────────── -->
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core -->
+  <url><loc>https://biblefunland.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://biblefunland.com/auth</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 
-  <!-- Core pages — highest priority -->
-  <url>
-    <loc>https://biblefunland.com/</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <!-- Play & Learn -->
+  <url><loc>https://biblefunland.com/play</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://biblefunland.com/play/trivia</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/play/flashcards</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/activity-sheets</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/game/runner</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/game/david-goliath</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/game/escape-room</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/game/spin-the-verse</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/play/challenge</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/play/wordle</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
 
-  <!-- Games & Activities -->
-  <url>
-    <loc>https://biblefunland.com/trivia</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/game/david-goliath</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/challenge</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/wordle</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
+  <!-- Bible Explorer -->
+  <url><loc>https://biblefunland.com/explore</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://biblefunland.com/explore/bible</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/explore/map</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/explore/timeline</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/explore/family-tree</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/explore/voice-reader</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <!-- Kids Learning (NEW) -->
-  <url>
-    <loc>https://biblefunland.com/kids/alphabet</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/animals</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/counting</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/jigsaw</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/word-builder</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/coloring</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/gods-shapes</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids/verse-scramble</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- AI Tools -->
+  <url><loc>https://biblefunland.com/ai</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://biblefunland.com/ai/devotional</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/ai/chat/characters</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/ai/rap-generator</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/ai/miracle-art</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <!-- Learning & Study Tools -->
-  <url>
-    <loc>https://biblefunland.com/devotional</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/map</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/flashcards</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/notes</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/promises</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/scripture-typing</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- AI Features -->
-  <url>
-    <loc>https://biblefunland.com/chat/characters</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/ai/prayer-companion</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/sermon-writer</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Parents & Teachers (NEW) -->
-  <url>
-    <loc>https://biblefunland.com/parent-hub</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/parents-teachers</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/couples-devotional</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Spiritual Tools (NEW) -->
-  <url>
-    <loc>https://biblefunland.com/fasting</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/prayer-journal</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/worship</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- Bible Resources -->
-  <url>
-    <loc>https://biblefunland.com/family-tree</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/prophecy</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/sermon-illustrations</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.75</priority>
-  </url>
+  <!-- Grow in Faith -->
+  <url><loc>https://biblefunland.com/grow</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/grow/certification</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/grow/reading-plan</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/grow/faith-milestones</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/grow/spiritual-gifts</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/grow/apologetics</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 
   <!-- Community -->
-  <url>
-    <loc>https://biblefunland.com/prayer</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/community/chat</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/community/family</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/community/events</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
+  <url><loc>https://biblefunland.com/community</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/community/prayer</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://biblefunland.com/community/leaderboard</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/community/chat</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/community/family</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 
-  <!-- Content -->
-  <url>
-    <loc>https://biblefunland.com/blog</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/videos</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/share</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/activity-sheets</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/kids-stories</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <!-- User Features -->
-  <url>
-    <loc>https://biblefunland.com/dashboard</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/premium</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Legal — required by AdSense -->
-  <url>
-    <loc>https://biblefunland.com/privacy</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/terms</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://biblefunland.com/contact</loc>
-    <lastmod>2026-03-23</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
+  <!-- Standalone pages -->
+  <url><loc>https://biblefunland.com/podcast</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/church-finder</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/resources</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/seasonal</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://biblefunland.com/premium</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://biblefunland.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://biblefunland.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://biblefunland.com/contact</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
 </urlset>

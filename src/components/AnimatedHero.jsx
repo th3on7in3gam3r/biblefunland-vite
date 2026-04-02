@@ -276,10 +276,10 @@ export default function AnimatedHero() {
         <p className={styles.desc}>{t('hero.desc')}</p>
 
         <div className={styles.btns}>
-          <Link to="/trivia" className={`btn btn-rainbow btn-lg ${styles.btnMain}`}>
+          <Link to="/play/trivia" className={`btn btn-rainbow btn-lg ${styles.btnMain}`}>
             🎮 {t('hero.cta1')}
           </Link>
-          <Link to="/devotional" className={`btn ${styles.btnAlt}`}>
+          <Link to="/ai/devotional" className={`btn ${styles.btnAlt}`}>
             🙏 {t('hero.cta2')}
           </Link>
         </div>

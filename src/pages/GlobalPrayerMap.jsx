@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { getPrayers, insertPrayer } from '../lib/db';
 
 // Realtime broadcast stub for local testing
 const realtimeChannel = {
@@ -127,6 +128,8 @@ export default function GlobalPrayerMap() {
   const [pins, setPins] = useState(DEMO_PINS);
   const [hoveredPin, setHoveredPin] = useState(null);
   const [form, setForm] = useState({ country: '', city: '', prayer: '', category: 'General' });
+  const [loading, setLoading] = useState(true);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [filter, setFilter] = useState('All');
@@ -135,55 +138,86 @@ export default function GlobalPrayerMap() {
   const channelRef = useRef(null);
 
   useEffect(() => {
-    // Try realtime broadcast
-    try {
-      channelRef.current = realtimeChannel
-        .channel('prayer-map')
-        .on('broadcast', { event: 'new-pin' }, ({ payload }) => {
-          setPins((prev) => [payload, ...prev].slice(0, 50));
-          setLiveCount((c) => c + 1);
-          setTimeout(() => setLiveCount((c) => Math.max(0, c - 1)), 5000);
-        })
-        .subscribe();
-    } catch {}
+    async function refreshPrayerMap() {
+      try {
+        const response = await getPrayers();
+        const apiPins = (response?.data || []).map((p) => ({
+          ...p,
+          id: p.id || `prayer-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          lat: p.lat || (p.city ? Math.random() * 160 - 80 : 20 + Math.random() * 40),
+          lng: p.lng || (p.city ? Math.random() * 360 - 180 : -100 + Math.random() * 200),
+        }));
 
-    // Simulate new prayer pins appearing
+        setLiveCount(Math.max(0, apiPins.length - pins.length));
+        setPins(apiPins.length ? apiPins : DEMO_PINS);
+        setLastRefreshed(new Date());
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        // Keep previous pins if the backend is not reachable
+      }
+    }
+
+    refreshPrayerMap();
+
     const interval = setInterval(() => {
-      const demo = DEMO_PINS[Math.floor(Math.random() * DEMO_PINS.length)];
-      const newPin = { ...demo, id: Date.now(), time: 0 };
-      setPins((prev) => [newPin, ...prev.slice(0, 49)]);
-      setLiveCount((c) => c + 1);
-      setTimeout(() => setLiveCount((c) => Math.max(0, c - 1)), 4000);
-    }, 12000);
+      refreshPrayerMap();
+    }, 13000);
+
+    let source;
+    try {
+      source = new EventSource(`${import.meta.env.VITE_API_URL || ''}/api/prayers/stream`);
+      source.addEventListener('pray_count', ({ data }) => {
+        const parsed = JSON.parse(data);
+        setPins((prev) =>
+          prev.map((pin) =>
+            pin.id === parsed.id ? { ...pin, pray_count: parsed.pray_count } : pin
+          )
+        );
+      });
+
+      source.addEventListener('prayer_approved', () => {
+        refreshPrayerMap();
+      });
+    } catch (err) {
+      // ignore SSE support missing
+      source = null;
+    }
 
     return () => {
       clearInterval(interval);
-      channelRef.current?.unsubscribe();
+      source?.close();
     };
   }, []);
 
-  function submitPrayer() {
+  async function submitPrayer() {
     if (!form.prayer.trim() || !form.city.trim()) return;
-    const pin = {
-      id: Date.now(),
-      lat: 20 + Math.random() * 40,
-      lng: -100 + Math.random() * 200,
+    const payload = {
+      userId: null,
+      name: form.name || 'Anonymous',
+      category: form.category,
+      text: form.prayer,
       country: form.country || '🌍',
       city: form.city,
-      prayer: form.prayer,
-      category: form.category,
-      time: 0,
+      lat: 20 + Math.random() * 40,
+      lng: -100 + Math.random() * 200,
+      bibleReference: 'Matthew 18:20',
     };
-    setPins((prev) => [pin, ...prev]);
+
     try {
-      realtimeChannel
-        .channel('prayer-map')
-        .send({ type: 'broadcast', event: 'new-pin', payload: pin });
-    } catch {}
-    setForm({ country: '', city: '', prayer: '', category: 'General' });
-    setShowForm(false);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+      await insertPrayer(payload);
+      setSubmitted(true);
+      setForm({ country: '', city: '', prayer: '', category: 'General' });
+      setShowForm(false);
+      setTimeout(() => setSubmitted(false), 3000);
+      await getPrayers().then((resp) =>
+        setPins((resp.data || []).map((p) => ({ ...p, lat: p.lat || 0, lng: p.lng || 0 })))
+      );
+      setLastRefreshed(new Date());
+    } catch (err) {
+      console.error('[GlobalPrayerMap] submit error', err);
+      alert('Unable to submit prayer right now. Please try again later.');
+    }
   }
 
   const W = 800,
@@ -224,6 +258,9 @@ export default function GlobalPrayerMap() {
             }}
           />
           Real-time · {pins.length} prayers · Global Church
+        </div>
+        <div style={{ color: 'rgba(255,255,255,.7)', fontSize: '.77rem', marginBottom: 8 }}>
+          Last updated {lastRefreshed.toLocaleTimeString()} — auto refresh every 13 sec
         </div>
         <h1
           style={{

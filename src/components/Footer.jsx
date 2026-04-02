@@ -4,7 +4,7 @@ import styles from './Footer.module.css';
 const EXPLORE_LINKS = [
   { to: '/trivia', label: '🎮 Scripture Trivia' },
   { to: '/devotional', label: '🙏 AI Devotional' },
-  { to: '/bible', label: '📖 Bible Explorer' },
+  { to: '/explore/bible', label: '📖 Bible Explorer' },
   { to: '/map', label: '🗺️ Bible Map' },
   { to: '/game/runner', label: '🏃 Scripture Runner' },
   { to: '/resources', label: '📚 Kingdom Resources' },
@@ -129,6 +129,27 @@ export default function Footer() {
             <Link to="/terms">Terms</Link>
             <Link to="/contact">Support</Link>
           </div>
+        </div>
+
+        {/* Safety + GDPR note */}
+        <div
+          style={{
+            borderTop: '1px solid rgba(255,255,255,.06)',
+            marginTop: 16,
+            paddingTop: 14,
+            textAlign: 'center',
+            fontSize: '.68rem',
+            color: 'rgba(255,255,255,.25)',
+            lineHeight: 1.8,
+          }}
+        >
+          🛡️ Moderated community for families. All content rooted in Scripture. · 🔒 We do not sell
+          your data. Community content is moderated for child safety. · GDPR: EU users may request
+          data deletion at{' '}
+          <a href="mailto:privacy@biblefunland.com" style={{ color: 'rgba(255,255,255,.35)' }}>
+            privacy@biblefunland.com
+          </a>{' '}
+          · COPPA compliant — children under 13 require parental consent.
         </div>
       </div>
     </footer>

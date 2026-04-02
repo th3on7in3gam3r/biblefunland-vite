@@ -129,7 +129,9 @@
   overflow: hidden;
   background: linear-gradient(135deg, #1a0a2e, #0d1b2a, #071a10);
   border: 1.5px solid rgba(249, 115, 22, 0.3);
-  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4), 0 20px 40px rgba(249, 115, 22, 0.08);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.4),
+    0 20px 40px rgba(249, 115, 22, 0.08);
   margin-bottom: 48px;
   position: relative;
 }
@@ -397,17 +399,42 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 600px) {
-  .hero { padding: 60px 20px 40px; }
-  .featuredCard { border-radius: 20px; }
-  .featuredBody { padding: 24px 24px 0; }
-  .featuredFooter { padding: 0 24px 24px; }
-  .standardCard { padding: 20px; flex-direction: column; }
-  .playerContainer { padding: 16px 20px; }
-  .playBtn { width: 52px; height: 52px; }
+  .hero {
+    padding: 60px 20px 40px;
+  }
+  .featuredCard {
+    border-radius: 20px;
+  }
+  .featuredBody {
+    padding: 24px 24px 0;
+  }
+  .featuredFooter {
+    padding: 0 24px 24px;
+  }
+  .standardCard {
+    padding: 20px;
+    flex-direction: column;
+  }
+  .playerContainer {
+    padding: 16px 20px;
+  }
+  .playBtn {
+    width: 52px;
+    height: 52px;
+  }
 }

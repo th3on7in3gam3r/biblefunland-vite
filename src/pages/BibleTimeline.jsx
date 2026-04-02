@@ -239,7 +239,6 @@ const EVENTS = [
   },
   {
     id: 'samuel-called--1050',
-    id: 'saul-becomes-king--1050',
     year: -1050,
     label: 'Samuel Called',
     ref: '1 Sam 3',
@@ -248,6 +247,7 @@ const EVENTS = [
     desc: "A young boy in the Temple hears God's voice: 'Samuel! Samuel!' He becomes the last judge of Israel and anoints the first two kings.",
   },
   {
+    id: 'saul-becomes-king--1050',
     year: -1050,
     label: 'Saul Becomes King',
     ref: '1 Sam 10',
@@ -490,6 +490,7 @@ const EVENTS = [
     desc: 'The Creator of the universe is born in a stable in Bethlehem. Angels announce His birth to shepherds. The Word becomes flesh and dwells among us.',
   },
   {
+    id: 'magi--5',
     year: -5,
     label: 'Magi Follow the Star',
     ref: 'Matt 2',
@@ -516,6 +517,7 @@ const EVENTS = [
     desc: "John baptizes Jesus in the Jordan. The Spirit descends like a dove. The Father speaks: 'This is my Son, whom I love; with him I am well pleased.'",
   },
   {
+    id: 'temptation--27',
     year: 27,
     label: 'Temptation in Desert',
     ref: 'Matt 4',
@@ -938,6 +940,7 @@ export default function BibleTimeline() {
                 const lastXByLevel = new Array(levels).fill(-9999);
 
                 return filtered.map((event, i) => {
+                  const keyValue = event.id || `${event.year}-${event.label}`;
                   const rawX = yearToX(event.year);
                   const era = getEra(event.year);
                   const isSelected = selected === event.id;
@@ -963,7 +966,7 @@ export default function BibleTimeline() {
 
                   return (
                     <div
-                      key={event.id}
+                      key={keyValue}
                       className={styles.eventNode}
                       style={{
                         left: adjustedX,

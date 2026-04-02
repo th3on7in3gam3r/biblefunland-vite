@@ -40,6 +40,28 @@ CREATE TABLE IF NOT EXISTS prayers (
   category    TEXT DEFAULT 'General',
   text        TEXT NOT NULL,
   pray_count  INTEGER DEFAULT 0,
+  country     TEXT,
+  city        TEXT,
+  lat         REAL,
+  lng         REAL,
+  created_at  TEXT DEFAULT (datetime('now'))
+);
+
+-- Prayer submissions awaiting moderation
+CREATE TABLE IF NOT EXISTS prayer_submissions (
+  id          TEXT PRIMARY KEY,
+  user_id     TEXT,
+  name        TEXT DEFAULT 'Anonymous',
+  category    TEXT DEFAULT 'General',
+  text        TEXT NOT NULL,
+  country     TEXT,
+  city        TEXT,
+  lat         REAL,
+  lng         REAL,
+  bible_ref   TEXT,
+  status      TEXT DEFAULT 'pending',
+  reviewed_by TEXT,
+  reviewed_at TEXT,
   created_at  TEXT DEFAULT (datetime('now'))
 );
 
@@ -209,6 +231,8 @@ CREATE TABLE IF NOT EXISTS parental_controls (
   ai_toggles    TEXT DEFAULT '{}',        -- JSON: { trivia: true, rap: false, ... }
   daily_limit   INTEGER DEFAULT 0,        -- 0 = no limit, otherwise minutes
   parent_pin    TEXT DEFAULT '4318',      -- Override default PIN
+  kids_mode_lock INTEGER DEFAULT 0,       -- 0 = disabled/optional, 1 = enforced
+  blocked_topics TEXT DEFAULT '[]',       -- JSON list of blocked content areas
   updated_at    TEXT DEFAULT (datetime('now'))
 );
 

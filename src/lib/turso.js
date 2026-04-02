@@ -8,8 +8,7 @@
  * The frontend just calls these functions which make HTTP requests
  */
 
-const API_URL =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+import API_URL from './api-config';
 
 /**
  * Make a database API call to the backend - direct execution without queuing

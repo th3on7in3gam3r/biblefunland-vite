@@ -91,7 +91,7 @@ export default function BibleRadio() {
     <div
       style={{
         position: 'fixed',
-        bottom: expanded ? 20 : 20,
+        bottom: 22,
         right: 20,
         zIndex: 340,
         fontFamily: 'Poppins,sans-serif',

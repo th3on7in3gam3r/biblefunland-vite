@@ -14,75 +14,113 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import { useClerk } from '@clerk/clerk-react';
 
 const KidsModeContext = createContext(null);
 const STORAGE_KEY = 'bfl_kids_mode';
 const PIN_KEY = 'bfl_kids_pin';
-const DEFAULT_PIN = '4318';
+const DEFAULT_PIN = '1234';
 
 export function KidsModeProvider({ children }) {
-  const { profile } = useAuth();
-  const [kidsMode, setKidsMode] = useState(() => localStorage.getItem(STORAGE_KEY) === 'true');
+  const { profile, user } = useAuth();
+  const { user: clerkUser } = useClerk();
+  const [kidsMode, setKidsMode] = useState(() => {
+    // Check localStorage first, then Clerk metadata
+    const local = localStorage.getItem(STORAGE_KEY);
+    if (local !== null) return local === 'true';
+    return false;
+  });
   const [showPinModal, setShowPinModal] = useState(false);
-  const [pinAction, setPinAction] = useState(null); // 'enable' | 'disable'
+  const [pinAction, setPinAction] = useState(null);
 
-  // Global Enforcer: If age < 13, Force Kids Mode
+  // Sync from Clerk metadata on login
   useEffect(() => {
-    if (profile?.age && parseInt(profile.age) < 13) {
-      if (!kidsMode) {
-        setKidsMode(true);
-        localStorage.setItem(STORAGE_KEY, 'true');
-      }
+    if (clerkUser?.unsafeMetadata?.kidsMode !== undefined) {
+      const clerkKidsMode = clerkUser.unsafeMetadata.kidsMode === true;
+      setKidsMode(clerkKidsMode);
+      localStorage.setItem(STORAGE_KEY, String(clerkKidsMode));
     }
-  }, [profile, kidsMode]);
+  }, [clerkUser?.id]);
 
-  // Apply CSS variables when kids mode changes
+  // Force kids mode for under-13
+  useEffect(() => {
+    if (profile?.age && parseInt(profile.age) < 13 && !kidsMode) {
+      setKidsMode(true);
+      localStorage.setItem(STORAGE_KEY, 'true');
+    }
+  }, [profile]);
+
+  // Apply CSS variables + body class
   useEffect(() => {
     const root = document.documentElement;
     if (kidsMode) {
+      root.setAttribute('data-kids', 'true');
       root.style.setProperty('--kids-font-scale', '1.2');
       root.style.setProperty('--kids-radius-scale', '1.5');
-      root.setAttribute('data-kids', 'true');
-      document.body.style.fontFamily = "'Baloo 2', cursive";
+      root.style.setProperty('--kids-btn-padding', '14px 28px');
+      document.body.classList.add('kids-mode');
     } else {
+      root.removeAttribute('data-kids');
       root.style.removeProperty('--kids-font-scale');
       root.style.removeProperty('--kids-radius-scale');
-      root.removeAttribute('data-kids');
-      document.body.style.fontFamily = '';
+      root.style.removeProperty('--kids-btn-padding');
+      document.body.classList.remove('kids-mode');
     }
   }, [kidsMode]);
 
-  function requestToggle(action) {
-    if (action === 'disable') {
-      // For under-13 users, require PIN to disable Kids Mode
-      if (profile?.age && parseInt(profile.age) < 13) {
-        setPinAction('disable');
-        setShowPinModal(true);
-        return;
+  async function persistKidsMode(val) {
+    localStorage.setItem(STORAGE_KEY, String(val));
+    // Sync to Clerk metadata if logged in
+    if (clerkUser) {
+      try {
+        await clerkUser.update({ unsafeMetadata: { ...clerkUser.unsafeMetadata, kidsMode: val } });
+      } catch (e) {
+        console.warn('Could not sync kids mode to Clerk:', e.message);
       }
-      // For 13+, allow direct disable
-      disableKidsMode();
-    } else {
-      enableKidsMode();
     }
   }
 
   function enableKidsMode() {
     setKidsMode(true);
-    localStorage.setItem(STORAGE_KEY, 'true');
+    persistKidsMode(true);
   }
 
   function disableKidsMode() {
     setKidsMode(false);
-    localStorage.setItem(STORAGE_KEY, 'false');
+    persistKidsMode(false);
     setShowPinModal(false);
+  }
+
+  function requestToggle(action) {
+    if (action === 'disable') {
+      // Always require PIN to exit kids mode
+      setPinAction('disable');
+      setShowPinModal(true);
+    } else {
+      enableKidsMode();
+    }
+  }
+
+  // Alias for components that call toggleKidsMode()
+  function toggleKidsMode() {
+    requestToggle(kidsMode ? 'disable' : 'enable');
   }
 
   const getPin = () => localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
   const setPin = (pin) => localStorage.setItem(PIN_KEY, pin);
 
   return (
-    <KidsModeContext.Provider value={{ kidsMode, requestToggle, enableKidsMode, getPin, setPin }}>
+    <KidsModeContext.Provider
+      value={{
+        kidsMode,
+        requestToggle,
+        toggleKidsMode,
+        enableKidsMode,
+        disableKidsMode,
+        getPin,
+        setPin,
+      }}
+    >
       {children}
       {showPinModal && (
         <PinModal
@@ -332,17 +370,17 @@ export const KIDS_ALLOWED_ROUTES = [
   '/game/escape-room',
   '/game/spin-the-verse',
   '/challenge',
-  '/activity-sheets',
+  '/play/activity-sheets',
   '/quiz/character',
   '/voice-reader',
   '/videos',
   '/prayer-beads',
-  '/certification',
+  '/grow/certification',
   '/prayer',
   '/auth',
   '/profile',
   '/dashboard',
-  '/bible',
+  '/explore/bible',
 ];
 
 export const KIDS_HIDDEN_ROUTES = [
@@ -356,7 +394,7 @@ export const KIDS_HIDDEN_ROUTES = [
   '/community/family',
   '/community/events',
   '/premium',
-  '/worship',
+  '/grow/worship',
   '/fasting',
   '/couples-devotional',
   '/sermon-writer',

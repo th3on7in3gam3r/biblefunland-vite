@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_URL as API } from '../lib/api-config';
 import styles from './FaithMilestones.module.css';
 import Timeline from '../components/Timeline';
 import FormModal from '../components/FormModal';
@@ -249,7 +250,7 @@ const FaithMilestones = () => {
     if (!user) return;
     try {
       setLoading(true);
-      const response = await fetch('/api/faith-milestones/summary', {
+      const response = await fetch(`${API}/api/faith-milestones/summary`, {
         headers: { 'x-user-id': user.id },
       });
       if (!response.ok) throw new Error('Failed to load data');
@@ -257,7 +258,7 @@ const FaithMilestones = () => {
       setData(result);
       setError(null);
     } catch (err) {
-      console.error('Error loading data:', err);
+      if (import.meta.env.DEV) console.error('✨ FaithMilestones Load Error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -279,14 +280,14 @@ const FaithMilestones = () => {
             ? 'verses'
             : 'prayers';
     try {
-      const response = await fetch(`/api/faith-milestones/${endpoint}/${id}`, {
+      const response = await fetch(`${API}/api/faith-milestones/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: { 'x-user-id': user.id },
       });
       if (!response.ok) throw new Error('Delete failed');
       loadData();
     } catch (err) {
-      console.error('Delete error:', err);
+      if (import.meta.env.DEV) console.error('✨ FaithMilestones Delete Error:', err);
       setError(err.message);
     }
   };

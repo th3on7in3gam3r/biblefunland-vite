@@ -38,7 +38,7 @@
   border-radius: 100px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #9F7AEA;
+  color: #9f7aea;
 }
 
 .badgeIcon {
@@ -128,8 +128,8 @@
 }
 
 .toggle input:checked + .toggleSlider {
-  background: linear-gradient(135deg, #9F7AEA, #8B5CF6);
-  border-color: #9F7AEA;
+  background: linear-gradient(135deg, #9f7aea, #8b5cf6);
+  border-color: #9f7aea;
 }
 
 .toggle input:checked + .toggleSlider::before {
@@ -184,7 +184,7 @@
 
 .timeInput:focus {
   outline: none;
-  border-color: #9F7AEA;
+  border-color: #9f7aea;
   box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.1);
 }
 
@@ -199,7 +199,7 @@
 }
 
 .previewScreen {
-  background: radial-gradient(ellipse at center, #1A1204 0%, #0A0A0A 100%);
+  background: radial-gradient(ellipse at center, #1a1204 0%, #0a0a0a 100%);
   border-radius: 16px;
   padding: 40px 20px;
   margin-bottom: 16px;
@@ -222,7 +222,7 @@
   font-family: Georgia, serif;
   font-size: 1.1rem;
   font-style: italic;
-  color: #C9A96E;
+  color: #c9a96e;
   line-height: 1.6;
   margin-bottom: 8px;
 }
@@ -286,7 +286,7 @@
 }
 
 .btnPrimary {
-  background: linear-gradient(135deg, #9F7AEA, #8B5CF6);
+  background: linear-gradient(135deg, #9f7aea, #8b5cf6);
   color: white;
   border: 2px solid transparent;
 }

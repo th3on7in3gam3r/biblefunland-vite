@@ -10,6 +10,7 @@
 
 export { query, queryOne, execute } from './turso';
 import { query, queryOne, execute } from './turso';
+import API_URL from './api-config';
 
 // ─── IDs ──────────────────────────────────────────────────────────────────────
 // Turso uses SQLite which doesn't have gen_random_uuid().
@@ -52,20 +53,69 @@ export async function upsertStreak(userId, data) {
 
 // ─── Prayer Wall ──────────────────────────────────────────────────────────────
 
+// API_URL imported above
+
 export async function getPrayers() {
-  return query(`SELECT * FROM prayers ORDER BY created_at DESC LIMIT 100`);
+  const res = await fetch(`${API_URL}/prayers/recent`);
+  if (!res.ok) throw new Error('Error fetching prayers');
+  return res.json();
 }
 
-export async function insertPrayer({ name, category, text }) {
-  return execute(
-    `INSERT INTO prayers (id, name, category, text, pray_count, created_at)
-     VALUES (?, ?, ?, ?, 0, ?)`,
-    [uid(), name || 'Anonymous', category || 'General', text, now()]
-  );
+export async function insertPrayer({
+  userId,
+  name,
+  category,
+  text,
+  country,
+  city,
+  lat,
+  lng,
+  bibleReference,
+}) {
+  const res = await fetch(`${API_URL}/prayers/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, name, category, text, country, city, lat, lng, bibleReference }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Error submitting prayer');
+  }
+
+  return res.json();
 }
 
 export async function incrementPrayCount(id) {
-  return execute(`UPDATE prayers SET pray_count = pray_count + 1 WHERE id = ?`, [id]);
+  const res = await fetch(`${API_URL}/prayers/pray/${id}`, {
+    method: 'POST',
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Error updating pray count');
+  }
+
+  return res.json();
+}
+
+export async function getPendingPrayers() {
+  const res = await fetch(`${API_URL}/prayers/pending`);
+  if (!res.ok) throw new Error('Error fetching pending prayers');
+  return res.json();
+}
+
+export async function moderatePrayer(id, action, moderatingUser) {
+  const res = await fetch(`${API_URL}/prayers/moderate/${id}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, moderatingUser }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Error moderating prayer');
+  }
+  return res.json();
 }
 
 // ─── Sermon Notes ─────────────────────────────────────────────────────────────
@@ -172,6 +222,22 @@ export async function updateFamilyProgress(planId, childId, day, status) {
       [planId, childId, day, status, completed_at]
     );
   }
+}
+
+export async function getActivityHistory(parentId, limit = 30) {
+  return query(
+    `SELECT ca.id, ca.child_id, ca.activity_type, ca.activity_data, ca.duration, ca.completed_at, cp.display_name AS child_name
+     FROM child_activity ca
+     LEFT JOIN child_profiles cp ON cp.id = ca.child_id
+     WHERE cp.parent_id = ?
+     ORDER BY ca.completed_at DESC
+     LIMIT ?`,
+    [parentId, limit]
+  );
+}
+
+export async function getUserProgressSummary(userId) {
+  return queryOne(`SELECT * FROM user_progress WHERE clerk_user_id = ?`, [userId]);
 }
 
 export async function getBadges(userId) {
@@ -347,8 +413,6 @@ export async function getChildProfiles(parentId, skipCache = false) {
   try {
     if (skipCache) {
       // Bypass cache by calling the API directly
-      const API_URL =
-        import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
       const response = await fetch(`${API_URL}/db/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -538,8 +602,6 @@ export async function getMemoryVerseStats(userId, userType = 'parent') {
 export async function getFamilyPlans(parentId, skipCache = false) {
   if (skipCache) {
     // Bypass cache by calling the API directly
-    const API_URL =
-      import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
     const response = await fetch(`${API_URL}/db/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

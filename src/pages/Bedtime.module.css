@@ -47,8 +47,13 @@
 }
 
 @keyframes gentle-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .subtitle {
@@ -96,8 +101,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .toggleButton {
@@ -169,8 +179,14 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Story Section */
@@ -534,8 +550,15 @@
 }
 
 @keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.2); opacity: 1; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 
 .breathingInstruction {
@@ -586,7 +609,7 @@
   color: #ffffff;
 }
 
-.settingGroup input[type="checkbox"] {
+.settingGroup input[type='checkbox'] {
   width: 20px;
   height: 20px;
   accent-color: #9f7aea;
@@ -611,7 +634,7 @@
   font-weight: 500;
 }
 
-.timeInput input[type="time"] {
+.timeInput input[type='time'] {
   padding: 10px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -620,7 +643,7 @@
   font-size: 1rem;
 }
 
-.timeInput input[type="time"]:focus {
+.timeInput input[type='time']:focus {
   outline: none;
   border-color: #9f7aea;
   box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.2);
@@ -652,54 +675,54 @@
   .header {
     padding: 30px 15px 15px;
   }
-  
+
   .title {
     font-size: 2rem;
   }
-  
+
   .statusSection {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .tabNavigation {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .tabButton {
     width: 200px;
   }
-  
+
   .storyCard,
   .settingsCard {
     padding: 25px;
   }
-  
+
   .activitiesGrid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
   }
-  
+
   .activityCard {
     padding: 20px;
   }
-  
+
   .timeSettings {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .activeActivity {
     padding: 20px;
   }
-  
+
   .activityHeader {
     flex-direction: column;
     text-align: center;
     gap: 15px;
   }
-  
+
   .closeButton {
     align-self: flex-end;
   }
@@ -709,19 +732,19 @@
   .title {
     font-size: 1.5rem;
   }
-  
+
   .moonIcon {
     font-size: 1.5rem;
   }
-  
+
   .storyTitle {
     font-size: 1.4rem;
   }
-  
+
   .activitiesGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .gratitudeList {
     grid-template-columns: repeat(2, 1fr);
   }

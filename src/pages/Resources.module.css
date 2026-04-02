@@ -6,7 +6,7 @@
 }
 
 .hero {
-  background: linear-gradient(135deg, #0F0F1A, #1A0A2E, #0D1B2A);
+  background: linear-gradient(135deg, #0f0f1a, #1a0a2e, #0d1b2a);
   padding: 80px 32px 60px;
   text-align: center;
   position: relative;
@@ -27,7 +27,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   background: rgba(249, 115, 22, 0.15);
-  color: #F97316;
+  color: #f97316;
   border: 1px solid rgba(249, 115, 22, 0.25);
   padding: 6px 16px;
   border-radius: 100px;
@@ -38,7 +38,7 @@
   font-family: 'Baloo 2', cursive;
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 800;
-  background: linear-gradient(90deg, #60A5FA, #C084FC, #F472B6);
+  background: linear-gradient(90deg, #60a5fa, #c084fc, #f472b6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -285,7 +285,7 @@
   padding: 4px 10px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #B45309;
+  color: #b45309;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -336,7 +336,7 @@
   gap: 8px;
   padding: 10px 18px;
   border-radius: 14px;
-  background: #FF9900;
+  background: #ff9900;
   color: #111;
   font-weight: 800;
   font-size: 0.85rem;
@@ -346,7 +346,7 @@
 }
 
 .amazonBtn:hover {
-  background: #FFAC33;
+  background: #ffac33;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
 }

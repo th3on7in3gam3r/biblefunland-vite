@@ -14,16 +14,7 @@
  */
 
 // Re-export what you'll use from Clerk throughout the app
-export {
-  useUser,
-  useAuth,
-  useClerk,
-  SignIn,
-  SignUp,
-  UserButton,
-  SignedIn,
-  SignedOut,
-} from '@clerk/clerk-react';
+export { useUser, useAuth, useClerk, SignIn, SignUp, UserButton } from '@clerk/clerk-react';
 
 /**
  * formatUser(clerkUser)

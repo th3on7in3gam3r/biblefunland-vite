@@ -31,7 +31,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Background Elements */
@@ -43,7 +45,9 @@
   overflow: hidden;
 }
 
-.bgOrb1, .bgOrb2, .bgOrb3 {
+.bgOrb1,
+.bgOrb2,
+.bgOrb3 {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
@@ -81,7 +85,7 @@
 .bgGrid {
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
@@ -89,14 +93,25 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -30px) scale(1.05); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
 }
 
 @keyframes gridMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 50px 50px; }
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
 }
 
 /* Content Layout */
@@ -109,7 +124,9 @@
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   border-radius: 28px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -608,16 +625,16 @@
     flex-direction: column;
     max-height: none;
   }
-  
+
   .leftPanel {
     padding: 36px;
     min-height: auto;
   }
-  
+
   .rightPanel {
     padding: 36px;
   }
-  
+
   .brandTitle {
     font-size: 36px;
   }
@@ -627,46 +644,46 @@
   .container {
     padding: 10px;
   }
-  
+
   .content {
     border-radius: 20px;
   }
-  
+
   .leftPanel,
   .rightPanel {
     padding: 24px;
   }
-  
+
   .logoText {
     font-size: 22px;
   }
-  
+
   .brandTitle {
     font-size: 28px;
   }
-  
+
   .brandSubtitle {
     font-size: 14px;
   }
-  
+
   .authTitle {
     font-size: 22px;
   }
-  
+
   .modeTab {
     padding: 10px 14px;
     font-size: 13px;
   }
-  
+
   .modeIcon {
     display: none;
   }
-  
+
   .stats {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .testimonial {
     display: none;
   }

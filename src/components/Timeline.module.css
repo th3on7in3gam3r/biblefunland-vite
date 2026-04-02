@@ -18,7 +18,7 @@
   border-radius: 28px;
   border: 1.5px solid var(--border);
   padding: 24px 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   margin-bottom: 20px;
 }
 
@@ -92,7 +92,7 @@
   padding: 24px 28px;
   position: relative;
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
 .eventCard::before {
@@ -106,13 +106,13 @@
   background: var(--surface);
   border: 4px solid var(--event-color);
   z-index: 2;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .eventCard:hover {
   transform: translateX(5px);
   border-color: var(--event-color);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 .eventHeader {
@@ -186,7 +186,8 @@
   padding-left: 58px;
 }
 
-.btnEditTimeline, .btnDeleteTimeline {
+.btnEditTimeline,
+.btnDeleteTimeline {
   padding: 6px 16px;
   border-radius: 10px;
   font-weight: 700;
@@ -208,13 +209,13 @@
 }
 
 .btnDeleteTimeline {
-  color: #EF4444;
+  color: #ef4444;
   border-color: rgba(239, 68, 68, 0.2);
 }
 
 .btnDeleteTimeline:hover {
   background: rgba(239, 68, 68, 0.05);
-  border-color: #EF4444;
+  border-color: #ef4444;
 }
 
 /* ── Empty Timeline ── */
@@ -248,11 +249,11 @@
   .layout {
     grid-template-columns: 1fr !important;
   }
-  
+
   .sidebar {
     position: static;
   }
-  
+
   .feed {
     padding-left: 20px;
     border-left: 2px dashed var(--border);

@@ -1,536 +1,807 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { useKidsMode } from '../context/KidsModeContext';
+import { useAuth } from '../context/AuthContext';
+import KidsCelebration from '../components/KidsCelebration';
 
-const VERSES = [
+// ── Bible data (KJV excerpts) ─────────────────────────────────────────────────
+const BOOKS = [
   {
-    ref: 'John 3:16',
-    text: 'For God so loved the world that he gave his one and only Son that whoever believes in him shall not perish but have eternal life',
-  },
-  { ref: 'Psalm 23:1', text: 'The Lord is my shepherd I shall not want' },
-  { ref: 'Philippians 4:13', text: 'I can do all this through him who gives me strength' },
-  {
-    ref: 'Jeremiah 29:11',
-    text: 'For I know the plans I have for you declares the Lord plans to prosper you and not to harm you plans to give you hope and a future',
+    id: 'john',
+    name: 'John',
+    emoji: '✝️',
+    color: '#3B82F6',
+    bg: 'linear-gradient(135deg,#1E3A5F,#1E1B4B)',
   },
   {
-    ref: 'Joshua 1:9',
-    text: 'Have I not commanded you be strong and courageous do not be afraid do not be discouraged for the Lord your God will be with you wherever you go',
+    id: 'psalms',
+    name: 'Psalms',
+    emoji: '🎵',
+    color: '#8B5CF6',
+    bg: 'linear-gradient(135deg,#2E1065,#1E1B4B)',
   },
   {
-    ref: 'Romans 8:28',
-    text: 'And we know that in all things God works for the good of those who love him who have been called according to his purpose',
+    id: 'genesis',
+    name: 'Genesis',
+    emoji: '🌍',
+    color: '#10B981',
+    bg: 'linear-gradient(135deg,#064E3B,#0F172A)',
   },
   {
-    ref: 'Proverbs 3:5-6',
-    text: 'Trust in the Lord with all your heart and lean not on your own understanding in all your ways submit to him and he will make your paths straight',
+    id: 'proverbs',
+    name: 'Proverbs',
+    emoji: '📜',
+    color: '#F59E0B',
+    bg: 'linear-gradient(135deg,#78350F,#0F172A)',
   },
   {
-    ref: 'Isaiah 40:31',
-    text: 'But those who hope in the Lord will renew their strength they will soar on wings like eagles they will run and not grow weary they will walk and not be faint',
+    id: 'matthew',
+    name: 'Matthew',
+    emoji: '⭐',
+    color: '#EC4899',
+    bg: 'linear-gradient(135deg,#831843,#0F172A)',
+  },
+  {
+    id: 'romans',
+    name: 'Romans',
+    emoji: '🕊️',
+    color: '#14B8A6',
+    bg: 'linear-gradient(135deg,#065F46,#0F172A)',
   },
 ];
 
-function normalize(str) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-z\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+const VERSES = {
+  john: [
+    {
+      ref: 'John 3:16',
+      text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.',
+    },
+    {
+      ref: 'John 3:17',
+      text: 'For God sent not his Son into the world to condemn the world; but that the world through him might be saved.',
+    },
+    {
+      ref: 'John 14:6',
+      text: 'Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.',
+    },
+    {
+      ref: 'John 14:27',
+      text: 'Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.',
+    },
+    {
+      ref: 'John 15:13',
+      text: 'Greater love hath no man than this, that a man lay down his life for his friends.',
+    },
+  ],
+  psalms: [
+    { ref: 'Psalm 23:1', text: 'The Lord is my shepherd; I shall not want.' },
+    {
+      ref: 'Psalm 23:2',
+      text: 'He maketh me to lie down in green pastures: he leadeth me beside the still waters.',
+    },
+    {
+      ref: 'Psalm 23:3',
+      text: "He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.",
+    },
+    { ref: 'Psalm 119:105', text: 'Thy word is a lamp unto my feet, and a light unto my path.' },
+    { ref: 'Psalm 46:1', text: 'God is our refuge and strength, a very present help in trouble.' },
+  ],
+  genesis: [
+    { ref: 'Genesis 1:1', text: 'In the beginning God created the heaven and the earth.' },
+    {
+      ref: 'Genesis 1:2',
+      text: 'And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.',
+    },
+    { ref: 'Genesis 1:3', text: 'And God said, Let there be light: and there was light.' },
+    {
+      ref: 'Genesis 1:4',
+      text: 'And God saw the light, that it was good: and God divided the light from the darkness.',
+    },
+    {
+      ref: 'Genesis 1:31',
+      text: 'And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day.',
+    },
+  ],
+  proverbs: [
+    {
+      ref: 'Proverbs 3:5',
+      text: 'Trust in the Lord with all thine heart; and lean not unto thine own understanding.',
+    },
+    {
+      ref: 'Proverbs 3:6',
+      text: 'In all thy ways acknowledge him, and he shall direct thy paths.',
+    },
+    {
+      ref: 'Proverbs 22:6',
+      text: 'Train up a child in the way he should go: and when he is old, he will not depart from it.',
+    },
+    {
+      ref: 'Proverbs 16:3',
+      text: 'Commit thy works unto the Lord, and thy thoughts shall be established.',
+    },
+    {
+      ref: 'Proverbs 4:7',
+      text: 'Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding.',
+    },
+  ],
+  matthew: [
+    {
+      ref: 'Matthew 5:3',
+      text: 'Blessed are the poor in spirit: for theirs is the kingdom of heaven.',
+    },
+    { ref: 'Matthew 5:4', text: 'Blessed are they that mourn: for they shall be comforted.' },
+    { ref: 'Matthew 5:5', text: 'Blessed are the meek: for they shall inherit the earth.' },
+    {
+      ref: 'Matthew 6:9',
+      text: 'After this manner therefore pray ye: Our Father which art in heaven, Hallowed be thy name.',
+    },
+    {
+      ref: 'Matthew 28:19',
+      text: 'Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost.',
+    },
+  ],
+  romans: [
+    {
+      ref: 'Romans 8:28',
+      text: 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.',
+    },
+    {
+      ref: 'Romans 8:38',
+      text: 'For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,',
+    },
+    {
+      ref: 'Romans 8:39',
+      text: 'Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.',
+    },
+    {
+      ref: 'Romans 12:2',
+      text: 'And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God.',
+    },
+    {
+      ref: 'Romans 15:13',
+      text: 'Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost.',
+    },
+  ],
+};
 
-function compareWords(spoken, target) {
-  const spokenWords = normalize(spoken).split(' ');
-  const targetWords = normalize(target).split(' ');
-  let correct = 0;
-  targetWords.forEach((word, i) => {
-    if (spokenWords[i] === word) correct++;
-  });
-  return Math.round((correct / targetWords.length) * 100);
-}
+const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export default function VoiceBibleReader() {
-  const [verseIdx, setVerseIdx] = useState(0);
-  const [phase, setPhase] = useState('ready'); // ready | listening | done
-  const [transcript, setTranscript] = useState('');
-  const [accuracy, setAccuracy] = useState(null);
-  const [wordResults, setWordResults] = useState([]);
-  const [attempts, setAttempts] = useState(0);
-  const [bestScore, setBestScore] = useState(() =>
-    parseInt(localStorage.getItem('bfl_voice_best') || '0')
-  );
+  const { kidsMode } = useKidsMode();
+  const { user } = useAuth();
+
+  const [selectedBook, setSelectedBook] = useState('john');
+  const [currentVerseIdx, setCurrentVerseIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [volume, setVolume] = useState(1);
+  const [progress, setProgress] = useState(0);
+  const [celebrate, setCelebrate] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [supported, setSupported] = useState(true);
-  const recognitionRef = useRef(null);
-  const verse = VERSES[verseIdx];
+
+  const utteranceRef = useRef(null);
+  const verseRefs = useRef([]);
+
+  const book = BOOKS.find((b) => b.id === selectedBook);
+  const verses = VERSES[selectedBook] || [];
+  const currentVerse = verses[currentVerseIdx];
 
   useEffect(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setSupported(false);
-    }
+    if (!('speechSynthesis' in window)) setSupported(false);
+    return () => window.speechSynthesis?.cancel();
   }, []);
 
-  function startListening() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+  // Auto-scroll to current verse
+  useEffect(() => {
+    verseRefs.current[currentVerseIdx]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [currentVerseIdx]);
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    recognitionRef.current = recognition;
-    setPhase('listening');
-    setTranscript('');
-    setAccuracy(null);
-    setWordResults([]);
+  // Stop when book changes
+  useEffect(() => {
+    stop();
+    setCurrentVerseIdx(0);
+    setProgress(0);
+  }, [selectedBook]);
 
-    recognition.onresult = (e) => {
-      const spoken = e.results[0][0].transcript;
-      setTranscript(spoken);
-      const score = compareWords(spoken, verse.text);
-      setAccuracy(score);
-      setAttempts((a) => a + 1);
-      if (score > bestScore) {
-        setBestScore(score);
-        localStorage.setItem('bfl_voice_best', score);
+  function speakVerse(idx) {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
+    const verse = verses[idx];
+    if (!verse) {
+      // Finished all verses
+      setIsPlaying(false);
+      setProgress(100);
+      setCelebrate(true);
+      return;
+    }
+
+    const utt = new SpeechSynthesisUtterance(verse.text);
+    utt.rate = speed;
+    utt.volume = volume;
+    utt.pitch = kidsMode ? 1.1 : 1;
+
+    utt.onstart = () => {
+      setCurrentVerseIdx(idx);
+      setProgress(Math.round((idx / verses.length) * 100));
+    };
+    utt.onend = () => {
+      const next = idx + 1;
+      if (next < verses.length) {
+        speakVerse(next);
+      } else {
+        setIsPlaying(false);
+        setProgress(100);
+        setCelebrate(true);
       }
-      // Word-by-word comparison
-      const spokenNorm = normalize(spoken).split(' ');
-      const targetNorm = normalize(verse.text).split(' ');
-      const results = targetNorm.map((word, i) => ({
-        word: verse.text.split(' ')[i] || word,
-        correct: spokenNorm[i] === word,
-        spoken: spokenNorm[i] || null,
-      }));
-      setWordResults(results);
-      setPhase('done');
     };
+    utt.onerror = () => setIsPlaying(false);
 
-    recognition.onerror = (e) => {
-      setPhase('ready');
-      if (e.error !== 'aborted')
-        alert('Microphone error: ' + e.error + '. Please allow microphone access.');
-    };
-
-    recognition.onend = () => {
-      if (phase === 'listening') setPhase('ready');
-    };
-
-    recognition.start();
+    utteranceRef.current = utt;
+    window.speechSynthesis.speak(utt);
   }
 
-  function stopListening() {
-    recognitionRef.current?.stop();
-    setPhase('ready');
+  function play() {
+    if (!supported) return;
+    setIsPlaying(true);
+    speakVerse(currentVerseIdx);
   }
 
-  function nextVerse() {
-    setVerseIdx((i) => (i + 1) % VERSES.length);
-    setPhase('ready');
-    setTranscript('');
-    setAccuracy(null);
-    setWordResults([]);
+  function pause() {
+    window.speechSynthesis.pause();
+    setIsPlaying(false);
   }
 
-  function getGrade(score) {
-    if (score >= 95)
-      return {
-        grade: 'A+',
-        label: 'Perfect! 🏆',
-        color: 'var(--green)',
-        bg: 'var(--green-bg)',
-        msg: 'Flawless recitation! You know this verse by heart.',
-      };
-    if (score >= 85)
-      return {
-        grade: 'A',
-        label: 'Excellent! ⭐',
-        color: 'var(--green)',
-        bg: 'var(--green-bg)',
-        msg: 'Nearly perfect — just a few small differences.',
-      };
-    if (score >= 70)
-      return {
-        grade: 'B',
-        label: 'Good Job! 📖',
-        color: 'var(--blue)',
-        bg: 'var(--blue-bg)',
-        msg: 'Solid reading! Try again to get closer to the original.',
-      };
-    if (score >= 50)
-      return {
-        grade: 'C',
-        label: 'Keep Practicing! 💪',
-        color: 'var(--orange)',
-        bg: 'var(--orange-bg)',
-        msg: 'Good effort! Read the verse again and try one more time.',
-      };
-    return {
-      grade: 'D',
-      label: 'Keep Trying! 🌱',
-      color: 'var(--red)',
-      bg: 'var(--red-bg)',
-      msg: "No worries — scripture memory takes practice. You've got this!",
-    };
+  function resume() {
+    window.speechSynthesis.resume();
+    setIsPlaying(true);
   }
 
-  const grade = accuracy !== null ? getGrade(accuracy) : null;
+  function stop() {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      pause();
+    } else if (window.speechSynthesis.paused) {
+      resume();
+    } else {
+      play();
+    }
+  }
+
+  function goToVerse(idx) {
+    stop();
+    setCurrentVerseIdx(idx);
+    setProgress(Math.round((idx / verses.length) * 100));
+  }
+
+  function copyVerse() {
+    navigator.clipboard.writeText(`${currentVerse.ref} — "${currentVerse.text}"`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function shareVerse() {
+    const text = `${currentVerse.ref} — "${currentVerse.text}" | BibleFunLand.com`;
+    if (navigator.share) {
+      navigator.share({ title: currentVerse.ref, text });
+    } else {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  const btnSize = kidsMode ? 100 : 80;
+  const fontSize = kidsMode ? '1.2rem' : '1rem';
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
+      <KidsCelebration active={celebrate} onDone={() => setCelebrate(false)} />
+
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <div
         style={{
-          background: 'linear-gradient(135deg,#0C4A6E,#0369A1)',
-          padding: '56px 36px 44px',
-          textAlign: 'center',
+          background: book.bg,
+          padding: '48px 24px 32px',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 5,
-            fontSize: '.7rem',
-            fontWeight: 700,
-            background: 'rgba(255,255,255,.12)',
-            color: 'white',
-            padding: '4px 12px',
-            borderRadius: 100,
-            marginBottom: 12,
-          }}
-        >
-          🎙️ Uses Your Browser Microphone
+        {/* Decorative rays */}
+        {[0, 60, 120, 180, 240, 300].map((deg) => (
+          <div
+            key={deg}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: 300,
+              height: 2,
+              background: 'rgba(255,255,255,.04)',
+              transform: `rotate(${deg}deg)`,
+              transformOrigin: 'left center',
+              pointerEvents: 'none',
+            }}
+          />
+        ))}
+        <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Link
+            to="/explore"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '.78rem',
+              fontWeight: 700,
+              color: 'rgba(255,255,255,.55)',
+              textDecoration: 'none',
+              marginBottom: 16,
+            }}
+          >
+            ← Back to Explore
+          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
+            <div style={{ fontSize: kidsMode ? '3rem' : '2.5rem' }}>{book.emoji}</div>
+            <div>
+              <h1
+                style={{
+                  fontFamily: "'Baloo 2',cursive",
+                  fontSize: kidsMode ? 'clamp(1.8rem,5vw,2.8rem)' : 'clamp(1.5rem,4vw,2.4rem)',
+                  fontWeight: 800,
+                  color: 'white',
+                  margin: 0,
+                  lineHeight: 1.1,
+                }}
+              >
+                🎙️ Voice Bible Reader
+              </h1>
+              <p
+                style={{
+                  color: 'rgba(255,255,255,.55)',
+                  fontSize: '.85rem',
+                  margin: '4px 0 0',
+                  fontWeight: 500,
+                }}
+              >
+                Listen to God's Word read aloud
+              </p>
+            </div>
+          </div>
         </div>
-        <h1
-          style={{
-            fontFamily: "'Baloo 2',cursive",
-            fontSize: 'clamp(2rem,5vw,3.5rem)',
-            fontWeight: 800,
-            color: 'white',
-            marginBottom: 8,
-          }}
-        >
-          Voice Bible Reader
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,.6)', fontSize: '.92rem', fontWeight: 500 }}>
-          Read the verse aloud — your browser listens and grades your accuracy word by word.
-        </p>
       </div>
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 20px' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px 80px' }}>
+        {/* ── Book selector ─────────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 24 }}>
+          <div
+            style={{
+              fontSize: '.72rem',
+              fontWeight: 800,
+              color: 'var(--ink3)',
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+              marginBottom: 10,
+            }}
+          >
+            📚 Choose a Book
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(110px,1fr))',
+              gap: 10,
+            }}
+          >
+            {BOOKS.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setSelectedBook(b.id)}
+                style={{
+                  padding: kidsMode ? '14px 10px' : '10px 8px',
+                  borderRadius: 14,
+                  border: `2.5px solid ${selectedBook === b.id ? b.color : 'var(--border)'}`,
+                  background: selectedBook === b.id ? b.color + '18' : 'var(--surface)',
+                  cursor: 'pointer',
+                  transition: 'all .2s',
+                  textAlign: 'center',
+                  boxShadow: selectedBook === b.id ? `0 4px 14px ${b.color}30` : 'none',
+                }}
+              >
+                <div style={{ fontSize: kidsMode ? '1.8rem' : '1.4rem', marginBottom: 4 }}>
+                  {b.emoji}
+                </div>
+                <div
+                  style={{
+                    fontSize: kidsMode ? '.82rem' : '.72rem',
+                    fontWeight: 800,
+                    color: selectedBook === b.id ? b.color : 'var(--ink2)',
+                  }}
+                >
+                  {b.name}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Not supported warning ─────────────────────────────────────────── */}
         {!supported && (
           <div
             style={{
               background: 'var(--orange-bg)',
               border: '1.5px solid var(--orange)',
               borderRadius: 14,
-              padding: '16px 20px',
-              marginBottom: 24,
-              fontSize: '.88rem',
-              color: 'var(--ink2)',
-              fontWeight: 500,
-            }}
-          >
-            ⚠️ Your browser doesn't support the Web Speech API. Try Chrome or Edge on desktop for
-            the best experience.
-          </div>
-        )}
-
-        {/* Stats */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3,1fr)',
-            gap: 14,
-            marginBottom: 28,
-          }}
-        >
-          {[
-            ['🎯', accuracy !== null ? accuracy + '%' : '--', 'Last Score', 'var(--blue)'],
-            ['🏆', bestScore + '%', 'Best Score', 'var(--yellow)'],
-            ['📖', attempts, 'Attempts', 'var(--violet)'],
-          ].map(([e, v, l, c], i) => (
-            <div
-              key={i}
-              style={{
-                background: 'var(--surface)',
-                borderRadius: 16,
-                padding: 18,
-                border: '1.5px solid var(--border)',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: '1.6rem', marginBottom: 5 }}>{e}</div>
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '1.6rem',
-                  fontWeight: 800,
-                  color: c,
-                  lineHeight: 1,
-                }}
-              >
-                {v}
-              </div>
-              <div
-                style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--ink3)', marginTop: 3 }}
-              >
-                {l}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Verse card */}
-        <div
-          style={{
-            background: 'var(--surface)',
-            borderRadius: 24,
-            border: '1.5px solid var(--border)',
-            boxShadow: 'var(--sh)',
-            overflow: 'hidden',
-            marginBottom: 20,
-          }}
-        >
-          <div
-            style={{
-              padding: '20px 28px',
-              borderBottom: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Baloo 2',cursive",
-                fontSize: '1rem',
-                fontWeight: 800,
-                color: 'var(--blue)',
-              }}
-            >
-              📖 {verse.ref}
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {VERSES.map((_, i) => (
-                <div
-                  key={i}
-                  onClick={() => {
-                    setVerseIdx(i);
-                    setPhase('ready');
-                    setTranscript('');
-                    setAccuracy(null);
-                    setWordResults([]);
-                  }}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: i === verseIdx ? 'var(--blue)' : 'var(--bg3)',
-                    cursor: 'pointer',
-                    transition: 'all .2s',
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div style={{ padding: '28px 32px' }}>
-            {/* Show word-by-word result if done */}
-            {phase === 'done' && wordResults.length > 0 ? (
-              <div style={{ fontSize: '1.05rem', lineHeight: 2, fontWeight: 500 }}>
-                {wordResults.map((w, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      display: 'inline-block',
-                      marginRight: 5,
-                      borderRadius: 5,
-                      padding: '0 4px',
-                      background: w.correct ? 'var(--green-bg)' : 'var(--red-bg)',
-                      color: w.correct ? 'var(--green)' : 'var(--red)',
-                      fontWeight: w.correct ? 600 : 700,
-                      textDecoration: w.correct ? 'none' : 'underline',
-                      position: 'relative',
-                    }}
-                    title={!w.correct && w.spoken ? `You said: "${w.spoken}"` : ''}
-                  >
-                    {w.word}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '1.15rem',
-                  fontWeight: 600,
-                  color: 'var(--ink)',
-                  lineHeight: 1.7,
-                  fontStyle: 'italic',
-                }}
-              >
-                "{verse.text}."
-              </div>
-            )}
-          </div>
-
-          {/* Mic button */}
-          <div
-            style={{
-              padding: '20px 28px',
-              borderTop: '1px solid var(--border)',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 14,
-              alignItems: 'center',
-            }}
-          >
-            {phase !== 'listening' ? (
-              <button
-                onClick={startListening}
-                disabled={!supported}
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#0369A1,#0EA5E9)',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '2rem',
-                  cursor: supported ? 'pointer' : 'not-allowed',
-                  boxShadow: '0 6px 24px rgba(3,105,161,.35)',
-                  transition: 'all .25s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                onMouseEnter={(e) => {
-                  if (supported) e.currentTarget.style.transform = 'scale(1.08)';
-                }}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-              >
-                🎙️
-              </button>
-            ) : (
-              <button
-                onClick={stopListening}
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: '50%',
-                  background: 'var(--red)',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '2rem',
-                  cursor: 'pointer',
-                  animation: 'pulse 1s ease-in-out infinite',
-                  boxShadow: '0 0 0 0 var(--red)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                ⏹️
-              </button>
-            )}
-            <div>
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '.95rem',
-                  fontWeight: 800,
-                  color: 'var(--ink)',
-                  marginBottom: 3,
-                }}
-              >
-                {phase === 'ready' && 'Tap the mic and read the verse aloud'}
-                {phase === 'listening' && '🔴 Listening... read clearly and slowly'}
-                {phase === 'done' && 'Tap to try again!'}
-              </div>
-              <div style={{ fontSize: '.75rem', color: 'var(--ink3)', fontWeight: 500 }}>
-                {phase === 'listening'
-                  ? 'Speak at a normal pace. Tap ⏹️ when done.'
-                  : 'Speak naturally. Green = correct, Red = missed.'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grade result */}
-        {grade && (
-          <div
-            style={{
-              background: grade.bg,
-              border: `1.5px solid ${grade.color}44`,
-              borderRadius: 20,
-              padding: '22px 26px',
-              marginBottom: 20,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 18,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Baloo 2',cursive",
-                fontSize: '3rem',
-                fontWeight: 800,
-                color: grade.color,
-                lineHeight: 1,
-                flexShrink: 0,
-              }}
-            >
-              {grade.grade}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  color: 'var(--ink)',
-                  marginBottom: 4,
-                }}
-              >
-                {grade.label} — {accuracy}% Accuracy
-              </div>
-              <div style={{ fontSize: '.84rem', color: 'var(--ink2)', fontWeight: 500 }}>
-                {grade.msg}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {transcript && (
-          <div
-            style={{
-              background: 'var(--bg2)',
-              borderRadius: 14,
               padding: '14px 18px',
               marginBottom: 20,
               fontSize: '.85rem',
               color: 'var(--ink2)',
               fontWeight: 500,
-              border: '1.5px solid var(--border)',
             }}
           >
-            <span style={{ fontWeight: 700, color: 'var(--ink3)' }}>You said: </span>"{transcript}"
+            ⚠️ Your browser doesn't support text-to-speech. Try Chrome or Edge for the best
+            experience.
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {phase === 'done' && (
-            <button className="btn btn-blue" onClick={startListening}>
-              🔄 Try Again
-            </button>
-          )}
-          <button className="btn btn-outline" onClick={nextVerse}>
-            → Next Verse
-          </button>
-          <a href="/flashcards" className="btn btn-outline">
-            🧠 Flashcards
-          </a>
+        {/* ── Player card ───────────────────────────────────────────────────── */}
+        <div
+          style={{
+            background: 'var(--surface)',
+            borderRadius: 24,
+            border: '1.5px solid var(--border)',
+            overflow: 'hidden',
+            marginBottom: 20,
+            boxShadow: '0 8px 32px rgba(0,0,0,.08)',
+          }}
+        >
+          {/* Progress bar */}
+          <div style={{ height: 6, background: 'var(--border)', position: 'relative' }}>
+            <div
+              style={{
+                height: '100%',
+                background: `linear-gradient(90deg,${book.color},${book.color}cc)`,
+                width: `${progress}%`,
+                transition: 'width .5s ease',
+                borderRadius: '0 3px 3px 0',
+              }}
+            />
+          </div>
+
+          {/* Verse display */}
+          <div
+            style={{
+              padding: kidsMode ? '28px 24px' : '24px 22px',
+              maxHeight: 320,
+              overflowY: 'auto',
+            }}
+          >
+            {verses.map((v, i) => (
+              <div
+                key={i}
+                ref={(el) => (verseRefs.current[i] = el)}
+                onClick={() => goToVerse(i)}
+                style={{
+                  padding: kidsMode ? '14px 16px' : '10px 14px',
+                  borderRadius: 14,
+                  marginBottom: 8,
+                  cursor: 'pointer',
+                  background: i === currentVerseIdx ? book.color + '18' : 'transparent',
+                  border: `1.5px solid ${i === currentVerseIdx ? book.color + '44' : 'transparent'}`,
+                  transition: 'all .25s',
+                  boxShadow: i === currentVerseIdx ? `0 4px 14px ${book.color}20` : 'none',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '.68rem',
+                    fontWeight: 800,
+                    color: i === currentVerseIdx ? book.color : 'var(--ink3)',
+                    marginBottom: 4,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {v.ref}
+                  {i === currentVerseIdx && isPlaying && (
+                    <span
+                      style={{
+                        marginLeft: 8,
+                        animation: 'pulse 1s ease-in-out infinite',
+                        display: 'inline-block',
+                      }}
+                    >
+                      🔊
+                    </span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    fontSize: kidsMode ? '1.05rem' : '.9rem',
+                    color: i === currentVerseIdx ? 'var(--ink)' : 'var(--ink3)',
+                    lineHeight: 1.7,
+                    fontWeight: i === currentVerseIdx ? 600 : 400,
+                  }}
+                >
+                  {v.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Controls */}
+          <div
+            style={{
+              padding: '20px 24px',
+              borderTop: '1px solid var(--border)',
+              background: 'var(--bg2)',
+            }}
+          >
+            {/* Main play button + prev/next */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: kidsMode ? 20 : 16,
+                marginBottom: 20,
+              }}
+            >
+              <button
+                onClick={() => goToVerse(Math.max(0, currentVerseIdx - 1))}
+                style={{
+                  width: kidsMode ? 52 : 44,
+                  height: kidsMode ? 52 : 44,
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--border)',
+                  background: 'var(--surface)',
+                  cursor: 'pointer',
+                  fontSize: kidsMode ? '1.3rem' : '1.1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface)')}
+              >
+                ⏮
+              </button>
+
+              {/* Big play/pause button */}
+              <button
+                onClick={togglePlay}
+                disabled={!supported}
+                style={{
+                  width: btnSize,
+                  height: btnSize,
+                  borderRadius: '50%',
+                  background: isPlaying
+                    ? `linear-gradient(135deg,#EF4444,#DC2626)`
+                    : `linear-gradient(135deg,${book.color},${book.color}cc)`,
+                  border: 'none',
+                  cursor: supported ? 'pointer' : 'not-allowed',
+                  fontSize: kidsMode ? '2.8rem' : '2.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: `0 8px 28px ${isPlaying ? 'rgba(239,68,68,.4)' : book.color + '50'}`,
+                  transition: 'all .25s',
+                  color: 'white',
+                  animation: isPlaying ? 'none' : 'breathe 2s ease-in-out infinite',
+                }}
+                onMouseEnter={(e) => {
+                  if (supported) e.currentTarget.style.transform = 'scale(1.06)';
+                }}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              >
+                {isPlaying ? '⏸' : '▶'}
+              </button>
+
+              <button
+                onClick={() => goToVerse(Math.min(verses.length - 1, currentVerseIdx + 1))}
+                style={{
+                  width: kidsMode ? 52 : 44,
+                  height: kidsMode ? 52 : 44,
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--border)',
+                  background: 'var(--surface)',
+                  cursor: 'pointer',
+                  fontSize: kidsMode ? '1.3rem' : '1.1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface)')}
+              >
+                ⏭
+              </button>
+
+              <button
+                onClick={stop}
+                style={{
+                  width: kidsMode ? 52 : 44,
+                  height: kidsMode ? 52 : 44,
+                  borderRadius: '50%',
+                  border: '1.5px solid var(--border)',
+                  background: 'var(--surface)',
+                  cursor: 'pointer',
+                  fontSize: kidsMode ? '1.3rem' : '1.1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface)')}
+              >
+                ⏹
+              </button>
+            </div>
+
+            {/* Speed + Volume */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 16,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {/* Speed */}
+              {!kidsMode && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)' }}>
+                    Speed
+                  </span>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {SPEEDS.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => {
+                          setSpeed(s);
+                          if (isPlaying) {
+                            stop();
+                            setTimeout(play, 100);
+                          }
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: 7,
+                          border: `1.5px solid ${speed === s ? book.color : 'var(--border)'}`,
+                          background: speed === s ? book.color + '18' : 'var(--surface)',
+                          color: speed === s ? book.color : 'var(--ink3)',
+                          fontSize: '.7rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {s}x
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Volume */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)' }}>
+                  🔊
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  style={{ width: kidsMode ? 120 : 90, accentColor: book.color }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* ── Verse actions (parent/teacher mode) ──────────────────────────── */}
+        {!kidsMode && currentVerse && (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+            <button
+              onClick={copyVerse}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 16px',
+                borderRadius: 11,
+                border: '1.5px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--ink2)',
+                fontWeight: 700,
+                fontSize: '.8rem',
+                cursor: 'pointer',
+              }}
+            >
+              {copied ? '✅ Copied!' : '📋 Copy Verse'}
+            </button>
+            <button
+              onClick={shareVerse}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 16px',
+                borderRadius: 11,
+                border: '1.5px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--ink2)',
+                fontWeight: 700,
+                fontSize: '.8rem',
+                cursor: 'pointer',
+              }}
+            >
+              📤 Share
+            </button>
+            <Link
+              to="/play/flashcards"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '9px 16px',
+                borderRadius: 11,
+                border: '1.5px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--ink2)',
+                fontWeight: 700,
+                fontSize: '.8rem',
+                textDecoration: 'none',
+              }}
+            >
+              🧠 Flashcards
+            </Link>
+          </div>
+        )}
+
+        {/* ── Kids mode tip ─────────────────────────────────────────────────── */}
+        {kidsMode && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg,#FFFBEB,#FEF3C7)',
+              borderRadius: 18,
+              border: '2px solid #FDE68A',
+              padding: '16px 20px',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: '1.5rem', marginBottom: 6 }}>💡</div>
+            <div
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: '1rem',
+                fontWeight: 800,
+                color: '#92400E',
+                marginBottom: 4,
+              }}
+            >
+              Tip for Kids!
+            </div>
+            <div style={{ fontSize: '.82rem', color: '#B45309' }}>
+              Tap the big ▶ button to hear the Bible read to you. Tap a verse to jump to it!
+            </div>
+          </div>
+        )}
       </div>
-      <style>{`@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}70%{box-shadow:0 0 0 14px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}`}</style>
+
+      <style>{`
+        @keyframes breathe{0%,100%{box-shadow:0 8px 28px ${book?.color || '#3B82F6'}50}50%{box-shadow:0 8px 40px ${book?.color || '#3B82F6'}80,0 0 0 8px ${book?.color || '#3B82F6'}18}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+      `}</style>
     </div>
   );
 }

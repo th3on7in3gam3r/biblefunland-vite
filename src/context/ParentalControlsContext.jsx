@@ -7,7 +7,13 @@ const ParentalControlsContext = createContext(null);
 
 export function ParentalControlsProvider({ children }) {
   const { user, profile } = useAuth();
-  const [controls, setControls] = useState({ ai_toggles: {}, daily_limit: 0, parent_pin: '4318' });
+  const [controls, setControls] = useState({
+    ai_toggles: {},
+    daily_limit: 0,
+    parent_pin: '4318',
+    kids_mode_lock: 0,
+    blocked_topics: [],
+  });
   const [sessionTime, setSessionTime] = useState(0); // minutes
   const [isTimeUp, setIsTimeUp] = useState(false);
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '../i18n/useT';
+import { useKidsMode } from '../context/KidsModeContext';
 import styles from './GlobalSearch.module.css';
 
 const SEARCH_DATA = [
@@ -10,40 +11,50 @@ const SEARCH_DATA = [
     title: 'Scripture Trivia',
     desc: 'Test your Bible knowledge',
     icon: '❓',
-    to: '/trivia',
+    to: '/play/trivia',
     tags: ['quiz', 'trivia', 'game', 'bible', 'scripture'],
+    ageGroup: 'Tweens',
+    topics: ['Old Testament', 'New Testament', 'Heroes'],
   },
   {
     type: 'game',
     title: 'David & Goliath',
     desc: 'Action game of faith',
     icon: '🏹',
-    to: '/trivia',
+    to: '/play/game/david-goliath',
     tags: ['david', 'goliath', 'action', 'game', 'battle'],
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Heroes'],
   },
   {
     type: 'game',
     title: "Jonah's Escape",
     desc: 'Underwater adventure',
     icon: '🐟',
-    to: '/trivia',
+    to: '/play/game/escape-room',
     tags: ['jonah', 'whale', 'fish', 'puzzle'],
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Adventure'],
   },
   {
     type: 'game',
     title: "Noah's Voyage",
     desc: 'Gather all the animals',
     icon: '🚢',
-    to: '/trivia',
+    to: '/play/game/runner',
     tags: ['noah', 'ark', 'flood', 'puzzle', 'animals'],
+    ageGroup: 'Family',
+    topics: ['Old Testament', 'Animals'],
   },
   {
     type: 'game',
     title: 'Bible Checkers',
     desc: 'Strategy game',
     icon: '♟️',
-    to: '/trivia',
+    to: '/play/trivia',
     tags: ['checkers', 'strategy', 'game'],
+    ageGroup: 'Tweens',
+    topics: ['Strategy', 'Game'],
   },
 
   // Kids Learning
@@ -126,24 +137,30 @@ const SEARCH_DATA = [
     title: 'AI Devotional Generator',
     desc: 'Personalized daily devotionals',
     icon: '🙏',
-    to: '/devotional',
+    to: '/ai/devotional',
     tags: ['devotional', 'prayer', 'ai', 'faith', 'daily'],
+    ageGroup: 'Family',
+    topics: ['Faith', 'Prayer'],
   },
   {
     type: 'page',
     title: 'Interactive Bible Map',
     desc: 'Explore the Holy Land',
     icon: '🗺️',
-    to: '/map',
+    to: '/explore/map',
     tags: ['map', 'holy land', 'jerusalem', 'israel', 'places'],
+    ageGroup: 'Family',
+    topics: ['History', 'Geography'],
   },
   {
     type: 'page',
     title: 'Memory Verse Flashcards',
     desc: 'Memorize scripture',
     icon: '🧠',
-    to: '/flashcards',
+    to: '/play/flashcards',
     tags: ['memory', 'verse', 'flashcard', 'scripture', 'memorize'],
+    ageGroup: 'Elementary',
+    topics: ['Faith', 'Memory'],
   },
   {
     type: 'page',
@@ -158,8 +175,10 @@ const SEARCH_DATA = [
     title: 'Prayer Wall',
     desc: 'Community prayer',
     icon: '🌍',
-    to: '/prayer',
+    to: '/community/prayer',
     tags: ['prayer', 'community', 'pray', 'request'],
+    ageGroup: 'Family',
+    topics: ['Prayer', 'Community'],
   },
   {
     type: 'page',
@@ -211,6 +230,66 @@ const SEARCH_DATA = [
   },
 
   // New & Partnership Features
+  {
+    type: 'page',
+    title: 'Play Hub',
+    desc: 'Play and learning games for families',
+    icon: '🎮',
+    to: '/play',
+    tags: ['play', 'games', 'kids', 'fun', 'activities'],
+    ageGroup: 'Family',
+    topics: ['Games', 'Bible Stories'],
+  },
+  {
+    type: 'page',
+    title: 'Explore Hub',
+    desc: 'Bible exploration tools and maps',
+    icon: '🔎',
+    to: '/explore',
+    tags: ['explore', 'bible', 'maps', 'timeline'],
+    ageGroup: 'Family',
+    topics: ['History', 'Study'],
+  },
+  {
+    type: 'page',
+    title: 'AI Hub',
+    desc: 'AI-driven Bible tools and creativity',
+    icon: '🧠',
+    to: '/ai',
+    tags: ['ai', 'tool', 'devotional', 'chat'],
+    ageGroup: 'Family',
+    topics: ['AI Tool'],
+  },
+  {
+    type: 'page',
+    title: 'Grow Hub',
+    desc: 'Growth paths and spiritual milestones',
+    icon: '🌱',
+    to: '/grow',
+    tags: ['grow', 'faith', 'reading-plan', 'milestones'],
+    ageGroup: 'Family',
+    topics: ['Growth', 'Certification'],
+  },
+  {
+    type: 'page',
+    title: 'Community Hub',
+    desc: 'Church groups, chat, and events',
+    icon: '🌐',
+    to: '/community',
+    tags: ['community', 'prayer', 'events', 'groups'],
+    ageGroup: 'Family',
+    topics: ['Prayer', 'Fellowship'],
+  },
+  {
+    type: 'page',
+    title: 'Parents & Teachers Hub',
+    desc: 'Control, resources, and teaching tools',
+    icon: '🏫',
+    to: '/parents',
+    tags: ['parents', 'teachers', 'hub', 'resources'],
+    ageGroup: 'Family',
+    topics: ['Parenting', 'Teaching'],
+  },
   {
     type: 'page',
     title: 'Ministry Partnerships',
@@ -296,15 +375,17 @@ const SEARCH_DATA = [
     title: 'Bible Family Tree',
     desc: 'Explore biblical genealogy',
     icon: '🌳',
-    to: '/family-tree',
+    to: '/grow/family-tree',
     tags: ['family', 'tree', 'genealogy', 'lineage', 'ancestors', 'biblical', 'history'],
+    ageGroup: 'Family',
+    topics: ['History'],
   },
   {
     type: 'page',
     title: 'Worship Discovery',
     desc: 'Find worship music by mood',
     icon: '🎵',
-    to: '/worship',
+    to: '/grow/worship',
     tags: ['worship', 'music', 'praise', 'songs', 'mood', 'spotify', 'playlist'],
   },
   {
@@ -322,7 +403,7 @@ const SEARCH_DATA = [
     title: 'Bible Explorer',
     desc: 'Read the Bible — chapters, verses, bookmarks, highlights',
     icon: '📖',
-    to: '/bible',
+    to: '/explore/bible',
     tags: [
       'bible',
       'read',
@@ -348,8 +429,10 @@ const SEARCH_DATA = [
     title: 'Faith Milestones',
     desc: 'Track your spiritual growth and achievements',
     icon: '🏔️',
-    to: '/faith-milestones',
+    to: '/grow/faith-milestones',
     tags: ['milestones', 'faith', 'growth', 'achievements', 'progress', 'spiritual'],
+    ageGroup: 'Family',
+    topics: ['Growth', 'Faith'],
   },
   {
     type: 'page',
@@ -372,8 +455,10 @@ const SEARCH_DATA = [
     title: 'Prayer Partner',
     desc: 'Connect with a digital prayer partner',
     icon: '🤝',
-    to: '/prayer-partner',
-    tags: ['prayer', 'partner', 'companion', 'companion', 'faith', 'connection'],
+    to: '/community/prayer-partner',
+    tags: ['prayer', 'partner', 'companion', 'faith', 'connection'],
+    ageGroup: 'Family',
+    topics: ['Prayer', 'Community'],
   },
   {
     type: 'page',
@@ -493,7 +578,7 @@ const SEARCH_DATA = [
     title: 'Activity Sheets',
     desc: 'Printable Bible fun for kids',
     icon: '📄',
-    to: '/activity-sheets',
+    to: '/play/activity-sheets',
     tags: ['print', 'activity', 'sheets', 'kids', 'learning'],
   },
   {
@@ -509,8 +594,10 @@ const SEARCH_DATA = [
     title: 'Reading Plan',
     desc: 'Daily schedules to read through the Word',
     icon: '📅',
-    to: '/reading-plan',
+    to: '/grow/reading-plan',
     tags: ['plan', 'read', 'daily', 'schedule', 'bible', 'word'],
+    ageGroup: 'Family',
+    topics: ['Faith', 'Discipline'],
   },
   {
     type: 'page',
@@ -533,7 +620,7 @@ const SEARCH_DATA = [
     title: 'Certification',
     desc: 'Earn your Bible studies certificate',
     icon: '🎓',
-    to: '/certification',
+    to: '/grow/certification',
     tags: ['certify', 'learn', 'study', 'degree', 'bible'],
   },
   {
@@ -575,6 +662,129 @@ const SEARCH_DATA = [
     icon: '🎵',
     to: '/ai/rap-generator',
     tags: ['rap', 'music', 'ai', 'song', 'generator', 'scripture'],
+  },
+
+  // ── New features added since last update ─────────────────────────────────
+  {
+    type: 'page',
+    title: 'Newsletter',
+    desc: 'Free weekly printables + new game alerts',
+    icon: '📧',
+    to: '/newsletter',
+    tags: ['newsletter', 'email', 'subscribe', 'printable', 'weekly', 'free'],
+  },
+  {
+    type: 'page',
+    title: 'Seasonal AI Content',
+    desc: 'Easter, Christmas & seasonal Bible content generator',
+    icon: '🎄',
+    to: '/seasonal',
+    tags: ['seasonal', 'easter', 'christmas', 'ai', 'holiday', 'content', 'badge'],
+  },
+  {
+    type: 'page',
+    title: 'Browse Everything',
+    desc: 'Smart search across all games, tools & resources',
+    icon: '🔍',
+    to: '/browse',
+    tags: ['browse', 'search', 'everything', 'all', 'filter', 'resources'],
+  },
+  {
+    type: 'page',
+    title: 'Bible Names Explorer',
+    desc: 'Meanings and origins of every name in Scripture',
+    icon: '🔤',
+    to: '/names',
+    tags: ['names', 'bible', 'meaning', 'origin', 'hebrew', 'greek', 'scripture'],
+  },
+  {
+    type: 'page',
+    title: 'Bible Search',
+    desc: 'Search scripture by keyword, verse or topic',
+    icon: '🔎',
+    to: '/bible-search',
+    tags: ['search', 'bible', 'keyword', 'verse', 'topic', 'scripture', 'find'],
+  },
+  {
+    type: 'page',
+    title: 'Bible Reader',
+    desc: 'Read the Bible in multiple translations',
+    icon: '📖',
+    to: '/bible-reader',
+    tags: ['read', 'bible', 'kjv', 'niv', 'esv', 'translation', 'chapter', 'verse'],
+  },
+  {
+    type: 'page',
+    title: 'Prayer Journal',
+    desc: 'Write and track your personal prayers',
+    icon: '📓',
+    to: '/prayer-journal',
+    tags: ['prayer', 'journal', 'write', 'personal', 'diary', 'faith', 'track'],
+  },
+  {
+    type: 'page',
+    title: 'Bible Promises',
+    desc: "Discover God's promises throughout Scripture",
+    icon: '🌈',
+    to: '/grow/promises',
+    tags: ['promises', 'god', 'bible', 'covenant', 'hope', 'faith', 'scripture'],
+  },
+  {
+    type: 'page',
+    title: 'Reading Stats',
+    desc: 'Track your Bible reading progress and streaks',
+    icon: '📊',
+    to: '/reading-stats',
+    tags: ['reading', 'stats', 'progress', 'streak', 'bible', 'track', 'habit'],
+  },
+  {
+    type: 'page',
+    title: 'Kids Bible Stories',
+    desc: 'Illustrated Bible stories for young children',
+    icon: '📚',
+    to: '/kids-stories',
+    tags: ['kids', 'stories', 'bible', 'children', 'illustrated', 'preschool', 'elementary'],
+    ageGroup: 'Preschool',
+  },
+  {
+    type: 'page',
+    title: 'Invite Family & Friends',
+    desc: 'Share BibleFunLand and earn 50 points per referral',
+    icon: '🎁',
+    to: '/',
+    tags: ['invite', 'referral', 'share', 'family', 'friends', 'points', 'earn'],
+  },
+  {
+    type: 'page',
+    title: 'Bible Map (Interactive)',
+    desc: 'Real GPS coordinates — Jerusalem, Bethlehem, Nazareth & more',
+    icon: '🗺️',
+    to: '/explore/map',
+    tags: ['map', 'bible', 'jerusalem', 'bethlehem', 'nazareth', 'israel', 'geography', 'leaflet'],
+  },
+  {
+    type: 'page',
+    title: 'A/B Test Dashboard',
+    desc: 'Admin — manage experiments and view conversion rates',
+    icon: '🧪',
+    to: '/admin/ab-tests',
+    tags: ['admin', 'ab test', 'experiment', 'conversion', 'analytics'],
+  },
+  {
+    type: 'page',
+    title: 'Launch Checklist',
+    desc: 'Admin — pre-launch verification checklist',
+    icon: '🚀',
+    to: '/admin/launch',
+    tags: ['admin', 'launch', 'checklist', 'deploy', 'production'],
+  },
+  {
+    type: 'page',
+    title: 'Newsletter Subscribers',
+    desc: 'Admin — manage email subscribers',
+    icon: '📧',
+    to: '/admin/newsletter',
+    tags: ['admin', 'newsletter', 'subscribers', 'email', 'list'],
   },
 
   // Bible Verses
@@ -670,12 +880,52 @@ const SEARCH_DATA = [
   },
 ];
 
+const AGE_OPTIONS = ['All', 'Preschool', 'Elementary', 'Tweens', 'Family'];
+const TOPIC_OPTIONS = [
+  'All',
+  'Old Testament',
+  'New Testament',
+  'Jesus',
+  'Heroes',
+  'Parables',
+  'Faith',
+  'Stories',
+  'General',
+];
+const TYPE_OPTIONS = ['All', 'Online Game', 'Printable', 'AI Tool', 'Page', 'Verse', 'Blog'];
+const POPULAR_ITEM_TITLES = [
+  'Scripture Trivia',
+  'AI Devotional',
+  'Activity Sheets',
+  'Bible Rap Generator',
+  'Scripture Runner',
+];
+
 const TYPE_COLORS = {
   game: { bg: 'var(--blue-bg)', color: 'var(--blue)', label: 'Game' },
   page: { bg: 'var(--violet-bg)', color: 'var(--violet)', label: 'Page' },
   verse: { bg: 'var(--green-bg)', color: 'var(--green)', label: 'Verse' },
   blog: { bg: 'var(--orange-bg)', color: 'var(--orange)', label: 'Blog' },
 };
+
+const NORMALIZED_SEARCH_DATA = SEARCH_DATA.map((item) => ({
+  ...item,
+  ageGroup: item.ageGroup || 'Family',
+  topics: item.topics || ['General'],
+  itemType:
+    item.itemType ||
+    (item.type === 'game'
+      ? 'Online Game'
+      : item.type === 'page' && item.to?.startsWith('/ai/')
+        ? 'AI Tool'
+        : item.type === 'page'
+          ? 'Page'
+          : item.type === 'verse'
+            ? 'Verse'
+            : item.type === 'blog'
+              ? 'Blog'
+              : 'Other'),
+}));
 
 // Debounce hook for search
 function useDebounce(value, delay) {
@@ -696,6 +946,9 @@ export default function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlighted, setHighlighted] = useState(0);
+  const [ageFilter, setAgeFilter] = useState('All');
+  const [topicFilter, setTopicFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
   const [recentSearches, setRecentSearches] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('globalSearchHistory') || '[]');
@@ -706,7 +959,20 @@ export default function GlobalSearch() {
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const { t } = useT();
+  const { kidsMode } = useKidsMode();
   const debouncedQuery = useDebounce(query, 200);
+
+  useEffect(() => {
+    if (kidsMode) {
+      setAgeFilter('Preschool');
+      setTopicFilter('Stories');
+      setTypeFilter('Online Game');
+    } else {
+      setAgeFilter('All');
+      setTopicFilter('All');
+      setTypeFilter('All');
+    }
+  }, [kidsMode]);
 
   // CMD+K / CTRL+K to open, CTRL+/ to open
   useEffect(() => {
@@ -747,19 +1013,39 @@ export default function GlobalSearch() {
     localStorage.setItem('globalSearchHistory', JSON.stringify(updated));
   }
 
-  // Memoized search results with debounce
+  // Memoized search results with debounce + filters
   const results = useMemo(() => {
+    const applyFilters = (item) => {
+      const kidsAllowed =
+        !kidsMode ||
+        !item.ageGroup ||
+        ['Preschool', 'Elementary', 'Tweens', 'Family'].includes(item.ageGroup);
+      const ageOk =
+        (ageFilter === 'All' || !item.ageGroup || item.ageGroup === ageFilter) && kidsAllowed;
+      const topicOk = topicFilter === 'All' || !item.topics || item.topics.includes(topicFilter);
+      const typeOk = typeFilter === 'All' || !item.itemType || item.itemType === typeFilter;
+      return ageOk && topicOk && typeOk;
+    };
+
+    const filteredByPreferences = NORMALIZED_SEARCH_DATA.filter(applyFilters);
+
     if (debouncedQuery.length < 2) {
-      return SEARCH_DATA.slice(0, 8);
+      const popular = filteredByPreferences.filter((item) =>
+        POPULAR_ITEM_TITLES.includes(item.title)
+      );
+      return popular.length > 0 ? popular : filteredByPreferences.slice(0, 8);
     }
+
     const q = debouncedQuery.toLowerCase();
-    return SEARCH_DATA.filter(
-      (item) =>
-        item.title.toLowerCase().includes(q) ||
-        item.desc.toLowerCase().includes(q) ||
-        item.tags.some((tag) => tag.includes(q))
-    ).slice(0, 10);
-  }, [debouncedQuery]);
+    return filteredByPreferences
+      .filter(
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          item.desc.toLowerCase().includes(q) ||
+          item.tags.some((tag) => tag.includes(q))
+      )
+      .slice(0, 10);
+  }, [debouncedQuery, ageFilter, topicFilter, typeFilter]);
 
   function go(item) {
     addToHistory(item);
@@ -824,6 +1110,84 @@ export default function GlobalSearch() {
                   ✕
                 </button>
               )}
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                flexWrap: 'wrap',
+                padding: '10px 20px',
+                borderBottom: '1px solid var(--border)',
+              }}
+            >
+              <select
+                value={ageFilter}
+                onChange={(e) => setAgeFilter(e.target.value)}
+                style={{
+                  minWidth: 140,
+                  padding: '7px 10px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg)',
+                }}
+              >
+                {AGE_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={topicFilter}
+                onChange={(e) => setTopicFilter(e.target.value)}
+                style={{
+                  minWidth: 170,
+                  padding: '7px 10px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg)',
+                }}
+              >
+                {TOPIC_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                style={{
+                  minWidth: 150,
+                  padding: '7px 10px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg)',
+                }}
+              >
+                {TYPE_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => {
+                  setAgeFilter('All');
+                  setTopicFilter('All');
+                  setTypeFilter('All');
+                }}
+                style={{
+                  color: 'var(--blue)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  padding: '7px 10px',
+                  background: 'var(--bg)',
+                }}
+              >
+                Reset
+              </button>
             </div>
 
             {/* Results */}

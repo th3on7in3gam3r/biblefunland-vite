@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { addChildActivity } from '../lib/db';
+import usePageMetadata from '../hooks/usePageMetadata';
+import { getCache, setCache } from '../lib/cache';
+import { Analytics } from '../lib/analytics';
+import { useRealTime } from '../context/RealTimeContext';
+import KidsCelebration from '../components/KidsCelebration';
+import ShareGameCard from '../components/ShareGameCard';
 
 const QUESTIONS = {
   beginner: [
@@ -193,9 +199,26 @@ const QUESTIONS = {
 };
 
 export default function Trivia() {
+  usePageMetadata({
+    title: 'Scripture Trivia',
+    description:
+      'Engage kids and families with Bible trivia across beginner, intermediate, and hard categories.',
+    image:
+      'https://images.unsplash.com/photo-1485547156047-7d9062b3ddd5?auto=format&fit=crop&w=1200&q=80',
+  });
+
   const { user } = useAuth();
+  const { showPoints, kidsMode } = useRealTime();
+  const [celebrate, setCelebrate] = useState(false);
   const [phase, setPhase] = useState('lobby');
   const [difficulty, setDiff] = useState('intermediate');
+
+  useEffect(() => {
+    const cached = getCache('trivia_questions');
+    if (!cached) {
+      setCache('trivia_questions', QUESTIONS, 1000 * 60 * 60 * 24);
+    }
+  }, []);
   const [questions, setQs] = useState([]);
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState(0);
@@ -207,6 +230,7 @@ export default function Trivia() {
   const [tid, setTid] = useState(null);
 
   function start() {
+    Analytics.triviaStarted(difficulty);
     const qs = [...QUESTIONS[difficulty]].sort(() => Math.random() - 0.5).slice(0, 10);
     setQs(qs);
     setQi(0);
@@ -240,10 +264,13 @@ export default function Trivia() {
     if (i === q.correct) {
       setScore((s) => s + 100);
       setCorrect((c) => c + 1);
+      showPoints(100, kidsMode ? '🎉 Correct!' : 'Correct!');
+      if (kidsMode) setCelebrate(true);
     } else setWrong((w) => w + 1);
     setTimeout(() => {
       const n = idx + 1;
       if (n >= qs.length) {
+        Analytics.triviaFinished(score, correct);
         if (user?.id) {
           addChildActivity(user.id, 'quiz', { score, correct, difficulty }, 0).catch((err) =>
             console.warn('Activity tracking failed:', err)
@@ -266,6 +293,7 @@ export default function Trivia() {
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
+      <KidsCelebration active={celebrate} onDone={() => setCelebrate(false)} />
       <div
         style={{
           background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)',
@@ -601,6 +629,12 @@ export default function Trivia() {
               <Link to="/" className="btn btn-outline">
                 🏠 Home
               </Link>
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <ShareGameCard
+                game={{ title: 'Scripture Trivia', to: '/play/trivia', emoji: '❓' }}
+                score={score}
+              />
             </div>
           </div>
         )}

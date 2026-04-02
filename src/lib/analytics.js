@@ -82,4 +82,12 @@ export const Analytics = {
 
   // Share
   shareCard: (verse) => trackEvent('share_card', { verse }),
+
+  // Seasonal
+  seasonalBannerClick: (season, cta) => trackEvent('seasonal_banner_click', { season, cta }),
+  weeklyChallenge: (action) => trackEvent('weekly_challenge', { action }),
+  seasonalAIGenerate: (season, type) => trackEvent('seasonal_ai_generate', { season, type }),
+
+  // Performance
+  pageLoad: (page, ms) => trackEvent('page_load', { page, load_time_ms: ms }),
 };

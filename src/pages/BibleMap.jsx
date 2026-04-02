@@ -1,10 +1,24 @@
-import { useState } from 'react';
-const LOCATIONS = {
-  jerusalem: {
+import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix Leaflet default icon broken by bundlers
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+const LOCATIONS = [
+  {
+    id: 'jerusalem',
     name: 'Jerusalem',
     region: 'Judea',
-    rc: 'var(--red)',
-    rb: 'var(--red-bg)',
+    lat: 31.7683,
+    lng: 35.2137,
+    color: '#E53935',
     desc: "The holiest city in the Bible — capital of David's kingdom, site of Solomon's Temple, and the city where Jesus was crucified and rose from the dead.",
     stories: [
       { icon: '⚔️', title: 'David captures the city', ref: '2 Samuel 5:6-7' },
@@ -14,11 +28,13 @@ const LOCATIONS = {
     ],
     verse: '"Pray for the peace of Jerusalem." — Psalm 122:6',
   },
-  bethlehem: {
+  {
+    id: 'bethlehem',
     name: 'Bethlehem',
     region: 'Judea',
-    rc: 'var(--violet)',
-    rb: 'var(--violet-bg)',
+    lat: 31.7054,
+    lng: 35.2024,
+    color: '#7B1FA2',
     desc: 'A small town south of Jerusalem with an outsized role in history. David was born here, and centuries later, the Messiah entered the world in a humble manger.',
     stories: [
       { icon: '👑', title: 'King David born here', ref: '1 Samuel 16:1-13' },
@@ -29,11 +45,13 @@ const LOCATIONS = {
     verse:
       '"But you, Bethlehem… out of you will come… one who will be ruler over Israel." — Micah 5:2',
   },
-  nazareth: {
+  {
+    id: 'nazareth',
     name: 'Nazareth',
     region: 'Galilee',
-    rc: 'var(--blue)',
-    rb: 'var(--blue-bg)',
+    lat: 32.6996,
+    lng: 35.3035,
+    color: '#1565C0',
     desc: 'A small village in Galilee where Jesus grew up. This is where the angel Gabriel appeared to Mary, and where Jesus lived for most of his 30 years.',
     stories: [
       { icon: '👼', title: 'Angel Gabriel visits Mary', ref: 'Luke 1:26-38' },
@@ -44,12 +62,14 @@ const LOCATIONS = {
     verse:
       '"Jesus of Nazareth… a man accredited by God… by miracles, wonders and signs." — Acts 2:22',
   },
-  capernaum: {
+  {
+    id: 'capernaum',
     name: 'Capernaum',
     region: 'Galilee',
-    rc: 'var(--teal)',
-    rb: 'var(--teal-bg)',
-    desc: "Jesus' base of operations during his Galilean ministry. He performed more miracles here than anywhere else — healing Peter's mother-in-law, the paralyzed man, and more.",
+    lat: 32.8808,
+    lng: 35.5751,
+    color: '#00695C',
+    desc: "Jesus' base of operations during his Galilean ministry. He performed more miracles here than anywhere else.",
     stories: [
       { icon: '🏠', title: "Peter's home — Jesus' base", ref: 'Matthew 4:13' },
       { icon: '🦯', title: 'Paralyzed man healed', ref: 'Mark 2:1-12' },
@@ -58,12 +78,14 @@ const LOCATIONS = {
     ],
     verse: '"And leaving Nazareth, he came and settled in Capernaum by the sea." — Matthew 4:13',
   },
-  jericho: {
+  {
+    id: 'jericho',
     name: 'Jericho',
     region: 'Jordan Valley',
-    rc: 'var(--orange)',
-    rb: 'var(--orange-bg)',
-    desc: "One of the world's oldest cities and a key site in both Testaments. The walls famously fell after Israel marched around them seven times.",
+    lat: 31.8667,
+    lng: 35.45,
+    color: '#E65100',
+    desc: "One of the world's oldest cities. The walls famously fell after Israel marched around them seven times.",
     stories: [
       { icon: '📯', title: 'Walls fall after 7 days', ref: 'Joshua 6' },
       { icon: '🌹', title: 'Rahab hides the spies', ref: 'Joshua 2' },
@@ -73,12 +95,14 @@ const LOCATIONS = {
     verse:
       '"So the wall fell down flat. Then the people went up… and they took the city." — Joshua 6:20',
   },
-  sinai: {
+  {
+    id: 'sinai',
     name: 'Mt. Sinai',
     region: 'Sinai Peninsula',
-    rc: 'var(--yellow)',
-    rb: 'var(--yellow-bg)',
-    desc: 'The sacred mountain where Moses encountered God in the burning bush and later received the Ten Commandments. Also called Horeb.',
+    lat: 28.5392,
+    lng: 33.975,
+    color: '#827717',
+    desc: 'The sacred mountain where Moses encountered God in the burning bush and received the Ten Commandments.',
     stories: [
       { icon: '🔥', title: 'Burning bush — God calls Moses', ref: 'Exodus 3:1-6' },
       { icon: '📜', title: 'Ten Commandments given', ref: 'Exodus 20' },
@@ -88,12 +112,14 @@ const LOCATIONS = {
     verse:
       '"Moses said, I will now turn aside to see this great sight, why the bush does not burn." — Exodus 3:3',
   },
-  babylon: {
+  {
+    id: 'babylon',
     name: 'Babylon',
     region: 'Mesopotamia',
-    rc: 'var(--red)',
-    rb: 'var(--red-bg)',
-    desc: "The great empire where the Jews were exiled for 70 years. It was here that Daniel interpreted dreams, three friends survived the furnace, and God's people longed for home.",
+    lat: 32.5355,
+    lng: 44.4275,
+    color: '#BF360C',
+    desc: 'The great empire where the Jews were exiled for 70 years. Daniel, Shadrach, Meshach & Abednego all lived here.',
     stories: [
       { icon: '🏛️', title: "Daniel interprets king's dream", ref: 'Daniel 2' },
       { icon: '🔥', title: 'Shadrach, Meshach & Abednego', ref: 'Daniel 3' },
@@ -102,21 +128,79 @@ const LOCATIONS = {
     ],
     verse: '"By the rivers of Babylon we sat and wept when we remembered Zion." — Psalm 137:1',
   },
-};
+  {
+    id: 'galilee',
+    name: 'Sea of Galilee',
+    region: 'Galilee',
+    lat: 32.8208,
+    lng: 35.5847,
+    color: '#0277BD',
+    desc: 'A freshwater lake in northern Israel where Jesus walked on water, calmed the storm, and called his first disciples.',
+    stories: [
+      { icon: '🚶', title: 'Jesus walks on water', ref: 'Matthew 14:22-33' },
+      { icon: '🌊', title: 'Storm calmed', ref: 'Mark 4:35-41' },
+      { icon: '🎣', title: 'First disciples called', ref: 'Matthew 4:18-22' },
+      { icon: '🐟', title: 'Miraculous catch of fish', ref: 'Luke 5:1-11' },
+    ],
+    verse: '"He got up, rebuked the wind and said to the waves, Quiet! Be still!" — Mark 4:39',
+  },
+  {
+    id: 'jordan',
+    name: 'Jordan River',
+    region: 'Jordan Valley',
+    lat: 31.8333,
+    lng: 35.55,
+    color: '#1B5E20',
+    desc: 'The river where Israel crossed into the Promised Land and where Jesus was baptized by John.',
+    stories: [
+      { icon: '🌊', title: 'Israel crosses into Canaan', ref: 'Joshua 3' },
+      { icon: '🕊️', title: 'Jesus baptized by John', ref: 'Matthew 3:13-17' },
+      { icon: '🙌', title: 'Naaman healed of leprosy', ref: '2 Kings 5:1-14' },
+      { icon: '🔥', title: 'Elijah taken up to heaven', ref: '2 Kings 2:1-14' },
+    ],
+    verse:
+      '"As soon as Jesus was baptized… the Spirit of God descended like a dove." — Matthew 3:16',
+  },
+];
+
+// Custom colored marker
+function makeIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.35)"></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -14],
+  });
+}
+
+// Fly to selected location
+function FlyTo({ loc }) {
+  const map = useMap();
+  useEffect(() => {
+    if (loc) map.flyTo([loc.lat, loc.lng], 9, { duration: 1.2 });
+  }, [loc, map]);
+  return null;
+}
+
 export default function BibleMap() {
   const [active, setActive] = useState(null);
-  const loc = active ? LOCATIONS[active] : null;
-  function click(id) {
-    setActive(id);
-  }
-  const markerStyle = (id, cx, cy, fill) => ({
-    cursor: 'pointer',
-    onClick: () => click(id),
-    id: `loc-${id}`,
-  });
+  const loc = active ? LOCATIONS.find((l) => l.id === active) : null;
+
+  useEffect(() => {
+    if (window.location.hash === '#interactive-bible-map') {
+      const target = document.getElementById('interactive-bible-map');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, []);
+
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
+      {/* Header */}
       <div
+        id="interactive-bible-map"
         style={{
           background: 'linear-gradient(135deg,#064E3B,#065F46,#047857)',
           padding: '60px 36px 44px',
@@ -133,264 +217,139 @@ export default function BibleMap() {
             marginBottom: 8,
           }}
         >
-          Interactive Bible Map
+          🗺️ Interactive Bible Map
         </h1>
         <p style={{ color: 'rgba(255,255,255,.6)', fontSize: '.9rem', fontWeight: 500 }}>
-          Click any location to explore Bible stories, history, and key scriptures.
+          Click any pin to explore Bible stories, history, and key scriptures.
         </p>
       </div>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '44px 24px' }}>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr clamp(240px,30%,340px)',
+            gridTemplateColumns: '1fr clamp(260px,32%,360px)',
             gap: 24,
             alignItems: 'start',
           }}
         >
-          {/* Map SVG */}
+          {/* Leaflet Map */}
           <div
             style={{
-              background: 'var(--surface)',
-              borderRadius: 24,
-              border: '1.5px solid var(--border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,.08)',
+              borderRadius: 20,
               overflow: 'hidden',
+              border: '1.5px solid var(--border)',
+              boxShadow: '0 8px 32px rgba(0,0,0,.1)',
+              height: 560,
             }}
           >
-            <svg
-              viewBox="0 0 600 700"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{
-                width: '100%',
-                height: 'auto',
-                display: 'block',
-                background:
-                  'linear-gradient(180deg,#87CEEB 0%,#E0F4FF 30%,#C8E6C9 45%,#A5D6A7 60%,#81C784 75%,#B8860B 100%)',
-              }}
+            <MapContainer
+              center={[31.5, 35.5]}
+              zoom={7}
+              style={{ height: '100%', width: '100%' }}
+              scrollWheelZoom={true}
             >
-              <ellipse cx="120" cy="280" rx="115" ry="160" fill="#4FC3F7" opacity=".55" />
-              <text
-                x="60"
-                y="285"
-                fontSize="11"
-                fill="#0277BD"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Mediterranean
-              </text>
-              <text
-                x="78"
-                y="300"
-                fontSize="11"
-                fill="#0277BD"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Sea
-              </text>
-              <ellipse cx="340" cy="450" rx="28" ry="50" fill="#4FC3F7" opacity=".7" />
-              <text
-                x="355"
-                y="455"
-                fontSize="9"
-                fill="#0277BD"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Dead Sea
-              </text>
-              <ellipse cx="350" cy="290" rx="22" ry="30" fill="#4FC3F7" opacity=".7" />
-              <path
-                d="M350 320 Q345 370 340 420"
-                stroke="#4FC3F7"
-                strokeWidth="4"
-                fill="none"
-                opacity=".8"
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <path
-                d="M235 180 Q280 160 330 175 Q380 185 420 210 Q460 240 460 290 Q460 340 430 380 Q410 420 390 460 Q370 500 360 540 Q350 580 340 610 Q320 640 300 650 Q280 645 270 620 Q255 590 245 555 Q230 515 220 480 Q205 440 200 400 Q195 360 200 320 Q205 270 220 230 Q228 200 235 180Z"
-                fill="#8BC34A"
-                opacity=".8"
-              />
-              <rect x="200" y="600" width="200" height="80" rx="8" fill="#DEB887" opacity=".6" />
-              <text
-                x="280"
-                y="645"
-                fontSize="12"
-                fill="#8B4513"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-                textAnchor="middle"
-              >
-                Egypt
-              </text>
-              {/* Location markers */}
-              {[
-                ['jerusalem', 308, 420, '#E53935'],
-                ['bethlehem', 305, 445, '#7B1FA2'],
-                ['nazareth', 310, 300, '#1565C0'],
-                ['capernaum', 348, 275, '#00695C'],
-                ['jericho', 345, 400, '#E65100'],
-                ['sinai', 265, 590, '#827717'],
-                ['babylon', 520, 300, '#BF360C'],
-              ].map(([id, cx, cy, fill]) => (
-                <g key={id} onClick={() => click(id)} style={{ cursor: 'pointer' }}>
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={active === id ? 12 : 9}
-                    fill={active === id ? '#FFD060' : fill}
-                    style={{ transition: 'r .2s' }}
-                  />
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={active === id ? 12 : 9}
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                    opacity=".6"
-                  />
-                </g>
+              {loc && <FlyTo loc={loc} />}
+              {LOCATIONS.map((l) => (
+                <Marker
+                  key={l.id}
+                  position={[l.lat, l.lng]}
+                  icon={makeIcon(l.color)}
+                  eventHandlers={{ click: () => setActive(l.id) }}
+                >
+                  <Popup>
+                    <div style={{ fontFamily: 'Poppins,sans-serif', minWidth: 160 }}>
+                      <div style={{ fontWeight: 800, fontSize: '.95rem', marginBottom: 2 }}>
+                        {l.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '.72rem',
+                          color: l.color,
+                          fontWeight: 700,
+                          marginBottom: 6,
+                        }}
+                      >
+                        {l.region}
+                      </div>
+                      <div style={{ fontSize: '.78rem', color: '#444', lineHeight: 1.5 }}>
+                        {l.desc.slice(0, 100)}…
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
               ))}
-              {/* Labels */}
-              <text
-                x="322"
-                y="424"
-                fontSize="11"
-                fill="#111"
-                fontWeight="800"
-                fontFamily="Poppins,sans-serif"
-              >
-                Jerusalem
-              </text>
-              <text
-                x="320"
-                y="449"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Bethlehem
-              </text>
-              <text
-                x="324"
-                y="304"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Nazareth
-              </text>
-              <text
-                x="362"
-                y="279"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Capernaum
-              </text>
-              <text
-                x="358"
-                y="404"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Jericho
-              </text>
-              <text
-                x="280"
-                y="594"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Mt. Sinai
-              </text>
-              <text
-                x="470"
-                y="295"
-                fontSize="10"
-                fill="#111"
-                fontWeight="700"
-                fontFamily="Poppins,sans-serif"
-              >
-                Babylon →
-              </text>
-              <rect x="10" y="10" width="150" height="30" rx="8" fill="white" opacity=".85" />
-              <text
-                x="85"
-                y="30"
-                fontSize="12"
-                fill="#333"
-                fontWeight="800"
-                textAnchor="middle"
-                fontFamily="Poppins,sans-serif"
-              >
-                The Holy Land
-              </text>
-            </svg>
-            <div
-              style={{
-                padding: '12px 18px',
-                borderTop: '1px solid var(--border)',
-                fontSize: '.78rem',
-                color: 'var(--ink3)',
-                fontWeight: 500,
-                textAlign: 'center',
-              }}
-            >
-              👆 Click any pin on the map to explore that location
-            </div>
+            </MapContainer>
           </div>
+
           {/* Info panel */}
           <div
             style={{
               background: 'var(--surface)',
-              borderRadius: 24,
+              borderRadius: 20,
               border: '1.5px solid var(--border)',
               boxShadow: '0 8px 32px rgba(0,0,0,.08)',
-              padding: 26,
+              padding: 24,
               position: 'sticky',
               top: 80,
+              maxHeight: 560,
+              overflowY: 'auto',
             }}
           >
             {!loc ? (
-              <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--ink3)' }}>
-                <div style={{ fontSize: '3rem', marginBottom: 12, opacity: 0.4 }}>🗺️</div>
-                <p style={{ fontSize: '.84rem', fontWeight: 500, lineHeight: 1.6 }}>
-                  Click any location on the map to explore its Bible stories, history, and key
-                  scriptures.
-                </p>
-                <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {Object.entries(LOCATIONS).map(([id, l]) => (
+              <div>
+                <div style={{ textAlign: 'center', padding: '16px 0 20px', color: 'var(--ink3)' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: 8, opacity: 0.4 }}>🗺️</div>
+                  <p style={{ fontSize: '.82rem', fontWeight: 500, lineHeight: 1.6 }}>
+                    Click any pin on the map to explore its Bible stories and scriptures.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {LOCATIONS.map((l) => (
                     <button
-                      key={id}
-                      onClick={() => click(id)}
+                      key={l.id}
+                      onClick={() => setActive(l.id)}
                       style={{
                         fontSize: '.78rem',
                         fontWeight: 600,
-                        padding: '8px 14px',
+                        padding: '9px 13px',
                         borderRadius: 10,
                         border: '1.5px solid var(--border)',
                         background: 'var(--bg2)',
                         color: 'var(--ink2)',
                         cursor: 'pointer',
                         textAlign: 'left',
-                        transition: 'all .2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        transition: 'all .15s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = l.color;
+                        e.currentTarget.style.background = 'var(--surface)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--border)';
+                        e.currentTarget.style.background = 'var(--bg2)';
                       }}
                     >
-                      📍 {l.name}{' '}
-                      <span style={{ color: l.rc, fontSize: '.7rem' }}>— {l.region}</span>
+                      <span
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: l.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      {l.name}
+                      <span style={{ color: 'var(--ink3)', fontSize: '.7rem', marginLeft: 'auto' }}>
+                        {l.region}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -404,8 +363,8 @@ export default function BibleMap() {
                     fontWeight: 700,
                     padding: '3px 10px',
                     borderRadius: 100,
-                    background: loc.rb,
-                    color: loc.rc,
+                    background: loc.color + '18',
+                    color: loc.color,
                     marginBottom: 10,
                   }}
                 >
@@ -433,22 +392,20 @@ export default function BibleMap() {
                 >
                   {loc.desc}
                 </div>
-                <div
-                  style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}
-                >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 16 }}>
                   {loc.stories.map((s, i) => (
                     <div
                       key={i}
                       style={{
                         background: 'var(--bg2)',
-                        borderRadius: 14,
-                        padding: '11px 13px',
+                        borderRadius: 12,
+                        padding: '10px 12px',
                         display: 'flex',
                         alignItems: 'flex-start',
                         gap: 9,
                       }}
                     >
-                      <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{s.icon}</span>
+                      <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{s.icon}</span>
                       <div>
                         <div
                           style={{
@@ -470,23 +427,24 @@ export default function BibleMap() {
                 <div
                   style={{
                     background: 'var(--green-bg)',
-                    borderLeft: '3px solid var(--green)',
+                    borderLeft: `3px solid ${loc.color}`,
                     borderRadius: '0 12px 12px 0',
-                    padding: '11px 13px',
+                    padding: '10px 12px',
                     fontSize: '.78rem',
                     color: 'var(--ink2)',
                     fontStyle: 'italic',
                     fontWeight: 500,
+                    marginBottom: 14,
                   }}
                 >
                   {loc.verse}
                 </div>
                 <button
                   onClick={() => setActive(null)}
-                  className="btn btn-outline btn-sm"
-                  style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}
+                  className="btn btn-outline"
+                  style={{ width: '100%', justifyContent: 'center', fontSize: '.8rem' }}
                 >
-                  ← Back to Map
+                  ← All Locations
                 </button>
               </div>
             )}

@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useStreak } from '../context/StreakContext';
-import { AdBanner, AdInContent } from '../components/AdUnit';
 import { useKidsMode } from '../context/KidsModeContext';
 import { useChildSwitcher } from '../context/ChildSwitcherContext';
+import { useAuth } from '../context/AuthContext';
 import KidsDashboard from './KidsDashboard';
+import SeasonalBanner from '../components/SeasonalBanner';
+import WeeklyChallenge from '../components/WeeklyChallenge';
+import NewsletterSignup from '../components/NewsletterSignup';
+import TestimonialsCarousel from '../components/TestimonialsCarousel';
+import FloatingActionButton from '../components/FloatingActionButton';
+import { useABTest } from '../hooks/useABTest';
+import InviteFamily from '../components/InviteFamily';
+import { getSeasonalMarketingHook } from '../lib/seasonal';
+import JourneyCards from '../components/JourneyCards';
 
-// ── Reveal-on-scroll hook ──────────────────────────────
+// ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -21,7 +31,7 @@ function useReveal() {
   }, []);
 }
 
-// ── Rotating verse of the day ──────────────────────────
+// ── Data ──────────────────────────────────────────────
 const DAILY_VERSES = [
   {
     text: 'For I know the plans I have for you, declares the Lord — plans to prosper you and not to harm you, plans to give you hope and a future.',
@@ -47,94 +57,107 @@ const DAILY_VERSES = [
   },
 ];
 
-// ── Data ──────────────────────────────────────────────
-const NEW_FEATURES = [
+const AGE_GROUPS = [
   {
-    icon: '🎵',
-    label: 'NEW',
-    title: 'Bible Rap Generator',
-    desc: 'AI writes a scripture rap, gospel song, or worship track in your chosen style',
-    to: '/ai/rap-generator',
-    color: '#A855F7',
-    glow: 'rgba(168,85,247,.3)',
+    label: 'Preschool',
+    age: '3–5',
+    emoji: '🐣',
+    color: '#F59E0B',
+    bg: '#FFFBEB',
+    routes: ['/kids/alphabet', '/kids/numbers', '/kids/shapes', '/kids/animals'],
   },
   {
-    icon: '🧬',
-    label: 'NEW',
-    title: 'What Bible Character Are You?',
-    desc: '10 deep questions reveal your biblical identity — Moses, David, Ruth, or Solomon',
-    to: '/quiz/character',
-    color: '#F97316',
-    glow: 'rgba(249,115,22,.3)',
-  },
-  {
-    icon: '🎙️',
-    label: 'NEW',
-    title: 'Voice Bible Reader',
-    desc: 'Read a verse aloud. Your browser grades your accuracy word-by-word',
-    to: '/voice-reader',
-    color: '#3B82F6',
-    glow: 'rgba(59,130,246,.3)',
-  },
-  {
-    icon: '🌍',
-    label: 'NEW',
-    title: 'Global Prayer Map',
-    desc: 'See real-time prayer pins lighting up from every nation on earth',
-    to: '/prayer-map',
+    label: 'Elementary',
+    age: '6–9',
+    emoji: '📚',
     color: '#10B981',
-    glow: 'rgba(16,185,129,.3)',
+    bg: '#ECFDF5',
+    routes: ['/play/trivia', '/play/game/david-goliath', '/play/flashcards', '/kids-stories'],
+  },
+  {
+    label: 'Tweens',
+    age: '10–12',
+    emoji: '🎮',
+    color: '#3B82F6',
+    bg: '#EFF6FF',
+    routes: ['/play/trivia', '/play/game/escape-room', '/explore/bible', '/grow/certification'],
+  },
+  {
+    label: 'Family',
+    age: 'All Ages',
+    emoji: '👨‍👩‍👧',
+    color: '#8B5CF6',
+    bg: '#F5F3FF',
+    routes: ['/ai/devotional', '/community/prayer', '/leaderboard', '/parents/parent-hub'],
   },
 ];
 
-const GAMES = [
-  {
-    icon: '❓',
-    title: 'Scripture Trivia',
-    desc: 'Timed rounds · 3 difficulty levels · 30 questions',
-    to: '/trivia',
-    color: '#3B82F6',
-    chips: ['Quiz', 'All Ages'],
-  },
-  {
-    icon: '🏹',
-    title: 'David & Goliath',
-    desc: 'Sling stones of faith · 5 levels · Phaser.js engine',
-    to: '/game/david-goliath',
-    color: '#EC4899',
-    chips: ['Action', 'Kids Fav'],
-  },
+const FEATURED_GAMES = [
   {
     icon: '🏃',
     title: 'Scripture Runner',
-    desc: 'Jump over sin · Collect Fruits of the Spirit · Endless runner',
-    to: '/game/runner',
+    desc: 'Endless runner · Collect Fruits of the Spirit',
+    to: '/play/game/runner',
     color: '#10B981',
-    chips: ['Endless', 'Fun'],
-  },
-  {
-    icon: '🧩',
-    title: 'Parable Escape Room',
-    desc: "Solve riddles to escape the whale, lion's den & burning bush",
-    to: '/game/escape-room',
-    color: '#F97316',
-    chips: ['Riddles', 'Story'],
+    tag: 'Kids Fav',
+    ageGroup: 'Elementary',
+    topics: ['New Testament', 'Heroes', 'Faith'],
+    itemType: 'Online Game',
   },
   {
     icon: '🎰',
     title: 'Spin the Verse',
-    desc: 'Match 3 themes = jackpot devotional. Every spin gets a verse!',
-    to: '/game/spin-the-verse',
+    desc: 'Match 3 themes = jackpot devotional',
+    to: '/play/game/spin-the-verse',
     color: '#8B5CF6',
-    chips: ['Daily', 'Devotion'],
+    tag: 'Daily',
+    ageGroup: 'Family',
+    topics: ['New Testament', 'Jesus', 'Faith'],
+    itemType: 'Online Game',
   },
   {
-    icon: '📅',
-    title: 'Daily Challenge',
-    desc: 'New scramble, riddle, or fill-in-the-blank every 24 hours',
-    to: '/challenge',
+    icon: '❓',
+    title: 'Scripture Trivia',
+    desc: '3 difficulty levels · Timed rounds',
+    to: '/play/trivia',
+    color: '#3B82F6',
+    tag: 'All Ages',
+    ageGroup: 'Tweens',
+    topics: ['Old Testament', 'New Testament', 'Heroes'],
+    itemType: 'Online Game',
+  },
+  {
+    icon: '🏹',
+    title: 'David & Goliath',
+    desc: 'Sling stones of faith · 5 levels',
+    to: '/play/game/david-goliath',
+    color: '#EC4899',
+    tag: 'Action',
+    ageGroup: 'Elementary',
+    topics: ['Old Testament', 'Heroes'],
+    itemType: 'Online Game',
+  },
+  {
+    icon: '🧩',
+    title: 'Parable Escape Room',
+    desc: "Solve riddles from the whale & lion's den",
+    to: '/game/escape-room',
+    color: '#F97316',
+    tag: 'Puzzle',
+    ageGroup: 'Tweens',
+    topics: ['Jesus', 'Parables'],
+    itemType: 'Online Game',
+  },
+  {
+    icon: '🖨️',
+    title: 'Activity Sheets',
+    desc: 'Printable word search, coloring & more',
+    to: '/play/activity-sheets',
     color: '#14B8A6',
-    chips: ['Daily', 'Streak'],
+    tag: 'Print',
+    ageGroup: 'Family',
+    topics: ['General'],
+    itemType: 'Printable',
   },
 ];
 
@@ -142,277 +165,87 @@ const AI_TOOLS = [
   {
     icon: '🙏',
     title: 'AI Devotional',
-    desc: 'Type a verse or topic — Claude writes a full personalized devotional',
+    desc: 'Personalized devotionals in seconds',
     to: '/devotional',
     color: '#8B5CF6',
-  },
-  {
-    icon: '💑',
-    title: "Couple's Devotional",
-    desc: 'AI-generated devotions specifically for relationships and marriage growth',
-    to: '/couples-devotional',
-    color: '#EC4899',
+    ageGroup: 'Family',
+    topics: ['Jesus', 'New Testament'],
+    itemType: 'AI Tool',
   },
   {
     icon: '💬',
     title: 'Bible Character Chat',
-    desc: 'Have a real conversation with David, Moses, Paul, Esther, Mary, or Noah',
+    desc: 'Talk to Moses, David, Paul & more',
     to: '/chat/characters',
     color: '#EC4899',
+    ageGroup: 'Tweens',
+    topics: ['Heroes', 'Old Testament', 'New Testament'],
+    itemType: 'AI Tool',
   },
   {
     icon: '🎵',
     title: 'Bible Rap Generator',
-    desc: 'Rap, gospel, spoken word, worship song — all based on your verse',
+    desc: 'Scripture raps, gospel songs & worship',
     to: '/ai/rap-generator',
     color: '#A855F7',
+    ageGroup: 'Tweens',
+    topics: ['Jesus', 'New Testament'],
+    itemType: 'AI Tool',
   },
   {
     icon: '🖼️',
     title: 'Miracle Art Generator',
-    desc: 'Describe a Bible scene — get a painting description + Midjourney prompt',
+    desc: 'Describe a Bible scene, get AI art prompts',
     to: '/ai/miracle-art',
     color: '#F97316',
+    ageGroup: 'All Ages',
+    topics: ['Jesus', 'Stories'],
+    itemType: 'AI Tool',
   },
 ];
 
-const SOUL_TOOLS = [
-  {
-    icon: '📿',
-    title: 'Digital Prayer Beads',
-    desc: 'Guided breathing meditation through 10 scriptures. Peaceful and powerful.',
-    to: '/prayer-beads',
-    color: '#6366F1',
-  },
-  {
-    icon: '⏳',
-    title: 'Fasting Tracker',
-    desc: 'Plan and track your spiritual fasts with scripture reminders and health tips',
-    to: '/fasting',
-    color: '#F59E0B',
-  },
-  {
-    icon: '🎸',
-    title: 'Worship Discovery',
-    desc: 'Find new vertical music based on your current spiritual mood or theme',
-    to: '/worship',
-    color: '#8B5CF6',
-  },
-  {
-    icon: '🗣️',
-    title: 'Encouragement Wall',
-    desc: 'Share struggles anonymously. Receive only scripture and kindness in return.',
-    to: '/encouragement',
-    color: '#EC4899',
-  },
-  {
-    icon: '🎓',
-    title: 'Bible Certification',
-    desc: 'Complete courses, pass quizzes, earn real printable certificates for your shelf.',
-    to: '/certification',
-    color: '#F59E0B',
-  },
-  {
-    icon: '🌍',
-    title: 'Global Prayer Map',
-    desc: 'A live world map showing prayers from every nation in real time.',
-    to: '/prayer-map',
-    color: '#10B981',
-  },
+const AGE_OPTIONS = ['All', 'Preschool', 'Elementary', 'Tweens', 'Family'];
+const TOPIC_OPTIONS = [
+  'All',
+  'Old Testament',
+  'New Testament',
+  'Jesus',
+  'Heroes',
+  'Parables',
+  'Faith',
+  'General',
+  'Stories',
 ];
-
-const LEARNING_TOOLS = [
-  {
-    icon: '🌳',
-    title: 'Bible Family Tree',
-    desc: 'Trace the lineage from Adam to Jesus in an interactive massive visual tree',
-    to: '/family-tree',
-    color: '#10B981',
-  },
-  {
-    icon: '⌨️',
-    title: 'Scripture Typing',
-    desc: 'Memorize verses by typing them out. Great for muscle memory and accuracy.',
-    to: '/scripture-typing',
-    color: '#6366F1',
-  },
-  {
-    icon: '🗺️',
-    title: 'Interactive Bible Map',
-    desc: 'Explore 7 key biblical locations with rich story context',
-    to: '/map',
-    color: '#10B981',
-  },
-  {
-    icon: '🧠',
-    title: 'Memory Flashcards',
-    desc: '10 key scriptures with 3D flip cards and Known/Review tracking',
-    to: '/flashcards',
-    color: '#3B82F6',
-  },
-  {
-    icon: '🎙️',
-    title: 'Voice Bible Reader',
-    desc: 'Practice scripture recitation and get instant word-by-word feedback',
-    to: '/voice-reader',
-    color: '#3B82F6',
-  },
-  {
-    icon: '📝',
-    title: 'Sermon Notes',
-    desc: 'Rich text editor with auto-save and sidebar history',
-    to: '/notes',
-    color: '#F97316',
-  },
-  {
-    icon: '🔗',
-    title: 'Verse Share Cards',
-    desc: 'Canvas-based verse graphics in 6 beautiful themes to download',
-    to: '/share',
-    color: '#EC4899',
-  },
-  {
-    icon: '🖨️',
-    title: 'Activity Sheets',
-    desc: 'Printable word search, coloring, crossword, maze & more',
-    to: '/activity-sheets',
-    color: '#14B8A6',
-  },
-];
+const TYPE_OPTIONS = ['All', 'Online Game', 'Printable', 'AI Tool'];
 
 const COMMUNITY = [
   {
     icon: '🙏',
     title: 'Prayer Wall',
-    desc: 'Realtime community prayer with live sync',
+    desc: 'Real-time community prayer',
     to: '/prayer',
     color: '#10B981',
   },
   {
+    icon: '🏆',
+    title: 'Leaderboard',
+    desc: 'Top streaks, badges & trivia champs',
+    to: '/leaderboard',
+    color: '#F59E0B',
+  },
+  {
     icon: '💬',
     title: 'Chat Rooms',
-    desc: '6 rooms by topic — Family, Youth, Worship, Testimony & more',
+    desc: '6 rooms — Family, Youth, Worship & more',
     to: '/community/chat',
     color: '#8B5CF6',
   },
   {
-    icon: '👨‍👩‍👧',
-    title: 'Family Groups',
-    desc: 'Create or join a family group with invite codes & leaderboards',
-    to: '/community/family',
-    color: '#EC4899',
-  },
-  {
     icon: '⛪',
-    title: 'Church Calendar',
-    desc: 'Post and discover local church events near you',
-    to: '/community/events',
-    color: '#F59E0B',
-  },
-];
-
-const STATS = [
-  { n: '30+', l: 'Features', color: '#60A5FA' },
-  { n: '12', l: 'Bible Games', color: '#C084FC' },
-  { n: 'AI', l: 'Powered Tools', color: '#F472B6' },
-  { n: '🆓', l: 'Always Free', color: '#4ADE80' },
-];
-
-// ── Components ────────────────────────────────────────
-
-function SectionPill({ color, bg, children }) {
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        fontSize: '.72rem',
-        fontWeight: 800,
-        letterSpacing: '.5px',
-        textTransform: 'uppercase',
-        padding: '5px 14px',
-        borderRadius: 100,
-        background: bg,
-        color,
-        marginBottom: 12,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SectionHeader({ pill, pillColor, pillBg, title, sub, titleColor, subColor }) {
-  return (
-    <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
-      <SectionPill color={pillColor} bg={pillBg}>
-        {pill}
-      </SectionPill>
-      <h2
-        style={{
-          fontFamily: "'Baloo 2',cursive",
-          fontSize: 'clamp(1.6rem,3.5vw,2.6rem)',
-          fontWeight: 800,
-          color: titleColor || 'var(--ink)',
-          lineHeight: 1.2,
-          marginBottom: sub ? 10 : 0,
-        }}
-      >
-        {title}
-      </h2>
-      {sub && (
-        <p
-          style={{
-            fontSize: '.9rem',
-            color: subColor || 'var(--ink3)',
-            fontWeight: 500,
-            maxWidth: 520,
-            margin: '0 auto',
-          }}
-        >
-          {sub}
-        </p>
-      )}
-    </div>
-  );
-}
-
-const STICKY_CARDS = [
-  {
-    icon: '🎮',
-    title: 'Scripture Trivia',
-    desc: 'Test your Bible knowledge with timed rounds',
-    to: '/trivia',
+    title: 'Church Finder',
+    desc: 'Find churches near you',
+    to: '/church-finder',
     color: '#3B82F6',
-  },
-  {
-    icon: '🙏',
-    title: 'AI Devotional',
-    desc: 'Get a personalized devotion in seconds',
-    to: '/devotional',
-    color: '#8B5CF6',
-  },
-  {
-    icon: '🎵',
-    title: 'Bible Rap Generator',
-    desc: 'Create scripture raps and worship songs',
-    to: '/ai/rap-generator',
-    color: '#A855F7',
-  },
-  {
-    icon: '📿',
-    title: 'Prayer Beads',
-    desc: 'Meditate through 10 powerful scriptures',
-    to: '/prayer-beads',
-    color: '#6366F1',
-  },
-  {
-    icon: '🌍',
-    title: 'Global Prayer Map',
-    desc: 'See real-time prayers from around the world',
-    to: '/prayer-map',
-    color: '#10B981',
   },
 ];
 
@@ -421,127 +254,135 @@ export default function Home() {
   const { streak, checkedToday, checkIn } = useStreak();
   const { kidsMode } = useKidsMode();
   const { isChildSession } = useChildSwitcher();
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const prefersReducedMotion = useReducedMotion();
 
-  const [heroParticles] = useState(() =>
-    Array.from({ length: 22 }, (_, i) => ({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      size: 3 + Math.random() * 8,
-      color: ['#60A5FA', '#F472B6', '#34D399', '#FCD34D', '#C084FC', '#FB923C'][i % 6],
-      dur: 5 + Math.random() * 7,
-      delay: Math.random() * -8,
-      opacity: 0.3 + Math.random() * 0.35,
-    }))
-  );
+  // A/B tests
+  const { variant: heroCta, trackConversion: trackHeroCta } = useABTest('hero_cta');
+  const {
+    variant: proMsg,
+    label: proLabel,
+    trackConversion: trackPro,
+  } = useABTest('pro_messaging');
 
-  if (kidsMode || isChildSession) {
-    return <KidsDashboard />;
-  }
+  // Seasonal marketing hook
+  const seasonalHook = getSeasonalMarketingHook();
 
+  // Animation variants — disabled when reduced motion preferred
+  const fadeUp = prefersReducedMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
+
+  const stagger = prefersReducedMotion
+    ? {}
+    : { visible: { transition: { staggerChildren: 0.12 } } };
+
+  const btnVariant = prefersReducedMotion
+    ? {}
+    : {
+        hidden: { opacity: 0, scale: 0.85, y: 16 },
+        visible: {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          transition: {
+            type: 'spring',
+            stiffness: kidsMode ? 500 : 380,
+            damping: kidsMode ? 18 : 22,
+          },
+        },
+      };
+
+  const [ageFilter, setAgeFilter] = useState(searchParams.get('age') || 'All');
+  const [topicFilter, setTopicFilter] = useState(searchParams.get('topic') || 'All');
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'All');
   const todayVerse = DAILY_VERSES[new Date().getDay()];
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+
+    if (ageFilter && ageFilter !== 'All') params.set('age', ageFilter);
+    else params.delete('age');
+
+    if (topicFilter && topicFilter !== 'All') params.set('topic', topicFilter);
+    else params.delete('topic');
+
+    if (typeFilter && typeFilter !== 'All') params.set('type', typeFilter);
+    else params.delete('type');
+
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ageFilter, topicFilter, typeFilter]);
+
+  if (kidsMode || isChildSession) return <KidsDashboard />;
+
+  const allItems = [...FEATURED_GAMES, ...AI_TOOLS];
+
+  const filteredItems = allItems.filter((item) => {
+    const ageOk = ageFilter === 'All' || item.ageGroup === ageFilter;
+    const topicOk = topicFilter === 'All' || (item.topics && item.topics.includes(topicFilter));
+    const typeOk = typeFilter === 'All' || item.itemType === typeFilter;
+    return ageOk && topicOk && typeOk;
+  });
+
+  const filteredGames = filteredItems.filter((item) => item.itemType === 'Online Game');
+  const filteredAiTools = filteredItems.filter((item) => item.itemType === 'AI Tool');
+
   return (
-    <div style={{ background: 'var(--bg)', fontFamily: 'Poppins,sans-serif', overflowX: 'hidden' }}>
-      {/* ═══════════════════════════════════════════════
+    <div style={{ background: '#FAFBFF', fontFamily: 'Poppins,sans-serif', overflowX: 'hidden' }}>
+      {/* ══════════════════════════════════════════
           HERO
-      ═══════════════════════════════════════════════ */}
-      {/* ── ADULT HERO ─────────────────────────────── */}
+      ══════════════════════════════════════════ */}
       <section
         style={{
           position: 'relative',
-          minHeight: '92vh',
+          minHeight: '90vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
           padding: '80px 24px 60px',
           textAlign: 'center',
+          background: 'linear-gradient(135deg,#1E1B4B 0%,#312E81 30%,#0F172A 60%,#064E3B 100%)',
         }}
       >
-        {/* Deep gradient bg */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(160deg,#0F0F1A 0%,#0D1B2A 35%,#1A0A2E 70%,#0D1F14 100%)',
-            zIndex: 0,
-          }}
-        />
-        {/* Mesh blobs */}
-        <div
-          style={{
-            position: 'absolute',
-            width: 700,
-            height: 700,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(99,102,241,.14) 0%,transparent 70%)',
-            top: '-20%',
-            left: '-15%',
-            zIndex: 0,
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            width: 600,
-            height: 600,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(236,72,153,.1) 0%,transparent 70%)',
-            bottom: '-10%',
-            right: '-10%',
-            zIndex: 0,
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            width: 500,
-            height: 500,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(16,185,129,.08) 0%,transparent 70%)',
-            top: '40%',
-            left: '60%',
-            zIndex: 0,
-            pointerEvents: 'none',
-          }}
-        />
-        {/* Floating particles */}
-        {heroParticles.map((p, i) => (
-          <div
+        {/* Animated blobs */}
+        {[
+          ['#60A5FA', '15%', '10%'],
+          ['#F472B6', '80%', '20%'],
+          ['#34D399', '10%', '70%'],
+          ['#FCD34D', '75%', '75%'],
+        ].map(([c, l, t], i) => (
+          <motion.div
             key={i}
+            initial={prefersReducedMotion ? {} : { opacity: 0 }}
+            animate={prefersReducedMotion ? {} : { opacity: 1 }}
+            transition={{ delay: i * 0.2, duration: 1.2 }}
             style={{
               position: 'absolute',
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              width: p.size,
-              height: p.size,
+              width: 300 + i * 80,
+              height: 300 + i * 80,
               borderRadius: '50%',
-              background: p.color,
-              opacity: p.opacity,
-              animation: `floatP ${p.dur}s ease-in-out ${p.delay}s infinite`,
-              zIndex: 0,
+              background: `radial-gradient(circle,${c}22 0%,transparent 70%)`,
+              left: l,
+              top: t,
               pointerEvents: 'none',
+              animation: `floatP ${6 + i * 2}s ease-in-out ${i * -1.5}s infinite`,
             }}
           />
         ))}
-        {/* Grid overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px)',
-            backgroundSize: '60px 60px',
-            zIndex: 0,
-            pointerEvents: 'none',
-          }}
-        />
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 760 }}>
-          <div
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+          style={{ position: 'relative', zIndex: 1, maxWidth: 800 }}
+        >
+          {/* Badge */}
+          <motion.div
+            variants={fadeUp}
+            transition={{ duration: 0.5 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -550,249 +391,668 @@ export default function Home() {
               fontWeight: 800,
               letterSpacing: 1,
               textTransform: 'uppercase',
-              background: 'rgba(99,102,241,.18)',
+              background: 'rgba(99,102,241,.2)',
               color: '#A5B4FC',
-              border: '1px solid rgba(99,102,241,.25)',
+              border: '1px solid rgba(99,102,241,.3)',
               padding: '6px 18px',
               borderRadius: 100,
-              marginBottom: 28,
-              animation: 'fadeDown .6s ease both',
+              marginBottom: 24,
             }}
           >
             <span
               style={{
-                display: 'inline-block',
                 width: 7,
                 height: 7,
                 borderRadius: '50%',
                 background: '#4ADE80',
                 boxShadow: '0 0 8px #4ADE80',
-                animation: 'glow 2s ease-in-out infinite',
+                display: 'inline-block',
               }}
             />
-            60+ Features · AI-Powered · 100% Free · Always Growing
-          </div>
-          <h1
+            60+ Features · AI-Powered · 100% Free
+          </motion.div>
+
+          {/* Title — staggered words */}
+          <motion.h1
+            variants={stagger}
             style={{
               fontFamily: "'Baloo 2',cursive",
-              fontSize: 'clamp(2.4rem,7vw,5.2rem)',
+              fontSize: 'clamp(2.8rem,8vw,5.5rem)',
               fontWeight: 800,
               color: 'white',
-              lineHeight: 1.1,
-              marginBottom: 22,
-              animation: 'fadeUp .7s .1s ease both',
+              lineHeight: 1.05,
+              marginBottom: 20,
             }}
           >
-            Where Faith
+            <motion.span
+              variants={fadeUp}
+              transition={{ duration: 0.45 }}
+              style={{ display: 'inline-block', marginRight: '0.25em' }}
+            >
+              Where
+            </motion.span>
+            <motion.span
+              variants={fadeUp}
+              transition={{ duration: 0.45 }}
+              style={{ display: 'inline-block', marginRight: '0.25em' }}
+            >
+              Faith
+            </motion.span>
             <br />
-            <span
+            <motion.span
+              variants={
+                prefersReducedMotion
+                  ? {}
+                  : {
+                      hidden: { opacity: 0, scale: 0.7, y: 20 },
+                      visible: {
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        transition: { type: 'spring', stiffness: 300, damping: 18, delay: 0.1 },
+                      },
+                    }
+              }
               style={{
+                display: 'inline-block',
                 background: 'linear-gradient(90deg,#60A5FA,#C084FC,#F472B6,#FCD34D,#34D399)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                backgroundSize: '200%',
-                animation: 'gradShift 4s linear infinite',
               }}
             >
               Meets Fun
-            </span>
-          </h1>
-          <p
+            </motion.span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            variants={fadeUp}
+            transition={{ duration: 0.5 }}
             style={{
-              fontSize: 'clamp(.9rem,2vw,1.1rem)',
-              color: 'rgba(255,255,255,.55)',
+              fontSize: 'clamp(.95rem,2vw,1.15rem)',
+              color: 'rgba(255,255,255,.6)',
               fontWeight: 500,
               lineHeight: 1.75,
-              marginBottom: 36,
-              maxWidth: 580,
-              margin: '0 auto 36px',
-              animation: 'fadeUp .7s .2s ease both',
+              marginBottom: 40,
+              maxWidth: 560,
+              margin: '0 auto 40px',
             }}
           >
-            Bible games, AI devotionals, voice reading, global prayer map, escape rooms,
-            certification, and so much more — all completely free for families who love God's Word.
-          </p>
-          <div
+            Interactive Bible learning for kids &amp; families — games, AI devotionals, prayer, and
+            so much more. Completely free.
+          </motion.p>
+
+          {/* Buttons */}
+          <motion.div
+            variants={stagger}
             style={{
               display: 'flex',
               gap: 14,
               justifyContent: 'center',
               flexWrap: 'wrap',
-              marginBottom: 48,
-              animation: 'fadeUp .7s .3s ease both',
+              marginBottom: 32,
             }}
           >
-            <Link
-              to="/trivia"
-              className="btn btn-lg"
-              style={{
-                background: 'linear-gradient(135deg,#3B82F6,#8B5CF6)',
-                color: 'white',
-                border: 'none',
-                boxShadow: '0 8px 30px rgba(99,102,241,.4)',
-                fontWeight: 800,
-                letterSpacing: 0.3,
-              }}
+            <motion.div
+              variants={btnVariant}
+              whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
+              whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              🎮 Play Bible Trivia
-            </Link>
-            <Link
-              to="/quiz/character"
-              className="btn btn-lg"
-              style={{
-                background: 'rgba(255,255,255,.08)',
-                color: 'white',
-                border: '1.5px solid rgba(255,255,255,.15)',
-                backdropFilter: 'blur(8px)',
-                fontWeight: 700,
-              }}
+              <Link
+                to="/trivia"
+                onClick={() => trackHeroCta('click')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '14px 28px',
+                  borderRadius: 16,
+                  background: 'linear-gradient(135deg,#3B82F6,#8B5CF6)',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 8px 30px rgba(99,102,241,.5)',
+                }}
+              >
+                {heroCta === 'ai_fun'
+                  ? '✨ Try AI Fun'
+                  : heroCta === 'streak'
+                    ? '🔥 Start Your Streak'
+                    : '🎮 Start Playing Games'}
+              </Link>
+            </motion.div>
+
+            <motion.div
+              variants={btnVariant}
+              whileHover={prefersReducedMotion ? {} : { scale: 1.04, y: -2 }}
+              whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              🧬 What Character Are You?
-            </Link>
-            <Link
-              to="/ai/rap-generator"
-              className="btn btn-lg"
-              style={{
-                background: 'rgba(168,85,247,.15)',
-                color: '#C084FC',
-                border: '1.5px solid rgba(168,85,247,.25)',
-                fontWeight: 700,
-              }}
+              <Link
+                to="/devotional"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '14px 28px',
+                  borderRadius: 16,
+                  background: 'rgba(255,255,255,.1)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  border: '1.5px solid rgba(255,255,255,.2)',
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                🙏 Try AI Devotional
+              </Link>
+            </motion.div>
+
+            <motion.div
+              variants={btnVariant}
+              whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
+              whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              🎵 Bible Rap Generator
-            </Link>
-          </div>
-          {/* Hero feature pills */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 10,
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              animation: 'fadeUp .7s .4s ease both',
-            }}
+              <Link
+                to="/premium"
+                onClick={() => trackPro('click')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '14px 28px',
+                  borderRadius: 16,
+                  background: 'linear-gradient(135deg,#F59E0B,#F97316)',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 8px 24px rgba(245,158,11,.4)',
+                }}
+              >
+                {proLabel || '💎 Go Pro'}
+              </Link>
+            </motion.div>
+
+            {!user && (
+              <motion.div
+                variants={btnVariant}
+                whileHover={prefersReducedMotion ? {} : { scale: 1.04 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+              >
+                <Link
+                  to="/auth"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 28px',
+                    borderRadius: 16,
+                    background: 'rgba(255,255,255,.08)',
+                    color: 'rgba(255,255,255,.85)',
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    textDecoration: 'none',
+                    border: '1.5px solid rgba(255,255,255,.18)',
+                    backdropFilter: 'blur(8px)',
+                  }}
+                >
+                  🔐 Sign In
+                </Link>
+              </motion.div>
+            )}
+          </motion.div>
+
+          {/* Feature pills */}
+          <motion.div
+            variants={fadeUp}
+            transition={{ duration: 0.5 }}
+            style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {[
-              '🌍 Global Prayer Map',
+              '🌍 Prayer Map',
               '📿 Prayer Beads',
               '🏃 Scripture Runner',
               '🎰 Spin the Verse',
               '🧩 Escape Room',
               '🎓 Certification',
-            ].map((pill, i) => (
-              <span
+            ].map((p, i) => (
+              <motion.span
                 key={i}
+                initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
+                animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + i * 0.06, duration: 0.35 }}
                 style={{
                   fontSize: '.7rem',
                   fontWeight: 700,
                   padding: '5px 12px',
                   borderRadius: 100,
-                  background: 'rgba(255,255,255,.06)',
+                  background: 'rgba(255,255,255,.07)',
                   color: 'rgba(255,255,255,.5)',
                   border: '1px solid rgba(255,255,255,.1)',
                 }}
               >
-                {pill}
-              </span>
+                {p}
+              </motion.span>
+            ))}
+          </motion.div>
+
+          {/* Stats bar */}
+          <motion.div
+            variants={fadeUp}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: 'flex',
+              gap: 24,
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginTop: 40,
+              paddingTop: 32,
+              borderTop: '1px solid rgba(255,255,255,.08)',
+            }}
+          >
+            {[
+              ['10K+', 'Families'],
+              ['60+', 'Features'],
+              ['100%', 'Free'],
+              ['40+', 'Countries'],
+            ].map(([n, l], i) => (
+              <motion.div
+                key={l}
+                initial={prefersReducedMotion ? {} : { opacity: 0, y: 12 }}
+                animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+                transition={{ delay: 1 + i * 0.1, duration: 0.4 }}
+                style={{ textAlign: 'center' }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Baloo 2',cursive",
+                    fontSize: '1.6rem',
+                    fontWeight: 800,
+                    color: 'white',
+                    lineHeight: 1,
+                  }}
+                >
+                  {n}
+                </div>
+                <div
+                  style={{
+                    fontSize: '.68rem',
+                    fontWeight: 700,
+                    color: 'rgba(255,255,255,.4)',
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    marginTop: 3,
+                  }}
+                >
+                  {l}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          DISCOVER SCRIPTURE EXPLORER
+      ══════════════════════════════════════════ */}
+      <section 
+        style={{ 
+          padding: '100px 24px', 
+          background: '#FFFBF0', // earth-cream
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: 60 }}>
+            <span style={{ 
+              display: 'inline-block',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              color: '#82917F', // earth-sage
+              marginBottom: 12
+            }}>
+              Unfold the Word
+            </span>
+            <h2 style={{ 
+              fontFamily: "'Baloo 2', cursive",
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              color: '#4D3A2B', // earth-brown
+              lineHeight: 1.1
+            }}>
+              Discover Scripture Explorer
+            </h2>
+          </div>
+
+          <div 
+            style={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 32,
+              position: 'relative'
+            }}
+          >
+            {[
+              {
+                title: 'Virtual Bible World',
+                desc: 'Immerse yourself in 3D Bible lands and stories',
+                icon: '🌍',
+                bg: '#F5F1E6', // earth-beige
+                accent: '#C05C33', // terracotta
+                to: '/explore/world'
+              },
+              {
+                title: 'Voice Bible Reader',
+                desc: "Listen to God's Word beautifully narrated",
+                icon: '🎙️',
+                bg: '#F1F3FA', // light mist
+                accent: '#9EB7C2', // misty blue
+                to: '/explore/voice-reader'
+              },
+              {
+                title: 'Bible Timeline',
+                desc: 'Explore the full story of Scripture through history',
+                icon: '📜',
+                bg: '#FFF7ED', // warm cream
+                accent: '#D4AF37', // gold
+                to: '/explore/timeline'
+              },
+              {
+                title: 'Prayer Wall',
+                desc: 'Share prayers and lift each other up (moderated for families)',
+                icon: '🌍',
+                bg: '#ECFDF5', // sage light
+                accent: '#82917F', // sage
+                to: '/prayer'
+              },
+              {
+                title: 'Kids Mode',
+                desc: 'Safe, joyful, faith-building adventures for children',
+                icon: '🎨',
+                bg: '#FFFBEB', // joy light
+                accent: '#FBBF24', // joy gold
+                to: '/kids'
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                whileHover={{ 
+                  scale: 1.03, 
+                  y: -8,
+                  boxShadow: `0 20px 40px -10px ${card.accent}33`
+                }}
+                style={{
+                  background: card.bg,
+                  borderRadius: 24,
+                  padding: 40,
+                  border: `1.5px solid ${card.accent}15`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 20,
+                  cursor: 'pointer',
+                  position: 'sticky',
+                  top: 100 + (i * 20), // staggered sticky effect
+                  zIndex: i,
+                  height: '100%',
+                  minHeight: 280,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                  transition: 'background 0.3s'
+                }}
+              >
+                <div style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 20,
+                  background: card.accent,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.8rem',
+                  boxShadow: `0 8px 16px ${card.accent}44`
+                }}>
+                  {card.icon}
+                </div>
+                <div>
+                  <h3 style={{ 
+                    fontFamily: "'Baloo 2', cursive", 
+                    fontSize: '1.5rem', 
+                    color: '#4D3A2B',
+                    marginBottom: 8
+                  }}>
+                    {card.title}
+                  </h3>
+                  <p style={{ 
+                    fontSize: '0.95rem', 
+                    color: '#6D5A4B',
+                    lineHeight: 1.6,
+                    fontWeight: 500
+                  }}>
+                    {card.desc}
+                  </p>
+                </div>
+                <Link 
+                  to={card.to} 
+                  style={{ 
+                    marginTop: 'auto',
+                    color: card.accent,
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  Explore Now <span>→</span>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
-        {/* Scroll indicator */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 28,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 6,
-            animation: 'fadeUp 1s .8s ease both',
-          }}
-        >
-          <span
-            style={{
-              fontSize: '.62rem',
-              fontWeight: 700,
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,.25)',
-            }}
-          >
-            Scroll
-          </span>
-          <div
-            style={{
-              width: 1.5,
-              height: 40,
-              background: 'linear-gradient(180deg,rgba(255,255,255,.3),transparent)',
-              animation: 'scrollLine 2s ease-in-out infinite',
-            }}
-          />
+        
+        {/* Decorative background element */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-10%',
+          right: '-5%',
+          fontSize: '20rem',
+          opacity: 0.03,
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 0
+        }}>
+          🕊️
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          STATS BAR
-      ═══════════════════════════════════════════════ */}
-      <div
-        style={{
-          background: 'linear-gradient(90deg,#0F0F1A,#1A0A2E,#0D1B2A)',
-          borderTop: '1px solid rgba(255,255,255,.07)',
-          borderBottom: '1px solid rgba(255,255,255,.07)',
-          padding: '22px 24px',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 860,
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4,1fr)',
-            gap: 8,
-          }}
-          className="home-grid-4"
-        >
-          {STATS.map((s, i) => (
-            <div
-              key={i}
-              className="reveal"
-              style={{ textAlign: 'center', transitionDelay: `${i * 0.07}s` }}
-            >
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: 'clamp(1.4rem,3vw,2rem)',
-                  fontWeight: 800,
-                  color: s.color,
-                  lineHeight: 1,
-                  marginBottom: 3,
-                }}
-              >
-                {s.n}
-              </div>
-              <div
-                style={{
-                  fontSize: '.68rem',
-                  fontWeight: 600,
-                  color: 'rgba(255,255,255,.35)',
-                  letterSpacing: 0.5,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {s.l}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ══════════════════════════════════════════
+          JOURNEY CARDS
+      ══════════════════════════════════════════ */}
+      <JourneyCards />
 
-      {/* ═══════════════════════════════════════════════
-          STREAK + VERSE — Side by side
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
+      {/* ══════════════════════════════════════════
+          FILTERS
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '60px 24px', background: 'white' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                fontSize: '.72rem',
+                fontWeight: 800,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '5px 14px',
+                borderRadius: 100,
+                background: '#EFF6FF',
+                color: '#3B82F6',
+                marginBottom: 12,
+              }}
+            >
+              🧰 Filter Resources
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: 'clamp(1.6rem,3.5vw,2.4rem)',
+                fontWeight: 800,
+                color: '#1E1B4B',
+                marginBottom: 8,
+              }}
+            >
+              Show games, sheets, and AI tools by category
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '.9rem' }}>
+              Use filters to find the exact learning resource you want
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 10,
+              justifyContent: 'center',
+              marginBottom: 20,
+            }}
+          >
+            <select
+              value={ageFilter}
+              onChange={(e) => setAgeFilter(e.target.value)}
+              style={{
+                minWidth: 160,
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: '1px solid #D1D5DB',
+                fontSize: '.9rem',
+              }}
+            >
+              {AGE_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <select
+              value={topicFilter}
+              onChange={(e) => setTopicFilter(e.target.value)}
+              style={{
+                minWidth: 180,
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: '1px solid #D1D5DB',
+                fontSize: '.9rem',
+              }}
+            >
+              {TOPIC_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              style={{
+                minWidth: 170,
+                padding: '10px 12px',
+                borderRadius: 10,
+                border: '1px solid #D1D5DB',
+                fontSize: '.9rem',
+              }}
+            >
+              {TYPE_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))',
+              gap: 16,
+            }}
+          >
+            {AGE_GROUPS.map((ag) => {
+              const active = ageFilter === ag.label;
+              return (
+                <button
+                  key={ag.label}
+                  onClick={() => setAgeFilter(active ? 'All' : ag.label)}
+                  style={{
+                    padding: '25px 18px',
+                    borderRadius: 18,
+                    border: `2.5px solid ${active ? ag.color : '#E5E7EB'}`,
+                    background: active ? ag.bg : 'white',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    transition: 'all .2s',
+                    boxShadow: active ? `0 8px 24px ${ag.color}30` : '0 2px 8px rgba(0,0,0,.04)',
+                  }}
+                >
+                  <div style={{ fontSize: '2.4rem', marginBottom: 10 }}>{ag.emoji}</div>
+                  <div
+                    style={{
+                      fontFamily: "'Baloo 2',cursive",
+                      fontSize: '1.05rem',
+                      fontWeight: 800,
+                      color: ag.color,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {ag.label}
+                  </div>
+                  <div style={{ fontSize: '.75rem', color: '#9CA3AF', fontWeight: 600 }}>
+                    Ages {ag.age}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {(ageFilter !== 'All' || topicFilter !== 'All' || typeFilter !== 'All') && (
+            <div
+              style={{ textAlign: 'center', marginTop: 18, color: '#4B5563', fontSize: '.83rem' }}
+            >
+              Showing: {ageFilter}, {topicFilter}, {typeFilter}.
+              <button
+                onClick={() => {
+                  setAgeFilter('All');
+                  setTopicFilter('All');
+                  setTypeFilter('All');
+                }}
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  color: '#3B82F6',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  marginLeft: 6,
+                }}
+              >
+                Reset filters
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          STREAK + VERSE
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '0 24px 60px', background: 'white' }}>
         <div
           style={{
             maxWidth: 960,
@@ -804,7 +1064,7 @@ export default function Home() {
           }}
           className="home-grid-streak"
         >
-          {/* Streak card */}
+          {/* Streak */}
           <div
             className="reveal"
             style={{
@@ -817,7 +1077,6 @@ export default function Home() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 0 1px rgba(249,115,22,.05), 0 20px 60px rgba(249,115,22,.08)',
             }}
           >
             <div
@@ -839,7 +1098,6 @@ export default function Home() {
                 color: '#FCD34D',
                 lineHeight: 1,
                 marginBottom: 4,
-                textShadow: '0 0 30px rgba(252,211,77,.3)',
               }}
             >
               {streak}
@@ -873,13 +1131,25 @@ export default function Home() {
                 fontWeight: 800,
                 cursor: checkedToday ? 'default' : 'pointer',
                 transition: 'all .2s',
-                boxShadow: checkedToday ? 'none' : '0 4px 20px rgba(249,115,22,.35)',
               }}
             >
               {checkedToday ? '✅ Checked In Today!' : '✅ Check In Today'}
             </button>
+            {!user && (
+              <Link
+                to="/auth"
+                style={{
+                  marginTop: 10,
+                  fontSize: '.72rem',
+                  color: 'rgba(252,211,77,.5)',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                }}
+              >
+                🔐 Sign in to save your streak
+              </Link>
+            )}
           </div>
-
           {/* Verse of the Day */}
           <div
             className="reveal"
@@ -890,7 +1160,6 @@ export default function Home() {
               padding: '32px 36px',
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: '0 0 0 1px rgba(99,102,241,.05), 0 20px 60px rgba(99,102,241,.08)',
             }}
           >
             <div
@@ -939,10 +1208,32 @@ export default function Home() {
             >
               "{todayVerse.text}"
             </p>
-            <div style={{ fontSize: '.84rem', fontWeight: 700, color: 'rgba(165,180,252,.7)' }}>
+            <div
+              style={{
+                fontSize: '.84rem',
+                fontWeight: 700,
+                color: 'rgba(165,180,252,.7)',
+                marginBottom: 20,
+              }}
+            >
               — {todayVerse.ref}
             </div>
-            <div style={{ display: 'flex', gap: 10, marginTop: 22, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <Link
+                to="/voice-reader"
+                style={{
+                  fontSize: '.76rem',
+                  fontWeight: 700,
+                  padding: '7px 16px',
+                  borderRadius: 10,
+                  background: 'rgba(99,102,241,.2)',
+                  color: '#A5B4FC',
+                  border: '1px solid rgba(99,102,241,.2)',
+                  textDecoration: 'none',
+                }}
+              >
+                🎙️ Read Aloud
+              </Link>
               <Link
                 to="/share"
                 style={{
@@ -954,7 +1245,6 @@ export default function Home() {
                   color: 'rgba(255,255,255,.7)',
                   border: '1px solid rgba(255,255,255,.1)',
                   textDecoration: 'none',
-                  transition: 'all .2s',
                 }}
               >
                 🔗 Share Card
@@ -966,458 +1256,267 @@ export default function Home() {
                   fontWeight: 700,
                   padding: '7px 16px',
                   borderRadius: 10,
-                  background: 'rgba(99,102,241,.2)',
-                  color: '#A5B4FC',
-                  border: '1px solid rgba(99,102,241,.2)',
-                  textDecoration: 'none',
-                  transition: 'all .2s',
-                }}
-              >
-                🙏 Get Devotional
-              </Link>
-              <Link
-                to="/prayer-beads"
-                style={{
-                  fontSize: '.76rem',
-                  fontWeight: 700,
-                  padding: '7px 16px',
-                  borderRadius: 10,
                   background: 'rgba(168,85,247,.15)',
                   color: '#C084FC',
                   border: '1px solid rgba(168,85,247,.2)',
                   textDecoration: 'none',
-                  transition: 'all .2s',
                 }}
               >
-                📿 Meditate
+                🙏 Get Devotional
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          NEVER DONE BEFORE — SPOTLIGHT
-      ═══════════════════════════════════════════════ */}
-      <section
-        style={{
-          padding: '64px 24px',
-          background: 'linear-gradient(180deg,#0A0A16 0%,#0D0D1A 100%)',
-        }}
-      >
+      <SeasonalBanner season="easter" />
+
+      {/* ══════════════════════════════════════════
+          WEEKLY CHALLENGE
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '0 24px 40px', background: 'white' }}>
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="✨ Never Done Before on a Bible Site"
-            pillColor="#A5B4FC"
-            pillBg="rgba(165,180,252,.12)"
-            title="Features That Have Never Existed"
-            sub="We built things no Christian website has ever shipped. These are genuinely new."
-          />
-          <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}
-            className="home-grid-2"
-          >
-            {NEW_FEATURES.map((f, i) => (
-              <Link
-                key={i}
-                to={f.to}
-                className="reveal"
-                style={{
-                  textDecoration: 'none',
-                  display: 'block',
-                  transitionDelay: `${i * 0.07}s`,
-                }}
-              >
-                <div
-                  style={{
-                    borderRadius: 22,
-                    border: `1.5px solid ${f.color}33`,
-                    background: `linear-gradient(135deg,${f.color}10,${f.color}05,transparent)`,
-                    padding: '28px 26px',
-                    height: '100%',
-                    transition: 'all .3s',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = `0 20px 60px ${f.glow}`;
-                    e.currentTarget.style.borderColor = f.color + '66';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '';
-                    e.currentTarget.style.borderColor = f.color + '33';
-                    e.currentTarget.style.transform = '';
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 16,
-                      right: 16,
-                      fontSize: '.6rem',
-                      fontWeight: 800,
-                      letterSpacing: 1,
-                      textTransform: 'uppercase',
-                      background: f.color,
-                      color: 'white',
-                      padding: '3px 9px',
-                      borderRadius: 100,
-                    }}
-                  >
-                    {f.label}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '2.8rem',
-                      marginBottom: 14,
-                      filter: `drop-shadow(0 0 12px ${f.color}66)`,
-                    }}
-                  >
-                    {f.icon}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Baloo 2',cursive",
-                      fontSize: '1.15rem',
-                      fontWeight: 800,
-                      color: 'white',
-                      marginBottom: 8,
-                      lineHeight: 1.3,
-                    }}
-                  >
-                    {f.title}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '.84rem',
-                      color: 'rgba(255,255,255,.45)',
-                      fontWeight: 500,
-                      lineHeight: 1.65,
-                    }}
-                  >
-                    {f.desc}
-                  </div>
-                  <div
-                    style={{ marginTop: 18, fontSize: '.76rem', fontWeight: 800, color: f.color }}
-                  >
-                    Try it now →
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <WeeklyChallenge />
         </div>
       </section>
 
-      {/* AdSense: Between Never Done Before and Games */}
-      <div style={{ padding: '0 24px', maxWidth: 960, margin: '0 auto' }}>
-        <AdBanner />
-      </div>
-
-      {/* ═══════════════════════════════════════════════
-          GAMES ARCADE
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
+      {/* ══════════════════════════════════════════
+          FEATURED PLAY & LEARN
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '60px 24px', background: '#F8FAFF' }}>
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="🎮 Games Arcade"
-            pillColor="#60A5FA"
-            pillBg="rgba(96,165,250,.12)"
-            title="Play Your Way Through Scripture"
-            sub="6 fully-built games — from action to puzzle to endless runner. All rooted in the Bible."
-          />
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                fontSize: '.72rem',
+                fontWeight: 800,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '5px 14px',
+                borderRadius: 100,
+                background: '#EFF6FF',
+                color: '#3B82F6',
+                marginBottom: 12,
+              }}
+            >
+              🎮 Play &amp; Learn
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: 'clamp(1.6rem,3.5vw,2.4rem)',
+                fontWeight: 800,
+                color: '#1E1B4B',
+                marginBottom: 8,
+              }}
+            >
+              Featured Games &amp; Activities
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '.9rem' }}>
+              Jump in and start learning God's Word through play
+            </p>
+          </div>
           <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}
-            className="home-grid-3"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))',
+              gap: 18,
+            }}
           >
-            {GAMES.map((g, i) => (
-              <Link
+            {filteredGames.length === 0 && (
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  padding: '26px',
+                  color: '#6B7280',
+                  textAlign: 'center',
+                }}
+              >
+                No games found for selected filters.
+              </div>
+            )}
+            {filteredGames.map((g, i) => (
+              <div
                 key={i}
-                to={g.to}
                 className="reveal"
                 style={{
-                  textDecoration: 'none',
-                  display: 'block',
-                  transitionDelay: `${i * 0.06}s`,
+                  background: 'white',
+                  borderRadius: 20,
+                  border: '1.5px solid #E5E7EB',
+                  overflow: 'hidden',
+                  transition: 'all .25s',
+                  transitionDelay: `${i * 0.05}s`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-5px)';
+                  e.currentTarget.style.boxShadow = `0 16px 40px ${g.color}20`;
+                  e.currentTarget.style.borderColor = g.color + '55';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = '';
+                  e.currentTarget.style.boxShadow = '';
+                  e.currentTarget.style.borderColor = '#E5E7EB';
                 }}
               >
                 <div
                   style={{
-                    background: 'var(--surface)',
-                    borderRadius: 20,
-                    border: '1.5px solid var(--border)',
-                    padding: '22px 20px',
-                    height: '100%',
-                    transition: 'all .28s',
-                    cursor: 'pointer',
-                    borderTop: `3px solid ${g.color}`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = `0 16px 40px ${g.color}18`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.boxShadow = '';
+                    height: 100,
+                    background: `linear-gradient(135deg,${g.color}18,${g.color}08)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '3rem',
+                    position: 'relative',
                   }}
                 >
-                  <div style={{ fontSize: '2.4rem', marginBottom: 12 }}>{g.icon}</div>
+                  {g.icon}
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                      fontSize: '.62rem',
+                      fontWeight: 800,
+                      padding: '3px 8px',
+                      borderRadius: 99,
+                      background: g.color,
+                      color: 'white',
+                    }}
+                  >
+                    {g.tag}
+                  </span>
+                </div>
+                <div style={{ padding: '16px 18px' }}>
                   <div
                     style={{
                       fontFamily: "'Baloo 2',cursive",
                       fontSize: '1rem',
                       fontWeight: 800,
-                      color: 'var(--ink)',
-                      marginBottom: 6,
+                      color: '#1E1B4B',
+                      marginBottom: 4,
                     }}
                   >
                     {g.title}
                   </div>
-                  <div
+                  <p
                     style={{
-                      fontSize: '.8rem',
-                      color: 'var(--ink3)',
-                      fontWeight: 500,
+                      fontSize: '.78rem',
+                      color: '#6B7280',
                       lineHeight: 1.6,
-                      marginBottom: 12,
+                      marginBottom: 14,
                     }}
                   >
                     {g.desc}
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {g.chips.map((c) => (
-                      <span
-                        key={c}
-                        style={{
-                          fontSize: '.62rem',
-                          fontWeight: 700,
-                          padding: '3px 9px',
-                          borderRadius: 100,
-                          background: g.color + '15',
-                          color: g.color,
-                          border: `1px solid ${g.color}30`,
-                        }}
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
+                  </p>
+                  <Link
+                    to={g.to}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '8px 18px',
+                      borderRadius: 10,
+                      background: g.color,
+                      color: 'white',
+                      fontWeight: 800,
+                      fontSize: '.8rem',
+                      textDecoration: 'none',
+                      transition: 'all .2s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                  >
+                    {g.tag === 'Print' ? '🖨️ Print' : '▶ Play Now'}
+                  </Link>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
-          <div className="reveal" style={{ textAlign: 'center', marginTop: 24 }}>
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
             <Link
-              to="/challenge"
+              to="/trivia"
               style={{
-                fontSize: '.82rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '12px 28px',
+                borderRadius: 14,
+                background: '#1E1B4B',
+                color: 'white',
                 fontWeight: 700,
-                color: 'var(--blue)',
+                fontSize: '.88rem',
                 textDecoration: 'none',
               }}
             >
-              ⚔️ Bible Battle Arena coming soon — multiplayer head-to-head trivia →
+              See All Games →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          AI TOOLS
-      ═══════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          AI FUN SPOTLIGHT
+      ══════════════════════════════════════════ */}
       <section
-        style={{ padding: '64px 24px', background: 'linear-gradient(180deg,#0A0A16,#0F0A1A)' }}
+        style={{
+          padding: '60px 24px',
+          background: 'linear-gradient(135deg,#1E1B4B,#312E81,#1E1B4B)',
+        }}
       >
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="🤖 AI-Powered"
-            pillColor="#C084FC"
-            pillBg="rgba(192,132,252,.12)"
-            title="Scripture Comes Alive with AI"
-            sub="Claude AI writes devotionals, creates songs, generates art descriptions, and talks with you as your favorite Bible characters."
-          />
-          <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}
-            className="home-grid-2"
-          >
-            {AI_TOOLS.map((t, i) => (
-              <Link
-                key={i}
-                to={t.to}
-                className="reveal"
-                style={{ textDecoration: 'none', transitionDelay: `${i * 0.07}s` }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 18,
-                    alignItems: 'flex-start',
-                    padding: '22px 24px',
-                    borderRadius: 20,
-                    background: 'rgba(255,255,255,.03)',
-                    border: '1.5px solid rgba(255,255,255,.07)',
-                    transition: 'all .28s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = `${t.color}08`;
-                    e.currentTarget.style.borderColor = t.color + '44';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,.03)';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,.07)';
-                    e.currentTarget.style.transform = '';
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 14,
-                      background: t.color + '18',
-                      border: `1.5px solid ${t.color}30`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.6rem',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {t.icon}
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: "'Baloo 2',cursive",
-                        fontSize: '1rem',
-                        fontWeight: 800,
-                        color: 'white',
-                        marginBottom: 5,
-                      }}
-                    >
-                      {t.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '.82rem',
-                        color: 'rgba(255,255,255,.4)',
-                        fontWeight: 500,
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {t.desc}
-                    </div>
-                    <div
-                      style={{ marginTop: 10, fontSize: '.72rem', fontWeight: 700, color: t.color }}
-                    >
-                      Open →
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                fontSize: '.72rem',
+                fontWeight: 800,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '5px 14px',
+                borderRadius: 100,
+                background: 'rgba(168,85,247,.2)',
+                color: '#C084FC',
+                marginBottom: 12,
+              }}
+            >
+              🤖 AI Fun
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: 'clamp(1.6rem,3.5vw,2.4rem)',
+                fontWeight: 800,
+                color: 'white',
+                marginBottom: 8,
+              }}
+            >
+              Powered by AI, Grounded in Scripture
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.9rem' }}>
+              Experience the Bible like never before
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════
-          SOUL EXPERIENCES
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="✨ Soul-Touching Experiences"
-            pillColor="#34D399"
-            pillBg="rgba(52,211,153,.1)"
-            title="For the Quiet Moments With God"
-            sub="Features designed to move you — breathe, confess, certify, and see the global church praying together."
-          />
           <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}
-            className="home-grid-2"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))',
+              gap: 16,
+            }}
           >
-            {SOUL_TOOLS.map((t, i) => (
-              <Link
-                key={i}
-                to={t.to}
-                className="reveal"
-                style={{ textDecoration: 'none', transitionDelay: `${i * 0.07}s` }}
+            {filteredAiTools.length === 0 && (
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  padding: '22px',
+                  color: '#6B7280',
+                  textAlign: 'center',
+                }}
               >
-                <div
-                  style={{
-                    borderRadius: 22,
-                    border: `1.5px solid ${t.color}22`,
-                    background: `linear-gradient(135deg,${t.color}08,transparent)`,
-                    padding: '26px 24px',
-                    transition: 'all .28s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = `0 12px 40px ${t.color}18`;
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.borderColor = t.color + '44';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '';
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.borderColor = t.color + '22';
-                  }}
-                >
-                  <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>{t.icon}</div>
-                  <div
-                    style={{
-                      fontFamily: "'Baloo 2',cursive",
-                      fontSize: '1.05rem',
-                      fontWeight: 800,
-                      color: 'var(--ink)',
-                      marginBottom: 7,
-                    }}
-                  >
-                    {t.title}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: '.82rem',
-                      color: 'var(--ink3)',
-                      lineHeight: 1.65,
-                      fontWeight: 500,
-                      marginBottom: 14,
-                    }}
-                  >
-                    {t.desc}
-                  </div>
-                  <div style={{ fontSize: '.72rem', fontWeight: 800, color: t.color }}>
-                    Explore →
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* AdSense: In-content between sections */}
-      <div style={{ padding: '0 24px', maxWidth: 960, margin: '0 auto' }}>
-        <AdInContent />
-      </div>
-
-      {/* ═══════════════════════════════════════════════
-          LEARNING TOOLS
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg2)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="📚 Learning Tools"
-            pillColor="#60A5FA"
-            pillBg="rgba(96,165,250,.1)"
-            title="Study Smarter. Remember Longer."
-            sub="Maps, flashcards, voice reading, notes, share cards, and printables — everything you need to go deeper."
-          />
-          <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}
-            className="home-grid-3"
-          >
-            {LEARNING_TOOLS.map((t, i) => (
+                No AI tools match your filters.
+              </div>
+            )}
+            {filteredAiTools.map((t, i) => (
               <Link
                 key={i}
                 to={t.to}
@@ -1426,63 +1525,50 @@ export default function Home() {
               >
                 <div
                   style={{
-                    background: 'var(--surface)',
-                    borderRadius: 18,
-                    border: '1.5px solid var(--border)',
-                    padding: '20px',
-                    display: 'flex',
-                    gap: 14,
-                    alignItems: 'flex-start',
+                    borderRadius: 20,
+                    border: `1.5px solid ${t.color}33`,
+                    background: `linear-gradient(135deg,${t.color}12,${t.color}06)`,
+                    padding: '28px 22px',
                     transition: 'all .25s',
-                    borderLeft: `3px solid ${t.color}`,
+                    height: '100%',
+                    boxSizing: 'border-box',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateX(3px)';
-                    e.currentTarget.style.boxShadow = `0 6px 24px ${t.color}15`;
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = `0 16px 40px ${t.color}25`;
+                    e.currentTarget.style.borderColor = t.color + '66';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = '';
                     e.currentTarget.style.boxShadow = '';
+                    e.currentTarget.style.borderColor = t.color + '33';
                   }}
                 >
+                  <div style={{ fontSize: '2.4rem', marginBottom: 14 }}>{t.icon}</div>
                   <div
                     style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: 12,
-                      background: t.color + '15',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.4rem',
-                      flexShrink: 0,
+                      fontFamily: "'Baloo 2',cursive",
+                      fontSize: '1rem',
+                      fontWeight: 800,
+                      color: 'white',
+                      marginBottom: 8,
                     }}
                   >
-                    {t.icon}
+                    {t.title}
                   </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: "'Baloo 2',cursive",
-                        fontSize: '.9rem',
-                        fontWeight: 800,
-                        color: 'var(--ink)',
-                        marginBottom: 4,
-                      }}
-                    >
-                      {t.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '.76rem',
-                        color: 'var(--ink3)',
-                        fontWeight: 500,
-                        lineHeight: 1.55,
-                      }}
-                    >
-                      {t.desc}
-                    </div>
-                  </div>
+                  <p
+                    style={{
+                      fontSize: '.78rem',
+                      color: 'rgba(255,255,255,.5)',
+                      lineHeight: 1.6,
+                      marginBottom: 16,
+                    }}
+                  >
+                    {t.desc}
+                  </p>
+                  <span style={{ fontSize: '.75rem', fontWeight: 700, color: t.color }}>
+                    Try it free →
+                  </span>
                 </div>
               </Link>
             ))}
@@ -1490,415 +1576,226 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          PARENTS & TEACHERS HUB
-      ═══════════════════════════════════════════════ */}
-      <section
-        style={{
-          padding: '80px 24px',
-          background: 'linear-gradient(160deg,#071A10 0%,#0A1628 50%,#0D0A1E 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Background glow blobs */}
+      {/* ══════════════════════════════════════════
+          FOR PARENTS & TEACHERS
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '60px 24px', background: 'white' }}>
         <div
           style={{
-            position: 'absolute',
-            width: 500,
-            height: 500,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(52,211,153,.07) 0%,transparent 70%)',
-            top: '-10%',
-            left: '-5%',
-            pointerEvents: 'none',
+            maxWidth: 960,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 32,
+            alignItems: 'center',
           }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            width: 400,
-            height: 400,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(96,165,250,.06) 0%,transparent 70%)',
-            bottom: '0%',
-            right: '5%',
-            pointerEvents: 'none',
-          }}
-        />
-
-        <div style={{ maxWidth: 960, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <SectionHeader
-            pill="🏫 For Parents & Teachers"
-            pillColor="#34D399"
-            pillBg="rgba(52,211,153,.12)"
-            title="Raise the Next Generation in Faith"
-            sub="A complete toolkit for parents and educators — track progress, assign lessons, run challenges, and guide children through God's Word."
-            titleColor="white"
-            subColor="rgba(255,255,255,.55)"
-          />
-
-          {/* Top row: Hero CTA + 2 stat chips */}
-          <div
-            className="reveal"
-            style={{
-              borderRadius: 28,
-              border: '1.5px solid rgba(52,211,153,.2)',
-              background:
-                'linear-gradient(135deg,rgba(52,211,153,.08),rgba(16,185,129,.04),rgba(99,102,241,.04))',
-              padding: '40px 36px',
-              marginBottom: 16,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Decorative cross */}
+          className="home-grid-2"
+        >
+          <div className="reveal">
             <div
               style={{
-                position: 'absolute',
-                right: 32,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontSize: '8rem',
-                opacity: 0.04,
-                lineHeight: 1,
-                userSelect: 'none',
+                display: 'inline-block',
+                fontSize: '.72rem',
+                fontWeight: 800,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '5px 14px',
+                borderRadius: 100,
+                background: '#ECFDF5',
+                color: '#10B981',
+                marginBottom: 16,
               }}
             >
-              ✝
+              🏫 For Parents &amp; Teachers
             </div>
-            <div
+            <h2
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto',
-                gap: 24,
-                alignItems: 'center',
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: 'clamp(1.6rem,3.5vw,2.4rem)',
+                fontWeight: 800,
+                color: '#1E1B4B',
+                marginBottom: 14,
+                lineHeight: 1.2,
               }}
-              className="home-hub-hero"
             >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-                  <div
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 16,
-                      background: 'rgba(52,211,153,.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '2rem',
-                      flexShrink: 0,
-                      border: '1.5px solid rgba(52,211,153,.25)',
-                    }}
-                  >
-                    🏫
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: "'Baloo 2',cursive",
-                        fontSize: '1.6rem',
-                        fontWeight: 800,
-                        color: 'white',
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      Parents & Teachers Hub
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '.78rem',
-                        color: '#34D399',
-                        fontWeight: 700,
-                        letterSpacing: 0.3,
-                      }}
-                    >
-                      Everything in one place
-                    </div>
-                  </div>
-                </div>
-                <p
+              Raise the Next Generation in Faith
+            </h2>
+            <p style={{ color: '#6B7280', lineHeight: 1.75, marginBottom: 24, fontSize: '.9rem' }}>
+              Track your child's progress, assign reading plans, set parental controls, generate AI
+              lesson plans, and get weekly email digests — all in one hub.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+              {[
+                '👶 Child Profiles',
+                '📊 Progress Tracking',
+                '📋 Lesson Plans',
+                '🔒 PIN Controls',
+                '🏆 Challenges',
+                '📧 Email Digest',
+              ].map((tag, i) => (
+                <span
+                  key={i}
                   style={{
-                    fontSize: '.9rem',
-                    color: 'rgba(255,255,255,.5)',
-                    lineHeight: 1.75,
-                    marginBottom: 22,
-                    maxWidth: 520,
+                    fontSize: '.68rem',
+                    fontWeight: 700,
+                    padding: '4px 11px',
+                    borderRadius: 100,
+                    background: '#ECFDF5',
+                    color: '#10B981',
+                    border: '1px solid #A7F3D0',
                   }}
                 >
-                  Lesson plans, child profiles, progress dashboards, family challenges, classroom
-                  reading plans, PIN-protected parental controls, and AI devotionals — built for the
-                  whole family.
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-                  {[
-                    '📋 Lesson Plans',
-                    '👶 Child Profiles',
-                    '📊 Progress Tracking',
-                    '🔒 Parental Controls',
-                    '🏆 Family Challenges',
-                    '📅 Reading Plans',
-                    '🤖 AI Devotionals',
-                    '📧 Email Digest',
-                  ].map((tag, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        fontSize: '.68rem',
-                        fontWeight: 700,
-                        padding: '4px 11px',
-                        borderRadius: 100,
-                        background: 'rgba(52,211,153,.1)',
-                        color: '#34D399',
-                        border: '1px solid rgba(52,211,153,.18)',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                  <Link
-                    to="/parent-hub"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      padding: '13px 28px',
-                      borderRadius: 14,
-                      background: 'linear-gradient(135deg,#10B981,#34D399)',
-                      color: 'white',
-                      fontWeight: 800,
-                      fontSize: '.9rem',
-                      textDecoration: 'none',
-                      boxShadow: '0 8px 28px rgba(16,185,129,.3)',
-                      transition: 'all .2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 12px 36px rgba(16,185,129,.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = '';
-                      e.currentTarget.style.boxShadow = '0 8px 28px rgba(16,185,129,.3)';
-                    }}
-                  >
-                    Open the Hub →
-                  </Link>
-                  <Link
-                    to="/profile"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      padding: '13px 24px',
-                      borderRadius: 14,
-                      background: 'rgba(255,255,255,.06)',
-                      color: 'rgba(255,255,255,.7)',
-                      fontWeight: 700,
-                      fontSize: '.88rem',
-                      textDecoration: 'none',
-                      border: '1.5px solid rgba(255,255,255,.1)',
-                      transition: 'all .2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,.06)';
-                    }}
-                  >
-                    👤 My Profile
-                  </Link>
-                </div>
-              </div>
-              {/* Right: quick stats */}
-              <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 12, minWidth: 140 }}
-                className="home-hub-stats"
-              >
-                {[
-                  ['📊', 'Progress', 'Dashboards'],
-                  ['🔒', 'PIN', 'Controls'],
-                  ['📧', 'Weekly', 'Email Digest'],
-                ].map(([icon, n, l], i) => (
-                  <div
-                    key={i}
-                    style={{
-                      borderRadius: 16,
-                      border: '1.5px solid rgba(52,211,153,.15)',
-                      background: 'rgba(52,211,153,.06)',
-                      padding: '14px 18px',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
-                    <div
-                      style={{
-                        fontFamily: "'Baloo 2',cursive",
-                        fontWeight: 800,
-                        color: 'white',
-                        fontSize: '.9rem',
-                        lineHeight: 1.1,
-                      }}
-                    >
-                      {n}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '.65rem',
-                        color: 'rgba(255,255,255,.35)',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {l}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  {tag}
+                </span>
+              ))}
             </div>
+            <Link
+              to="/parent-hub"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                borderRadius: 14,
+                background: 'linear-gradient(135deg,#10B981,#34D399)',
+                color: 'white',
+                fontWeight: 800,
+                fontSize: '.9rem',
+                textDecoration: 'none',
+                boxShadow: '0 8px 24px rgba(16,185,129,.3)',
+              }}
+            >
+              Open the Hub →
+            </Link>
           </div>
-
-          {/* Bottom row: 4 feature cards */}
           <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}
-            className="home-grid-4"
+            className="reveal"
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}
           >
             {[
               {
                 icon: '📋',
                 title: 'Lesson Plans',
-                desc: 'AI generates age-appropriate Bible lessons in seconds',
-                to: '/parent-hub',
-                color: '#60A5FA',
+                desc: 'AI-generated age-appropriate lessons',
+                color: '#3B82F6',
               },
               {
                 icon: '👶',
                 title: 'Child Profiles',
-                desc: "Track each child's streaks, badges, and quiz scores",
-                to: '/parent-hub',
-                color: '#F472B6',
+                desc: 'Track streaks, badges & quiz scores',
+                color: '#EC4899',
               },
               {
                 icon: '🏆',
                 title: 'Family Challenges',
-                desc: 'Weekly scripture challenges the whole family completes together',
-                to: '/parent-hub',
-                color: '#FCD34D',
+                desc: 'Weekly scripture challenges together',
+                color: '#F59E0B',
               },
               {
                 icon: '🎓',
                 title: 'Classroom Tools',
-                desc: 'Assign reading plans and monitor student progress',
-                to: '/parent-hub',
-                color: '#C084FC',
+                desc: 'Assign & monitor reading plans',
+                color: '#8B5CF6',
               },
             ].map((f, i) => (
-              <Link
+              <div
                 key={i}
-                to={f.to}
-                className="reveal"
-                style={{ textDecoration: 'none', transitionDelay: `${i * 0.06}s` }}
+                style={{
+                  borderRadius: 16,
+                  border: `1.5px solid ${f.color}20`,
+                  background: `linear-gradient(135deg,${f.color}08,transparent)`,
+                  padding: '18px 16px',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = f.color + '44';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = f.color + '20';
+                  e.currentTarget.style.transform = '';
+                }}
               >
+                <div style={{ fontSize: '1.6rem', marginBottom: 8 }}>{f.icon}</div>
                 <div
                   style={{
-                    borderRadius: 20,
-                    border: `1.5px solid ${f.color}20`,
-                    background: `linear-gradient(135deg,${f.color}0A,transparent)`,
-                    padding: '22px 18px',
-                    height: '100%',
-                    transition: 'all .25s',
-                    boxSizing: 'border-box',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = f.color + '44';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = `0 12px 32px ${f.color}15`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = f.color + '20';
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.boxShadow = '';
+                    fontFamily: "'Baloo 2',cursive",
+                    fontSize: '.88rem',
+                    fontWeight: 800,
+                    color: '#1E1B4B',
+                    marginBottom: 4,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: 12,
-                      background: f.color + '18',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.3rem',
-                      marginBottom: 12,
-                      border: `1px solid ${f.color}25`,
-                    }}
-                  >
-                    {f.icon}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Baloo 2',cursive",
-                      fontSize: '.92rem',
-                      fontWeight: 800,
-                      color: 'white',
-                      marginBottom: 6,
-                      lineHeight: 1.3,
-                    }}
-                  >
-                    {f.title}
-                  </div>
-                  <div
-                    style={{ fontSize: '.74rem', color: 'rgba(255,255,255,.38)', lineHeight: 1.6 }}
-                  >
-                    {f.desc}
-                  </div>
+                  {f.title}
                 </div>
-              </Link>
+                <div style={{ fontSize: '.72rem', color: '#9CA3AF', lineHeight: 1.5 }}>
+                  {f.desc}
+                </div>
+              </div>
             ))}
           </div>
         </div>
-        <style>{`
-          @media(max-width:640px){
-            .home-hub-hero{grid-template-columns:1fr!important}
-            .home-hub-stats{flex-direction:row!important;min-width:unset!important}
-          }
-        `}</style>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          COMMUNITY
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
+      {/* ══════════════════════════════════════════
+          COMMUNITY HIGHLIGHTS
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '60px 24px', background: '#F8FAFF' }}>
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="🤝 Community"
-            pillColor="#10B981"
-            pillBg="rgba(16,185,129,.1)"
-            title="You're Not Alone in This"
-            sub="Real-time prayer, family groups, church events, and rooms where the body of Christ connects."
-          />
+          <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                fontSize: '.72rem',
+                fontWeight: 800,
+                letterSpacing: '.5px',
+                textTransform: 'uppercase',
+                padding: '5px 14px',
+                borderRadius: 100,
+                background: '#ECFDF5',
+                color: '#10B981',
+                marginBottom: 12,
+              }}
+            >
+              🤝 Community
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Baloo 2',cursive",
+                fontSize: 'clamp(1.6rem,3.5vw,2.4rem)',
+                fontWeight: 800,
+                color: '#1E1B4B',
+                marginBottom: 8,
+              }}
+            >
+              You're Not Alone in This
+            </h2>
+            <p style={{ color: '#6B7280', fontSize: '.9rem' }}>
+              Real-time prayer, leaderboards, family groups, and church events
+            </p>
+          </div>
           <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}
-            className="home-grid-4"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))',
+              gap: 16,
+            }}
           >
             {COMMUNITY.map((c, i) => (
               <Link
                 key={i}
                 to={c.to}
                 className="reveal"
-                style={{ textDecoration: 'none', transitionDelay: `${i * 0.07}s` }}
+                style={{ textDecoration: 'none', transitionDelay: `${i * 0.06}s` }}
               >
                 <div
                   style={{
-                    background: 'var(--surface)',
+                    background: 'white',
                     borderRadius: 20,
-                    border: '1.5px solid var(--border)',
+                    border: '1.5px solid #E5E7EB',
                     padding: '24px 18px',
                     textAlign: 'center',
-                    transition: 'all .28s',
+                    transition: 'all .25s',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -1907,7 +1804,7 @@ export default function Home() {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = '';
-                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.borderColor = '#E5E7EB';
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
@@ -1915,22 +1812,15 @@ export default function Home() {
                   <div
                     style={{
                       fontFamily: "'Baloo 2',cursive",
-                      fontSize: '.9rem',
+                      fontSize: '.95rem',
                       fontWeight: 800,
-                      color: 'var(--ink)',
+                      color: '#1E1B4B',
                       marginBottom: 6,
                     }}
                   >
                     {c.title}
                   </div>
-                  <div
-                    style={{
-                      fontSize: '.74rem',
-                      color: 'var(--ink3)',
-                      fontWeight: 500,
-                      lineHeight: 1.55,
-                    }}
-                  >
+                  <div style={{ fontSize: '.75rem', color: '#9CA3AF', lineHeight: 1.55 }}>
                     {c.desc}
                   </div>
                 </div>
@@ -1940,419 +1830,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          QUICK ACCESS GRID — all 30 in a dense grid
-      ═══════════════════════════════════════════════ */}
-      <section style={{ padding: '64px 24px', background: 'var(--bg2)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
-          <SectionHeader
-            pill="⚡ Everything"
-            pillColor="#A855F7"
-            pillBg="rgba(168,85,247,.1)"
-            title="Every Feature, Right Here"
-          />
+      {/* ══════════════════════════════════════════
+          TESTIMONIALS
+      ══════════════════════════════════════════ */}
+      <TestimonialsCarousel />
 
-          <div
-            className="reveal home-grid-5"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 10 }}
-          >
-            {[
-              { e: '🎮', n: 'Trivia', to: '/trivia' },
-              { e: '🙏', n: 'Devotional', to: '/devotional' },
-              { e: '💑', n: 'Couple Devos', to: '/couples-devotional' },
-              { e: '🎸', n: 'Worship', to: '/worship' },
-              { e: '🌳', n: 'Family Tree', to: '/family-tree' },
-              { e: '⏳', n: 'Fasting', to: '/fasting' },
-              { e: '⌨️', n: 'Typing', to: '/scripture-typing' },
-              { e: '🗺️', n: 'Bible Map', to: '/map' },
-              { e: '📖', n: 'Bible Explorer', to: '/bible' },
-              { e: '🧠', n: 'Flashcards', to: '/flashcards' },
-              { e: '📝', n: 'Sermon Notes', to: '/notes' },
-              { e: '🏹', n: 'David & Goliath', to: '/game/david-goliath' },
-              { e: '🏃', n: 'Runner', to: '/game/runner' },
-              { e: '🧩', n: 'Escape Room', to: '/game/escape-room' },
-              { e: '🎰', n: 'Spin Verse', to: '/game/spin-the-verse' },
-              { e: '📅', n: 'Daily Challenge', to: '/challenge' },
-              { e: '💬', n: 'Chat w/ Moses', to: '/chat/characters' },
-              { e: '🎵', n: 'Bible Rap', to: '/ai/rap-generator' },
-              { e: '🖼️', n: 'Miracle Art', to: '/ai/miracle-art' },
-              { e: '🧬', n: 'What Character?', to: '/quiz/character' },
-              { e: '🎙️', n: 'Voice Reader', to: '/voice-reader' },
-              { e: '🌍', n: 'Prayer Map', to: '/prayer-map' },
-              { e: '📿', n: 'Prayer Beads', to: '/prayer-beads' },
-              { e: '🗣️', n: 'Encourage Wall', to: '/encouragement' },
-              { e: '🎓', n: 'Certification', to: '/certification' },
-              { e: '🔗', n: 'Share Cards', to: '/share' },
-              { e: '🎥', n: 'Videos', to: '/videos' },
-              { e: '📰', n: 'Blog', to: '/blog' },
-              { e: '🙏', n: 'Prayer Wall', to: '/prayer' },
-              { e: '👨‍👩‍👧', n: 'Family Groups', to: '/community/family' },
-              { e: '⛪', n: 'Church Events', to: '/community/events' },
-              { e: '💬', n: 'Chat Rooms', to: '/community/chat' },
-              { e: '🖨️', n: 'Activity Sheets', to: '/activity-sheets' },
-              { e: '📊', n: 'Dashboard', to: '/dashboard' },
-              { e: '👤', n: 'My Profile', to: '/profile' },
-              { e: '🏫', n: 'Parent Hub', to: '/parent-hub' },
-              { e: '💎', n: 'Go Pro', to: '/premium' },
-            ].map((item, i) => (
-              <Link
-                key={i}
-                to={item.to}
-                style={{
-                  textDecoration: 'none',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 5,
-                  padding: '14px 8px',
-                  borderRadius: 14,
-                  background: 'var(--surface)',
-                  border: '1.5px solid var(--border)',
-                  transition: 'all .2s',
-                  textAlign: 'center',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.borderColor = 'var(--violet)';
-                  e.currentTarget.style.background = 'var(--violet-bg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.background = 'var(--surface)';
-                }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>{item.e}</span>
-                <span
-                  style={{
-                    fontSize: '.65rem',
-                    fontWeight: 700,
-                    color: 'var(--ink3)',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {item.n}
-                </span>
-              </Link>
-            ))}
-          </div>
+      {/* ══════════════════════════════════════════
+          NEWSLETTER
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '0 24px 60px', background: 'white' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <NewsletterSignup />
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          PODCAST PROMO
-      ═══════════════════════════════════════════════ */}
-      <section
-        style={{
-          padding: '80px 24px',
-          background: 'linear-gradient(135deg,#0F0F1A,#1A0A2E,#0D1B2A)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Glow orbs */}
-        <div
-          style={{
-            position: 'absolute',
-            width: 600,
-            height: 600,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%)',
-            top: '-20%',
-            left: '-10%',
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            width: 400,
-            height: 400,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(244,114,182,.08) 0%,transparent 70%)',
-            bottom: '-10%',
-            right: '5%',
-            pointerEvents: 'none',
-          }}
-        />
-
-        <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div
-            className="reveal"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 32,
-              alignItems: 'center',
-            }}
-          >
-            {/* Left — text */}
-            <div>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 7,
-                  fontSize: '.7rem',
-                  fontWeight: 800,
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                  background: 'rgba(249,115,22,.15)',
-                  color: '#F97316',
-                  border: '1px solid rgba(249,115,22,.25)',
-                  padding: '5px 14px',
-                  borderRadius: 100,
-                  marginBottom: 20,
-                }}
-              >
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    background: '#F97316',
-                    boxShadow: '0 0 8px #F97316',
-                    animation: 'glow 2s ease-in-out infinite',
-                    display: 'inline-block',
-                  }}
-                />
-                🎙️ Now Live — Episode 2
-              </div>
-              <h2
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: 'clamp(1.8rem,4vw,3rem)',
-                  fontWeight: 800,
-                  color: 'white',
-                  lineHeight: 1.15,
-                  marginBottom: 16,
-                }}
-              >
-                The BibleFunLand
-                <br />
-                <span
-                  style={{
-                    background: 'linear-gradient(90deg,#F97316,#FBBF24,#F472B6)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  Podcast is Here 🔥
-                </span>
-              </h2>
-              <p
-                style={{
-                  fontSize: '.92rem',
-                  color: 'rgba(255,255,255,.55)',
-                  lineHeight: 1.8,
-                  marginBottom: 24,
-                  maxWidth: 420,
-                }}
-              >
-                Faith conversations for the whole family — kids, parents, and teachers. Real talk
-                about God's Word, raising children in faith, and building a community that lasts.
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
-                {['🙏 Faith', '👨‍👩‍👧 Family', '📖 Scripture', '🎓 Teaching', '❤️ Community'].map(
-                  (tag, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        fontSize: '.68rem',
-                        fontWeight: 700,
-                        padding: '4px 12px',
-                        borderRadius: 99,
-                        background: 'rgba(249,115,22,.1)',
-                        color: '#FBBF24',
-                        border: '1px solid rgba(249,115,22,.2)',
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  )
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <Link
-                  to="/podcast"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '14px 28px',
-                    borderRadius: 14,
-                    background: 'linear-gradient(135deg,#F97316,#FBBF24)',
-                    color: '#0A0A0A',
-                    fontWeight: 800,
-                    fontSize: '.9rem',
-                    textDecoration: 'none',
-                    boxShadow: '0 8px 28px rgba(249,115,22,.4)',
-                    transition: 'all .2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 12px 36px rgba(249,115,22,.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.boxShadow = '0 8px 28px rgba(249,115,22,.4)';
-                  }}
-                >
-                  🎧 Listen Now →
-                </Link>
-                <Link
-                  to="/podcast"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '14px 22px',
-                    borderRadius: 14,
-                    background: 'rgba(255,255,255,.06)',
-                    color: 'rgba(255,255,255,.7)',
-                    fontWeight: 700,
-                    fontSize: '.88rem',
-                    textDecoration: 'none',
-                    border: '1.5px solid rgba(255,255,255,.1)',
-                    transition: 'all .2s',
-                  }}
-                >
-                  📋 All Episodes
-                </Link>
-              </div>
-            </div>
-
-            {/* Right — podcast card */}
+      {/* ══════════════════════════════════════════
+          SEASONAL MARKETING HOOK
+      ══════════════════════════════════════════ */}
+      {seasonalHook && (
+        <section style={{ padding: '0 24px 40px', background: 'white' }}>
+          <div style={{ maxWidth: 760, margin: '0 auto' }}>
             <div
+              className="reveal"
               style={{
-                background: 'linear-gradient(135deg,rgba(249,115,22,.12),rgba(244,114,182,.06))',
-                borderRadius: 28,
-                border: '1.5px solid rgba(249,115,22,.25)',
-                padding: '32px 28px',
-                position: 'relative',
-                overflow: 'hidden',
+                background: seasonalHook.bg,
+                borderRadius: 20,
+                padding: '28px 32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 16,
               }}
             >
-              <div
-                style={{
-                  position: 'absolute',
-                  top: -20,
-                  right: -20,
-                  fontSize: '8rem',
-                  opacity: 0.04,
-                  lineHeight: 1,
-                }}
-              >
-                🎙
-              </div>
-              <div
-                style={{
-                  fontSize: '3.5rem',
-                  marginBottom: 16,
-                  filter: 'drop-shadow(0 0 20px rgba(249,115,22,.5))',
-                }}
-              >
-                🎙️
-              </div>
-              <div
-                style={{
-                  fontSize: '.68rem',
-                  fontWeight: 800,
-                  color: '#F97316',
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}
-              >
-                Season 1 · Episode 2
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '1.15rem',
-                  fontWeight: 800,
-                  color: 'white',
-                  lineHeight: 1.3,
-                  marginBottom: 12,
-                }}
-              >
-                What Was Inside the Ark?
-              </div>
-              <p
-                style={{
-                  fontSize: '.78rem',
-                  color: 'rgba(255,255,255,.45)',
-                  lineHeight: 1.65,
-                  marginBottom: 20,
-                }}
-              >
-                Building directly from Episode 1, we step inside Noah's completed Ark! Discover the
-                exact dimensions, the fun space shared with animals, and the profound lessons of
-                God's perfect provision.
-              </p>
-              {/* Fake waveform */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 3,
-                  height: 36,
-                  marginBottom: 16,
-                }}
-              >
-                {Array.from({ length: 32 }, (_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      flex: 1,
-                      borderRadius: 99,
-                      background: `rgba(249,115,22,${0.3 + Math.sin(i * 0.8) * 0.3 + 0.2})`,
-                      height: `${30 + Math.sin(i * 0.9) * 20}%`,
-                      animation: `wave ${0.8 + (i % 5) * 0.15}s ease-in-out ${i * 0.05}s infinite alternate`,
-                    }}
-                  />
-                ))}
+              <div>
+                <div
+                  style={{
+                    fontSize: '.7rem',
+                    fontWeight: 800,
+                    letterSpacing: 1,
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,.5)',
+                    marginBottom: 6,
+                  }}
+                >
+                  {seasonalHook.headline}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Baloo 2',cursive",
+                    fontSize: '1.2rem',
+                    fontWeight: 800,
+                    color: 'white',
+                    marginBottom: 4,
+                  }}
+                >
+                  {seasonalHook.subline}
+                </div>
+                <div style={{ fontSize: '.78rem', color: 'rgba(255,255,255,.5)' }}>
+                  Earn {seasonalHook.points} points + {seasonalHook.badge.emoji}{' '}
+                  {seasonalHook.badge.label} badge
+                </div>
               </div>
               <Link
-                to="/podcast"
+                to={seasonalHook.cta.to}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '11px 0',
+                  padding: '12px 24px',
                   borderRadius: 12,
-                  background: 'linear-gradient(135deg,#F97316,#FBBF24)',
-                  color: '#0A0A0A',
+                  background: 'rgba(255,255,255,.15)',
+                  color: 'white',
                   fontWeight: 800,
-                  fontSize: '.85rem',
+                  fontSize: '.88rem',
                   textDecoration: 'none',
+                  border: '1.5px solid rgba(255,255,255,.25)',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="#0A0A0A"
-                  style={{ marginLeft: 2 }}
-                >
-                  <path d="M6 4l14 8-14 8V4z" />
-                </svg>
-                Play Episode 2
+                {seasonalHook.cta.label} →
               </Link>
             </div>
           </div>
+        </section>
+      )}
+
+      {/* ══════════════════════════════════════════
+          INVITE FAMILY
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: '0 24px 60px', background: 'white' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <InviteFamily />
         </div>
-        <style>{`
-          @keyframes wave{from{transform:scaleY(.6)}to{transform:scaleY(1.2)}}
-          @media(max-width:640px){.reveal.podcast-grid{grid-template-columns:1fr!important}}
-        `}</style>
       </section>
 
-      {/* ═══════════════════════════════════════════════
+      {/* ══════════════════════════════════════════
           PRO CTA
-      ═══════════════════════════════════════════════ */}
+      ══════════════════════════════════════════ */}
       <section
         style={{
           padding: '72px 24px',
@@ -2421,88 +1993,59 @@ export default function Home() {
                   fontSize: '.9rem',
                   textDecoration: 'none',
                   boxShadow: '0 8px 28px rgba(139,92,246,.35)',
-                  transition: 'all .2s',
                 }}
               >
                 ✨ See Pro Plans
               </Link>
-              <Link
-                to="/auth"
-                style={{
-                  padding: '14px 28px',
-                  borderRadius: 14,
-                  background: 'rgba(255,255,255,.07)',
-                  color: 'rgba(255,255,255,.7)',
-                  fontFamily: 'Poppins,sans-serif',
-                  fontWeight: 700,
-                  fontSize: '.9rem',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255,255,255,.12)',
-                  transition: 'all .2s',
-                }}
-              >
-                🔐 Free Account
-              </Link>
+              {user ? (
+                <Link
+                  to="/dashboard"
+                  style={{
+                    padding: '14px 28px',
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,.07)',
+                    color: 'rgba(255,255,255,.7)',
+                    fontFamily: 'Poppins,sans-serif',
+                    fontWeight: 700,
+                    fontSize: '.9rem',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(255,255,255,.12)',
+                  }}
+                >
+                  📊 My Dashboard
+                </Link>
+              ) : (
+                <Link
+                  to="/auth"
+                  style={{
+                    padding: '14px 28px',
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,.07)',
+                    color: 'rgba(255,255,255,.7)',
+                    fontFamily: 'Poppins,sans-serif',
+                    fontWeight: 700,
+                    fontSize: '.9rem',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(255,255,255,.12)',
+                  }}
+                >
+                  🔐 Sign In / Free Account
+                </Link>
+              )}
             </div>
-            <p
-              style={{
-                fontSize: '.72rem',
-                color: 'rgba(255,255,255,.25)',
-                marginTop: 18,
-                fontWeight: 500,
-              }}
-            >
-              30+ features always free · Pro removes ads & unlocks premium tools
-            </p>
           </div>
         </div>
       </section>
 
       <style>{`
-        @keyframes floatP {
-          0%,100% { transform: translateY(0) rotate(0deg); }
-          33%      { transform: translateY(-18px) rotate(3deg); }
-          66%      { transform: translateY(-8px) rotate(-2deg); }
-        }
-        @keyframes gradShift {
-          0%   { background-position: 0% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes glow {
-          0%,100% { box-shadow: 0 0 6px #4ADE80; }
-          50%      { box-shadow: 0 0 16px #4ADE80, 0 0 30px #4ADE80; }
-        }
-        @keyframes flame {
-          0%,100% { transform: scale(1) rotate(-2deg); }
-          50%      { transform: scale(1.08) rotate(2deg); }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeDown {
-          from { opacity: 0; transform: translateY(-14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scrollLine {
-          0%,100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
-          30%      { opacity: 1; transform: scaleY(1); transform-origin: top; }
-          70%      { opacity: 1; transform: scaleY(1); transform-origin: bottom; }
-        }
-        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
-        .reveal.in { opacity: 1; transform: none; }
-        @media (max-width: 768px) {
-          .home-grid-3  { grid-template-columns: repeat(2,1fr) !important; }
-          .home-grid-4  { grid-template-columns: repeat(2,1fr) !important; }
-          .home-grid-5  { grid-template-columns: repeat(3,1fr) !important; }
-          .home-grid-2  { grid-template-columns: 1fr !important; }
-          .home-grid-streak { grid-template-columns: 1fr !important; }
-          .home-hub-grid { grid-template-columns: 1fr !important; }
-          .home-hub-grid .hub-span { grid-row: auto !important; }
-        }
-        @media (max-width: 480px) {
-          .home-grid-3  { grid-template-columns: 1fr !important; }
-          .home-grid-5  { grid-template-columns: repeat(2,1fr) !important; }
+        @keyframes floatP{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-18px) rotate(3deg)}66%{transform:translateY(-8px) rotate(-2deg)}}
+        @keyframes flame{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.08) rotate(2deg)}}
+        @keyframes glow{0%,100%{box-shadow:0 0 6px #4ADE80}50%{box-shadow:0 0 16px #4ADE80,0 0 30px #4ADE80}}
+        .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+        .reveal.in{opacity:1;transform:translateY(0)}
+        @media(max-width:640px){
+          .home-grid-streak{grid-template-columns:1fr!important}
+          .home-grid-2{grid-template-columns:1fr!important}
         }
       `}</style>
     </div>

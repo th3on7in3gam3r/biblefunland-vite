@@ -792,7 +792,7 @@ export default function Bookmarks() {
 
         <div style={{ textAlign: 'center', marginTop: 32 }}>
           <Link
-            to="/bible"
+            to="/explore/bible"
             style={{
               color: 'var(--ink3)',
               fontSize: '.82rem',

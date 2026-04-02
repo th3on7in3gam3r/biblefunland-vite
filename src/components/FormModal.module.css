@@ -85,9 +85,9 @@
   font-size: 0.95em;
 }
 
-.group input[type="text"],
-.group input[type="url"],
-.group input[type="date"],
+.group input[type='text'],
+.group input[type='url'],
+.group input[type='date'],
 .group textarea,
 .group select {
   width: 100%;
@@ -100,9 +100,9 @@
   box-sizing: border-box;
 }
 
-.group input[type="text"]:focus,
-.group input[type="url"]:focus,
-.group input[type="date"]:focus,
+.group input[type='text']:focus,
+.group input[type='url']:focus,
+.group input[type='date']:focus,
 .group textarea:focus,
 .group select:focus {
   outline: none;
@@ -119,7 +119,7 @@
   color: #555;
 }
 
-.checkbox input[type="checkbox"] {
+.checkbox input[type='checkbox'] {
   width: 18px;
   height: 18px;
   cursor: pointer;

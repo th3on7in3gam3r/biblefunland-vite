@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { PageLoader } from '../components/Skeleton';
 import Podium from '../components/Podium';
 import LeaderboardRow from '../components/LeaderboardRow';
+import { useRealTime } from '../context/RealTimeContext';
 
 const TABS = [
   { id: 'streaks', label: '🔥 Top Streaks' },
@@ -23,11 +24,20 @@ async function fetchLeaderboard(category, userId) {
 
 export default function Leaderboard() {
   const { user } = useAuth();
+  const { leaderboard, refresh } = useRealTime();
   const [activeTab, setActiveTab] = useState('streaks');
   const [data, setData] = useState({ entries: [], currentUser: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryKey, setRetryKey] = useState(0);
+
+  // Sync live leaderboard streaks into local state when available
+  useEffect(() => {
+    if (leaderboard?.live && activeTab === 'streaks' && leaderboard.streaks?.length) {
+      setData((prev) => ({ ...prev, entries: leaderboard.streaks }));
+      setLoading(false);
+    }
+  }, [leaderboard, activeTab]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -44,6 +54,8 @@ export default function Leaderboard() {
 
   useEffect(() => {
     load();
+    // Trigger RealTime context refresh for leaderboard too
+    refresh('leaderboard');
   }, [load]);
 
   const topThree = data.entries.slice(0, 3);
@@ -79,6 +91,10 @@ export default function Leaderboard() {
       </div>
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
+        <div style={{ marginBottom: 10, color: '#6b7280', fontSize: '.8rem' }}>
+          {leaderboard?.live ? '🟢 Live' : 'Refreshing'} · last updated{' '}
+          {new Date().toLocaleTimeString()}
+        </div>
         {/* Tab strip */}
         <div
           style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 28, paddingBottom: 4 }}

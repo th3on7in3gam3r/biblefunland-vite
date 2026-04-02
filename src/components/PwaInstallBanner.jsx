@@ -7,25 +7,41 @@ export default function PwaInstallBanner() {
   const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
+    // 1. Don't show if already in standalone mode
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (isStandalone) return;
+
+    // 2. Don't show if user dismissed it recently
+    const dismissedAt = localStorage.getItem('pwa_banner_dismissed');
+    if (dismissedAt) {
+      const day = 24 * 60 * 60 * 1000;
+      if (Date.now() - parseInt(dismissedAt) < 7 * day) return; // Wait 7 days after dismissal
+    }
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Show immediately if native prompt is available
       setShow(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Fallback: show after 5 seconds if no native prompt
+    // Fallback: show after 8 seconds if no native prompt (and didn't show yet)
     const timer = setTimeout(() => {
-      if (!deferredPrompt) setShow(true);
-    }, 5000);
+      if (!deferredPrompt && !isStandalone && !dismissedAt) setShow(true);
+    }, 8000);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       clearTimeout(timer);
     };
   }, [deferredPrompt]);
+
+  function dismissBanner() {
+    localStorage.setItem('pwa_banner_dismissed', Date.now().toString());
+    setShow(false);
+  }
 
   if (!show) return null;
 
@@ -37,7 +53,7 @@ export default function PwaInstallBanner() {
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         setDeferredPrompt(null);
-        setShow(false);
+        dismissBanner(); // Store dismissal so it doesn't show again
       }
     } else {
       // Fallback instructions
@@ -97,7 +113,7 @@ export default function PwaInstallBanner() {
         </button>
         <button
           className={styles.closeBtn}
-          onClick={() => setShow(false)}
+          onClick={dismissBanner}
           aria-label="Dismiss banner"
           title="Dismiss"
         >

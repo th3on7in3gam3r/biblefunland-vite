@@ -2762,7 +2762,7 @@ export default function Profile() {
                   ['/devotional', '🙏', 'AI Devotional'],
                   ['/game/runner', '🏃', 'Scripture Runner'],
                   ['/prayer', '🌍', 'Prayer Wall'],
-                  ['/certification', '🎓', 'Certification'],
+                  ['/grow/certification', '🎓', 'Certification'],
                   ['/flashcards', '🧠', 'Flashcards'],
                   ['/game/battle-arena', '⚔️', 'Battle Arena'],
                   ['/wordle', '🟩', 'Bible Wordle'],

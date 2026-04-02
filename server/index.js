@@ -4,6 +4,16 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Capture uncaught rejections and exceptions in backend service (guard rails for server-side bugs)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Consider process.exit(1) in production/pm2 if you want an auto-restart behavior
+});
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -37,6 +47,15 @@ const checkoutLimiter = rateLimit({
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500, // 500 requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Community features (prayer, chat) — tighter to prevent spam
+const communityLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  message: 'Too many requests, please slow down',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -80,20 +99,12 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.use(helmet({
-//   crossOriginResourcePolicy: { policy: "cross-origin" },
-//   contentSecurityPolicy: {
-//     directives: {
-//       defaultSrc: ["*"],
-//       scriptSrc: ["* ", "'unsafe-inline'", "'unsafe-eval'"],
-//       styleSrc: ["*", "'unsafe-inline'"],
-//       imgSrc: ["*", "data:", "blob:"],
-//       connectSrc: ["*"],
-//       frameSrc: ["*"],
-//       frameAncestors: ["'self'"]
-//     },
-//   }
-// }));
+
+// Security headers — enabled with permissive CSP for SPA
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: false, // Managed by Vercel headers / index.html meta
+}));
 
 app.use(apiLimiter); // Apply general limiter to all routes
 
@@ -125,6 +136,8 @@ mount('/api/leaderboard', require('./routes/leaderboard'));
 mount('/api/bible', require('./routes/bible'));
 mount('/api/bookmarks', require('./routes/bookmarks'));
 mount('/api/churches', require('./routes/churchFinder'));
+mount('/api/seasonal', require('./routes/seasonal'));
+mount('/api/newsletter', require('./routes/newsletter'));
 mount('/api/profiles', require('./routes/profiles'));
 mount('/api/children', require('./routes/children'));
 mount('/api/parental-controls', require('./routes/parentalControls'));
@@ -133,6 +146,17 @@ mount('/api/faith-milestones', require('./routes/faith-milestones'));
 mount('/api/ai', aiLimiter, require('./routes/ai'));
 mount('/api/email', emailLimiter, require('./routes/email'));
 mount('/api/pastor-requests', emailLimiter, require('./routes/pastorRequests'));
+mount('/api/gamification', require('./routes/gamification'));
+mount('/api/prayers', communityLimiter, require('./routes/prayers'));
+
+// Real-time endpoints (prayers/live + family/live-progress)
+const realtimeRouter = require('./routes/realtime');
+app.use('/api', realtimeRouter);
+app.use('/', realtimeRouter);
+mount('/api/abtest', require('./routes/abtest'));
+mount('/api/referrals', require('./routes/referrals'));
+mount('/api/printables', require('./routes/printables'));
+mount('/api/clerk-webhook', require('./routes/clerkWebhook'));
 
 // 404 handler
 app.use((req, res) => {

@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { captureError } from '../lib/errorMonitoring';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -16,10 +17,8 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
-    this.setState({
-      error,
-      errorInfo,
-    });
+    captureError(error, { componentStack: errorInfo?.componentStack?.slice(0, 500) });
+    this.setState({ error, errorInfo });
   }
 
   resetError = () => {

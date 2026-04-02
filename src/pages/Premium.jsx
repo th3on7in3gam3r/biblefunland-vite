@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { STRIPE_PRICES, redirectToCheckout } from '../lib/stripe';
+import { Analytics } from '../lib/analytics';
 import styles from './Premium.module.css';
 
 const PLANS = [
@@ -27,7 +28,7 @@ const PLANS = [
   },
   {
     name: 'Pro',
-    price: { monthly: '$4.99', annual: '$2.99' },
+    price: { monthly: '$3.99', annual: '$2.99' },
     period: { monthly: 'per month', annual: 'per month · billed $35.88/yr' },
     color: 'var(--violet)',
     popular: true,
@@ -73,6 +74,8 @@ export default function Premium() {
   const navigate = useNavigate();
 
   async function handleSubscribe(plan) {
+    Analytics.trackEvent('pro_conversion_start', { plan: plan.name, annual });
+
     if (!plan.priceId) {
       navigate('/');
       return;

@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+
+const ADMIN_LINKS = [
+  { to: '/admin/analytics', icon: '📊', label: 'Analytics', color: '#3B82F6' },
+  { to: '/admin/ab-tests', icon: '🧪', label: 'A/B Tests', color: '#8B5CF6' },
+  { to: '/admin/launch', icon: '🚀', label: 'Launch Checklist', color: '#10B981' },
+  { to: '/community/prayer', icon: '🙏', label: 'Prayer Queue', color: '#EC4899' },
+  { to: '/seasonal', icon: '🎄', label: 'Seasonal AI', color: '#F59E0B' },
+  { to: '/admin/newsletter', icon: '📧', label: 'Newsletter', color: '#14B8A6' },
+];
+
 export default function Admin() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -29,70 +39,141 @@ export default function Admin() {
   ];
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div
-        style={{ background: 'linear-gradient(135deg,#1F2937,#111827)', padding: '44px 36px 32px' }}
+        style={{
+          background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B,#0F172A)',
+          padding: '44px 36px 0',
+        }}
       >
-        <div
-          style={{
-            maxWidth: 1140,
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 12,
-          }}
-        >
-          <div>
-            <h1
-              style={{
-                fontFamily: "'Baloo 2',cursive",
-                fontSize: '2.2rem',
-                fontWeight: 800,
-                color: 'white',
-                marginBottom: 4,
-              }}
-            >
-              📊 Admin Dashboard
-            </h1>
-            <p style={{ fontSize: '.85rem', color: 'rgba(255,255,255,.4)', fontWeight: 500 }}>
-              Site analytics and user activity
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              sessionStorage.removeItem('bfl_admin_verified');
-              navigate('/');
+        <div style={{ maxWidth: 1140, margin: '0 auto' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
+              marginBottom: 28,
             }}
-            className="btn btn-outline btn-sm"
-            style={{ color: 'rgba(255,255,255,.5)', borderColor: 'rgba(255,255,255,.2)' }}
           >
-            🔒 Lock Admin
-          </button>
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: '.68rem',
+                  fontWeight: 800,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                  background: 'rgba(99,102,241,.2)',
+                  color: '#A5B4FC',
+                  border: '1px solid rgba(99,102,241,.3)',
+                  padding: '4px 12px',
+                  borderRadius: 100,
+                  marginBottom: 10,
+                }}
+              >
+                🔐 Admin Only
+              </div>
+              <h1
+                style={{
+                  fontFamily: "'Baloo 2',cursive",
+                  fontSize: 'clamp(1.8rem,4vw,2.6rem)',
+                  fontWeight: 800,
+                  color: 'white',
+                  marginBottom: 4,
+                }}
+              >
+                📊 Admin Dashboard
+              </h1>
+              <p style={{ fontSize: '.85rem', color: 'rgba(255,255,255,.4)', fontWeight: 500 }}>
+                BibleFunLand · Site analytics, moderation &amp; tools
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('bfl_admin_verified');
+                navigate('/');
+              }}
+              style={{
+                padding: '8px 18px',
+                borderRadius: 10,
+                border: '1.5px solid rgba(255,255,255,.15)',
+                background: 'rgba(255,255,255,.06)',
+                color: 'rgba(255,255,255,.5)',
+                fontWeight: 700,
+                fontSize: '.8rem',
+                cursor: 'pointer',
+                transition: 'all .2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.3)')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,.15)')}
+            >
+              🔒 Lock Admin
+            </button>
+          </div>
+
+          {/* Quick nav */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingBottom: 0 }}>
+            {ADMIN_LINKS.map(({ to, icon, label, color }) => (
+              <Link
+                key={to}
+                to={to}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '9px 16px',
+                  borderRadius: '12px 12px 0 0',
+                  fontSize: '.8rem',
+                  fontWeight: 700,
+                  background: 'rgba(255,255,255,.07)',
+                  color: 'rgba(255,255,255,.65)',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,.1)',
+                  borderBottom: 'none',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = color + '22';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,.07)';
+                  e.currentTarget.style.color = 'rgba(255,255,255,.65)';
+                }}
+              >
+                <span style={{ fontSize: '1rem' }}>{icon}</span> {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: 32 }}>
+
+      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 32px 60px' }}>
         {/* Stats */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4,1fr)',
+            gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))',
             gap: 16,
             marginBottom: 24,
           }}
         >
           {[
-            ['Total Page Views', '12,847', '↑ +18% this week', 'var(--blue)'],
-            ['Check-ins', checkins, '↑ Streak going', 'var(--green)'],
-            ['Prayer Requests', '6', '↑ Active community', 'var(--violet)'],
-            ['Badges Earned', badges, '↑ Players growing', 'var(--orange)'],
-          ].map(([l, v, sub, c], i) => (
+            ['👥', 'Total Page Views', '12,847', '↑ +18% this week', '#3B82F6'],
+            ['✅', 'Check-ins', checkins, '↑ Streak going', '#10B981'],
+            ['🙏', 'Prayer Requests', '6', '↑ Active community', '#8B5CF6'],
+            ['🏆', 'Badges Earned', badges, '↑ Players growing', '#F59E0B'],
+          ].map(([icon, l, v, sub, c], i) => (
             <div
               key={i}
               style={{
                 background: 'var(--surface)',
-                borderRadius: 16,
-                padding: 22,
+                borderRadius: 18,
+                padding: '20px 22px',
                 border: '1.5px solid var(--border)',
                 position: 'relative',
                 overflow: 'hidden',
@@ -108,22 +189,37 @@ export default function Admin() {
                   background: c,
                 }}
               />
-              <div
-                style={{
-                  fontSize: '.72rem',
-                  fontWeight: 700,
-                  color: 'var(--ink3)',
-                  letterSpacing: '.5px',
-                  textTransform: 'uppercase',
-                  marginBottom: 8,
-                }}
-              >
-                {l}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: c + '18',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.2rem',
+                  }}
+                >
+                  {icon}
+                </div>
+                <div
+                  style={{
+                    fontSize: '.7rem',
+                    fontWeight: 700,
+                    color: 'var(--ink3)',
+                    letterSpacing: '.5px',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {l}
+                </div>
               </div>
               <div
                 style={{
                   fontFamily: "'Baloo 2',cursive",
-                  fontSize: '2.1rem',
+                  fontSize: '2rem',
                   fontWeight: 800,
                   color: 'var(--ink)',
                   lineHeight: 1,

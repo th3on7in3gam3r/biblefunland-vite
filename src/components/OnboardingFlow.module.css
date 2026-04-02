@@ -249,7 +249,7 @@
   color: #333;
 }
 
-.toggleLabel input[type="checkbox"] {
+.toggleLabel input[type='checkbox'] {
   width: 20px;
   height: 20px;
   cursor: pointer;
