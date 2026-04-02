@@ -29,35 +29,39 @@ const authToken = getEnv('TURSO_AUTH_TOKEN') || getEnv('VITE_TURSO_AUTH_TOKEN');
 // Local fallback URL
 const localUrl = `file:${path.join(__dirname, '../local.db')}`;
 
-let client;
-try {
-  let dbUrl = url || localUrl;
-  const dbToken = authToken || undefined;
+let client = null;
 
-  // In production (Vercel serverless), the HTTP driver is often more stable.
-  // We can force it by changing libsql:// to https://
-  const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
-  if (dbUrl && dbUrl.startsWith('libsql://') && (isVercel || process.env.NODE_ENV === 'production')) {
-    const originalProtocol = dbUrl.split('://')[0];
-    dbUrl = dbUrl.replace('libsql://', 'https://');
-    console.log(`[Turso Init] Protocol change: ${originalProtocol} -> https (for stability)`);
+function getOrCreateClient() {
+  if (client) return client;
+
+  try {
+    let dbUrl = url || localUrl;
+    const dbToken = authToken || undefined;
+
+    // In production (Vercel serverless), the HTTP driver is more stable.
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
+    if (dbUrl && dbUrl.startsWith('libsql://') && (isVercel || process.env.NODE_ENV === 'production')) {
+      const originalProtocol = dbUrl.split('://')[0];
+      dbUrl = dbUrl.replace('libsql://', 'https://');
+      console.log(`[Turso Init] Protocol change: ${originalProtocol} -> https (lazy-init)`);
+    }
+
+    console.log(`[Turso Init] URL Type: ${dbUrl ? (dbUrl.startsWith('file:') ? 'local' : 'remote') : 'missing'}`);
+
+    client = createClient({
+      url: dbUrl,
+      authToken: dbToken,
+    });
+    return client;
+  } catch (err) {
+    console.error('[Turso Lazy Init Error]', err.message);
+    // Return a dummy client that returns errors instead of crashing
+    return {
+      execute: async () => {
+        throw new Error(`Database client failed to init: ${err.message}`);
+      },
+    };
   }
-
-  console.log(`[Turso Init] URL: ${dbUrl ? (dbUrl.startsWith('file:') ? 'local' : (dbUrl.includes('turso.io') ? 'Turso' : dbUrl.split(':')[0])) : 'missing'}`);
-
-  client = createClient({
-    url: dbUrl,
-    authToken: dbToken,
-  });
-} catch (err) {
-  console.error('[Turso Client Init Error]', err.message);
-  // Create a dummy client that returns errors instead of crashing the whole server
-  client = {
-    execute: async () => {
-      console.error('[Turso Dummy Client] Execute called but client failed to init');
-      throw new Error(`Database client not initialized: ${err.message}`);
-    },
-  };
 }
 
 /**
@@ -65,7 +69,8 @@ try {
  */
 async function query(sql, args = []) {
   try {
-    const result = await client.execute({ sql, args });
+    const db = getOrCreateClient();
+    const result = await db.execute({ sql, args });
     return { data: result.rows, error: null, success: true };
   } catch (err) {
     // Only log once to avoid terminal spam
@@ -93,7 +98,8 @@ async function queryOne(sql, args = []) {
  */
 async function execute(sql, args = []) {
   try {
-    const result = await client.execute({ sql, args });
+    const db = getOrCreateClient();
+    const result = await db.execute({ sql, args });
     return { data: result, error: null, success: true };
   } catch (err) {
     console.error(`[Turso Execute Error] SQL: ${sql.slice(0, 50)}... | Error: ${err.message}`);
@@ -101,4 +107,9 @@ async function execute(sql, args = []) {
   }
 }
 
-module.exports = { client, query, queryOne, execute };
+module.exports = { 
+  get client() { return getOrCreateClient(); },
+  query, 
+  queryOne, 
+  execute 
+};
