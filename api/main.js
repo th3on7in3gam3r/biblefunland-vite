@@ -6,14 +6,14 @@ module.exports = (req, res) => {
   }
 
   try {
-    // Determine the server directory path (now nested inside api/)
+    // Determine the server directory path (using unique name for cache invalidation)
     const path = require('path');
-    const serverPath = path.resolve(__dirname, './server/index.js');
+    const serverPath = path.resolve(__dirname, './_bfl_core/index.js');
     
     // Load .env only when running locally
     if (process.env.NODE_ENV !== 'production') {
       try {
-        require('dotenv').config({ path: path.resolve(__dirname, './server/.env') });
+        require('dotenv').config({ path: path.resolve(__dirname, './_bfl_core/.env') });
       } catch (e) {}
     }
 
@@ -26,7 +26,7 @@ module.exports = (req, res) => {
       error: 'CRITICAL BACKEND STARTUP ERROR',
       message: err.message,
       stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-      path_attempted: path.resolve(__dirname, './server/index.js')
+      path_attempted: path.resolve(__dirname, './_bfl_core/index.js')
     });
   }
 };
