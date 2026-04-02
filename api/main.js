@@ -6,19 +6,11 @@ module.exports = (req, res) => {
   }
 
   try {
-    // Determine the server directory path (using unique name for cache invalidation)
-    const path = require('path');
-    const serverPath = path.resolve(__dirname, './_bfl_core/index.js');
+    // 🚀 Literal require for Vercel's static analysis bundler (nft)
+    // This MUST be a literal string for the bundler to find the dependencies
+    const app = require('./_bfl_core/index.js');
     
-    // Load .env only when running locally
-    if (process.env.NODE_ENV !== 'production') {
-      try {
-        require('dotenv').config({ path: path.resolve(__dirname, './_bfl_core/.env') });
-      } catch (e) {}
-    }
-
-    // Require and invoke the actual Express app
-    const app = require(serverPath);
+    // Invoke the actual Express app
     return app(req, res);
   } catch (err) {
     console.error('CRITICAL BACKEND STARTUP ERROR:', err.message);
@@ -26,7 +18,7 @@ module.exports = (req, res) => {
       error: 'CRITICAL BACKEND STARTUP ERROR',
       message: err.message,
       stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-      path_attempted: path.resolve(__dirname, './_bfl_core/index.js')
+      path_attempted: './_bfl_core/index.js'
     });
   }
 };
