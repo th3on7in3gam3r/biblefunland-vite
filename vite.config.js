@@ -38,47 +38,19 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    // Target modern browsers — smaller output
     target: 'es2020',
-    // Warn if any chunk exceeds 600kb
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          // Clerk auth — isolated chunk
-          if (id.includes('@clerk')) return 'clerk'
-          // React core
-          if (id.includes('react-dom') || id.includes('react-router')) return 'react-vendor'
-          // Kids Mode pages — keep lightweight and separate
-          if (id.includes('/pages/Kids') || id.includes('/pages/kids') ||
-              id.includes('KidsDashboard') || id.includes('KidsNumbers') ||
-              id.includes('BibleAlphabet') || id.includes('BibleAnimals') ||
-              id.includes('BibleCountingWorld') || id.includes('GodsShapes') ||
-              id.includes('KidsLetters') || id.includes('KidsShapes') ||
-              id.includes('KidsPuzzles') || id.includes('VerseScrambleKids')) {
-            return 'kids-mode'
-          }
-          // Heavy game pages — separate chunk
-          if (id.includes('ScriptureRunner') || id.includes('DavidGoliath') ||
-              id.includes('ParableEscapeRoom') || id.includes('SpinTheVerse') ||
-              id.includes('BibleBattleArena') || id.includes('BibleWordle')) {
-            return 'games'
-          }
-          // AI pages
-          if (id.includes('BibleRapGenerator') || id.includes('BibleMiracleArt') ||
-              id.includes('BibleCharacterChat') || id.includes('Devotional') ||
-              id.includes('SeasonalAI') || id.includes('SermonWriter')) {
-            return 'ai-tools'
-          }
-          // Admin pages — never in main bundle
-          if (id.includes('/pages/Admin') || id.includes('AdminAnalytics') ||
-              id.includes('LaunchChecklist') || id.includes('ABTestAdmin')) {
-            return 'admin'
-          }
-          // node_modules fallback
-          if (id.includes('node_modules')) return 'vendor'
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          'clerk-auth': ['@clerk/clerk-react', '@clerk/types'],
+          'router': ['react-router-dom'],
         },
       },
     },
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
 })
