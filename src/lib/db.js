@@ -412,17 +412,11 @@ export async function upsertProfile(userId, data) {
 export async function getChildProfiles(parentId, skipCache = false) {
   try {
     if (skipCache) {
-      // Bypass cache by calling the API directly
-      const response = await fetch(`${API_URL}/api/db/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sql: `SELECT * FROM child_profiles WHERE parent_id = ? ORDER BY created_at DESC`,
-          args: [parentId],
-          skipCache: true,
-        }),
-      });
-      return await response.json();
+      // Use the query function directly for consistency and error handling
+      return await query(
+        `SELECT * FROM child_profiles WHERE parent_id = ? ORDER BY created_at DESC`,
+        [parentId]
+      );
     }
 
     return await query(
@@ -601,20 +595,13 @@ export async function getMemoryVerseStats(userId, userType = 'parent') {
 
 export async function getFamilyPlans(parentId, skipCache = false) {
   if (skipCache) {
-    // Bypass cache by calling the API directly
-    const response = await fetch(`${API_URL}/api/db/query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sql: `SELECT id, parent_id, title, description, total_days, created_at
-              FROM family_plans 
-              WHERE parent_id = ? 
-              ORDER BY created_at DESC`,
-        args: [parentId],
-        skipCache: true,
-      }),
-    });
-    return await response.json();
+    return await query(
+      `SELECT id, parent_id, title, description, total_days, created_at
+            FROM family_plans 
+            WHERE parent_id = ? 
+            ORDER BY created_at DESC`,
+      [parentId]
+    );
   }
 
   return query(

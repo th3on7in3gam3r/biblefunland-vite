@@ -126,7 +126,7 @@ export function RealTimeProvider({ children }) {
   const pollStreak = useCallback(async () => {
     if (!user?.id || !serverUp) return;
     try {
-      const res = await fetch(`${API}/api/db`, {
+      const res = await fetch(`${API}/api/db/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

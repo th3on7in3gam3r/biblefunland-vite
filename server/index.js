@@ -78,6 +78,9 @@ const corsOptions = {
       'http://127.0.0.1:3001',
       'http://127.0.0.1:3002',
       process.env.FRONTEND_URL,
+      'https://www.biblefunland.com',
+      'https://biblefunland-vite-mxde.vercel.app',
+      'https://biblefunland-vite-mxde.vercel.app/',
     ].filter(Boolean);
 
     // Dynamic dev check: Allow any localhost or 127.0.0.1 origin
@@ -126,9 +129,17 @@ app.use('/checkout', checkoutLimiter, require('./routes/stripe'));
 // Regular JSON parsing for all other routes
 app.use(express.json());
 
-// Basic Home route
+// Basic Home & Health route
 app.get('/', (req, res) => {
   res.json({ message: 'BibleFunLand Backend Proxy is running! 🕊️' });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Database and Feature routes

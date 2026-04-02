@@ -101,6 +101,13 @@ router.post('/scripture/save', validateUserId, async (req, res) => {
 
 // ─── Generic Query Endpoint (for advanced use) ────────────────────────────────
 
+router.post('/', async (req, res) => {
+  const { sql, args = [] } = req.body;
+  if (!sql) return res.status(400).json({ error: 'sql is required' });
+  const { data, error, success } = await query(sql, args);
+  res.json({ data: data || [], success, error });
+});
+
 router.post('/query', async (req, res) => {
   // Only allow read operations (SELECT)
   const { sql, args = [] } = req.body;
