@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { client: db, query, queryOne, execute } = require('../lib/turso');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 
 async function ensureTables() {
   await db.executeMultiple(`
