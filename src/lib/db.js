@@ -56,7 +56,7 @@ export async function upsertStreak(userId, data) {
 // API_URL imported above
 
 export async function getPrayers() {
-  const res = await fetch(`${API_URL}/prayers/recent`);
+  const res = await fetch(`${API_URL}/api/prayers/recent`);
   if (!res.ok) throw new Error('Error fetching prayers');
   return res.json();
 }
@@ -72,7 +72,7 @@ export async function insertPrayer({
   lng,
   bibleReference,
 }) {
-  const res = await fetch(`${API_URL}/prayers/submit`, {
+  const res = await fetch(`${API_URL}/api/prayers/submit`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId, name, category, text, country, city, lat, lng, bibleReference }),
@@ -87,7 +87,7 @@ export async function insertPrayer({
 }
 
 export async function incrementPrayCount(id) {
-  const res = await fetch(`${API_URL}/prayers/pray/${id}`, {
+  const res = await fetch(`${API_URL}/api/prayers/pray/${id}`, {
     method: 'POST',
   });
 
@@ -100,13 +100,13 @@ export async function incrementPrayCount(id) {
 }
 
 export async function getPendingPrayers() {
-  const res = await fetch(`${API_URL}/prayers/pending`);
+  const res = await fetch(`${API_URL}/api/prayers/pending`);
   if (!res.ok) throw new Error('Error fetching pending prayers');
   return res.json();
 }
 
 export async function moderatePrayer(id, action, moderatingUser) {
-  const res = await fetch(`${API_URL}/prayers/moderate/${id}`, {
+  const res = await fetch(`${API_URL}/api/prayers/moderate/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action, moderatingUser }),
@@ -413,7 +413,7 @@ export async function getChildProfiles(parentId, skipCache = false) {
   try {
     if (skipCache) {
       // Bypass cache by calling the API directly
-      const response = await fetch(`${API_URL}/db/query`, {
+      const response = await fetch(`${API_URL}/api/db/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -602,7 +602,7 @@ export async function getMemoryVerseStats(userId, userType = 'parent') {
 export async function getFamilyPlans(parentId, skipCache = false) {
   if (skipCache) {
     // Bypass cache by calling the API directly
-    const response = await fetch(`${API_URL}/db/query`, {
+    const response = await fetch(`${API_URL}/api/db/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

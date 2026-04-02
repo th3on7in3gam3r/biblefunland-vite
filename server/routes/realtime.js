@@ -1,11 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@libsql/client');
-
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL || '',
-  authToken: process.env.TURSO_AUTH_TOKEN || '',
-});
+const { client: db } = require('../lib/turso');
 
 // GET /api/prayers/live — approved prayers for real-time wall
 router.get('/prayers/live', async (req, res) => {

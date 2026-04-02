@@ -18,7 +18,7 @@ async function apiCall(endpoint, body = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(`${API_URL}/db${endpoint}`, {
+    const response = await fetch(`${API_URL}/api/db${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -73,7 +73,7 @@ export async function execute(sql, args = []) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(`${API_URL}/db/execute`, {
+    const response = await fetch(`${API_URL}/api/db/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sql, args }),
