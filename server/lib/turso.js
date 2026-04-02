@@ -5,28 +5,26 @@
 
 const { createClient } = require('@libsql/client');
 const path = require('path');
-require('dotenv').config();
 
-const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 const url = process.env.TURSO_DATABASE_URL || process.env.VITE_TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN || process.env.VITE_TURSO_AUTH_TOKEN;
 
-// Local fallback ONLY in development
-const localDbPath = path.join(__dirname, '../local.db');
-const localUrl = `file:${localDbPath}`;
+// Local fallback URL
+const localUrl = `file:${path.join(__dirname, '../local.db')}`;
 
-if (!url || !authToken) {
-  if (isProd) {
-    console.error('❌ CRITICAL ERROR: Turso environment variables are MISSING in production!');
-  } else {
-    console.warn('⚠️  Turso environment variables not set. Falling back to local DB.');
-  }
+let client;
+try {
+  client = createClient({
+    url: url || localUrl,
+    authToken: authToken || undefined,
+  });
+} catch (err) {
+  console.error('[Turso Client Init Error]', err.message);
+  // Create a dummy client that returns errors instead of crashing
+  client = {
+    execute: async () => { throw new Error('Database client not initialized (missing env vars)'); }
+  };
 }
-
-const client = createClient({
-  url: url || localUrl,
-  authToken: authToken || undefined,
-});
 
 /**
  * Execute a query and return { data, error, success }

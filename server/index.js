@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+// Environment variables are expected to be provided by the host (Vercel/Production)
+// or via a pre-loader (e.g. node -r dotenv/config server/index.js) in dev.
 
 // Capture uncaught rejections and exceptions in backend service (guard rails for server-side bugs)
 process.on('unhandledRejection', (reason, promise) => {

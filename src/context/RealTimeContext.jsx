@@ -64,42 +64,53 @@ export function RealTimeProvider({ children }) {
 
   // ── Poll prayers ──────────────────────────────────────────────────────────
   const pollPrayers = useCallback(async () => {
+    if (!serverUp) return;
     try {
       const res = await fetch(`${API}/api/prayers/live?limit=20`, {
         signal: AbortSignal.timeout(5000),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status >= 500) setServerUp(false);
+        return;
+      }
       const data = await res.json();
       setPrayers({ items: data.prayers || [], total: data.total || 0, live: true });
     } catch {
-      /* offline or server down — silent */
+      setServerUp(false);
     }
-  }, []);
+  }, [serverUp]);
 
   // ── Poll leaderboard ──────────────────────────────────────────────────────
   const pollLeaderboard = useCallback(async () => {
+    if (!serverUp) return;
     try {
       const res = await fetch(
         `${API}/api/leaderboard/streaks${user?.id ? `?userId=${user.id}` : ''}`,
         { signal: AbortSignal.timeout(5000) }
       );
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status >= 500) setServerUp(false);
+        return;
+      }
       const data = await res.json();
       setLeaderboard((prev) => ({ ...prev, streaks: data.entries || [], live: true }));
     } catch {
-      /* silent */
+      setServerUp(false);
     }
-  }, [user?.id]);
+  }, [user?.id, serverUp]);
 
   // ── Poll family progress ──────────────────────────────────────────────────
   const pollFamily = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id || !serverUp) return;
     try {
       const res = await fetch(`${API}/api/family/live-progress`, {
         headers: { Authorization: `Bearer ${user.id}` },
         signal: AbortSignal.timeout(5000),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status >= 500) setServerUp(false);
+        return;
+      }
       const data = await res.json();
       setFamilyProgress({
         members: data.members || [],
@@ -107,13 +118,13 @@ export function RealTimeProvider({ children }) {
         live: true,
       });
     } catch {
-      /* silent */
+      setServerUp(false);
     }
-  }, [user?.id]);
+  }, [user?.id, serverUp]);
 
   // ── Poll streak ───────────────────────────────────────────────────────────
   const pollStreak = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id || !serverUp) return;
     try {
       const res = await fetch(`${API}/api/db`, {
         method: 'POST',
@@ -124,14 +135,17 @@ export function RealTimeProvider({ children }) {
         }),
         signal: AbortSignal.timeout(5000),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status >= 500) setServerUp(false);
+        return;
+      }
       const data = await res.json();
       const streak = data?.results?.[0]?.streak ?? data?.data?.[0]?.streak;
       if (streak !== undefined) setLiveStreak(Number(streak));
     } catch {
-      /* silent */
+      setServerUp(false);
     }
-  }, [user?.id]);
+  }, [user?.id, serverUp]);
 
   // ── Start/stop helpers ────────────────────────────────────────────────────
   function startPolling(key, fn, interval) {
@@ -145,6 +159,7 @@ export function RealTimeProvider({ children }) {
       clearInterval(timers.current[k]);
       delete timers.current[k];
     });
+    pollingStarted.current = false;
   }
 
   // ── Boot: health check first, then start polls ────────────────────────────
@@ -158,23 +173,23 @@ export function RealTimeProvider({ children }) {
         return;
       }
 
-      const up = await checkHealth();
-      if (up) {
-        startPolls();
-      } else {
-        // Retry health check every 30s until server comes up
-        healthTimer = setInterval(async () => {
-          const ok = await checkHealth();
-          if (ok) {
-            clearInterval(healthTimer);
-            startPolls();
-          }
-        }, INTERVALS.healthCheck);
-      }
+      await checkHealth();
     }
 
-    function startPolls() {
-      if (pollingStarted.current) return;
+    boot();
+
+    // Health check loop
+    healthTimer = setInterval(async () => {
+      if (!serverUp) {
+        await checkHealth();
+      }
+    }, INTERVALS.healthCheck);
+
+    return () => clearInterval(healthTimer);
+  }, [checkHealth, serverUp]);
+
+  useEffect(() => {
+    if (serverUp && !pollingStarted.current) {
       pollingStarted.current = true;
       startPolling('prayers', pollPrayers, INTERVALS.prayers);
       startPolling('leaderboard', pollLeaderboard, INTERVALS.leaderboard);
@@ -182,16 +197,10 @@ export function RealTimeProvider({ children }) {
         startPolling('family', pollFamily, INTERVALS.family);
         startPolling('streak', pollStreak, INTERVALS.streak);
       }
-    }
-
-    boot();
-
-    return () => {
-      clearInterval(healthTimer);
+    } else if (!serverUp) {
       stopAll();
-      pollingStarted.current = false;
-    };
-  }, [user?.id, pollPrayers, pollLeaderboard, pollFamily, pollStreak, checkHealth]);
+    }
+  }, [serverUp, user?.id, pollPrayers, pollLeaderboard, pollFamily, pollStreak]);
 
   // ── Points popup ──────────────────────────────────────────────────────────
   const showPoints = useCallback((points, label = '', x = null, y = null) => {
