@@ -32,6 +32,18 @@ router.get('/recent', async (req, res) => {
   res.json({ data: prayers || [], success, error });
 });
 
+// Alias for RealTimeContext compatibility
+router.get('/live', async (req, res) => {
+  const limit = parseInt(req.query.limit, 10) || 50;
+  const { data: prayers, success, error } = await query(
+    `SELECT id, user_id, name, category, text, pray_count, country, city, lat, lng, created_at
+     FROM prayers
+     ORDER BY created_at DESC
+     LIMIT ?`, [limit]
+  );
+  res.json({ data: prayers || [], success, error });
+});
+
 // Main submission: goes to moderation queue
 router.post('/submit', async (req, res) => {
   const { userId, name, category, text, country, city, lat, lng, bibleReference } = req.body || {};
