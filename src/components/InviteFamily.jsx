@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 const BASE_URL = import.meta.env.VITE_APP_URL || 'https://biblefunland.com';
 
 export default function InviteFamily({ compact = false }) {

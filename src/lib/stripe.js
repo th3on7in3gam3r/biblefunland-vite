@@ -24,7 +24,7 @@ export const STRIPE_PRICES = {
 };
 
 const API_URL =
-  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 // ── Create checkout session via Express backend ──
 export async function createCheckoutSession(priceId, userId, userEmail) {

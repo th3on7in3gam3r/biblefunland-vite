@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Analytics } from '../lib/analytics';
 
-const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 export default function NewsletterSignup({ compact = false }) {
   const [email, setEmail] = useState('');

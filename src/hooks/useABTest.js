@@ -10,7 +10,7 @@ import { useKidsMode } from '../context/KidsModeContext';
 import { useRealTime } from '../context/RealTimeContext';
 import { getVariant, AB_TESTS } from '../lib/abtest';
 
-const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 export function useABTest(testId) {
   const { user } = useAuth();

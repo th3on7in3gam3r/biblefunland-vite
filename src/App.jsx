@@ -209,7 +209,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
     if (ref) {
-      const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+      const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
       fetch(`${API}/api/referrals/click`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

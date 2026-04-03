@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 
-const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 export default function StoryForm({ onClose }) {
   const [form, setForm] = useState({ name: '', role: '', quote: '' });
