@@ -5,9 +5,8 @@ const path = require('path');
 // Safe loading of the Express app 
 let app;
 try {
-  // Use literal require for the actual API server logic (now in the same folder)
-  // This logic is now flattened into the /api/ folder.
-  app = require('./server_app.js'); 
+  // Use literal require for the actual API server logic (moved back to /server/ to bypass Vercel function limits)
+  app = require('../server/server_app.js'); 
 } catch (err) {
   console.error('FATAL BACKEND LOAD ERROR:', err.message);
 }
