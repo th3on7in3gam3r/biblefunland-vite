@@ -183,27 +183,26 @@ export default function AdminAnalytics() {
       </div>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 20px 80px' }}>
-        {/* GA4 status banner */}
-        <div
-          style={{
-            borderRadius: 14,
-            padding: '14px 18px',
-            marginBottom: 28,
-            background: GA_CONFIGURED ? 'var(--green-bg)' : 'var(--red-bg)',
-            border: `1.5px solid ${GA_CONFIGURED ? 'var(--green)' : 'var(--red)'}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            fontSize: '.82rem',
-            fontWeight: 600,
-            color: GA_CONFIGURED ? 'var(--green)' : 'var(--red)',
-          }}
-        >
-          {GA_CONFIGURED ? '✅' : '⚠️'}
-          {GA_CONFIGURED
-            ? `GA4 connected — Measurement ID: ${GA_ID}`
-            : 'GA4 not configured. Add VITE_GA_MEASUREMENT_ID to your .env file to enable Google Analytics tracking.'}
-        </div>
+        {/* GA4 status banner — only show when GA4 is actually configured */}
+        {GA_CONFIGURED && (
+          <div
+            style={{
+              borderRadius: 14,
+              padding: '14px 18px',
+              marginBottom: 28,
+              background: 'var(--green-bg)',
+              border: '1.5px solid var(--green)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              fontSize: '.82rem',
+              fontWeight: 600,
+              color: 'var(--green)',
+            }}
+          >
+            ✅ GA4 connected — Measurement ID: {GA_ID}
+          </div>
+        )}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: 60, color: 'var(--ink3)' }}>

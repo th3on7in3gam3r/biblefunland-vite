@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { query } from '../lib/db';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const ADMIN_LINKS = [
   { to: '/admin/analytics', icon: '📊', label: 'Analytics', color: '#3B82F6' },
@@ -16,12 +19,35 @@ export default function Admin() {
     if (sessionStorage.getItem('bfl_admin_verified') !== 'true')
       navigate('/admin/login', { replace: true });
   }, []);
-  const [checkins] = useState(
-    () => JSON.parse(localStorage.getItem('bfl_streak') || '{}').checkinCount || 0
-  );
-  const [badges] = useState(
-    () => (JSON.parse(localStorage.getItem('bfl_state') || '{}').earnedBadges || []).length
-  );
+
+  // Real stats from Turso
+  const [stats, setStats] = useState({ users: '—', prayers: '—', activities: '—', badges: '—' });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [users, prayers, activities, badges] = await Promise.all([
+          query('SELECT COUNT(*) AS total FROM profiles', []),
+          query('SELECT COUNT(*) AS total FROM prayer_requests', []),
+          query('SELECT COUNT(*) AS total FROM child_activity', []),
+          query('SELECT COUNT(*) AS total FROM badges', []),
+        ]);
+        setStats({
+          users: (users.data?.[0]?.total ?? 0).toLocaleString(),
+          prayers: (prayers.data?.[0]?.total ?? 0).toLocaleString(),
+          activities: (activities.data?.[0]?.total ?? 0).toLocaleString(),
+          badges: (badges.data?.[0]?.total ?? 0).toLocaleString(),
+        });
+      } catch {
+        // backend down — keep showing dashes
+      } finally {
+        setStatsLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
+
   const GAMES = [
     ['Scripture Trivia', 92, '4.2K'],
     ['Bible Checkers', 74, '3.4K'],
@@ -163,10 +189,10 @@ export default function Admin() {
           }}
         >
           {[
-            ['👥', 'Total Page Views', '12,847', '↑ +18% this week', '#3B82F6'],
-            ['✅', 'Check-ins', checkins, '↑ Streak going', '#10B981'],
-            ['🙏', 'Prayer Requests', '6', '↑ Active community', '#8B5CF6'],
-            ['🏆', 'Badges Earned', badges, '↑ Players growing', '#F59E0B'],
+            ['👥', 'Total Users', stats.users, 'From profiles table', '#3B82F6'],
+            ['🎯', 'Activities Tracked', stats.activities, 'From child_activity', '#10B981'],
+            ['🙏', 'Prayer Requests', stats.prayers, 'From prayer_requests', '#8B5CF6'],
+            ['🏆', 'Badges Earned', stats.badges, 'From badges table', '#F59E0B'],
           ].map(([icon, l, v, sub, c], i) => (
             <div
               key={i}
@@ -221,12 +247,12 @@ export default function Admin() {
                   fontFamily: "'Baloo 2',cursive",
                   fontSize: '2rem',
                   fontWeight: 800,
-                  color: 'var(--ink)',
+                  color: statsLoading ? 'var(--ink3)' : 'var(--ink)',
                   lineHeight: 1,
                   marginBottom: 4,
                 }}
               >
-                {v}
+                {statsLoading ? '...' : v}
               </div>
               <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--green)' }}>
                 {sub}
