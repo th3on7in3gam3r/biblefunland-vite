@@ -55,7 +55,7 @@ router.post('/create', async (req, res) => {
     await execute(
       `INSERT INTO family_group_members (id, group_id, user_id, display_name, role, family_role, emoji, streak, badges, joined_at)
        VALUES (?, ?, ?, ?, 'Admin', ?, ?, 0, 0, ?)`,
-      [memberId, id, userId, displayName || userId.slice(0, 8), familyRole || 'Admin', roleEmoji, now]
+      [memberId, id, userId, displayName || 'Family Member', familyRole || 'Admin', roleEmoji, now]
     );
 
     res.json({ success: true, group: { id, name: name.trim(), code } });
@@ -186,3 +186,42 @@ function getFamilyRoleEmoji(role) {
 }
 
 module.exports = router;
+
+// ── POST /api/family-groups/leave — leave a group ────────────────────────────
+router.post('/leave', async (req, res) => {
+  const { groupId, userId } = req.body;
+  if (!groupId || !userId) return res.status(400).json({ error: 'groupId and userId required' });
+  try {
+    await execute(
+      `DELETE FROM family_group_members WHERE group_id = ? AND user_id = ?`,
+      [groupId, userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[FamilyGroups /leave]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/family-groups/:groupId — delete entire group (admin only) ────
+router.delete('/:groupId', async (req, res) => {
+  const { groupId } = req.params;
+  const { userId } = req.body;
+  if (!groupId || !userId) return res.status(400).json({ error: 'groupId and userId required' });
+  try {
+    // Verify requester is admin
+    const { data: member } = await queryOne(
+      `SELECT role FROM family_group_members WHERE group_id = ? AND user_id = ?`,
+      [groupId, userId]
+    );
+    if (!member || member.role !== 'Admin') {
+      return res.status(403).json({ error: 'Only the group Admin can delete the group' });
+    }
+    await execute(`DELETE FROM family_group_members WHERE group_id = ?`, [groupId]);
+    await execute(`DELETE FROM family_groups WHERE id = ?`, [groupId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[FamilyGroups /delete]', err);
+    res.status(500).json({ error: err.message });
+  }
+});

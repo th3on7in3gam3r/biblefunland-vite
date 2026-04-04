@@ -28,13 +28,15 @@ export default function FamilyGroups() {
   const [msg, setMsg]                 = useState({ text: '', type: '' });
 
   // Create form
-  const [groupName, setGroupName]     = useState('');
-  const [createRole, setCreateRole]   = useState('');
+  const [groupName, setGroupName]         = useState('');
+  const [createRole, setCreateRole]       = useState('');
+  const [createDisplayName, setCreateDisplayName] = useState('');
 
   // Join form
-  const [joinCode, setJoinCode]       = useState('');
-  const [joinPreview, setJoinPreview] = useState(null);  // the group found by code
-  const [joinRole, setJoinRole]       = useState('');    // role chosen
+  const [joinCode, setJoinCode]           = useState('');
+  const [joinPreview, setJoinPreview]     = useState(null);
+  const [joinRole, setJoinRole]           = useState('');
+  const [joinDisplayName, setJoinDisplayName] = useState('');
 
   // ── Load user's groups ───────────────────────────────────────────────────────
   const loadGroups = useCallback(async () => {
@@ -57,10 +59,10 @@ export default function FamilyGroups() {
 
   // ── Create a new group ───────────────────────────────────────────────────────
   async function createGroup() {
-    if (!groupName.trim() || !createRole) return;
+    if (!groupName.trim() || !createRole || !createDisplayName.trim()) return;
     setLoading(true);
     try {
-      const displayName = user?.firstName || user?.email?.split('@')[0] || 'Creator';
+      const displayName = createDisplayName.trim();
       const res = await fetch(`${API}/api/family-groups/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,6 +79,7 @@ export default function FamilyGroups() {
       flash(`✅ Family group created! Share code: ${data.group.code}`);
       setGroupName('');
       setCreateRole('');
+      setCreateDisplayName('');
       await loadGroups();
       // Find the newly created group and open it
       const refresh = await fetch(`${API}/api/family-groups/user/${user.id}`);
@@ -110,10 +113,10 @@ export default function FamilyGroups() {
 
   // ── Step 2: join with chosen role ────────────────────────────────────────────
   async function joinGroup() {
-    if (!joinRole || !joinPreview) return;
+    if (!joinRole || !joinPreview || !joinDisplayName.trim()) return;
     setLoading(true);
     try {
-      const displayName = user?.firstName || user?.email?.split('@')[0] || 'Family Member';
+      const displayName = joinDisplayName.trim();
       const res = await fetch(`${API}/api/family-groups/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -246,6 +249,17 @@ export default function FamilyGroups() {
             </h2>
 
             <label style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)', letterSpacing: '.5px', textTransform: 'uppercase', display: 'block', marginBottom: 7 }}>
+              Your Display Name
+            </label>
+            <input
+              className="input-field"
+              placeholder='e.g. "Jerless" or "Dad" or "Sarah"'
+              value={createDisplayName}
+              onChange={(e) => setCreateDisplayName(e.target.value)}
+              style={{ marginBottom: 20 }}
+            />
+
+            <label style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)', letterSpacing: '.5px', textTransform: 'uppercase', display: 'block', marginBottom: 7 }}>
               Group Name
             </label>
             <input
@@ -288,10 +302,10 @@ export default function FamilyGroups() {
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-blue" onClick={createGroup} disabled={!groupName.trim() || !createRole || loading}>
+              <button className="btn btn-blue" onClick={createGroup} disabled={!groupName.trim() || !createRole || !createDisplayName.trim() || loading}>
                 {loading ? 'Creating…' : 'Create Group →'}
               </button>
-              <button className="btn btn-outline" onClick={() => { setView('list'); setGroupName(''); setCreateRole(''); }}>
+              <button className="btn btn-outline" onClick={() => { setView('list'); setGroupName(''); setCreateRole(''); setCreateDisplayName(''); }}>
                 Cancel
               </button>
             </div>
@@ -355,6 +369,18 @@ export default function FamilyGroups() {
               This helps your family see how you relate to each other on the leaderboard.
             </p>
 
+            {/* Display name — required to show on leaderboard */}
+            <label style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--ink3)', letterSpacing: '.5px', textTransform: 'uppercase', display: 'block', marginBottom: 7 }}>
+              Your Display Name
+            </label>
+            <input
+              className="input-field"
+              placeholder='e.g. "Dad", "Emma", "Grandma Rose"'
+              value={joinDisplayName}
+              onChange={(e) => setJoinDisplayName(e.target.value)}
+              style={{ marginBottom: 20 }}
+            />
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10, marginBottom: 24 }}>
               {FAMILY_ROLES.map(({ id, emoji, label }) => (
                 <button
@@ -380,7 +406,7 @@ export default function FamilyGroups() {
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-green" onClick={joinGroup} disabled={!joinRole || loading}>
+              <button className="btn btn-green" onClick={joinGroup} disabled={!joinRole || !joinDisplayName.trim() || loading}>
                 {loading ? 'Joining…' : `✅ Join as ${joinRole || '…'}`}
               </button>
               <button className="btn btn-outline" onClick={() => { setView('join'); setJoinRole(''); }}>
@@ -393,9 +419,67 @@ export default function FamilyGroups() {
         {/* ── GROUP VIEW ─────────────────────────────────────────────────────── */}
         {view === 'group' && g && (
           <div>
-            <button className="btn btn-outline btn-sm" onClick={() => { setView('list'); loadGroups(); }} style={{ marginBottom: 20 }}>
-              ← Back to Groups
-            </button>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+              <button className="btn btn-outline btn-sm" onClick={() => { setView('list'); loadGroups(); }}>
+                ← Back to Groups
+              </button>
+
+              {/* Leave button — for non-admin members */}
+              {g.members?.find(m => m.user_id === user?.id)?.role !== 'Admin' && (
+                <button
+                  className="btn btn-sm"
+                  style={{ background: 'var(--orange-bg)', color: 'var(--orange)', border: '1.5px solid var(--orange)', marginLeft: 'auto' }}
+                  onClick={async () => {
+                    if (!confirm('Leave this family group?')) return;
+                    setLoading(true);
+                    try {
+                      const res = await fetch(`${API}/api/family-groups/leave`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ groupId: g.id, userId: user?.id }),
+                      });
+                      if (!res.ok) throw new Error((await res.json()).error);
+                      flash('👋 You left the group.');
+                      setActiveGroup(null);
+                      setView('list');
+                      loadGroups();
+                    } catch (err) { flash(`❌ ${err.message}`, 'error'); }
+                    finally { setLoading(false); }
+                  }}
+                  disabled={loading}
+                >
+                  👋 Leave Group
+                </button>
+              )}
+
+              {/* Delete button — admin only */}
+              {g.members?.find(m => m.user_id === user?.id)?.role === 'Admin' && (
+                <button
+                  className="btn btn-sm"
+                  style={{ background: 'var(--red-bg)', color: 'var(--red)', border: '1.5px solid var(--red)', marginLeft: 'auto' }}
+                  onClick={async () => {
+                    if (!confirm(`Delete "${g.name}" permanently? This cannot be undone.`)) return;
+                    setLoading(true);
+                    try {
+                      const res = await fetch(`${API}/api/family-groups/${g.id}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: user?.id }),
+                      });
+                      if (!res.ok) throw new Error((await res.json()).error);
+                      flash('🗑️ Group deleted.');
+                      setActiveGroup(null);
+                      setView('list');
+                      loadGroups();
+                    } catch (err) { flash(`❌ ${err.message}`, 'error'); }
+                    finally { setLoading(false); }
+                  }}
+                  disabled={loading}
+                >
+                  🗑️ Delete Group
+                </button>
+              )}
+            </div>
 
             <div style={{ ...card, marginBottom: 20 }}>
               {/* Group header */}
@@ -445,7 +529,9 @@ export default function FamilyGroups() {
                       <div style={{ fontSize: '1.5rem' }}>{m.emoji || '👤'}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '.88rem', fontWeight: 700, color: 'var(--ink)' }}>
-                          {m.display_name} {m.role === 'Admin' ? '👑' : ''}
+                          {m.display_name && !m.display_name.includes('@') && m.display_name.length < 30
+                            ? m.display_name
+                            : m.family_role || 'Family Member'} {m.role === 'Admin' ? '👑' : ''}
                         </div>
                         <div style={{ fontSize: '.7rem', color: 'var(--ink3)', fontWeight: 500 }}>
                           {m.family_role && <span style={{ marginRight: 8 }}>🏠 {m.family_role}</span>}
