@@ -41,6 +41,8 @@ mount('/api/prayers', communityLimiter, require('./routes/prayers'));
 mount('/api/clerk-webhook', require('./routes/clerkWebhook'));
 mount('/api/checkout', require('./routes/stripe'));
 
+mount('/api/family-groups', require('./routes/familyGroups'));
+
 // Restoring the omitted core routes
 mount('/api', require('./routes/realtime'));
 mount('/api/abtest', require('./routes/abtest'));
