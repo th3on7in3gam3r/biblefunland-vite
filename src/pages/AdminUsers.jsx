@@ -2,17 +2,38 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { query } from '../lib/db'
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('All')
+  const [deleting, setDeleting] = useState(null)
 
   useEffect(() => {
+    loadUsers()
+  }, [])
+
+  function loadUsers() {
     query('SELECT * FROM profiles ORDER BY created_at DESC', [])
       .then(r => { setUsers(r.data || []); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [])
+  }
+
+  async function deleteUser(userId, displayName) {
+    if (!confirm(`Delete "${displayName || userId}"?\n\nThis removes all their data from the database. Their Clerk login account will remain — delete that separately from the Clerk dashboard if needed.`)) return
+    setDeleting(userId)
+    try {
+      const res = await fetch(`${API}/api/profiles/${userId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error((await res.json()).error)
+      setUsers(prev => prev.filter(u => u.user_id !== userId && u.id !== userId))
+    } catch (err) {
+      alert('Delete failed: ' + err.message)
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   const roles = ['All', ...new Set(users.map(u => u.role || 'member').filter(Boolean))]
 
@@ -133,6 +154,14 @@ export default function AdminUsers() {
                               📋
                             </button>
                           )}
+                          <button
+                            onClick={() => deleteUser(u.user_id || u.id, u.display_name)}
+                            disabled={deleting === (u.user_id || u.id)}
+                            style={{ padding: '4px 10px', borderRadius: 7, border: '1px solid var(--red)', background: 'var(--red-bg)', color: 'var(--red)', fontSize: '.7rem', fontWeight: 700, cursor: 'pointer', opacity: deleting === (u.user_id || u.id) ? .5 : 1 }}
+                            title="Delete user from Turso"
+                          >
+                            {deleting === (u.user_id || u.id) ? '...' : '🗑️'}
+                          </button>
                         </div>
                       </td>
                     </tr>

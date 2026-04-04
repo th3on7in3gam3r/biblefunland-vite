@@ -115,3 +115,35 @@ router.patch('/:userId/role', async (req, res) => {
 });
 
 module.exports = router;
+
+// DELETE /api/profiles/:userId — Delete user profile + all related data from Turso
+router.delete('/:userId', async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  try {
+    // Delete all user data from Turso tables
+    const tables = [
+      'child_activity',
+      'badges',
+      'streaks',
+      'bookmarks',
+      'family_group_members',
+      'prayer_requests',
+      'subscriptions',
+      'profiles',
+    ];
+
+    for (const table of tables) {
+      await execute(
+        `DELETE FROM ${table} WHERE user_id = ? OR id = ?`,
+        [userId, userId]
+      ).catch(() => {}); // ignore if table doesn't have that column
+    }
+
+    res.json({ success: true, message: `User ${userId} deleted from Turso` });
+  } catch (err) {
+    console.error('[profiles/delete]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
