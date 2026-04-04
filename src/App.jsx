@@ -61,6 +61,7 @@ const AdminAnalytics = lazy_(() => import('./pages/AdminAnalytics'));
 const LaunchChecklist = lazy_(() => import('./pages/LaunchChecklist'));
 const ABTestAdmin = lazy_(() => import('./pages/ABTestAdmin'));
 const AdminNewsletter = lazy_(() => import('./pages/AdminNewsletter'));
+const AdminUsers = lazy_(() => import('./pages/AdminUsers'));
 const Newsletter = lazy_(() => import('./pages/Newsletter'));
 const Profile = lazy_(() => import('./pages/Profile'));
 const DavidGoliath = lazy_(() => import('./pages/DavidGoliath'));
@@ -1566,6 +1567,10 @@ export default function App() {
                                                     <Route
                                                       path="/admin/newsletter"
                                                       element={<SP c={AdminNewsletter} />}
+                                                    />
+                                                    <Route
+                                                      path="/admin/users"
+                                                      element={<SP c={AdminUsers} />}
                                                     />
                                                   </Route>
 

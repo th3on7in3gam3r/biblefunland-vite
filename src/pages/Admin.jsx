@@ -6,6 +6,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const ADMIN_LINKS = [
   { to: '/admin/analytics', icon: '📊', label: 'Analytics', color: '#3B82F6' },
+  { to: '/admin/users', icon: '👥', label: 'Users', color: '#10B981' },
   { to: '/admin/ab-tests', icon: '🧪', label: 'A/B Tests', color: '#8B5CF6' },
   { to: '/admin/launch', icon: '🚀', label: 'Launch Checklist', color: '#10B981' },
   { to: '/community/prayer', icon: '🙏', label: 'Prayer Queue', color: '#EC4899' },
@@ -189,13 +190,14 @@ export default function Admin() {
           }}
         >
           {[
-            ['👥', 'Total Users', stats.users, 'From profiles table', '#3B82F6'],
-            ['🎯', 'Activities Tracked', stats.activities, 'From child_activity', '#10B981'],
-            ['🙏', 'Prayer Requests', stats.prayers, 'From prayer_requests', '#8B5CF6'],
-            ['🏆', 'Badges Earned', stats.badges, 'From badges table', '#F59E0B'],
-          ].map(([icon, l, v, sub, c], i) => (
+            ['👥', 'Total Users', stats.users, 'From profiles table', '#3B82F6', '/admin/users'],
+            ['🎯', 'Activities Tracked', stats.activities, 'From child_activity', '#10B981', null],
+            ['🙏', 'Prayer Requests', stats.prayers, 'From prayer_requests', '#8B5CF6', null],
+            ['🏆', 'Badges Earned', stats.badges, 'From badges table', '#F59E0B', null],
+          ].map(([icon, l, v, sub, c, href], i) => (
             <div
               key={i}
+              onClick={() => href && navigate(href)}
               style={{
                 background: 'var(--surface)',
                 borderRadius: 18,
@@ -203,7 +205,11 @@ export default function Admin() {
                 border: '1.5px solid var(--border)',
                 position: 'relative',
                 overflow: 'hidden',
+                cursor: href ? 'pointer' : 'default',
+                transition: 'all .2s',
               }}
+              onMouseEnter={e => { if(href) { e.currentTarget.style.borderColor = c; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${c}20` } }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}
             >
               <div
                 style={{
@@ -257,6 +263,7 @@ export default function Admin() {
               <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--green)' }}>
                 {sub}
               </div>
+              {href && <div style={{ fontSize: '.68rem', fontWeight: 700, color: c, marginTop: 4 }}>View all →</div>}
             </div>
           ))}
         </div>
