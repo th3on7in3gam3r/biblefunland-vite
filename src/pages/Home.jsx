@@ -698,7 +698,12 @@ export default function Home() {
       {/* ══════════════════════════════════════════
           QUICK START
       ══════════════════════════════════════════ */}
-      <QuickStart user={user} todayVerse={todayVerse} />
+      <QuickStart todayVerse={todayVerse} />
+
+      {/* ══════════════════════════════════════════
+          SEASONAL HIGHLIGHT
+      ══════════════════════════════════════════ */}
+      <SeasonalHighlight />
 
       {/* ══════════════════════════════════════════
           FOR PARENTS & TEACHERS
@@ -706,7 +711,7 @@ export default function Home() {
       <ParentsSection />
 
       {/* ══════════════════════════════════════════
-          NEWSLETTER + PRO CTA
+          NEWSLETTER
       ══════════════════════════════════════════ */}
       <section style={{ padding: '60px 24px', background: 'white' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -714,6 +719,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════
+          PRO CTA
+      ══════════════════════════════════════════ */}
       <ProCta user={user} />
 
       <style>{`
@@ -725,16 +733,18 @@ export default function Home() {
   );
 }
 
-// ── Quick Start Section ───────────────────────────────────────────────────────
-function QuickStart({ user, todayVerse }) {
+
+// ── Quick Start ───────────────────────────────────────────────────────────────
+function QuickStart({ todayVerse }) {
   const QUICK_CARDS = [
     {
       icon: '🎮',
-      title: 'Start Playing Games',
-      desc: 'Fun Bible games for all ages — trivia, runners, escape rooms & more',
+      title: 'Play Games',
+      desc: 'Bible trivia, runners, escape rooms & more — all ages welcome',
       to: '/play',
       color: '#3B82F6',
       bg: '#EFF6FF',
+      label: 'Start Playing →',
     },
     {
       icon: '🙏',
@@ -743,42 +753,48 @@ function QuickStart({ user, todayVerse }) {
       to: '/devotional',
       color: '#8B5CF6',
       bg: '#F5F3FF',
+      label: 'Get Devotional →',
     },
     {
       icon: '🌍',
-      title: 'Explore Virtual Bible World',
+      title: 'Virtual Bible World',
       desc: 'Walk through 3D Bible lands and immerse yourself in Scripture',
       to: '/explore/world',
       color: '#C05C33',
       bg: '#FFF7ED',
+      label: 'Explore Now →',
     },
     {
       icon: '📖',
       title: 'Verse of the Day',
-      desc: todayVerse ? `"${todayVerse.text.slice(0, 80)}…" — ${todayVerse.ref}` : 'A fresh verse every day to inspire your walk',
+      desc: todayVerse
+        ? `"${todayVerse.text.slice(0, 72)}…" — ${todayVerse.ref}`
+        : 'A fresh verse every day to inspire your walk with God',
       to: '/explore/bible',
       color: '#10B981',
       bg: '#ECFDF5',
+      label: 'Read More →',
     },
     {
-      icon: '🌍',
-      title: 'Quick Prayer',
-      desc: 'Join thousands praying together on the live Prayer Wall',
+      icon: '🕊️',
+      title: 'Join Prayer Wall',
+      desc: 'Thousands praying together right now — add your voice',
       to: '/prayer',
       color: '#F59E0B',
       bg: '#FFFBEB',
+      label: 'Pray Now →',
     },
   ];
 
   return (
-    <section style={{ padding: '80px 24px 60px', background: '#FAFBFF' }}>
+    <section style={{ padding: '80px 24px 64px', background: '#FAFBFF' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48 }}>
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 52 }}>
           <span style={{
             display: 'inline-block', fontSize: '.72rem', fontWeight: 800,
             letterSpacing: '1px', textTransform: 'uppercase',
             color: '#3B82F6', background: '#EFF6FF',
-            padding: '5px 14px', borderRadius: 100, marginBottom: 12,
+            padding: '5px 14px', borderRadius: 100, marginBottom: 14,
           }}>
             Get Started
           </span>
@@ -789,60 +805,60 @@ function QuickStart({ user, todayVerse }) {
           }}>
             Where would you like to begin?
           </h2>
-          <p style={{ color: '#6B7280', fontSize: '.95rem', maxWidth: 480, margin: '0 auto' }}>
+          <p style={{ color: '#6B7280', fontSize: '.95rem', maxWidth: 460, margin: '0 auto' }}>
             Everything is free. Pick what sounds fun and dive in.
           </p>
         </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: 20,
         }}>
           {QUICK_CARDS.map((card, i) => (
-            <Link key={card.to + i} to={card.to} style={{ textDecoration: 'none' }}>
+            <Link key={i} to={card.to} style={{ textDecoration: 'none' }}>
               <motion.div
-                className="reveal"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
-                whileHover={{ y: -6, boxShadow: `0 16px 40px ${card.color}22` }}
+                transition={{ delay: i * 0.07, duration: 0.45 }}
+                whileHover={{ y: -6, boxShadow: `0 18px 40px ${card.color}20` }}
                 style={{
                   background: card.bg,
                   borderRadius: 20,
-                  padding: '28px 24px',
-                  border: `1.5px solid ${card.color}18`,
-                  display: 'flex', flexDirection: 'column', gap: 12,
+                  padding: '28px 22px',
+                  border: `1.5px solid ${card.color}1A`,
+                  display: 'flex', flexDirection: 'column', gap: 14,
                   height: '100%', cursor: 'pointer',
-                  transition: 'box-shadow 0.2s',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                  transition: 'box-shadow 0.25s, transform 0.25s',
                 }}
               >
                 <div style={{
                   width: 52, height: 52, borderRadius: 16,
                   background: card.color, display: 'flex',
                   alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', boxShadow: `0 6px 16px ${card.color}44`,
+                  fontSize: '1.5rem', boxShadow: `0 6px 16px ${card.color}40`,
+                  flexShrink: 0,
                 }}>
                   {card.icon}
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{
-                    fontFamily: "'Baloo 2', cursive", fontSize: '1.15rem',
+                    fontFamily: "'Baloo 2', cursive", fontSize: '1.1rem',
                     fontWeight: 800, color: '#1E1B4B', marginBottom: 6,
                   }}>
                     {card.title}
                   </div>
-                  <p style={{ fontSize: '.83rem', color: '#6B7280', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: '.82rem', color: '#6B7280', lineHeight: 1.65, margin: 0 }}>
                     {card.desc}
                   </p>
                 </div>
                 <div style={{
-                  marginTop: 'auto', color: card.color,
-                  fontWeight: 800, fontSize: '.8rem',
+                  color: card.color, fontWeight: 800, fontSize: '.8rem',
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}>
-                  Go →
+                  {card.label}
                 </div>
               </motion.div>
             </Link>
@@ -853,20 +869,322 @@ function QuickStart({ user, todayVerse }) {
   );
 }
 
-// ── Parents & Teachers Section ────────────────────────────────────────────────
+// ── Seasonal Highlight ────────────────────────────────────────────────────────
+function getSeasonData() {
+  const now = new Date();
+  const m = now.getMonth(); // 0-indexed
+  const d = now.getDate();
+
+  // Easter / Spring (mid-March → end of April)
+  if ((m === 2 && d >= 15) || (m === 3 && d <= 30)) {
+    return {
+      id: 'easter',
+      label: 'Easter Adventures',
+      tagline: "He is Risen! 🐣 Celebrate with special Easter activities — new content added weekly.",
+      emoji: '🐣',
+      gradient: 'linear-gradient(135deg, #064E3B 0%, #065F46 50%, #0F4C2A 100%)',
+      accentColor: '#34D399',
+      tagBg: 'rgba(52,211,153,0.15)',
+      tagColor: '#34D399',
+      cards: [
+        { icon: '🏃', title: 'Resurrection Runner', desc: 'Easter edition of Scripture Runner — collect Easter eggs of faith!', to: '/play/game/runner', tag: '🐣 Easter Special' },
+        { icon: '❓', title: 'Easter Trivia', desc: 'Test your knowledge of the resurrection story across 3 difficulty levels', to: '/play/trivia', tag: '🌟 All Ages' },
+        { icon: '🙏', title: 'Easter Devotional', desc: 'AI-powered devotional on the resurrection — personalized for your family', to: '/devotional', tag: '✨ AI' },
+      ],
+      cta: { label: 'Explore All Easter Activities →', to: '/play' },
+      fomo: '🔥 New Easter content added this week — don\'t miss it!',
+    };
+  }
+
+  // Summer (May → mid-August)
+  if ((m === 4) || (m === 5) || (m === 6) || (m === 7 && d <= 15)) {
+    return {
+      id: 'summer',
+      label: 'Summer Bible Fun',
+      tagline: '☀️ Keep the faith alive all summer — new games, challenges & printables every week.',
+      emoji: '☀️',
+      gradient: 'linear-gradient(135deg, #1E3A5F 0%, #1E1B4B 50%, #0F172A 100%)',
+      accentColor: '#FCD34D',
+      tagBg: 'rgba(252,211,77,0.15)',
+      tagColor: '#FCD34D',
+      cards: [
+        { icon: '🏖️', title: 'Summer Scripture Challenge', desc: 'Read through the Psalms this summer — earn the Summer Scholar badge', to: '/grow', tag: '🏆 Challenge' },
+        { icon: '🎮', title: 'Summer Games Marathon', desc: 'Play all 6 Bible games and unlock the Summer Champion badge', to: '/play', tag: '🎮 Games' },
+        { icon: '🖨️', title: 'Summer Activity Sheets', desc: 'Free printable Bible coloring pages, word searches & crafts', to: '/play/activity-sheets', tag: '🖨️ Free Print' },
+      ],
+      cta: { label: 'See All Summer Activities →', to: '/play' },
+      fomo: '☀️ Summer challenge ends August 15 — earn your badge before it\'s gone!',
+    };
+  }
+
+  // Back to School (mid-Aug → mid-Sep)
+  if ((m === 7 && d >= 15) || (m === 8 && d <= 15)) {
+    return {
+      id: 'back-to-school',
+      label: 'Back to School',
+      tagline: '📚 Start the school year with wisdom — Bible study tools for students & teachers.',
+      emoji: '📚',
+      gradient: 'linear-gradient(135deg, #1E3A5F 0%, #1E1B4B 50%, #0F172A 100%)',
+      accentColor: '#60A5FA',
+      tagBg: 'rgba(96,165,250,0.15)',
+      tagColor: '#60A5FA',
+      cards: [
+        { icon: '🧠', title: 'Bible Flashcards', desc: 'Memorize key verses for the new school year — 200+ cards available', to: '/play/flashcards', tag: '📚 Study' },
+        { icon: '🏫', title: 'Teacher Lesson Plans', desc: 'Free Bible lesson plans and activity sheets for classrooms', to: '/parents', tag: '🏫 Teachers' },
+        { icon: '🙏', title: 'School Year Devotional', desc: 'AI devotional to start the school year with God\'s guidance', to: '/devotional', tag: '✨ AI' },
+      ],
+      cta: { label: 'Explore Back to School Resources →', to: '/parents' },
+      fomo: '📚 New lesson plans added weekly for the school year!',
+    };
+  }
+
+  // Thanksgiving (Nov 15–30)
+  if (m === 10 && d >= 15) {
+    return {
+      id: 'thanksgiving',
+      label: 'Thanksgiving Season',
+      tagline: '🦃 Give thanks to the Lord — explore gratitude and praise in Scripture this season.',
+      emoji: '🦃',
+      gradient: 'linear-gradient(135deg, #78350F 0%, #92400E 50%, #0F172A 100%)',
+      accentColor: '#F59E0B',
+      tagBg: 'rgba(245,158,11,0.15)',
+      tagColor: '#F59E0B',
+      cards: [
+        { icon: '🦃', title: 'Thanksgiving Trivia', desc: 'Bible verses about gratitude, praise, and giving thanks', to: '/play/trivia', tag: '🦃 Seasonal' },
+        { icon: '🙏', title: 'Gratitude Devotional', desc: 'AI devotional on thankfulness and counting your blessings', to: '/devotional', tag: '✨ AI' },
+        { icon: '🎵', title: 'Praise Rap Generator', desc: 'Create a thanksgiving scripture rap for your family', to: '/ai/rap-generator', tag: '🎵 AI Fun' },
+      ],
+      cta: { label: 'Explore Thanksgiving Activities →', to: '/play' },
+      fomo: '🦃 Special Thanksgiving badge available this month only!',
+    };
+  }
+
+  // Christmas (Dec)
+  if (m === 11) {
+    return {
+      id: 'christmas',
+      label: 'Christmas Season',
+      tagline: '🎄 Celebrate the greatest gift — special Christmas games, stories & devotionals.',
+      emoji: '🎄',
+      gradient: 'linear-gradient(135deg, #7F1D1D 0%, #1E3A5F 50%, #0F172A 100%)',
+      accentColor: '#EF4444',
+      tagBg: 'rgba(239,68,68,0.15)',
+      tagColor: '#EF4444',
+      cards: [
+        { icon: '⭐', title: 'Nativity Trivia', desc: 'How well do you know the Christmas story? 3 difficulty levels', to: '/play/trivia', tag: '🎄 Christmas' },
+        { icon: '🎄', title: 'Christmas Devotional', desc: 'AI devotional on the birth of Jesus — perfect for family reading', to: '/devotional', tag: '✨ AI' },
+        { icon: '🎵', title: 'Christmas Rap', desc: 'Generate a Christmas scripture rap for your family celebration', to: '/ai/rap-generator', tag: '🎵 AI Fun' },
+      ],
+      cta: { label: 'Explore All Christmas Activities →', to: '/play' },
+      fomo: '🎄 Christmas content available December only — celebrate with us!',
+    };
+  }
+
+  // Default: Spring / General
+  return {
+    id: 'spring',
+    label: 'Spring Bible Fun',
+    tagline: '🌸 Fresh content every week — games, devotionals, and challenges for the whole family.',
+    emoji: '🌸',
+    gradient: 'linear-gradient(135deg, #1E3A5F 0%, #312E81 50%, #0F172A 100%)',
+    accentColor: '#A78BFA',
+    tagBg: 'rgba(167,139,250,0.15)',
+    tagColor: '#A78BFA',
+    cards: [
+      { icon: '🎮', title: 'Featured Games', desc: 'Scripture Runner, Trivia, David & Goliath — play them all free', to: '/play', tag: '🎮 Popular' },
+      { icon: '🌍', title: 'Virtual Bible World', desc: 'Explore 3D Bible lands — new locations added regularly', to: '/explore/world', tag: '🌍 Explore' },
+      { icon: '🙏', title: 'Daily Devotional', desc: 'Fresh AI-powered devotionals every day for your family', to: '/devotional', tag: '✨ AI' },
+    ],
+    cta: { label: 'Explore All Activities →', to: '/play' },
+    fomo: '🌸 New games and activities added every week — check back often!',
+  };
+}
+
+function SeasonalHighlight() {
+  const season = getSeasonData();
+
+  return (
+    <section style={{
+      padding: '80px 24px',
+      background: season.gradient,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Decorative glow */}
+      <div style={{
+        position: 'absolute', top: '-20%', right: '-10%',
+        width: 500, height: 500, borderRadius: '50%',
+        background: `radial-gradient(circle, ${season.accentColor}18 0%, transparent 70%)`,
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 52 }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: '.72rem', fontWeight: 800, letterSpacing: '1px',
+            textTransform: 'uppercase', color: season.tagColor,
+            background: season.tagBg, border: `1px solid ${season.accentColor}30`,
+            padding: '5px 14px', borderRadius: 100, marginBottom: 16,
+          }}>
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%',
+              background: season.accentColor,
+              boxShadow: `0 0 8px ${season.accentColor}`,
+              display: 'inline-block',
+            }} />
+            This Season
+          </span>
+          <h2 style={{
+            fontFamily: "'Baloo 2', cursive",
+            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontWeight: 800, color: 'white', marginBottom: 12,
+          }}>
+            {season.emoji} {season.label}
+          </h2>
+          <p style={{
+            color: 'rgba(255,255,255,0.6)', fontSize: '.95rem',
+            maxWidth: 520, margin: '0 auto 16px', lineHeight: 1.7,
+          }}>
+            {season.tagline}
+          </p>
+          {/* FOMO pill */}
+          <span style={{
+            display: 'inline-block', fontSize: '.75rem', fontWeight: 700,
+            color: season.accentColor, background: season.tagBg,
+            border: `1px solid ${season.accentColor}30`,
+            padding: '4px 14px', borderRadius: 100,
+          }}>
+            {season.fomo}
+          </span>
+        </div>
+
+        {/* Cards */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 20,
+          marginBottom: 40,
+        }}>
+          {season.cards.map((card, i) => (
+            <Link key={i} to={card.to} style={{ textDecoration: 'none' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                whileHover={{ y: -6, boxShadow: `0 20px 48px rgba(0,0,0,0.35)` }}
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: 20,
+                  padding: '28px 24px',
+                  border: `1.5px solid rgba(255,255,255,0.12)`,
+                  display: 'flex', flexDirection: 'column', gap: 14,
+                  height: '100%', cursor: 'pointer',
+                  transition: 'box-shadow 0.25s, transform 0.25s',
+                }}
+              >
+                {/* Tag */}
+                <span style={{
+                  alignSelf: 'flex-start', fontSize: '.65rem', fontWeight: 800,
+                  color: season.accentColor, background: season.tagBg,
+                  border: `1px solid ${season.accentColor}30`,
+                  padding: '3px 10px', borderRadius: 100,
+                }}>
+                  {card.tag}
+                </span>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: `${season.accentColor}22`,
+                  border: `1.5px solid ${season.accentColor}40`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.6rem',
+                }}>
+                  {card.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontFamily: "'Baloo 2', cursive", fontSize: '1.1rem',
+                    fontWeight: 800, color: 'white', marginBottom: 6,
+                  }}>
+                    {card.title}
+                  </div>
+                  <p style={{
+                    fontSize: '.82rem', color: 'rgba(255,255,255,0.55)',
+                    lineHeight: 1.65, margin: 0,
+                  }}>
+                    {card.desc}
+                  </p>
+                </div>
+                <div style={{
+                  color: season.accentColor, fontWeight: 800, fontSize: '.8rem',
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
+                  Play Now →
+                </div>
+              </motion.div>
+            </Link>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{ textAlign: 'center' }}>
+          <Link to={season.cta.to} style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '14px 32px', borderRadius: 14,
+            background: season.accentColor, color: '#0F172A',
+            fontWeight: 800, fontSize: '.95rem', textDecoration: 'none',
+            boxShadow: `0 8px 28px ${season.accentColor}50`,
+            transition: 'opacity 0.2s',
+          }}>
+            {season.cta.label}
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Parents & Teachers ────────────────────────────────────────────────────────
 function ParentsSection() {
-  const PARENT_FEATURES = [
-    { icon: '👶', title: 'Child Profiles', desc: 'Create safe profiles for each child with age-appropriate content', to: '/parents' },
-    { icon: '📊', title: 'Progress Reports', desc: 'Track reading streaks, quiz scores, and faith milestones', to: '/parents' },
-    { icon: '🔒', title: 'Parental Controls', desc: 'Set time limits, content filters, and bedtime mode', to: '/parents' },
-    { icon: '🏫', title: 'Teacher Tools', desc: 'Classroom management, activity sheets, and lesson plans', to: '/parents' },
+  const TILES = [
+    {
+      icon: '📊',
+      title: 'Progress Tracking',
+      desc: 'Track reading streaks, quiz scores, and faith milestones for every child',
+      to: '/parents',
+    },
+    {
+      icon: '📋',
+      title: 'Lesson Plans & Resources',
+      desc: 'Free Bible lesson plans, activity sheets, and printables for classrooms',
+      to: '/parents',
+    },
+    {
+      icon: '🔒',
+      title: 'Child Profiles & Controls',
+      desc: 'Safe profiles per child with age filters, time limits, and bedtime mode',
+      to: '/parents',
+    },
+    {
+      icon: '🎓',
+      title: 'Certification & Milestones',
+      desc: 'Kids earn real Bible certification badges as they grow in faith',
+      to: '/grow/certification',
+    },
   ];
 
   return (
-    <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)' }}>
+    <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 48, alignItems: 'center' }}>
-          {/* Left: copy */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 56, alignItems: 'center',
+        }}>
+          {/* Left copy */}
           <div className="reveal">
             <span style={{
               display: 'inline-block', fontSize: '.72rem', fontWeight: 800,
@@ -883,12 +1201,15 @@ function ParentsSection() {
             }}>
               Built with families in mind
             </h2>
-            <p style={{ color: '#065F46', fontSize: '.95rem', lineHeight: 1.75, marginBottom: 28, maxWidth: 420 }}>
+            <p style={{
+              color: '#065F46', fontSize: '.95rem', lineHeight: 1.8,
+              marginBottom: 28, maxWidth: 400,
+            }}>
               BibleFunLand gives parents and teachers the tools to guide kids through faith-based learning — safely, joyfully, and at their own pace.
             </p>
             <Link to="/parents" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '12px 24px', borderRadius: 14,
+              padding: '13px 26px', borderRadius: 14,
               background: '#10B981', color: 'white',
               fontWeight: 800, fontSize: '.9rem', textDecoration: 'none',
               boxShadow: '0 6px 20px rgba(16,185,129,.35)',
@@ -897,22 +1218,31 @@ function ParentsSection() {
             </Link>
           </div>
 
-          {/* Right: feature grid */}
+          {/* Right tiles */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {PARENT_FEATURES.map((f, i) => (
-              <Link key={i} to={f.to} style={{ textDecoration: 'none' }}>
+            {TILES.map((t, i) => (
+              <Link key={i} to={t.to} style={{ textDecoration: 'none' }}>
                 <motion.div
                   className="reveal"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.45 }}
                   whileHover={{ y: -4, boxShadow: '0 12px 28px rgba(16,185,129,.15)' }}
                   style={{
                     background: 'white', borderRadius: 16, padding: '20px 18px',
                     border: '1.5px solid #D1FAE5', cursor: 'pointer',
-                    transition: 'box-shadow 0.2s',
+                    transition: 'box-shadow 0.2s, transform 0.2s',
+                    height: '100%',
                   }}
                 >
-                  <div style={{ fontSize: '1.6rem', marginBottom: 8 }}>{f.icon}</div>
-                  <div style={{ fontWeight: 800, fontSize: '.88rem', color: '#064E3B', marginBottom: 4 }}>{f.title}</div>
-                  <p style={{ fontSize: '.75rem', color: '#6B7280', lineHeight: 1.5, margin: 0 }}>{f.desc}</p>
+                  <div style={{ fontSize: '1.6rem', marginBottom: 10 }}>{t.icon}</div>
+                  <div style={{ fontWeight: 800, fontSize: '.88rem', color: '#064E3B', marginBottom: 5 }}>
+                    {t.title}
+                  </div>
+                  <p style={{ fontSize: '.75rem', color: '#6B7280', lineHeight: 1.55, margin: 0 }}>
+                    {t.desc}
+                  </p>
                 </motion.div>
               </Link>
             ))}
@@ -943,7 +1273,7 @@ function ProCta({ user }) {
           </h2>
           <p style={{
             fontSize: '.9rem', color: 'rgba(255,255,255,.5)',
-            lineHeight: 1.75, marginBottom: 28, maxWidth: 420, margin: '0 auto 28px',
+            lineHeight: 1.75, maxWidth: 420, margin: '0 auto 28px',
           }}>
             Ad-free experience, priority AI access, exclusive games, family dashboard, and full Bible certification. From $3.99/month.
           </p>
