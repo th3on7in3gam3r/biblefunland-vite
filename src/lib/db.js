@@ -59,22 +59,20 @@ export async function upsertStreak(userId, data) {
 
 export async function getPrayers() {
   const { data, error } = await query(
-    `SELECT id, user_id, name, category, text, pray_count, country, city, lat, lng, created_at
+    `SELECT id, user_id, name, category, text, pray_count, created_at
      FROM prayers ORDER BY created_at DESC LIMIT 100`
   );
   if (error) throw new Error(error);
   return { data: data || [] };
 }
 
-export async function insertPrayer({ userId, name, category, text, country, city, lat, lng, bibleReference }) {
+export async function insertPrayer({ userId, name, category, text }) {
   const id = `prayer_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const createdAt = new Date().toISOString();
-  // Insert directly into prayers table (skip moderation queue for now — can add back when backend is deployed)
   const result = await execute(
-    `INSERT INTO prayers (id, user_id, name, category, text, pray_count, country, city, lat, lng, created_at)
-     VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)`,
-    [id, userId || null, name || 'Anonymous', category || 'General', text,
-     country || null, city || null, lat || null, lng || null, createdAt]
+    `INSERT INTO prayers (id, user_id, name, category, text, pray_count, created_at)
+     VALUES (?, ?, ?, ?, ?, 0, ?)`,
+    [id, userId || null, name || 'Anonymous', category || 'General', text, createdAt]
   );
   if (result.error) throw new Error(result.error);
   return { success: true, id };
