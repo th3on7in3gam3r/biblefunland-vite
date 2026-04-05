@@ -130,38 +130,29 @@
   transition: transform 0.2s;
   display: inline-block;
 }
-.moreBtnOpen .moreCaret {
+.moreBtnOpen .moreCaret,
+.caretOpen {
   transform: rotate(180deg);
 }
 
 .moreDropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0; /* Anchor to the right to prevent spilling off narrow screens */
+  left: 0;
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: 16px;
   padding: 8px;
-  min-width: 340px;
-  max-height: calc(100vh - 100px); /* Allows scrolling on short screens! */
-  overflow-y: auto;
+  min-width: 220px;
   box-shadow:
     0 16px 48px rgba(0, 0, 0, 0.18),
     0 0 0 1px rgba(0, 0, 0, 0.05);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
   z-index: 300;
   animation: dropIn 0.18s ease both;
   backdrop-filter: blur(10px);
-}
-/* Adjust scrollbar for aesthetics */
-.moreDropdown::-webkit-scrollbar {
-  width: 6px;
-}
-.moreDropdown::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
 }
 .moreDropdown a {
   font-size: 0.78rem;
