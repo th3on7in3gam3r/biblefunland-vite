@@ -1,121 +1,151 @@
-const MEDALS = ['🥇', '🥈', '🥉'];
-const CATEGORY_EMOJI = { streaks: '🔥', badges: '🏆', trivia: '🎯' };
+import { motion } from 'framer-motion';
 
-function PodiumCard({ entry, category, size = 80 }) {
+const MEDAL_CONFIG = [
+  { medal: '🥇', color: '#F59E0B', glow: '#FCD34D', bg: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', border: '#F59E0B', label: '1st', height: 80 },
+  { medal: '🥈', color: '#94A3B8', glow: '#CBD5E1', bg: 'linear-gradient(135deg,#F1F5F9,#E2E8F0)', border: '#94A3B8', label: '2nd', height: 56 },
+  { medal: '🥉', color: '#CD7F32', glow: '#D97706', bg: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', border: '#CD7F32', label: '3rd', height: 44 },
+];
+
+const CATEGORY_EMOJI = { streaks: '🔥', badges: '🏅', trivia: '🏆' };
+const CATEGORY_UNIT  = { streaks: 'day streak', badges: 'badges', trivia: 'pts' };
+
+function PodiumCard({ entry, rank, category, kidsMode }) {
+  const cfg = MEDAL_CONFIG[rank - 1];
   const emoji = CATEGORY_EMOJI[category] || '⭐';
+  const unit = CATEGORY_UNIT[category] || '';
+  const avatarSize = rank === 1 ? (kidsMode ? 88 : 80) : (kidsMode ? 72 : 64);
+
   return (
-    <div style={{ textAlign: 'center', flex: 1 }}>
-      <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{MEDALS[entry.rank - 1]}</div>
-      <div
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          background: 'linear-gradient(135deg,#6366F1,#8B5CF6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: size * 0.35,
-          fontWeight: 800,
-          color: '#fff',
-          fontFamily: "'Baloo 2', cursive",
-          margin: '0 auto 8px',
-          border: '3px solid var(--border)',
-        }}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: (rank - 1) * 0.1, duration: 0.45, type: 'spring', stiffness: 260, damping: 20 }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        flex: rank === 1 ? 1.15 : 1,
+      }}
+    >
+      {/* Medal */}
+      <div style={{ fontSize: rank === 1 ? '2rem' : '1.5rem', marginBottom: 6, filter: `drop-shadow(0 2px 8px ${cfg.glow}80)` }}>
+        {cfg.medal}
+      </div>
+
+      {/* Avatar */}
+      <div style={{
+        width: avatarSize,
+        height: avatarSize,
+        borderRadius: '50%',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg,#6366F1,#8B5CF6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: avatarSize * 0.38,
+        fontWeight: 800,
+        color: '#fff',
+        fontFamily: "'Baloo 2', cursive",
+        border: `3px solid ${cfg.color}`,
+        boxShadow: `0 0 0 3px ${cfg.color}30, 0 8px 24px ${cfg.color}40`,
+        marginBottom: 10,
+        flexShrink: 0,
+      }}>
         {entry.avatarUrl ? (
-          <img
-            src={entry.avatarUrl}
-            alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          <img src={entry.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           (entry.displayName?.[0] || '?').toUpperCase()
         )}
       </div>
-      <div
-        style={{
-          fontWeight: 700,
-          fontSize: '.82rem',
-          color: 'var(--ink)',
+
+      {/* Card */}
+      <div style={{
+        background: cfg.bg,
+        border: `2px solid ${cfg.color}40`,
+        borderRadius: 16,
+        padding: rank === 1 ? '14px 16px' : '10px 14px',
+        textAlign: 'center',
+        width: '100%',
+        boxShadow: rank === 1 ? `0 8px 24px ${cfg.color}30` : `0 4px 12px ${cfg.color}18`,
+      }}>
+        <div style={{
+          fontWeight: 800,
+          fontSize: rank === 1 ? '.9rem' : '.8rem',
+          color: '#1E1B4B',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: size + 20,
-          margin: '0 auto 2px',
-        }}
-      >
-        {entry.displayName}
-        {entry.isLegendary && ' 👑'}
-      </div>
-      <div
-        style={{
+          marginBottom: 4,
+        }}>
+          {entry.displayName}
+          {entry.isLegendary && ' 👑'}
+        </div>
+        <div style={{
           fontFamily: "'Baloo 2', cursive",
           fontWeight: 800,
-          fontSize: '.9rem',
-          color: 'var(--ink2)',
-        }}
-      >
-        {emoji} {entry.score.toLocaleString()}
+          fontSize: rank === 1 ? '1.1rem' : '.95rem',
+          color: cfg.color,
+        }}>
+          {emoji} {entry.score.toLocaleString()}
+          {kidsMode && <span style={{ fontSize: '.65rem', fontWeight: 600, color: '#6B7280', marginLeft: 3 }}>{unit}</span>}
+        </div>
       </div>
-    </div>
+
+      {/* Podium block */}
+      <div style={{
+        width: '80%',
+        height: cfg.height,
+        background: `linear-gradient(180deg, ${cfg.color}30, ${cfg.color}15)`,
+        border: `1.5px solid ${cfg.color}30`,
+        borderRadius: '0 0 8px 8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+      }}>
+        <span style={{ fontFamily: "'Baloo 2', cursive", fontWeight: 800, fontSize: '1.1rem', color: cfg.color }}>
+          {cfg.label}
+        </span>
+      </div>
+    </motion.div>
   );
 }
 
-/**
- * Podium — top 3 entries displayed as a podium
- * Desktop: 2nd | 1st | 3rd
- * Mobile (<640px): stacked 1st → 2nd → 3rd
- */
-export default function Podium({ entries, category }) {
+export default function Podium({ entries, category, kidsMode }) {
   if (!entries || entries.length === 0) return null;
 
-  const first = entries[0];
-  const second = entries[1];
-  const third = entries[2];
+  const [first, second, third] = entries;
 
+  // Desktop: 2nd | 1st | 3rd  (podium order)
+  // Mobile: 1st → 2nd → 3rd  (stacked)
   return (
     <>
-      {/* Desktop layout */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-          gap: 16,
-          padding: '24px 16px 16px',
-        }}
-        className="podium-desktop"
-      >
-        {second && <PodiumCard entry={second} category={category} size={80} />}
-        {first && <PodiumCard entry={first} category={category} size={96} />}
-        {third && <PodiumCard entry={third} category={category} size={80} />}
+      <div className="podium-desktop" style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        gap: 12,
+        padding: '8px 8px 24px',
+      }}>
+        {second && <PodiumCard entry={second} rank={2} category={category} kidsMode={kidsMode} />}
+        {first  && <PodiumCard entry={first}  rank={1} category={category} kidsMode={kidsMode} />}
+        {third  && <PodiumCard entry={third}  rank={3} category={category} kidsMode={kidsMode} />}
+      </div>
+
+      <div className="podium-mobile" style={{ display: 'none', flexDirection: 'column', gap: 12, padding: '8px 0 16px' }}>
+        {[first, second, third].filter(Boolean).map((e, i) => (
+          <PodiumCard key={e.userId} entry={e} rank={i + 1} category={category} kidsMode={kidsMode} />
+        ))}
       </div>
 
       <style>{`
         .podium-desktop { display: flex !important; }
         .podium-mobile  { display: none !important; }
-        @media (max-width: 639px) {
+        @media (max-width: 560px) {
           .podium-desktop { display: none !important; }
           .podium-mobile  { display: flex !important; }
         }
       `}</style>
-
-      {/* Mobile layout */}
-      <div
-        style={{
-          display: 'none',
-          flexDirection: 'column',
-          gap: 12,
-          padding: '16px',
-        }}
-        className="podium-mobile"
-      >
-        {[first, second, third].filter(Boolean).map((e) => (
-          <PodiumCard key={e.userId} entry={e} category={category} size={72} />
-        ))}
-      </div>
     </>
   );
 }
