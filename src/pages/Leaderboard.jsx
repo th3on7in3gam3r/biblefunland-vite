@@ -241,44 +241,84 @@ export default function Leaderboard() {
 
         {/* ── Footer CTA ───────────────────────────────────── */}
         {!loading && (
-          <div style={{
-            marginTop: 40, textAlign: 'center',
-            padding: '28px 24px',
-            background: 'var(--surface)',
-            borderRadius: 20,
-            border: '1.5px solid var(--border)',
-          }}>
-            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>🚀</div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            style={{
+              marginTop: 40, textAlign: 'center',
+              padding: '36px 28px',
+              background: 'linear-gradient(135deg, var(--surface), var(--bg2))',
+              borderRadius: 24,
+              border: '1.5px solid var(--border)',
+              position: 'relative', overflow: 'hidden',
+            }}
+          >
+            {/* Subtle bg glow */}
+            <div style={{
+              position: 'absolute', top: '-30%', right: '-10%',
+              width: 200, height: 200, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+
+            <div style={{
+              fontSize: kidsMode ? '4rem' : '3rem',
+              marginBottom: 10,
+              filter: 'drop-shadow(0 4px 12px rgba(99,102,241,0.4))',
+              animation: 'rocketBounce 2s ease-in-out infinite',
+            }}>
+              🚀
+            </div>
             <div style={{
               fontFamily: "'Baloo 2', cursive", fontWeight: 800,
-              fontSize: '1.1rem', color: 'var(--ink)', marginBottom: 6,
+              fontSize: kidsMode ? '1.4rem' : '1.2rem',
+              color: 'var(--ink)', marginBottom: 8,
             }}>
-              {kidsMode ? 'Want to climb higher?' : 'Improve your rank'}
+              {kidsMode ? '🌟 Want to climb higher? 🌟' : 'Ready to climb the ranks?'}
             </div>
-            <p style={{ fontSize: '.82rem', color: 'var(--ink3)', marginBottom: 16, lineHeight: 1.6 }}>
+            <p style={{
+              fontSize: kidsMode ? '.9rem' : '.84rem',
+              color: 'var(--ink3)', marginBottom: 22,
+              lineHeight: 1.65, maxWidth: 360, margin: '0 auto 22px',
+            }}>
               {kidsMode
                 ? 'Play games and read the Bible every day to grow your streak! 🔥'
                 : 'Play trivia, earn badges, and keep your daily streak going to rise up the ranks.'}
             </p>
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/play/trivia" style={{
-                padding: '10px 20px', borderRadius: 12,
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a href="/play/trivia" style={{
+                padding: kidsMode ? '13px 26px' : '11px 22px',
+                borderRadius: 14,
                 background: 'linear-gradient(135deg,#3B82F6,#8B5CF6)',
-                color: 'white', fontWeight: 800, fontSize: '.85rem',
-                textDecoration: 'none', boxShadow: '0 4px 14px rgba(99,102,241,.3)',
+                color: 'white', fontWeight: 800,
+                fontSize: kidsMode ? '.95rem' : '.88rem',
+                textDecoration: 'none',
+                boxShadow: '0 6px 20px rgba(99,102,241,.4)',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
               }}>
-                🎮 Play Trivia
-              </Link>
-              <Link to="/devotional" style={{
-                padding: '10px 20px', borderRadius: 12,
-                background: 'var(--bg2)', color: 'var(--ink2)',
-                fontWeight: 700, fontSize: '.85rem', textDecoration: 'none',
-                border: '1.5px solid var(--border)',
+                🎮 {kidsMode ? 'Play Trivia Now!' : 'Play Trivia'}
+              </a>
+              <a href="/devotional" style={{
+                padding: kidsMode ? '13px 26px' : '11px 22px',
+                borderRadius: 14,
+                background: 'linear-gradient(135deg,#10B981,#059669)',
+                color: 'white', fontWeight: 800,
+                fontSize: kidsMode ? '.95rem' : '.88rem',
+                textDecoration: 'none',
+                boxShadow: '0 6px 20px rgba(16,185,129,.35)',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
               }}>
-                🙏 Daily Devotional
-              </Link>
+                🙏 {kidsMode ? 'Daily Devotional!' : 'Daily Devotional'}
+              </a>
             </div>
-          </div>
+            <style>{`
+              @keyframes rocketBounce {
+                0%,100% { transform: translateY(0) rotate(-5deg); }
+                50%      { transform: translateY(-10px) rotate(5deg); }
+              }
+            `}</style>
+          </motion.div>
         )}
       </div>
     </div>
