@@ -1,17 +1,81 @@
 /**
- * src/lib/turso.js — Frontend database client proxy
+ * src/lib/turso.js — Frontend Turso client
  *
- * IMPORTANT: Database operations MUST happen on the backend!
- * This file proxies requests to /api/db/* endpoints
+ * Calls Turso's HTTP API directly from the browser using credentials
+ * stored in VITE_ env vars. This works on Vercel (no backend needed).
  *
- * The backend (server/lib/turso.js) actually connects to Turso
- * The frontend just calls these functions which make HTTP requests
+ * Falls back to the Express backend proxy (/api/db/*) when env vars
+ * are not available (e.g. during local dev without VITE_ vars set).
  */
 
 import API_URL from './api-config';
 
+const TURSO_URL = import.meta.env.VITE_TURSO_DATABASE_URL;
+const TURSO_TOKEN = import.meta.env.VITE_TURSO_AUTH_TOKEN;
+
+// Convert libsql:// → https:// for the HTTP API
+function getTursoHttpUrl() {
+  if (!TURSO_URL) return null;
+  return TURSO_URL.replace(/^libsql:\/\//, 'https://');
+}
+
 /**
- * Make a database API call to the backend - direct execution without queuing
+ * Call Turso HTTP API directly — works in browser + Vercel
+ */
+async function tursoHttp(sql, args = []) {
+  const baseUrl = getTursoHttpUrl();
+  if (!baseUrl || !TURSO_TOKEN) {
+    throw new Error('Turso env vars not set');
+  }
+
+  // Turso HTTP API expects args as typed values
+  const typedArgs = args.map(v => {
+    if (v === null || v === undefined) return { type: 'null', value: null };
+    if (typeof v === 'number') return { type: 'integer', value: String(v) };
+    return { type: 'text', value: String(v) };
+  });
+
+  const response = await fetch(`${baseUrl}/v2/pipeline`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TURSO_TOKEN}`,
+    },
+    body: JSON.stringify({
+      requests: [
+        { type: 'execute', stmt: { sql, args: typedArgs } },
+        { type: 'close' },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Turso HTTP ${response.status}: ${text}`);
+  }
+
+  const json = await response.json();
+  const result = json.results?.[0];
+
+  if (result?.type === 'error') {
+    throw new Error(result.error?.message || 'Turso query error');
+  }
+
+  const cols = result?.response?.result?.cols?.map(c => c.name) || [];
+  const rows = (result?.response?.result?.rows || []).map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      const cell = row[i];
+      obj[col] = cell?.value ?? null;
+    });
+    return obj;
+  });
+
+  return rows;
+}
+
+/**
+ * Fallback: proxy through Express backend (local dev)
  */
 async function apiCall(endpoint, body = {}) {
   try {
@@ -28,7 +92,6 @@ async function apiCall(endpoint, body = {}) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      // Return error but DON'T THROW - allow UI to handle gracefully
       return { data: [], error: `Server returned ${response.status}`, success: false };
     }
 
@@ -37,10 +100,10 @@ async function apiCall(endpoint, body = {}) {
     if (import.meta.env.DEV) {
       console.warn(`[Turso API Error] ${endpoint}:`, err.message);
     }
-    return { 
-      data: [], 
-      error: err.name === 'AbortError' ? 'Request timeout' : err.message, 
-      success: false 
+    return {
+      data: [],
+      error: err.name === 'AbortError' ? 'Request timeout' : err.message,
+      success: false,
     };
   }
 }
@@ -50,9 +113,14 @@ async function apiCall(endpoint, body = {}) {
  */
 export async function query(sql, args = []) {
   try {
+    if (TURSO_URL && TURSO_TOKEN) {
+      const rows = await tursoHttp(sql, args);
+      return { data: rows, error: null, success: true };
+    }
     const result = await apiCall('/query', { sql, args });
     return { data: result.data || [], error: result.error, success: result.success };
   } catch (e) {
+    console.warn('[turso.query]', e.message);
     return { data: [], error: e.message, success: false };
   }
 }
@@ -62,9 +130,14 @@ export async function query(sql, args = []) {
  */
 export async function queryOne(sql, args = []) {
   try {
+    if (TURSO_URL && TURSO_TOKEN) {
+      const rows = await tursoHttp(sql, args);
+      return { data: rows[0] ?? null, error: null, success: true };
+    }
     const result = await apiCall('/query', { sql, args });
     return { data: result.data?.[0] ?? null, error: result.error, success: result.success };
   } catch (e) {
+    console.warn('[turso.queryOne]', e.message);
     return { data: null, error: e.message, success: false };
   }
 }
@@ -74,9 +147,14 @@ export async function queryOne(sql, args = []) {
  */
 export async function execute(sql, args = []) {
   try {
+    if (TURSO_URL && TURSO_TOKEN) {
+      await tursoHttp(sql, args);
+      return { data: null, error: null, success: true };
+    }
     const result = await apiCall('/execute', { sql, args });
     return { data: result.data, error: result.error, success: result.success };
   } catch (err) {
+    console.warn('[turso.execute]', err.message);
     return { data: null, error: err.message, success: false };
   }
 }

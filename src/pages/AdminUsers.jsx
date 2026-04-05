@@ -38,7 +38,9 @@ export default function AdminUsers() {
         await execute(`DELETE FROM ${table} WHERE ${col} = ?`, [userId]).catch(() => {})
       }
       setUsers(prev => prev.filter(u => (u.user_id || u.id) !== userId))
+      console.log('✅ User deleted:', userId)
     } catch (err) {
+      console.error('Delete error:', err)
       alert('Delete failed: ' + err.message)
     } finally {
       setDeleting(null)
