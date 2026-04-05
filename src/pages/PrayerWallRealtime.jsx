@@ -131,36 +131,32 @@ export default function PrayerWallRealtime() {
       if (isParentOrTeacher) loadPending();
     }, 12000);
 
-    // SSE fallback for live updates
+    // SSE for live updates — only attempt if backend is reachable (not on Vercel static)
+    let source = null;
     try {
-      const source = new EventSource(`${import.meta.env.VITE_API_URL || ''}/api/prayers/stream`);
-      channelRef.current = source;
+      const streamUrl = `${import.meta.env.VITE_API_URL || ''}/api/prayers/stream`;
+      // Only connect SSE if we have a real backend URL (not relative '/')
+      if (streamUrl && !streamUrl.startsWith('/')) {
+        source = new EventSource(streamUrl);
+        channelRef.current = source;
 
-      source.addEventListener('prayer_approved', () => {
-        loadPrayers(true);
-      });
-
-      source.addEventListener('new_submission', ({ data }) => {
-        const parsed = JSON.parse(data);
-        setPendingCount((c) => c + 1);
-        if (parsed && parsed.userId === user?.id) {
-          setSubmitted(true);
-          setTimeout(() => setSubmitted(false), 2500);
-        }
-      });
-
-      source.addEventListener('pray_count', ({ data }) => {
-        const payload = JSON.parse(data);
-        setPrayers((prev) =>
-          prev.map((p) => (p.id === payload.id ? { ...p, pray_count: payload.pray_count } : p))
-        );
-      });
-
-      source.onerror = () => {
-        source.close();
-      };
+        source.addEventListener('prayer_approved', () => loadPrayers(true));
+        source.addEventListener('new_submission', ({ data }) => {
+          const parsed = JSON.parse(data);
+          setPendingCount(c => c + 1);
+          if (parsed?.userId === user?.id) {
+            setSubmitted(true);
+            setTimeout(() => setSubmitted(false), 2500);
+          }
+        });
+        source.addEventListener('pray_count', ({ data }) => {
+          const payload = JSON.parse(data);
+          setPrayers(prev => prev.map(p => p.id === payload.id ? { ...p, pray_count: payload.pray_count } : p));
+        });
+        source.onerror = () => source.close();
+      }
     } catch {
-      // ignore
+      // SSE not available — polling handles updates
     }
 
     return () => {
