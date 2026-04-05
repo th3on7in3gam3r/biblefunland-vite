@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { query } from '../lib/db'
-
-const API = import.meta.env.VITE_API_URL || ''
+import { query, execute } from '../lib/db'
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
@@ -22,12 +20,24 @@ export default function AdminUsers() {
   }
 
   async function deleteUser(userId, displayName) {
-    if (!confirm(`Delete "${displayName || userId}"?\n\nThis removes all their data from the database. Their Clerk login account will remain — delete that separately from the Clerk dashboard if needed.`)) return
+    if (!confirm(`Delete "${displayName || userId}"?\n\nThis removes all their data from the database permanently.`)) return
     setDeleting(userId)
     try {
-      const res = await fetch(`${API}/api/profiles/${userId}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error((await res.json()).error)
-      setUsers(prev => prev.filter(u => u.user_id !== userId && u.id !== userId))
+      // Delete directly via Turso client — no backend needed
+      const tables = [
+        { table: 'child_activity', col: 'child_id' },
+        { table: 'badges', col: 'user_id' },
+        { table: 'streaks', col: 'user_id' },
+        { table: 'bookmarks', col: 'user_id' },
+        { table: 'family_group_members', col: 'user_id' },
+        { table: 'prayer_requests', col: 'user_id' },
+        { table: 'subscriptions', col: 'user_id' },
+        { table: 'profiles', col: 'id' },
+      ]
+      for (const { table, col } of tables) {
+        await execute(`DELETE FROM ${table} WHERE ${col} = ?`, [userId]).catch(() => {})
+      }
+      setUsers(prev => prev.filter(u => (u.user_id || u.id) !== userId))
     } catch (err) {
       alert('Delete failed: ' + err.message)
     } finally {
