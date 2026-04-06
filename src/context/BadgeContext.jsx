@@ -131,6 +131,13 @@ export const BADGE_DEFS = {
     category: 'AI',
     rarity: 'uncommon',
   },
+  parable_maker: {
+    emoji: '📜',
+    name: 'Parable Maker',
+    desc: 'Create your first Personal Parable',
+    category: 'AI',
+    rarity: 'uncommon',
+  },
   voice_ace: {
     emoji: '🎙️',
     name: 'Perfect Reciter',

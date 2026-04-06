@@ -5,6 +5,18 @@ import usePageMetadata from '../../hooks/usePageMetadata';
 
 const AI_TOOLS = [
   {
+    icon: '📜',
+    title: 'My Personal Parable',
+    desc: 'Describe your situation and receive an original parable written just for you — in the style of Jesus. Includes reflection questions, a prayer, and an action step.',
+    path: '/ai/personal-parable',
+    color: '#6D28D9',
+    bg: 'linear-gradient(145deg,#F5F3FF,#EDE9FE)',
+    tag: '✨ New Feature',
+    tagColor: '#6D28D9',
+    btnBg: 'linear-gradient(135deg,#6D28D9,#4C1D95)',
+    featured: true,
+  },
+  {
     icon: '🙏',
     title: 'AI Devotional',
     desc: 'Tell it your mood, a verse, or a topic — get a beautiful personalized devotional in seconds.',
@@ -140,7 +152,7 @@ export default function AIOverview() {
             display: 'flex', gap: 20, justifyContent: 'center',
             flexWrap: 'wrap', marginBottom: 20,
           }}>
-            {[['4', 'Live Tools'],['∞', 'Possibilities'],['100%', 'Faith-Safe']].map(([v, l]) => (
+            {[['5', 'Live Tools'],['∞', 'Possibilities'],['100%', 'Faith-Safe']].map(([v, l]) => (
               <div key={l} style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Baloo 2',cursive", fontWeight: 800, fontSize: '1.4rem', color: '#C084FC', lineHeight: 1 }}>{v}</div>
                 <div style={{ fontSize: '.62rem', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>{l}</div>
@@ -199,12 +211,13 @@ export default function AIOverview() {
               style={{
                 background: tool.bg,
                 borderRadius: 22,
-                padding: kidsMode ? '28px 24px' : '26px 22px',
-                border: `1.5px solid ${tool.color}22`,
+                padding: kidsMode ? '28px 24px' : tool.featured ? '30px 26px' : '26px 22px',
+                border: `${tool.featured ? '2px' : '1.5px'} solid ${tool.color}${tool.featured ? '40' : '22'}`,
                 display: 'flex', flexDirection: 'column', gap: 14,
                 cursor: 'pointer',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.05)',
+                boxShadow: tool.featured ? `0 8px 32px ${tool.color}20` : '0 2px 16px rgba(0,0,0,0.05)',
                 transition: 'box-shadow 0.25s, transform 0.25s',
+                gridColumn: tool.featured && !kidsMode ? 'span 2' : 'span 1',
               }}
             >
               {/* Tag */}
