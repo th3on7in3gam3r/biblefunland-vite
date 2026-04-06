@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const Anthropic = require('@anthropic-ai/sdk');
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'sk-ant-mock123'
-});
 
 router.post('/chat', async (req, res) => {
   const { messages, system, model = 'claude-3-5-sonnet-20241022', max_tokens = 1000 } = req.body;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'Anthropic API key not configured on server' });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  if (!apiKey) {
+    return res.status(503).json({ 
+      error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables in Vercel.' 
+    });
   }
 
   if (!messages || !Array.isArray(messages)) {
@@ -18,6 +17,10 @@ router.post('/chat', async (req, res) => {
   }
 
   try {
+    // Lazy-load Anthropic to avoid crash if package missing
+    const Anthropic = require('@anthropic-ai/sdk');
+    const anthropic = new Anthropic({ apiKey });
+
     const response = await anthropic.messages.create({
       model,
       max_tokens,

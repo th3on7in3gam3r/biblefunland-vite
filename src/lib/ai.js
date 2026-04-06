@@ -19,12 +19,20 @@ export async function generateAIContent({
       body: JSON.stringify({ system, messages, model, max_tokens }),
     });
 
+    // Read body as text first — avoids JSON parse crash on empty/HTML responses
+    const text = await response.text();
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'AI Proxy Error');
+      let msg = `AI request failed (${response.status})`;
+      try { msg = JSON.parse(text)?.error || msg; } catch {}
+      throw new Error(msg);
     }
 
-    const data = await response.json();
+    let data;
+    try { data = JSON.parse(text); } catch {
+      throw new Error('AI server returned an unexpected response. Please try again.');
+    }
+
     return data.content?.[0]?.text || '';
   } catch (error) {
     console.error('AI Helper Error:', error);
