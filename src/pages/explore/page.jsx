@@ -8,6 +8,17 @@ function scrollToSection(sectionId) {
 
 const EXPLORE_FEATURES = [
   {
+    icon: '🗺️',
+    title: 'Living Bible Map',
+    sectionId: 'living-bible-map',
+    desc: 'Explore Bible lands across every era — discover locations, complete challenges, and earn badges',
+    to: '/explore/world',
+    color: '#10B981',
+    tag: 'New',
+    verse: 'Joshua 1:3',
+    detail: '12 locations · 5 eras · Daily quests',
+  },
+  {
     icon: '📖',
     title: 'Bible Explorer',
     sectionId: 'bible-explorer',
