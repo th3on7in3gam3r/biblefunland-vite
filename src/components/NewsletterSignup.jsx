@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Analytics } from '../lib/analytics';
 
-const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '/api');
 
 export default function NewsletterSignup({ compact = false }) {
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ export default function NewsletterSignup({ compact = false }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       setStatus('success');
-      setMsg("You're in! Check your inbox for your first free printable. 🎉");
+      setMsg("You're in! Check your inbox — your free printables link is on the way. 🎉");
       setEmail('');
       Analytics.featureUsed('newsletter_signup');
     } catch (err) {
@@ -119,8 +119,8 @@ export default function NewsletterSignup({ compact = false }) {
           lineHeight: 1.7,
         }}
       >
-        Join 10,000+ families. Get a free Bible activity sheet every week, plus alerts when new
-        games and AI tools drop.
+        Get a free Bible activity sheet link in your inbox right now, plus alerts when new
+        games, AI tools, and seasonal content drop.
       </p>
       {status === 'success' ? (
         <div
