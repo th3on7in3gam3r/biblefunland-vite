@@ -5,16 +5,27 @@ import usePageMetadata from '../../hooks/usePageMetadata';
 
 const AI_TOOLS = [
   {
+    icon: '🗺️',
+    title: 'Bible Adventure Builder',
+    desc: 'Choose a Bible hero, answer 4 fun questions, and AI builds a personalized branching adventure story — with choices that matter, a certificate, and a special badge.',
+    path: '/ai/adventure-builder',
+    color: '#F59E0B',
+    bg: 'linear-gradient(145deg,#FFFBEB,#FEF3C7)',
+    tag: '🌟 Flagship Feature',
+    tagColor: '#D97706',
+    btnBg: 'linear-gradient(135deg,#F59E0B,#D97706)',
+    featured: true,
+  },
+  {
     icon: '📜',
     title: 'My Personal Parable',
     desc: 'Describe your situation and receive an original parable written just for you — in the style of Jesus. Includes reflection questions, a prayer, and an action step.',
     path: '/ai/personal-parable',
     color: '#6D28D9',
     bg: 'linear-gradient(145deg,#F5F3FF,#EDE9FE)',
-    tag: '✨ New Feature',
+    tag: '✨ New',
     tagColor: '#6D28D9',
     btnBg: 'linear-gradient(135deg,#6D28D9,#4C1D95)',
-    featured: true,
   },
   {
     icon: '🙏',
@@ -52,7 +63,7 @@ const AI_TOOLS = [
   {
     icon: '🖼️',
     title: 'Miracle Art Generator',
-    desc: 'Describe any Bible scene — the parting of the Red Sea, the nativity, David and Goliath — and get stunning AI art prompts.',
+    desc: 'Describe any Bible scene and get stunning AI art prompts to bring Scripture to life.',
     path: '/ai/miracle-art',
     color: '#14B8A6',
     bg: 'linear-gradient(145deg,#F0FDFA,#CCFBF1)',
@@ -152,7 +163,7 @@ export default function AIOverview() {
             display: 'flex', gap: 20, justifyContent: 'center',
             flexWrap: 'wrap', marginBottom: 20,
           }}>
-            {[['5', 'Live Tools'],['∞', 'Possibilities'],['100%', 'Faith-Safe']].map(([v, l]) => (
+            {[['6', 'Live Tools'],['∞', 'Possibilities'],['100%', 'Faith-Safe']].map(([v, l]) => (
               <div key={l} style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Baloo 2',cursive", fontWeight: 800, fontSize: '1.4rem', color: '#C084FC', lineHeight: 1 }}>{v}</div>
                 <div style={{ fontSize: '.62rem', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: 2 }}>{l}</div>

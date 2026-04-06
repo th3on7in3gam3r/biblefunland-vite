@@ -84,6 +84,7 @@ const ParableEscapeRoom = lazy_(() => import('./pages/ParableEscapeRoom'));
 const SpinTheVerse = lazy_(() => import('./pages/SpinTheVerse'));
 const BibleMiracleArt = lazy_(() => import('./pages/BibleMiracleArt'));
 const PersonalParable = lazy_(() => import('./pages/PersonalParable'));
+const BibleAdventureBuilder = lazy_(() => import('./pages/BibleAdventureBuilder'));
 const EncouragementWall = lazy_(() => import('./pages/EncouragementWall'));
 const DigitalPrayerBeads = lazy_(() => import('./pages/DigitalPrayerBeads'));
 const BibleCertification = lazy_(() => import('./pages/BibleCertification'));
@@ -492,6 +493,10 @@ export default function App() {
                                                     <Route
                                                       path="personal-parable"
                                                       element={<SP c={PersonalParable} />}
+                                                    />
+                                                    <Route
+                                                      path="adventure-builder"
+                                                      element={<SP c={BibleAdventureBuilder} />}
                                                     />
                                                   </Route>
 

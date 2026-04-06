@@ -138,6 +138,13 @@ export const BADGE_DEFS = {
     category: 'AI',
     rarity: 'uncommon',
   },
+  adventure_builder: {
+    emoji: '🗺️',
+    name: 'Adventure Builder',
+    desc: 'Complete your first Bible Adventure',
+    category: 'AI',
+    rarity: 'rare',
+  },
   voice_ace: {
     emoji: '🎙️',
     name: 'Perfect Reciter',
