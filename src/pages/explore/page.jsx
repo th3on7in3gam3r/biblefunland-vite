@@ -388,29 +388,33 @@ export default function ExploreOverview() {
             }}
           >
             {EXPLORE_FEATURES.map((f, i) => (
-              <div
+              <Link
                 key={i}
-                onClick={() => scrollToSection(f.sectionId)}
-                style={{
-                  background: 'var(--surface)',
-                  borderRadius: 22,
-                  border: '1.5px solid var(--border)',
-                  overflow: 'hidden',
-                  transition: 'all .25s',
-                  boxShadow: '0 2px 12px rgba(0,0,0,.06)',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = `0 20px 48px ${f.color}20`;
-                  e.currentTarget.style.borderColor = f.color + '55';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.06)';
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                }}
+                to={f.to}
+                style={{ textDecoration: 'none' }}
               >
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    borderRadius: 22,
+                    border: '1.5px solid var(--border)',
+                    overflow: 'hidden',
+                    transition: 'all .25s',
+                    boxShadow: '0 2px 12px rgba(0,0,0,.06)',
+                    cursor: 'pointer',
+                    height: '100%',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = `0 20px 48px ${f.color}20`;
+                    e.currentTarget.style.borderColor = f.color + '55';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,.06)';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                  }}
+                >
                 {/* Banner */}
                 <div
                   style={{
@@ -538,66 +542,12 @@ export default function ExploreOverview() {
                       transition: 'all .2s',
                     }}
                   >
-                    🔍 Explore ↓
+                    🔍 Open →
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Detailed sections (scroll targets) ────────────────────────────────── */}
-        <div style={{ padding: '20px 0 38px' }}>
-          {EXPLORE_FEATURES.map((f) => (
-            <section
-              id={f.sectionId}
-              key={f.sectionId}
-              style={{
-                scrollMarginTop: 96,
-                padding: '26px 20px',
-                borderRadius: 20,
-                border: '1.5px solid rgba(132,204,22,.2)',
-                background: 'rgba(248,250,252,.86)',
-                marginBottom: 18,
-                boxShadow: '0 4px 18px rgba(0,0,0,.06)',
-              }}
-            >
-              <h3 style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.26rem', fontWeight: 800, color: f.color, marginBottom: 8 }}>
-                {f.icon} {f.title}
-              </h3>
-              <p style={{ marginBottom: 10, color: 'var(--ink3)', fontSize: '.95rem', lineHeight: 1.6 }}>{f.desc}</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <Link
-                  to={f.to}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 12,
-                    background: f.color,
-                    color: 'white',
-                    fontWeight: 700,
-                    fontSize: '.85rem',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Open {f.title}
-                </Link>
-                <button
-                  onClick={() => scrollToSection(f.sectionId)}
-                  style={{
-                    border: '1px solid rgba(99,102,241,.3)',
-                    background: 'white',
-                    color: 'var(--ink)',
-                    padding: '8px 16px',
-                    borderRadius: 12,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Stay on Explore
-                </button>
-              </div>
-            </section>
-          ))}
+            </Link>
+            ))}          </div>
         </div>
 
         {/* ── Scripture banner ────────────────────────────────────────────────── */}

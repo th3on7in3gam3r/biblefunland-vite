@@ -1257,7 +1257,7 @@ function ParentsSection() {
 function ProCta({ user }) {
   return (
     <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0533,#0A1A0F)' }}>
-      <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
         <div className="reveal" style={{
           background: 'linear-gradient(135deg,rgba(99,102,241,.12),rgba(168,85,247,.08))',
           borderRadius: 32, border: '1.5px solid rgba(139,92,246,.2)',
@@ -1269,36 +1269,30 @@ function ProCta({ user }) {
             fontSize: 'clamp(1.6rem,4vw,2.4rem)',
             fontWeight: 800, color: 'white', marginBottom: 10,
           }}>
-            Unlock the Full BibleFunLand Experience
+            Unlock the Full Experience
           </h2>
           <p style={{
             fontSize: '.9rem', color: 'rgba(255,255,255,.5)',
-            lineHeight: 1.75, maxWidth: 460, margin: '0 auto 24px',
+            lineHeight: 1.75, maxWidth: 420, margin: '0 auto 24px',
           }}>
-            Go Pro and get unlimited AI tools, Bible certification courses, family progress tracking, and priority access to every new feature we ship.
+            Go Pro for unlimited AI tools, Bible certification, family progress tracking, and priority access to every new feature.
           </p>
 
-          {/* Pro perks */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: 10, marginBottom: 28, textAlign: 'left',
-          }}>
+          {/* Simple perk list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28, textAlign: 'left', maxWidth: 360, margin: '0 auto 28px' }}>
             {[
-              { icon: '🤖', label: 'Unlimited AI Tools' },
-              { icon: '🎓', label: 'Bible Certification' },
-              { icon: '📊', label: 'Family Progress Reports' },
-              { icon: '🗺️', label: 'Full Living Bible Map' },
-              { icon: '📜', label: 'Personal Parables' },
-              { icon: '🏅', label: 'Exclusive Badges' },
-            ].map(p => (
-              <div key={p.label} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 10, padding: '9px 12px',
-                fontSize: '.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)',
+              '🤖 Unlimited AI Devotionals, Parables & Adventures',
+              '🎓 Full Bible Certification courses',
+              '📊 Family progress reports & child profiles',
+              '🗺️ Complete Living Bible Map access',
+              '🏅 Exclusive Pro-only badges',
+            ].map((perk, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                fontSize: '.83rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)',
               }}>
-                <span>{p.icon}</span> {p.label}
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B5CF6', flexShrink: 0 }} />
+                {perk}
               </div>
             ))}
           </div>
