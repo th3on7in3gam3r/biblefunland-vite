@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { useMemo } from 'react'
-import { Outlet, useSearchParams } from 'react-router-dom'
+import { Outlet, useSearchParams, useMatch } from 'react-router-dom'
 import { useKidsMode } from '../../context/KidsModeContext'
 import SectionLoading from '../../components/SectionLoading'
 import SectionError from '../../components/SectionError'
@@ -102,6 +101,12 @@ function arrayFromParam(searchParams: URLSearchParams, key: string) {
 export default function ExploreLayout() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { kidsMode = false } = useKidsMode() || {}
+  const isIndex = useMatch('/explore')
+
+  // Sub-routes (world, map, timeline, etc.) render full-page — no layout wrapper
+  if (!isIndex) {
+    return <Outlet />
+  }
 
   const ageFilter = arrayFromParam(searchParams, 'age')
   const topicFilter = arrayFromParam(searchParams, 'topic')
