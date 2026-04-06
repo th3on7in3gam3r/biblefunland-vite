@@ -29,9 +29,12 @@ router.post('/chat', async (req, res) => {
     });
     res.json(response);
   } catch (err) {
-    console.error('[AI Proxy Error]', err.message);
+    console.error('[AI Proxy Error]', err.status, err.message);
+    // Return the full Anthropic error so we can debug it
     res.status(err.status || 500).json({ 
-      error: err.message || 'Failed to communicate with AI provider' 
+      error: err.message || 'Failed to communicate with AI provider',
+      type: err.error?.type,
+      details: err.error,
     });
   }
 });

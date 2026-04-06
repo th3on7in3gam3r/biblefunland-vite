@@ -25,7 +25,11 @@ export async function generateAIContent({
 
     if (!response.ok) {
       let msg = `AI request failed (${response.status})`;
-      try { msg = JSON.parse(text)?.error || msg; } catch {}
+      try { 
+        const errData = JSON.parse(text);
+        msg = errData.error || errData.message || msg;
+        console.error('AI error details:', errData);
+      } catch {}
       throw new Error(msg);
     }
 
