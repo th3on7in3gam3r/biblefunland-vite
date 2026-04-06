@@ -299,6 +299,10 @@ export default function App() {
                                                       path="game/spin-the-verse"
                                                       element={<SP c={SpinTheVerse} />}
                                                     />
+                                                    <Route
+                                                      path="kids-stories"
+                                                      element={<Navigate to="/kids-stories" replace />}
+                                                    />
                                                   </Route>
 
                                                   <Route

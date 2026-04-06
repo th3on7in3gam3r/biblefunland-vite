@@ -849,6 +849,7 @@ export default function PlayOverview() {
               { label: '🐾 Bible Animals', to: '/kids/animals' },
               { label: "🔷 God's Shapes", to: '/kids/shapes' },
               { label: '📚 Kids Stories', to: '/kids-stories' },
+
               { label: '🎨 Coloring Pages', to: '/kids/coloring' },
             ].map(({ label, to }) => (
               <Link
