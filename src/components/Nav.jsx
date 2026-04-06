@@ -26,7 +26,7 @@ const PRIMARY_NAV = [
     to: '/explore',
     label: '🔍 Explore',
     dropdown: [
-      { to: '/explore/world', label: '🌍 Virtual Bible World' },
+      { to: '/explore/world', label: '🗺️ Living Bible Map' },
       { to: '/explore/timeline', label: '📜 Bible Timeline' },
       { to: '/family-tree', label: '🌳 Family Tree' },
       { to: '/names', label: '🔤 Bible Names' },
@@ -63,7 +63,7 @@ const DRAWER_SECTIONS = [
   {
     label: 'Explore',
     items: [
-      { to: '/explore/world', label: '🌍 Virtual Bible World' },
+      { to: '/explore/world', label: '🗺️ Living Bible Map' },
       { to: '/explore/timeline', label: '📜 Bible Timeline' },
       { to: '/family-tree', label: '🌳 Family Tree' },
       { to: '/names', label: '🔤 Bible Names' },

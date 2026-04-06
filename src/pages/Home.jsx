@@ -757,7 +757,7 @@ function QuickStart({ todayVerse }) {
     },
     {
       icon: '🌍',
-      title: 'Virtual Bible World',
+      title: 'Living Bible Map',
       desc: 'Walk through 3D Bible lands and immerse yourself in Scripture',
       to: '/explore/world',
       color: '#C05C33',
@@ -992,7 +992,7 @@ function getSeasonData() {
     tagColor: '#A78BFA',
     cards: [
       { icon: '🎮', title: 'Featured Games', desc: 'Scripture Runner, Trivia, David & Goliath — play them all free', to: '/play', tag: '🎮 Popular' },
-      { icon: '🌍', title: 'Virtual Bible World', desc: 'Explore 3D Bible lands — new locations added regularly', to: '/explore/world', tag: '🌍 Explore' },
+      { icon: '🌍', title: 'Living Bible Map', desc: 'Explore 3D Bible lands — new locations added regularly', to: '/explore/world', tag: '🌍 Explore' },
       { icon: '🙏', title: 'Daily Devotional', desc: 'Fresh AI-powered devotionals every day for your family', to: '/devotional', tag: '✨ AI' },
     ],
     cta: { label: 'Explore All Activities →', to: '/play' },

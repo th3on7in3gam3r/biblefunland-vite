@@ -9,7 +9,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
 const CARDS = [
   {
     icon: '🌍',
-    title: 'Virtual Bible World',
+    title: 'Living Bible Map',
     desc: 'Immerse yourself in 3D Bible lands and stories — walk where Jesus walked.',
     to: '/explore/map',
     color: '#2D6A4F',
