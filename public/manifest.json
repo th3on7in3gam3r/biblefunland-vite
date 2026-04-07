@@ -7,11 +7,50 @@
   "background_color": "#0E0E18",
   "theme_color": "#3B82F6",
   "orientation": "portrait-primary",
+  "categories": ["education", "games", "lifestyle"],
   "icons": [
+    {
+      "src": "/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
     {
       "src": "/cross.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Games",
+      "url": "/play",
+      "description": "Bible games for kids & families"
+    },
+    {
+      "name": "AI Devotional",
+      "url": "/ai/devotional",
+      "description": "Get a personalized devotional"
+    },
+    {
+      "name": "Prayer Wall",
+      "url": "/community/prayer",
+      "description": "Join the community prayer wall"
     }
   ]
 }

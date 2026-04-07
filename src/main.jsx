@@ -104,8 +104,10 @@ function registerSW() {
     });
 }
 
-// Register Service Worker after DOM is ready
-// registerServiceWorker()
+// Register Service Worker for offline functionality + push notifications
+if (import.meta.env.PROD) {
+  registerServiceWorker();
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
