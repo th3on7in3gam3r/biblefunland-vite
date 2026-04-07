@@ -11,42 +11,38 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 
-// Stripe publishable key — safe to expose on client
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 
-// ── Price IDs from your Stripe Dashboard ──
-// Create these in: Stripe Dashboard → Products → Add Product
+// Price IDs — set VITE_STRIPE_PRICE_ID in Vercel env vars
 export const STRIPE_PRICES = {
-  pro_monthly: 'price_pro_monthly_id_here', // $3.99/mo
-  pro_annual: 'price_pro_annual_id_here', // $35.88/yr
-  family_monthly: 'price_family_monthly_id_here', // $9.99/mo
-  family_annual: 'price_family_annual_id_here', // $71.88/yr
+  pro_monthly:    import.meta.env.VITE_STRIPE_PRICE_ID || 'price_pro_monthly_id_here',
+  pro_annual:     import.meta.env.VITE_STRIPE_PRICE_ID_ANNUAL || 'price_pro_annual_id_here',
+  family_monthly: import.meta.env.VITE_STRIPE_PRICE_ID_FAMILY || 'price_family_monthly_id_here',
+  family_annual:  import.meta.env.VITE_STRIPE_PRICE_ID_FAMILY_ANNUAL || 'price_family_annual_id_here',
 };
 
 const API_URL =
   import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
-// ── Create checkout session via Express backend ──
 export async function createCheckoutSession(priceId, userId, userEmail) {
-  const response = await fetch(`${API_URL}/checkout/create-session`, {
+  const response = await fetch(`${API_URL}/api/checkout/create-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ priceId, userId, userEmail }),
   });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `Server error ${response.status}`);
+  }
   const { sessionId, url, error } = await response.json();
   if (error) throw new Error(error);
-  // If server returns a direct URL, use that
-  if (url) {
-    window.location.href = url;
-    return null;
-  }
+  if (url) { window.location.href = url; return null; }
   return sessionId;
 }
 
 export async function redirectToCheckout(priceId, userId, userEmail) {
-  // createCheckoutSession handles redirect if server returns a URL directly
   const sessionId = await createCheckoutSession(priceId, userId, userEmail);
-  if (!sessionId) return; // already redirected via window.location.href
+  if (!sessionId) return;
   const stripe = await stripePromise;
   const { error } = await stripe.redirectToCheckout({ sessionId });
   if (error) throw error;

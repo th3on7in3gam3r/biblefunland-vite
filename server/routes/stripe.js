@@ -18,8 +18,8 @@ router.post('/create-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      success_url: `${process.env.APP_URL || 'http://localhost:5173'}/dashboard?success=true`,
-      cancel_url: `${process.env.APP_URL || 'http://localhost:5173'}/premium?canceled=true`,
+      success_url: `${process.env.APP_URL || process.env.VITE_APP_URL || 'https://www.biblefunland.com'}/dashboard?success=true`,
+      cancel_url: `${process.env.APP_URL || process.env.VITE_APP_URL || 'https://www.biblefunland.com'}/premium?canceled=true`,
       customer_email: userEmail,
       metadata: { userId },
     });
@@ -60,8 +60,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
     await turso.execute({
       sql: `INSERT OR REPLACE INTO subscriptions
-        (id, user_id, status, plan, stripe_subscription_id, stripe_customer_id, current_period_start, expires_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, user_id, status, plan, stripe_subscription_id, stripe_customer_id, expires_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         subscription.id,
         userId,
@@ -69,9 +69,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         plan,
         subscription.id,
         subscription.customer || null,
-        subscription.current_period_start
-          ? new Date(subscription.current_period_start * 1000).toISOString()
-          : null,
         expiresAt,
         new Date().toISOString(),
       ],
