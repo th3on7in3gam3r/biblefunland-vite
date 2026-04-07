@@ -51,7 +51,6 @@ const PLANS = [
     price: { monthly: '$9.99', annual: '$5.99' },
     period: { monthly: 'per month · up to 5 members', annual: 'per month · billed $71.88/yr' },
     color: 'var(--orange)',
-    comingSoon: true,
     features: [
       { text: 'Everything in Pro', ok: true },
       { text: '5 family member accounts', ok: true },
@@ -62,8 +61,8 @@ const PLANS = [
       { text: 'Priority support', ok: true },
       { text: 'Early access to new features', ok: true },
     ],
-    priceId: null,
-    cta: 'Coming Soon',
+    priceId: { monthly: STRIPE_PRICES.family_monthly, annual: STRIPE_PRICES.family_annual },
+    cta: 'Start Family Trial',
     ctaStyle: 'orange',
   },
 ];
@@ -157,8 +156,7 @@ export default function Premium() {
             <button
               className={`${styles.planBtn} ${styles[plan.ctaStyle] || ''}`}
               onClick={() => handleSubscribe(plan)}
-              disabled={loading === plan.name || plan.comingSoon}
-              style={plan.comingSoon ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              disabled={loading === plan.name}
             >
               {loading === plan.name ? <span className={styles.btnSpinner} /> : plan.cta}
             </button>
