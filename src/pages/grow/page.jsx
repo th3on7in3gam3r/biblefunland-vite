@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { BibleLoader } from '../../components/Skeleton';
 import usePageMetadata from '../../hooks/usePageMetadata';
 
 const GROW_FEATURES = [
@@ -67,6 +69,9 @@ export default function GrowOverview() {
     title: 'Grow — BibleFunLand',
     description: 'Grow your faith with Bible certification, reading plans, milestones, and worship discovery.',
   });
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 400); return () => clearTimeout(t); }, []);
+  if (!ready) return <BibleLoader message="Growing in faith..." />;
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins, sans-serif' }}>

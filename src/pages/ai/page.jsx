@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useKidsMode } from '../../context/KidsModeContext';
+import { BibleLoader, SkeletonGrowCard } from '../../components/Skeleton';
 import usePageMetadata from '../../hooks/usePageMetadata';
 
 const AI_TOOLS = [
@@ -100,6 +102,10 @@ export default function AIOverview() {
     description: 'AI-powered Bible tools: devotionals, character chat, rap generator, and miracle art.',
   });
   const { kidsMode } = useKidsMode();
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 400); return () => clearTimeout(t); }, []);
+
+  if (!ready) return <BibleLoader message={kidsMode ? '✨ Loading AI Fun...' : 'Loading AI tools...'} kidsMode={kidsMode} />;
 
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins, sans-serif' }}>

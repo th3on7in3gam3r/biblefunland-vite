@@ -6,6 +6,7 @@ import { useKidsMode } from '../context/KidsModeContext';
 import { useRealTime } from '../context/RealTimeContext';
 import LeaderboardRow from '../components/LeaderboardRow';
 import Podium from '../components/Podium';
+import { BibleLoader, SkeletonLeaderRow, Skeleton } from '../components/Skeleton';
 import API_URL from '../lib/api-config';
 
 const TABS = [
@@ -333,31 +334,13 @@ function LoadingSkeleton() {
       <div style={{ display: 'flex', justifyContent: 'center', gap: 16, padding: '24px 0', alignItems: 'flex-end' }}>
         {[80, 96, 80].map((s, i) => (
           <div key={i} style={{ textAlign: 'center', flex: 1 }}>
-            <div style={{
-              width: s, height: s, borderRadius: '50%',
-              background: 'var(--bg3)', margin: '0 auto 8px',
-              animation: 'pulse 1.5s ease-in-out infinite',
-            }} />
-            <div style={{ height: 10, width: 60, background: 'var(--bg3)', borderRadius: 6, margin: '0 auto 6px', animation: 'pulse 1.5s ease-in-out infinite' }} />
-            <div style={{ height: 8, width: 40, background: 'var(--bg3)', borderRadius: 6, margin: '0 auto', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <Skeleton width={s} height={s} radius="50%" style={{ margin: '0 auto 8px' }} />
+            <Skeleton height={10} width={60} radius={6} style={{ margin: '0 auto 6px' }} />
+            <Skeleton height={8} width={40} radius={6} style={{ margin: '0 auto' }} />
           </div>
         ))}
       </div>
-      {/* Row skeletons */}
-      {[1,2,3,4,5].map(i => (
-        <div key={i} style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--surface)', border: '1.5px solid var(--border)',
-          marginBottom: 8,
-        }}>
-          <div style={{ width: 32, height: 16, background: 'var(--bg3)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
-          <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--bg3)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-          <div style={{ flex: 1, height: 14, background: 'var(--bg3)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
-          <div style={{ width: 48, height: 14, background: 'var(--bg3)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
-        </div>
-      ))}
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
+      {[1,2,3,4,5].map(i => <SkeletonLeaderRow key={i} />)}
     </div>
   );
 }

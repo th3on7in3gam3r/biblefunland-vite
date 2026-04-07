@@ -15,6 +15,7 @@ import { useABTest } from '../hooks/useABTest';
 import InviteFamily from '../components/InviteFamily';
 import { getSeasonalMarketingHook } from '../lib/seasonal';
 import JourneyCards from '../components/JourneyCards';
+import { SkeletonQuickCard } from '../components/Skeleton';
 
 // ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
@@ -736,6 +737,18 @@ export default function Home() {
 
 // ── Quick Start ───────────────────────────────────────────────────────────────
 function QuickStart({ todayVerse }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 300); return () => clearTimeout(t); }, []);
+
+  if (!ready) return (
+    <section style={{ padding: '80px 24px 64px', background: '#FAFBFF' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20 }}>
+          {[1,2,3,4,5].map(i => <SkeletonQuickCard key={i} />)}
+        </div>
+      </div>
+    </section>
+  );
   const QUICK_CARDS = [
     {
       icon: '🎮',

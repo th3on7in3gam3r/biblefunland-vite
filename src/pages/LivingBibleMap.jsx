@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useBadges } from '../context/BadgeContext';
 import { useKidsMode } from '../context/KidsModeContext';
 import { execute, query } from '../lib/db';
+import { BibleLoader, SkeletonMapPanel } from '../components/Skeleton';
 import { LOCATIONS, ERAS, DAILY_QUESTS } from '../data/bibleMapLocations';
 
 // Fix Leaflet icon
@@ -242,6 +243,7 @@ export default function LivingBibleMap() {
 
   const [activeEra, setActiveEra] = useState('all');
   const [activeId, setActiveId] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
   const [discovered, setDiscovered] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem('bfl_map_discovered') || '[]')); }
     catch { return new Set(); }
@@ -254,6 +256,10 @@ export default function LivingBibleMap() {
 
   // Pick today's quest deterministically
   const todayQuest = DAILY_QUESTS[new Date().getDay() % DAILY_QUESTS.length];
+
+  // Show loader briefly while Leaflet initializes
+  useEffect(() => { const t = setTimeout(() => setMapReady(true), 600); return () => clearTimeout(t); }, []);
+  if (!mapReady) return <BibleLoader message={kidsMode ? '🗺️ Loading Bible lands...' : 'Initializing Bible Map...'} kidsMode={kidsMode} />;
 
   const filteredLocations = activeEra === 'all'
     ? LOCATIONS
