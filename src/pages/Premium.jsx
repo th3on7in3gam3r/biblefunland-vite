@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { STRIPE_PRICES, redirectToCheckout } from '../lib/stripe';
-import { Analytics } from '../lib/analytics';
+import { trackEvent } from '../lib/analytics';
 import styles from './Premium.module.css';
 
 const PLANS = [
@@ -74,7 +74,7 @@ export default function Premium() {
   const navigate = useNavigate();
 
   async function handleSubscribe(plan) {
-    Analytics.trackEvent('pro_conversion_start', { plan: plan.name, annual });
+    trackEvent('pro_conversion_start', { plan: plan.name, annual });
 
     if (!plan.priceId) {
       navigate('/');
