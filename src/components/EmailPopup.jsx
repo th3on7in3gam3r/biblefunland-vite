@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
 export default function EmailPopup() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (sessionStorage.getItem('bfl_email_shown')) return;
@@ -16,14 +19,25 @@ export default function EmailPopup() {
     sessionStorage.setItem('bfl_email_shown', '1');
   }
 
-  function submit() {
+  async function submit() {
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email!');
       return;
     }
+    setLoading(true);
+    try {
+      await fetch(`${API}/api/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), source: 'popup_7day' }),
+      });
+    } catch {
+      // Fail silently — don't block the UX
+    }
+    setLoading(false);
     setDone(true);
     sessionStorage.setItem('bfl_email_shown', '1');
-    setTimeout(close, 2000);
+    setTimeout(close, 2500);
   }
 
   if (!open) return null;
@@ -121,15 +135,11 @@ export default function EmailPopup() {
           {done ? (
             <div style={{ textAlign: 'center', padding: '10px 0' }}>
               <div style={{ fontSize: '3rem', marginBottom: 12 }}>✅</div>
-              <p
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  color: 'var(--ink,#0F0F1A)',
-                }}
-              >
+              <p style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink,#0F0F1A)', marginBottom: 6 }}>
                 You're in! Check your inbox 🙏
+              </p>
+              <p style={{ fontSize: '.8rem', color: 'var(--ink3,#8888AA)' }}>
+                Your 7-Day Bible Adventure Guide is on its way.
               </p>
             </div>
           ) : (
@@ -201,7 +211,7 @@ export default function EmailPopup() {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Get Free Guide →
+                  {loading ? 'Sending...' : 'Get Free Guide →'}
                 </button>
               </div>
               <p

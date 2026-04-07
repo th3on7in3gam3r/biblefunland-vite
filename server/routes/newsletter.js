@@ -79,7 +79,61 @@ const WELCOME_HTML = (siteUrl = 'https://biblefunland.com') => `
 </html>
 `
 
-// POST /api/newsletter/subscribe
+const GUIDE_HTML = (siteUrl = 'https://biblefunland.com') => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F9FAFB;font-family:Poppins,Arial,sans-serif">
+  <div style="max-width:600px;margin:24px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#3B82F6,#8B5CF6,#EC4899);padding:40px 32px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🎁</div>
+      <h1 style="color:white;font-size:26px;font-weight:800;margin:0 0 8px">Your Free 7-Day Bible Adventure Guide!</h1>
+      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0">Games · Devotionals · Memory Verses · Printables</p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:36px 32px">
+      <p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 24px">
+        Welcome! Here's your 7-day plan to make Bible learning a daily adventure for your family. Each day takes just 10–15 minutes. 🌟
+      </p>
+
+      <!-- 7 Days -->
+      ${[
+        ['Day 1 — Creation', '🌍', 'Read Genesis 1. Play the Bible Timeline at BibleFunLand and find the Creation event.', '/explore/timeline'],
+        ['Day 2 — Heroes of Faith', '🏹', 'Read about David & Goliath (1 Samuel 17). Play the David & Goliath game!', '/play/game/david-goliath'],
+        ['Day 3 — Jesus\' Ministry', '✝️', 'Explore 3 locations from Jesus\' Ministry on the Living Bible Map.', '/explore/world'],
+        ['Day 4 — Memory Verse', '📖', 'Memorize Philippians 4:13 using the Flashcards tool. Try to say it from memory!', '/play/flashcards'],
+        ['Day 5 — AI Devotional', '🙏', 'Use the AI Devotional to get a personalized devotional for your family today.', '/ai/devotional'],
+        ['Day 6 — Bible Adventure', '🗺️', 'Build a Bible Adventure together — pick a hero and answer the questions!', '/ai/adventure-builder'],
+        ['Day 7 — Celebrate!', '🏆', 'Print a Bible activity sheet and celebrate completing your 7-day adventure!', '/play/activity-sheets'],
+      ].map(([title, emoji, desc, link]) => `
+        <div style="border-left:4px solid #8B5CF6;padding:12px 16px;margin-bottom:12px;background:#F9FAFB;border-radius:0 10px 10px 0">
+          <div style="font-weight:800;color:#1E1B4B;font-size:14px;margin-bottom:4px">${emoji} ${title}</div>
+          <div style="color:#6B7280;font-size:13px;margin-bottom:8px;line-height:1.5">${desc}</div>
+          <a href="${siteUrl}${link}" style="display:inline-block;background:#8B5CF6;color:white;padding:6px 14px;border-radius:7px;font-weight:700;font-size:12px;text-decoration:none">Start Day →</a>
+        </div>
+      `).join('')}
+
+      <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:12px;padding:16px 20px;margin-top:20px;text-align:center">
+        <div style="font-weight:800;color:#92400E;font-size:15px;margin-bottom:6px">🖨️ Free Printable Bonus</div>
+        <div style="color:#B45309;font-size:13px;margin-bottom:10px">Download and print Bible activity sheets, coloring pages, and word searches — free forever.</div>
+        <a href="${siteUrl}/play/activity-sheets" style="display:inline-block;background:#F59E0B;color:white;padding:9px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Get Free Printables →</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#F9FAFB;padding:20px 32px;text-align:center;border-top:1px solid #E5E7EB">
+      <p style="font-size:12px;color:#9CA3AF;margin:0">
+        BibleFunLand · Faith-centered learning for families · 100% Free<br>
+        <a href="${siteUrl}" style="color:#6366F1;text-decoration:none">biblefunland.com</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`
 router.post('/subscribe', async (req, res) => {
   const { email, source = 'website' } = req.body || {}
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' })
@@ -95,20 +149,23 @@ router.post('/subscribe', async (req, res) => {
 
   if (error) return res.status(500).json({ error: 'Failed to subscribe' })
 
-  // Send welcome email via Resend
+  // Send appropriate welcome email via Resend
   if (process.env.RESEND_API_KEY) {
     try {
       const { Resend } = require('resend')
       const resend = new Resend(process.env.RESEND_API_KEY)
+      const siteUrl = process.env.VITE_APP_URL || 'https://biblefunland.com'
+      const is7Day = source === 'popup_7day'
       await resend.emails.send({
         from: 'BibleFunLand <hello@biblefunland.com>',
         to: cleanEmail,
-        subject: '🎁 Your free Bible printables are ready!',
-        html: WELCOME_HTML(process.env.VITE_APP_URL || 'https://biblefunland.com'),
+        subject: is7Day
+          ? '🎁 Your Free 7-Day Bible Adventure Guide is here!'
+          : '🎁 Your free Bible printables are ready!',
+        html: is7Day ? GUIDE_HTML(siteUrl) : WELCOME_HTML(siteUrl),
       })
     } catch (e) {
       console.warn('[Newsletter] Welcome email failed:', e.message)
-      // Don't fail the subscription if email fails
     }
   }
 
