@@ -16,9 +16,9 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? 
 // Price IDs — set VITE_STRIPE_PRICE_ID in Vercel env vars
 export const STRIPE_PRICES = {
   pro_monthly:    import.meta.env.VITE_STRIPE_PRICE_ID || 'price_pro_monthly_id_here',
-  pro_annual:     import.meta.env.VITE_STRIPE_PRICE_ID_ANNUAL || 'price_pro_annual_id_here',
+  pro_annual:     import.meta.env.VITE_STRIPE_PRICE_ID_ANNUAL || 'price_1TJftUDaUBBsjt5mjqCqagzw',
   family_monthly: import.meta.env.VITE_STRIPE_PRICE_ID_FAMILY || 'price_1TJfd6DaUBBsjt5mCKGPA0Hc',
-  family_annual:  import.meta.env.VITE_STRIPE_PRICE_ID_FAMILY_ANNUAL || 'price_family_annual_id_here',
+  family_annual:  import.meta.env.VITE_STRIPE_PRICE_ID_FAMILY_ANNUAL || 'price_1TJfrqDaUBBsjt5mYaPWmhpq',
 };
 
 const API_URL =
