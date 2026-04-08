@@ -842,17 +842,41 @@ export default function ParentTeacherHub() {
                 fontSize: '1.8rem',
                 fontWeight: 800,
                 color: 'var(--ink)',
-                marginBottom: 12,
+                marginBottom: 8,
               }}
             >
               Need something specific? 💡
             </h2>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <Link to="/ai/study-generator" className="btn btn-blue">
-                AI Study Generator →
+            <p style={{ color: 'var(--ink3)', fontSize: '.88rem', marginBottom: 20, maxWidth: 480, margin: '0 auto 20px' }}>
+              Use our AI tools to generate custom resources for your family or classroom — instantly.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/ai/personal-parable" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '11px 22px', borderRadius: 12,
+                background: 'linear-gradient(135deg,#8B5CF6,#6D28D9)',
+                color: 'white', fontWeight: 700, fontSize: '.88rem',
+                textDecoration: 'none', boxShadow: '0 4px 14px rgba(139,92,246,.3)',
+              }}>
+                📜 Personal Parable Generator
               </Link>
-              <Link to="/sermon-writer" className="btn btn-purple">
-                AI Sermon Writer →
+              <Link to="/ai/devotional" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '11px 22px', borderRadius: 12,
+                background: 'linear-gradient(135deg,#3B82F6,#1D4ED8)',
+                color: 'white', fontWeight: 700, fontSize: '.88rem',
+                textDecoration: 'none', boxShadow: '0 4px 14px rgba(59,130,246,.3)',
+              }}>
+                🙏 AI Devotional
+              </Link>
+              <Link to="/parents/parents-teachers" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '11px 22px', borderRadius: 12,
+                background: 'linear-gradient(135deg,#10B981,#059669)',
+                color: 'white', fontWeight: 700, fontSize: '.88rem',
+                textDecoration: 'none', boxShadow: '0 4px 14px rgba(16,185,129,.3)',
+              }}>
+                🖨️ Printable Lesson Plans
               </Link>
             </div>
           </div>
