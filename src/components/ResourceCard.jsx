@@ -145,33 +145,23 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
       {/* Action */}
       <div style={actionStyle}>
         {resource.link ? (
-          <a
-            href={resource.link}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to={resource.link}
             style={linkStyle}
             onClick={handleClick}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
-            {resource.downloadable ? '⬇️ Download' : '🔗 View'}
-          </a>
+            {resource.downloadable ? '🖨️ View & Print' : '🔗 Open'}
+          </Link>
         ) : (
           <button
             style={linkStyle}
             onClick={handleClick}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
-            {resource.downloadable ? '⬇️ Download' : '📖 View'}
+            📖 View
           </button>
         )}
       </div>

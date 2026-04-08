@@ -18,21 +18,20 @@ const ALL_RESOURCES = [
     ageRange: '4-8',
     ageAppropriate: true,
     icon: '🍎',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
   {
     id: 'lp-2',
     title: 'David and Goliath: Faith',
-    description:
-      "Teaching faith through David's courage with interactive storytelling and discussion.",
+    description: "Teaching faith through David's courage with interactive storytelling and discussion.",
     category: 'Lesson Plans',
     role: 'Teacher',
     ageRange: '6-12',
     ageAppropriate: true,
     icon: '🏹',
-    link: '#',
-    downloadable: true,
+    link: '/play/game/david-goliath',
+    downloadable: false,
   },
   {
     id: 'lp-3',
@@ -43,8 +42,8 @@ const ALL_RESOURCES = [
     ageRange: '5-10',
     ageAppropriate: true,
     icon: '📖',
-    link: '#',
-    downloadable: true,
+    link: '/ai/personal-parable',
+    downloadable: false,
   },
   {
     id: 'lp-4',
@@ -55,7 +54,7 @@ const ALL_RESOURCES = [
     ageRange: '8-14',
     ageAppropriate: false,
     icon: '⛪',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
 
@@ -69,7 +68,7 @@ const ALL_RESOURCES = [
     ageRange: 'All',
     ageAppropriate: true,
     icon: '🕯️',
-    link: '#',
+    link: '/community/prayer',
     downloadable: false,
   },
   {
@@ -81,7 +80,7 @@ const ALL_RESOURCES = [
     ageRange: '3-8',
     ageAppropriate: true,
     icon: '🌙',
-    link: '#',
+    link: '/kids-stories',
     downloadable: false,
   },
   {
@@ -93,7 +92,7 @@ const ALL_RESOURCES = [
     ageRange: 'Adult',
     ageAppropriate: false,
     icon: '✝️',
-    link: '#',
+    link: '/ai/devotional',
     downloadable: false,
   },
   {
@@ -105,7 +104,7 @@ const ALL_RESOURCES = [
     ageRange: '4-12',
     ageAppropriate: true,
     icon: '☀️',
-    link: '#',
+    link: '/explore/bible',
     downloadable: false,
   },
 
@@ -119,7 +118,7 @@ const ALL_RESOURCES = [
     ageRange: '5-10',
     ageAppropriate: true,
     icon: '🛡️',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
   {
@@ -131,8 +130,8 @@ const ALL_RESOURCES = [
     ageRange: '4-12',
     ageAppropriate: true,
     icon: '🎮',
-    link: '#',
-    downloadable: true,
+    link: '/play/flashcards',
+    downloadable: false,
   },
   {
     id: 'act-3',
@@ -143,7 +142,7 @@ const ALL_RESOURCES = [
     ageRange: '6-11',
     ageAppropriate: true,
     icon: '🎨',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
   {
@@ -155,7 +154,7 @@ const ALL_RESOURCES = [
     ageRange: 'Family',
     ageAppropriate: true,
     icon: '🏆',
-    link: '#',
+    link: '/grow/habits',
     downloadable: false,
   },
 
@@ -169,7 +168,7 @@ const ALL_RESOURCES = [
     ageRange: '6-14',
     ageAppropriate: false,
     icon: '💬',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
   {
@@ -181,7 +180,7 @@ const ALL_RESOURCES = [
     ageRange: 'Adult',
     ageAppropriate: false,
     icon: '📧',
-    link: '#',
+    link: '/play/activity-sheets',
     downloadable: true,
   },
   {
@@ -193,8 +192,8 @@ const ALL_RESOURCES = [
     ageRange: 'All',
     ageAppropriate: true,
     icon: '📚',
-    link: '#',
-    downloadable: true,
+    link: '/explore/bible',
+    downloadable: false,
   },
   {
     id: 'tr-4',
@@ -205,8 +204,8 @@ const ALL_RESOURCES = [
     ageRange: 'All',
     ageAppropriate: false,
     icon: '📊',
-    link: '#',
-    downloadable: true,
+    link: '/grow/faith-milestones',
+    downloadable: false,
   },
 ];
 
