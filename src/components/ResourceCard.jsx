@@ -1,13 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ResourceCard({ resource, onUnauthorizedClick }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   function handleClick(e) {
     if (!user && onUnauthorizedClick) {
       e.preventDefault();
       onUnauthorizedClick();
+      return;
+    }
+    if (resource.downloadable) {
+      e.preventDefault();
+      navigate(`/parents/resource/${resource.id}`);
     }
   }
 
@@ -144,7 +150,16 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
 
       {/* Action */}
       <div style={actionStyle}>
-        {resource.link ? (
+        {resource.downloadable ? (
+          <button
+            style={linkStyle}
+            onClick={handleClick}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+          >
+            🖨️ Generate & Print
+          </button>
+        ) : resource.link ? (
           <Link
             to={resource.link}
             style={linkStyle}
@@ -152,15 +167,10 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
             onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
-            {resource.downloadable ? '🖨️ View & Print' : '🔗 Open'}
+            🔗 Open
           </Link>
         ) : (
-          <button
-            style={linkStyle}
-            onClick={handleClick}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-          >
+          <button style={{ ...linkStyle, opacity: 0.5, cursor: 'not-allowed' }}>
             📖 View
           </button>
         )}

@@ -87,6 +87,7 @@ const PersonalParable = lazy_(() => import('./pages/PersonalParable'));
 const BibleAdventureBuilder = lazy_(() => import('./pages/BibleAdventureBuilder'));
 const LivingBibleMap = lazy_(() => import('./pages/LivingBibleMap'));
 const DailyHabits = lazy_(() => import('./pages/DailyHabits'));
+const PrintableResource = lazy_(() => import('./pages/PrintableResource'));
 const EncouragementWall = lazy_(() => import('./pages/EncouragementWall'));
 const DigitalPrayerBeads = lazy_(() => import('./pages/DigitalPrayerBeads'));
 const BibleCertification = lazy_(() => import('./pages/BibleCertification'));
@@ -703,6 +704,10 @@ export default function App() {
                                                       <Route
                                                         path="parents-teachers"
                                                         element={<SP c={ParentsTeachers} />}
+                                                      />
+                                                      <Route
+                                                        path="resource/:resourceId"
+                                                        element={<SP c={PrintableResource} />}
                                                       />
                                                       <Route
                                                         path="controls"
