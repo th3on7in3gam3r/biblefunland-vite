@@ -78,7 +78,7 @@ export default function Dashboard() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3,1fr)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: 18,
             marginBottom: 24,
           }}
@@ -119,7 +119,7 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
           {/* Calendar */}
           <div
             style={{
@@ -305,7 +305,7 @@ export default function Dashboard() {
             >
               🏆 Your Badges
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 10 }}>
               {badges.map((b) => (
                 <div
                   key={b.id}
