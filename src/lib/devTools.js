@@ -74,7 +74,7 @@ export function initializeDevTools() {
   window.debugCacheMetadata = async function () {
     try {
       const db = await new Promise((resolve, reject) => {
-        const request = indexedDB.open('biblefunland-offline', 1);
+        const request = indexedDB.open('biblefunland-offline', 7);
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
       });
@@ -140,7 +140,7 @@ export function initializeDevTools() {
 
         // Get metadata
         const db = await new Promise((resolve, reject) => {
-          const dbRequest = indexedDB.open('biblefunland-offline', 1);
+          const dbRequest = indexedDB.open('biblefunland-offline', 7);
           dbRequest.onerror = () => reject(dbRequest.error);
           dbRequest.onsuccess = () => resolve(dbRequest.result);
         });
@@ -206,7 +206,7 @@ export function initializeDevTools() {
 
         // Get metadata
         const db = await new Promise((resolve, reject) => {
-          const dbRequest = indexedDB.open('biblefunland-offline', 1);
+          const dbRequest = indexedDB.open('biblefunland-offline', 7);
           dbRequest.onerror = () => reject(dbRequest.error);
           dbRequest.onsuccess = () => resolve(dbRequest.result);
         });

@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'biblefunland-offline';
-const DB_VERSION = 6; // Increment to force recreation/fix schema issues
+const DB_VERSION = 7; // Increment to force recreation/fix schema issues
 
 // Store names
 const SYNC_QUEUE_STORE = 'sync_queue';
