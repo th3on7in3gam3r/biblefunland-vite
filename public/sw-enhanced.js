@@ -1,9 +1,9 @@
 // Enhanced Service Worker for Offline PWA Caching
 // Focus on kids content with intelligent caching strategies with TTL validation
 
-const CACHE_NAME = 'biblefunland-kids-v4'
-const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v4'
-const STATIC_CACHE = 'biblefunland-static-v4'
+const CACHE_NAME = 'biblefunland-kids-v5'
+const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v5'
+const STATIC_CACHE = 'biblefunland-static-v5'
 
 // Cache TTL configurations (in milliseconds)
 const CACHE_TTL = {
@@ -70,7 +70,7 @@ async function initMetadataDB() {
   if (dbPromise) return dbPromise;
   
   dbPromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 5)
+    const request = indexedDB.open(DB_NAME, 7)
     
     request.onerror = () => {
       dbPromise = null;
