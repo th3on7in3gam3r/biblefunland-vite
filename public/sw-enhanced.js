@@ -1,9 +1,9 @@
 // Enhanced Service Worker for Offline PWA Caching
 // Focus on kids content with intelligent caching strategies with TTL validation
 
-const CACHE_NAME = 'biblefunland-kids-v3'
-const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v3'
-const STATIC_CACHE = 'biblefunland-static-v3'
+const CACHE_NAME = 'biblefunland-kids-v4'
+const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v4'
+const STATIC_CACHE = 'biblefunland-static-v4'
 
 // Cache TTL configurations (in milliseconds)
 const CACHE_TTL = {
@@ -876,8 +876,10 @@ function getOfflineFallback(contentType) {
 function getOfflineTrivia() {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Bible Trivia - Offline</title>
       <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
@@ -904,8 +906,10 @@ function getOfflineTrivia() {
 function getOfflineDevotional() {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Daily Devotional - Offline</title>
       <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5dc; }
@@ -930,8 +934,10 @@ function getOfflineDevotional() {
 function getOfflineHomePage() {
   return `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>BibleFunLand - Offline</title>
       <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; }

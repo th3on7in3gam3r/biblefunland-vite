@@ -67,7 +67,6 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Galatians 5:22-23',
         materials: ['Construction paper', 'Markers', 'Heart stickers', 'Bible'],
         aiGenerated: true,
-        downloadUrl: '/api/download/lesson/fruit-love-k2',
       },
       {
         id: 'lesson-2',
@@ -80,7 +79,6 @@ export default function ParentTeacherHub() {
         bibleVerse: '1 Samuel 17',
         materials: ['Slingshot craft', 'Story cards', 'Discussion questions'],
         aiGenerated: true,
-        downloadUrl: '/api/download/lesson/david-goliath-3-5',
       },
       {
         id: 'activity-1',
@@ -93,7 +91,6 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Ephesians 6:10-18',
         materials: ['Foam sheets', 'Elastic string', 'Markers', 'Scissors'],
         aiGenerated: true,
-        downloadUrl: '/api/download/activity/armor-of-god',
       },
     ];
   };
@@ -112,7 +109,6 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Philippians 4:6',
         includes: ['Prayer prompts', 'Gratitude list', 'Praise ideas'],
         aiGenerated: true,
-        downloadUrl: '/api/download/devotional/family-prayer',
       },
       {
         id: 'story-1',
@@ -125,7 +121,6 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Joshua 1:9',
         includes: ['3 stories', 'Discussion questions', 'Prayer'],
         aiGenerated: true,
-        downloadUrl: '/api/download/stories/bedtime-courage',
       },
       {
         id: 'guide-1',
@@ -138,7 +133,6 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Proverbs 22:6',
         includes: ['Tips', 'App recommendations', 'Screen time schedule'],
         aiGenerated: true,
-        downloadUrl: '/api/download/guide/digital-parenting',
       },
       {
         id: 'activity-1',
@@ -151,9 +145,72 @@ export default function ParentTeacherHub() {
         bibleVerse: 'Various',
         includes: ['12 printable cards', 'Memory tips', 'Progress tracker'],
         aiGenerated: true,
-        downloadUrl: '/api/download/activity/memory-cards',
       },
     ];
+  };
+
+  const downloadResource = (item) => {
+    const fileName = `${item.title.replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+    const materialsHtml = item.materials
+      ? `<div class="section"><h3>Materials Needed</h3><ul>${item.materials.map(m => `<li>${m}</li>`).join('')}</ul></div>`
+      : '';
+    const includesHtml = item.includes
+      ? `<div class="section"><h3>What's Included</h3><ul>${item.includes.map(i => `<li>${i}</li>`).join('')}</ul></div>`
+      : '';
+    const gradeOrAge = item.grade ? `Grade: ${item.grade}` : item.age ? `Age Group: ${item.age}` : '';
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${item.title} - BibleFunLand</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 40px; max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 3px solid #6366f1; }
+    .header .icon { font-size: 48px; margin-bottom: 8px; }
+    .header h1 { font-size: 28px; color: #312e81; }
+    .header .type-badge { display: inline-block; background: #6366f1; color: white; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 8px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-bottom: 28px; font-size: 14px; color: #64748b; }
+    .meta span { background: #f1f5f9; padding: 6px 14px; border-radius: 8px; }
+    .section { background: #f8fafc; border-left: 4px solid #6366f1; padding: 20px; margin-bottom: 20px; border-radius: 0 12px 12px 0; }
+    .section h3 { font-size: 16px; color: #4338ca; margin-bottom: 10px; }
+    .section ul { padding-left: 20px; line-height: 1.8; }
+    .section p { line-height: 1.7; }
+    .verse { text-align: center; font-style: italic; color: #6366f1; font-size: 15px; padding: 16px; background: #eef2ff; border-radius: 12px; margin-bottom: 20px; }
+    .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; }
+    @media print { body { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="icon">${item.icon}</div>
+    <h1>${item.title}</h1>
+    <span class="type-badge">${item.type}</span>
+  </div>
+  <div class="meta">
+    ${item.duration ? `<span>⏱ ${item.duration}</span>` : ''}
+    ${gradeOrAge ? `<span>👥 ${gradeOrAge}</span>` : ''}
+  </div>
+  ${item.bibleVerse ? `<div class="verse">📖 ${item.bibleVerse}</div>` : ''}
+  <div class="section"><h3>Description</h3><p>${item.description}</p></div>
+  ${materialsHtml}
+  ${includesHtml}
+  <div class="footer">Generated by BibleFunLand &bull; www.biblefunland.com &bull; Print this page for classroom or family use</div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const toggleAI = (featureId) => {
@@ -805,17 +862,12 @@ export default function ParentTeacherHub() {
                     )}
                     <div style={footerStyle}>
                       <span>{item.grade ? `Grade: ${item.grade}` : `Age: ${item.age}`}</span>
-                      {item.downloadUrl ? (
-                        <a
-                          href={item.downloadUrl}
-                          className="btn btn-blue btn-sm"
-                          style={{ textDecoration: 'none' }}
-                        >
-                          Download
-                        </a>
-                      ) : (
-                        <span>View →</span>
-                      )}
+                      <button
+                      className="btn btn-blue btn-sm"
+                      onClick={(e) => { e.stopPropagation(); downloadResource(item); }}
+                    >
+                      Download
+                    </button>
                     </div>
                   </div>
                 ))}
