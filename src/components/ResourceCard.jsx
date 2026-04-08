@@ -1,11 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const ROLE_CONFIG = {
+  Teacher: { color: '#8B5CF6', bg: '#F5F3FF', border: '#DDD6FE', label: '🏫 Teacher' },
+  Parent:  { color: '#3B82F6', bg: '#EFF6FF', border: '#BFDBFE', label: '👨‍👩‍👧 Parent' },
+};
+
 export default function ResourceCard({ resource, onUnauthorizedClick }) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const role = ROLE_CONFIG[resource.role] || ROLE_CONFIG.Parent;
 
-  function handleClick(e) {
+  function handleActionClick(e) {
     if (!user && onUnauthorizedClick) {
       e.preventDefault();
       onUnauthorizedClick();
@@ -17,163 +23,141 @@ export default function ResourceCard({ resource, onUnauthorizedClick }) {
     }
   }
 
-  const cardStyle = {
-    background: 'var(--surface)',
-    borderRadius: 20,
-    border: '1.5px solid var(--border)',
-    padding: 20,
-    transition: 'all 0.3s',
-    cursor: 'pointer',
-    position: 'relative',
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  };
-
-  const iconBoxStyle = {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-    background: resource.role === 'Teacher' ? 'var(--purple-bg)' : 'var(--blue-bg)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1.8rem',
-    marginBottom: 14,
-  };
-
-  const badgeStyle = {
-    fontSize: '.65rem',
-    fontWeight: 800,
-    color: resource.role === 'Teacher' ? 'var(--purple)' : 'var(--blue)',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-  };
-
-  const titleStyle = {
-    fontFamily: "'Baloo 2', cursive",
-    fontSize: '.95rem',
-    fontWeight: 800,
-    color: 'var(--ink)',
-    marginBottom: 8,
-    lineHeight: 1.3,
-  };
-
-  const descStyle = {
-    fontSize: '.78rem',
-    color: 'var(--ink2)',
-    fontWeight: 500,
-    marginBottom: 12,
-    lineHeight: 1.5,
-    flex: 1,
-  };
-
-  const tagsStyle = {
-    display: 'flex',
-    gap: 6,
-    flexWrap: 'wrap',
-    marginBottom: 14,
-  };
-
-  const tagStyle = {
-    fontSize: '.62rem',
-    fontWeight: 700,
-    padding: '3px 8px',
-    borderRadius: 6,
-    background: 'var(--bg2)',
-    color: 'var(--ink3)',
-    border: '1px solid var(--border)',
-  };
-
-  const actionStyle = {
-    display: 'flex',
-    gap: 8,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 12,
-    borderTop: '1px solid var(--border)',
-  };
-
-  const linkStyle = {
-    flex: 1,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    padding: '8px 12px',
-    borderRadius: 10,
-    background: resource.role === 'Teacher' ? 'var(--purple-bg)' : 'var(--blue-bg)',
-    color: resource.role === 'Teacher' ? 'var(--purple)' : 'var(--blue)',
-    fontWeight: 700,
-    fontSize: '.75rem',
-    textDecoration: 'none',
-    transition: 'all 0.2s',
-    border: `1.5px solid ${resource.role === 'Teacher' ? 'var(--purple)' : 'var(--blue)'}`,
-    cursor: 'pointer',
-  };
-
   return (
     <div
-      style={cardStyle}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = 'var(--sh-lg)';
+      style={{
+        background: 'var(--surface)',
+        borderRadius: 18,
+        border: '1.5px solid var(--border)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'hidden',
+        transition: 'transform 0.2s, box-shadow 0.2s',
       }}
-      onMouseLeave={(e) => {
+      onMouseEnter={e => {
+        e.currentTarget.style.transform = 'translateY(-3px)';
+        e.currentTarget.style.boxShadow = `0 12px 32px ${role.color}18`;
+        e.currentTarget.style.borderColor = `${role.color}40`;
+      }}
+      onMouseLeave={e => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'var(--sh)';
+        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.borderColor = 'var(--border)';
       }}
     >
-      {/* Icon */}
-      <div style={iconBoxStyle}>{resource.icon || '📚'}</div>
+      {/* Colored top accent */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${role.color}, ${role.color}80)` }} />
 
-      {/* Badge */}
-      <div style={badgeStyle}>{resource.category}</div>
-
-      {/* Title */}
-      <div style={titleStyle}>{resource.title}</div>
-
-      {/* Description */}
-      <div style={descStyle}>{resource.description}</div>
-
-      {/* Tags */}
-      <div style={tagsStyle}>
-        {resource.ageRange && <div style={tagStyle}>👶 Ages {resource.ageRange}</div>}
-        {resource.role && (
-          <div style={tagStyle}>
-            {resource.role === 'Teacher' ? '🏫' : '👨‍👩‍👧'} {resource.role}
+      <div style={{ padding: '18px 18px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+        {/* Icon + category row */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 12,
+            background: role.bg, border: `1.5px solid ${role.border}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.5rem', flexShrink: 0,
+          }}>
+            {resource.icon || '📚'}
           </div>
-        )}
-      </div>
+          <span style={{
+            fontSize: '.6rem', fontWeight: 800, letterSpacing: '.5px',
+            textTransform: 'uppercase', color: role.color,
+            background: role.bg, border: `1px solid ${role.border}`,
+            padding: '3px 8px', borderRadius: 6,
+          }}>
+            {resource.category}
+          </span>
+        </div>
 
-      {/* Action */}
-      <div style={actionStyle}>
-        {resource.downloadable ? (
-          <button
-            style={linkStyle}
-            onClick={handleClick}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-          >
-            🖨️ Generate & Print
-          </button>
-        ) : resource.link ? (
-          <Link
-            to={resource.link}
-            style={linkStyle}
-            onClick={handleClick}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-          >
-            🔗 Open
-          </Link>
-        ) : (
-          <button style={{ ...linkStyle, opacity: 0.5, cursor: 'not-allowed' }}>
-            📖 View
-          </button>
-        )}
+        {/* Title */}
+        <div style={{
+          fontFamily: "'Baloo 2', cursive", fontWeight: 800,
+          fontSize: '1rem', color: 'var(--ink)', marginBottom: 6, lineHeight: 1.3,
+        }}>
+          {resource.title}
+        </div>
+
+        {/* Description */}
+        <p style={{
+          fontSize: '.78rem', color: 'var(--ink3)', fontWeight: 500,
+          lineHeight: 1.6, marginBottom: 12, flex: 1,
+        }}>
+          {resource.description}
+        </p>
+
+        {/* Tags */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+          {resource.ageRange && (
+            <span style={{
+              fontSize: '.62rem', fontWeight: 700, padding: '3px 8px',
+              borderRadius: 6, background: 'var(--bg2)',
+              color: 'var(--ink3)', border: '1px solid var(--border)',
+            }}>
+              Ages {resource.ageRange}
+            </span>
+          )}
+          {resource.role && (
+            <span style={{
+              fontSize: '.62rem', fontWeight: 700, padding: '3px 8px',
+              borderRadius: 6, background: role.bg,
+              color: role.color, border: `1px solid ${role.border}`,
+            }}>
+              {role.label}
+            </span>
+          )}
+          {resource.downloadable && (
+            <span style={{
+              fontSize: '.62rem', fontWeight: 700, padding: '3px 8px',
+              borderRadius: 6, background: '#ECFDF5',
+              color: '#059669', border: '1px solid #A7F3D0',
+            }}>
+              ✨ AI Generated
+            </span>
+          )}
+        </div>
+
+        {/* Action button */}
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          {resource.downloadable ? (
+            <button
+              onClick={handleActionClick}
+              style={{
+                width: '100%', padding: '10px 16px',
+                borderRadius: 10, border: 'none',
+                background: `linear-gradient(135deg, ${role.color}, ${role.color}cc)`,
+                color: 'white', fontWeight: 700, fontSize: '.82rem',
+                cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                boxShadow: `0 4px 12px ${role.color}30`,
+                transition: 'opacity 0.2s, transform 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              🖨️ Generate & Print
+            </button>
+          ) : resource.link ? (
+            <Link
+              to={resource.link}
+              onClick={handleActionClick}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                width: '100%', padding: '10px 16px',
+                borderRadius: 10, textDecoration: 'none',
+                background: 'var(--bg2)', color: 'var(--ink2)',
+                fontWeight: 700, fontSize: '.82rem',
+                border: '1.5px solid var(--border)',
+                transition: 'background 0.2s, border-color 0.2s',
+                boxSizing: 'border-box',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = role.bg; e.currentTarget.style.borderColor = role.border; e.currentTarget.style.color = role.color; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg2)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--ink2)'; }}
+            >
+              → Open Resource
+            </Link>
+          ) : null}
+        </div>
       </div>
     </div>
   );
