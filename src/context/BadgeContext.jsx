@@ -171,6 +171,9 @@ export const BADGE_DEFS = {
   exodus_trail:      { emoji: '🔥', name: 'Exodus Trail',      desc: 'Complete the Exodus Trail quest',      category: 'Explore', rarity: 'uncommon' },
   early_church:      { emoji: '🕊️', name: 'Early Church',      desc: 'Visit Acts & Early Church locations',  category: 'Explore', rarity: 'uncommon' },
   abrahams_journey:  { emoji: '⭐', name: "Abraham's Journey", desc: "Follow Abraham's path on the map",     category: 'Explore', rarity: 'uncommon' },
+  habit_first: { emoji: '🌱', name: 'First Step',    desc: 'Complete all habits for the first time', category: 'Habits', rarity: 'common' },
+  habit_week:  { emoji: '🔥', name: 'Week Warrior',  desc: 'Complete habits 7 days in a row',         category: 'Habits', rarity: 'uncommon' },
+  habit_month: { emoji: '👑', name: 'Faithful Month', desc: 'Complete habits 30 days in a row',        category: 'Habits', rarity: 'rare' },
   voice_ace: {
     emoji: '🎙️',
     name: 'Perfect Reciter',

@@ -86,6 +86,7 @@ const BibleMiracleArt = lazy_(() => import('./pages/BibleMiracleArt'));
 const PersonalParable = lazy_(() => import('./pages/PersonalParable'));
 const BibleAdventureBuilder = lazy_(() => import('./pages/BibleAdventureBuilder'));
 const LivingBibleMap = lazy_(() => import('./pages/LivingBibleMap'));
+const DailyHabits = lazy_(() => import('./pages/DailyHabits'));
 const EncouragementWall = lazy_(() => import('./pages/EncouragementWall'));
 const DigitalPrayerBeads = lazy_(() => import('./pages/DigitalPrayerBeads'));
 const BibleCertification = lazy_(() => import('./pages/BibleCertification'));
@@ -562,6 +563,10 @@ export default function App() {
                                                     <Route
                                                       path="worship"
                                                       element={<SP c={WorshipDiscovery} />}
+                                                    />
+                                                    <Route
+                                                      path="habits"
+                                                      element={<SP c={DailyHabits} />}
                                                     />
                                                   </Route>
 

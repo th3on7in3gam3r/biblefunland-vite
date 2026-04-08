@@ -6,6 +6,16 @@ import usePageMetadata from '../../hooks/usePageMetadata';
 
 const GROW_FEATURES = [
   {
+    icon: '🌱',
+    title: 'Daily Faith Habits',
+    desc: 'Check off 8 daily faith habits — prayer, Bible reading, gratitude & more. Build streaks and earn badges.',
+    path: '/grow/habits',
+    color: '#10B981',
+    bg: 'linear-gradient(135deg,#ECFDF5,#D1FAE5)',
+    tag: 'Daily',
+    tagColor: '#059669',
+  },
+  {
     icon: '🎓',
     title: 'Bible Certification',
     desc: 'Complete structured courses and earn a real Bible certification you can share and be proud of.',

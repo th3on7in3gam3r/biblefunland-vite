@@ -797,6 +797,15 @@ function QuickStart({ todayVerse }) {
       bg: '#FFFBEB',
       label: 'Pray Now →',
     },
+    {
+      icon: '🌱',
+      title: 'Build Faithful Habits',
+      desc: 'Track daily prayer, Bible reading, gratitude & more — build streaks and earn badges',
+      to: '/grow/habits',
+      color: '#10B981',
+      bg: '#ECFDF5',
+      label: 'Start Today →',
+    },
   ];
 
   return (
