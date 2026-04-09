@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_URL as API } from '../lib/api-config';
 import styles from './FormModal.module.css';
 
 const FormModal = ({ icon, label, endpoint, fields, onClose, onSave, item, userId }) => {
@@ -37,8 +38,8 @@ const FormModal = ({ icon, label, endpoint, fields, onClose, onSave, item, userI
     try {
       const method = item?.id ? 'PUT' : 'POST';
       const url = item?.id
-        ? `/api/faith-milestones/${endpoint}/${item.id}`
-        : `/api/faith-milestones/${endpoint}`;
+        ? `${API}/faith-milestones/${endpoint}/${item.id}`
+        : `${API}/faith-milestones/${endpoint}`;
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
