@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useStreak } from '../context/StreakContext';
 import { useKidsMode, KidsModeToggle } from '../context/KidsModeContext';
 import { ChildSwitcherButton } from '../context/ChildSwitcherContext';
+import { useAds } from '../context/AdsContext';
 import SleepMode from './SleepMode';
 import GlobalSearch from './GlobalSearch';
 import styles from './Nav.module.css';
@@ -102,6 +103,7 @@ export default function Nav() {
   const { user, profile, signOut } = useAuth();
   const { streak } = useStreak();
   const { kidsMode } = useKidsMode();
+  const { isProUser, isFamilyUser, proChecked } = useAds();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -199,8 +201,16 @@ export default function Nav() {
               <NavLink to="/auth" className={styles.signInBtn}>🔐 Sign In</NavLink>
             ) : (
               <div className={styles.avatarWrap}>
-                {/* Go Pro pill */}
-                <NavLink to="/premium" className={styles.goProBtn}>💎 Go Pro</NavLink>
+                {/* Plan badge / Go Pro pill */}
+                {proChecked && (
+                  isFamilyUser ? (
+                    <NavLink to="/premium" className={styles.familyBadge}>👨‍👩‍👧 Family</NavLink>
+                  ) : isProUser ? (
+                    <NavLink to="/premium" className={styles.proBadge}>💎 Pro</NavLink>
+                  ) : (
+                    <NavLink to="/premium" className={styles.goProBtn}>💎 Go Pro</NavLink>
+                  )
+                )}
 
                 <button className={styles.avatarBtn} onClick={() => setAvatarOpen(o => !o)} title="My Account">
                   {avatarInitial}
@@ -286,7 +296,15 @@ export default function Nav() {
         )}
 
         <div className={styles.drawerSection}>
-          {!kidsMode && <NavLink to="/premium" onClick={() => setDrawerOpen(false)}>💎 Go Pro</NavLink>}
+          {!kidsMode && (
+            isFamilyUser ? (
+              <NavLink to="/premium" onClick={() => setDrawerOpen(false)} style={{ color: '#F97316', fontWeight: 700 }}>👨‍👩‍👧 Family Plan</NavLink>
+            ) : isProUser ? (
+              <NavLink to="/premium" onClick={() => setDrawerOpen(false)} style={{ color: '#F59E0B', fontWeight: 700 }}>💎 Pro Member</NavLink>
+            ) : (
+              <NavLink to="/premium" onClick={() => setDrawerOpen(false)}>💎 Go Pro</NavLink>
+            )
+          )}
           {!user ? (
             <NavLink to="/auth" onClick={() => setDrawerOpen(false)} className={styles.drawerAuthBtn}>
               🔐 Sign In / Sign Up

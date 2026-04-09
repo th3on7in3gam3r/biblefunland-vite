@@ -5,6 +5,7 @@ import { useStreak } from '../context/StreakContext';
 import { useKidsMode } from '../context/KidsModeContext';
 import { useChildSwitcher } from '../context/ChildSwitcherContext';
 import { useAuth } from '../context/AuthContext';
+import { useAds } from '../context/AdsContext';
 import KidsDashboard from './KidsDashboard';
 import SeasonalBanner from '../components/SeasonalBanner';
 import WeeklyChallenge from '../components/WeeklyChallenge';
@@ -256,6 +257,7 @@ export default function Home() {
   const { kidsMode } = useKidsMode();
   const { isChildSession } = useChildSwitcher();
   const { user } = useAuth();
+  const { isProUser, isFamilyUser } = useAds();
   const [searchParams, setSearchParams] = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
 
@@ -556,25 +558,27 @@ export default function Home() {
               whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              <Link
-                to="/premium"
-                onClick={() => trackPro('click')}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '14px 28px',
-                  borderRadius: 16,
-                  background: 'linear-gradient(135deg,#F59E0B,#F97316)',
-                  color: 'white',
-                  fontWeight: 800,
-                  fontSize: '1rem',
-                  textDecoration: 'none',
-                  boxShadow: '0 8px 24px rgba(245,158,11,.4)',
-                }}
-              >
-                {proLabel || '💎 Go Pro'}
-              </Link>
+              {!isProUser && !isFamilyUser && (
+                <Link
+                  to="/premium"
+                  onClick={() => trackPro('click')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 28px',
+                    borderRadius: 16,
+                    background: 'linear-gradient(135deg,#F59E0B,#F97316)',
+                    color: 'white',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    textDecoration: 'none',
+                    boxShadow: '0 8px 24px rgba(245,158,11,.4)',
+                  }}
+                >
+                  {proLabel || '💎 Go Pro'}
+                </Link>
+              )}
             </motion.div>
 
             {!user && (
@@ -723,7 +727,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════
           PRO CTA
       ══════════════════════════════════════════ */}
-      <ProCta user={user} />
+      <ProCta user={user} isSubscriber={isProUser || isFamilyUser} />
 
       <style>{`
         @keyframes floatP{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-18px) rotate(3deg)}66%{transform:translateY(-8px) rotate(-2deg)}}
@@ -1276,7 +1280,8 @@ function ParentsSection() {
 }
 
 // ── Pro CTA ───────────────────────────────────────────────────────────────────
-function ProCta({ user }) {
+function ProCta({ user, isSubscriber }) {
+  if (isSubscriber) return null;
   return (
     <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0533,#0A1A0F)' }}>
       <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>

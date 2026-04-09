@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useStreak } from '../context/StreakContext';
 import { useBadges, BADGE_DEFS, RARITY_COLORS } from '../context/BadgeContext';
+import { useAds } from '../context/AdsContext';
 import { useT } from '../i18n/useT';
 import { Link } from 'react-router-dom';
 import { useKidsMode } from '../context/KidsModeContext';
@@ -77,6 +78,7 @@ export default function Profile() {
   const { user, signOut, refreshProfile } = useAuth();
   const { streak, readDays, checkinCount, checkedToday, checkIn } = useStreak();
   const { earned } = useBadges();
+  const { isProUser, isFamilyUser } = useAds();
   const { kidsMode, requestToggle, enableKidsMode } = useKidsMode();
   const { bedtimeMode, bedtimeSettings, toggleBedtimeMode, updateBedtimeSettings, isBedtime } =
     useBedtimeMode();
@@ -228,7 +230,9 @@ export default function Profile() {
   const [badgeCat, setBadgeCat] = useState('All');
   const [badgeRarity, setBadgeRarity] = useState('All');
   const [shareOpen, setShareOpen] = useState(false);
-  const [isPro, setIsPro] = useState(false);
+
+  // isPro / isFamilyUser come from AdsContext (loaded from DB)
+  const isPro = isProUser || isFamilyUser;
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const currentAvatar = AVATARS.find((a) => a.id === profile.avatar) || AVATARS[0];
@@ -293,9 +297,7 @@ export default function Profile() {
         setChildren([]);
       });
     db.getSubscription(user.id)
-      .then(({ data }) => {
-        if (data?.status === 'active') setIsPro(true);
-      })
+      .then(() => {}) // subscription status handled by AdsContext
       .catch(() => {});
   }, [user?.id]); // only runs once when user loads — does NOT re-run on typing
 
@@ -625,7 +627,9 @@ export default function Profile() {
                 position: 'absolute',
                 bottom: 2,
                 right: 2,
-                background: 'linear-gradient(135deg,#F59E0B,#F97316)',
+                background: isFamilyUser
+                  ? 'linear-gradient(135deg,#F97316,#FB923C)'
+                  : 'linear-gradient(135deg,#F59E0B,#F97316)',
                 borderRadius: '50%',
                 width: 26,
                 height: 26,
@@ -637,7 +641,7 @@ export default function Profile() {
                 boxShadow: '0 2px 8px rgba(0,0,0,.3)',
               }}
             >
-              💎
+              {isFamilyUser ? '👨‍👩‍👧' : '💎'}
             </div>
           )}
           {streak >= 7 && (
@@ -697,7 +701,8 @@ export default function Profile() {
             }}
           >
             {getMemberSince(user)}
-            {isPro && <span style={{ color: '#F59E0B', fontWeight: 700 }}> · 💎 Pro</span>}
+            {isFamilyUser && <span style={{ color: '#F97316', fontWeight: 700 }}> · 👨‍👩‍👧 Family</span>}
+            {isProUser && !isFamilyUser && <span style={{ color: '#F59E0B', fontWeight: 700 }}> · 💎 Pro</span>}
           </div>
         )}
 
@@ -1899,17 +1904,18 @@ export default function Profile() {
                     {isPro ? (
                       <div
                         style={{
-                          background:
-                            'linear-gradient(135deg,rgba(245,158,11,.15),rgba(249,115,22,.1))',
-                          border: '1px solid rgba(245,158,11,.3)',
+                          background: isFamilyUser
+                            ? 'linear-gradient(135deg,rgba(249,115,22,.15),rgba(251,146,60,.1))'
+                            : 'linear-gradient(135deg,rgba(245,158,11,.15),rgba(249,115,22,.1))',
+                          border: `1px solid ${isFamilyUser ? 'rgba(249,115,22,.3)' : 'rgba(245,158,11,.3)'}`,
                           borderRadius: 100,
                           padding: '6px 14px',
                           fontSize: '.72rem',
                           fontWeight: 800,
-                          color: '#F59E0B',
+                          color: isFamilyUser ? '#F97316' : '#F59E0B',
                         }}
                       >
-                        💎 Pro Member
+                        {isFamilyUser ? '👨‍👩‍👧 Family Member' : '💎 Pro Member'}
                       </div>
                     ) : (
                       <Link to="/premium" className="btn btn-orange btn-sm">
