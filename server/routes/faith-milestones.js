@@ -187,22 +187,23 @@ registerCrud('prayers', {
 
 router.get('/summary', requireAuth, async (req, res) => {
   try {
+    const safeQuery = async (sql, args) => {
+      try {
+        const result = await query(sql, args);
+        return result.data || [];
+      } catch {
+        return []; // table doesn't exist yet — return empty
+      }
+    };
+
     const [milestones, mentors, verses, prayers] = await Promise.all([
-      query('SELECT * FROM faith_milestones WHERE user_id = ? ORDER BY milestone_date DESC', [req.userId]),
-      query('SELECT * FROM spiritual_mentors WHERE user_id = ? ORDER BY meeting_date DESC', [req.userId]),
-      query('SELECT * FROM hard_season_verses WHERE user_id = ? ORDER BY season_date DESC', [req.userId]),
-      query('SELECT * FROM answered_prayers_milestones WHERE user_id = ? ORDER BY answer_date DESC', [req.userId]),
+      safeQuery('SELECT * FROM faith_milestones WHERE user_id = ? ORDER BY milestone_date DESC', [req.userId]),
+      safeQuery('SELECT * FROM spiritual_mentors WHERE user_id = ? ORDER BY meeting_date DESC', [req.userId]),
+      safeQuery('SELECT * FROM hard_season_verses WHERE user_id = ? ORDER BY season_date DESC', [req.userId]),
+      safeQuery('SELECT * FROM answered_prayers_milestones WHERE user_id = ? ORDER BY answer_date DESC', [req.userId]),
     ]);
 
-    const firstError = milestones.error || mentors.error || verses.error || prayers.error;
-    if (firstError) throw firstError;
-
-    res.json({
-      milestones: milestones.data || [],
-      mentors: mentors.data || [],
-      verses: verses.data || [],
-      prayers: prayers.data || [],
-    });
+    res.json({ milestones, mentors, verses, prayers });
   } catch (err) {
     console.error('Error fetching summary:', err);
     res.status(500).json({ error: err.message });

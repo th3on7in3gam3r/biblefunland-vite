@@ -169,7 +169,7 @@ export async function getFromStoreByIndex(storeName, indexName, value) {
   return new Promise((resolve, reject) => {
     try {
       if (!db.objectStoreNames.contains(storeName)) {
-        console.warn(`⚠️ Store ${storeName} not found`);
+        // Store not yet created (first install) — return empty silently
         return resolve([]);
       }
       const transaction = db.transaction([storeName], 'readonly');
