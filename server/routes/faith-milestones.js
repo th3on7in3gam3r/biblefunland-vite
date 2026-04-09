@@ -65,6 +65,7 @@ function registerCrud(path, { table, label, idPrefix, requiredFields, columns, o
       }
 
       const id = `${idPrefix}_${Date.now()}`;
+      const now = new Date().toISOString();
       const values = columns.map(col => {
         const val = req.body[col];
         if (typeof val === 'boolean') return val ? 1 : 0;
@@ -72,20 +73,24 @@ function registerCrud(path, { table, label, idPrefix, requiredFields, columns, o
       });
 
       const placeholders = columns.map(() => '?').join(', ');
-      const colNames = ['id', 'user_id', ...columns].join(', ');
-      const allPlaceholders = ['?', '?', placeholders].join(', ');
+      const colNames = ['id', 'user_id', ...columns, 'created_at', 'updated_at'].join(', ');
+      const allPlaceholders = ['?', '?', placeholders, '?', '?'].join(', ');
 
-      const { error } = await execute(
+      const result = await execute(
         `INSERT INTO ${table} (${colNames}) VALUES (${allPlaceholders})`,
-        [id, req.userId, ...values]
+        [id, req.userId, ...values, now, now]
       );
-      if (error) throw error;
+
+      if (result.error) {
+        console.error(`[faith-milestones] INSERT error for ${table}:`, result.error);
+        return res.status(500).json({ error: String(result.error) });
+      }
 
       const { data } = await queryOne(`SELECT * FROM ${table} WHERE id = ?`, [id]);
-      res.status(201).json(data);
+      res.status(201).json(data || { id, user_id: req.userId });
     } catch (err) {
       console.error(`Error creating ${label}:`, err);
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err?.message || String(err) });
     }
   });
 
