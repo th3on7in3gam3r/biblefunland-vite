@@ -2773,14 +2773,14 @@ export default function Profile() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 9 }}>
                 {[
-                  ['/trivia', '🎮', 'Bible Trivia'],
-                  ['/devotional', '🙏', 'AI Devotional'],
-                  ['/game/runner', '🏃', 'Scripture Runner'],
-                  ['/prayer', '🌍', 'Prayer Wall'],
+                  ['/play/trivia', '🎮', 'Bible Trivia'],
+                  ['/ai/devotional', '🙏', 'AI Devotional'],
+                  ['/play/game/runner', '🏃', 'Scripture Runner'],
+                  ['/community/prayer', '🌍', 'Prayer Wall'],
                   ['/grow/certification', '🎓', 'Certification'],
-                  ['/flashcards', '🧠', 'Flashcards'],
-                  ['/game/battle-arena', '⚔️', 'Battle Arena'],
-                  ['/wordle', '🟩', 'Bible Wordle'],
+                  ['/play/flashcards', '🧠', 'Flashcards'],
+                  ['/play/game/battle-arena', '⚔️', 'Battle Arena'],
+                  ['/play/wordle', '🟩', 'Bible Wordle'],
                 ].map(([to, emoji, label]) => (
                   <Link
                     key={to}

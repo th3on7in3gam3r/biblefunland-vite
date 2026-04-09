@@ -26,8 +26,10 @@ const getEnv = (key) => {
 const url = getEnv('TURSO_DATABASE_URL') || getEnv('VITE_TURSO_DATABASE_URL');
 const authToken = getEnv('TURSO_AUTH_TOKEN') || getEnv('VITE_TURSO_AUTH_TOKEN');
 
-// Local fallback URL
-const localUrl = `file:${path.join(__dirname, '../local.db')}`;
+// On Vercel serverless, there's no local filesystem — always require remote DB
+const isVercel = !!(process.env.VERCEL || process.env.VERCEL_ENV);
+// Local fallback URL — only used in local dev, never on Vercel
+const localUrl = isVercel ? null : `file:${path.join(__dirname, '../local.db')}`;
 
 let client = null;
 
@@ -38,28 +40,28 @@ function getOrCreateClient() {
     let dbUrl = url || localUrl;
     const dbToken = authToken || undefined;
 
-    // In production (Vercel serverless), the HTTP driver is more stable.
-    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
-    if (dbUrl && dbUrl.startsWith('libsql://') && (isVercel || process.env.NODE_ENV === 'production')) {
-      const originalProtocol = dbUrl.split('://')[0];
-      dbUrl = dbUrl.replace('libsql://', 'https://');
-      console.log(`[Turso Init] Protocol change: ${originalProtocol} -> https (lazy-init)`);
+    if (!dbUrl) {
+      console.error('[Turso Init] No database URL found. Set TURSO_DATABASE_URL or VITE_TURSO_DATABASE_URL in Vercel env vars.');
+      return {
+        execute: async () => { throw new Error('No Turso database URL configured'); },
+      };
     }
 
-    console.log(`[Turso Init] URL Type: ${dbUrl ? (dbUrl.startsWith('file:') ? 'local' : 'remote') : 'missing'}`);
+    // Convert libsql:// → https:// for Vercel serverless (HTTP driver is more stable)
+    const isVercelEnv = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
+    if (dbUrl.startsWith('libsql://') && (isVercelEnv || process.env.NODE_ENV === 'production')) {
+      dbUrl = dbUrl.replace('libsql://', 'https://');
+      console.log(`[Turso Init] Protocol: libsql -> https`);
+    }
 
-    client = createClient({
-      url: dbUrl,
-      authToken: dbToken,
-    });
+    console.log(`[Turso Init] URL Type: ${dbUrl.startsWith('file:') ? 'local' : 'remote'}`);
+
+    client = createClient({ url: dbUrl, authToken: dbToken });
     return client;
   } catch (err) {
     console.error('[Turso Lazy Init Error]', err.message);
-    // Return a dummy client that returns errors instead of crashing
     return {
-      execute: async () => {
-        throw new Error(`Database client failed to init: ${err.message}`);
-      },
+      execute: async () => { throw new Error(`Database client failed to init: ${err.message}`); },
     };
   }
 }
