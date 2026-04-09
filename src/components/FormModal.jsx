@@ -38,8 +38,8 @@ const FormModal = ({ icon, label, endpoint, fields, onClose, onSave, item, userI
     try {
       const method = item?.id ? 'PUT' : 'POST';
       const url = item?.id
-        ? `/api/faith-milestones/${endpoint}/${item.id}`
-        : `/api/faith-milestones/${endpoint}`;
+        ? `${API}/api/faith-milestones/${endpoint}/${item.id}`
+        : `${API}/api/faith-milestones/${endpoint}`;
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
