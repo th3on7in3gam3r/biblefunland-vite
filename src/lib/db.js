@@ -990,3 +990,69 @@ export async function getChurchStats(churchId) {
     new_badges_this_week: newBadgeCount?.data?.count || 0,
   };
 }
+
+// ─── Private Prayer Journal (per-user, synced to DB) ─────────────────────────
+
+export async function getJournalEntries(userId) {
+  return query(
+    `SELECT * FROM prayer_journal WHERE user_id = ? ORDER BY date DESC`,
+    [userId]
+  );
+}
+
+export async function upsertJournalEntry(userId, entry) {
+  const { id, title, category, verse, verseText, text, tags, answered, answeredNote, answeredDate, date } = entry;
+  const tagsStr = Array.isArray(tags) ? tags.join(',') : tags || '';
+  const { data: existing } = await queryOne(
+    `SELECT id FROM prayer_journal WHERE id = ? AND user_id = ?`, [id, userId]
+  );
+  if (existing) {
+    return execute(
+      `UPDATE prayer_journal SET title=?,category=?,verse=?,verse_text=?,text=?,tags=?,answered=?,answered_note=?,answered_date=?,updated_at=? WHERE id=? AND user_id=?`,
+      [title, category, verse||'', verseText||'', text, tagsStr, answered?1:0, answeredNote||'', answeredDate||null, now(), id, userId]
+    );
+  }
+  return execute(
+    `INSERT INTO prayer_journal (id,user_id,title,category,verse,verse_text,text,tags,answered,answered_note,answered_date,date,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    [id, userId, title, category, verse||'', verseText||'', text, tagsStr, answered?1:0, answeredNote||'', answeredDate||null, date, now(), now()]
+  );
+}
+
+export async function deleteJournalEntry(userId, entryId) {
+  return execute(`DELETE FROM prayer_journal WHERE id=? AND user_id=?`, [entryId, userId]);
+}
+
+// ─── Shared Family Prayer Journal ─────────────────────────────────────────────
+
+export async function getSharedFamilyPrayers(groupId) {
+  return query(
+    `SELECT * FROM family_prayer_journal WHERE group_id=? ORDER BY date DESC`,
+    [groupId]
+  );
+}
+
+export async function upsertSharedPrayer(groupId, userId, entry) {
+  const { id, title, category, verse, verseText, text, tags, answered, answeredNote, answeredDate, date } = entry;
+  const tagsStr = Array.isArray(tags) ? tags.join(',') : tags || '';
+  const { data: existing } = await queryOne(
+    `SELECT id FROM family_prayer_journal WHERE id=? AND group_id=?`, [id, groupId]
+  );
+  if (existing) {
+    return execute(
+      `UPDATE family_prayer_journal SET title=?,category=?,verse=?,verse_text=?,text=?,tags=?,answered=?,answered_note=?,answered_date=?,updated_at=? WHERE id=? AND group_id=?`,
+      [title, category, verse||'', verseText||'', text, tagsStr, answered?1:0, answeredNote||'', answeredDate||null, now(), id, groupId]
+    );
+  }
+  return execute(
+    `INSERT INTO family_prayer_journal (id,group_id,user_id,title,category,verse,verse_text,text,tags,answered,answered_note,answered_date,date,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    [id, groupId, userId, title, category, verse||'', verseText||'', text, tagsStr, answered?1:0, answeredNote||'', answeredDate||null, date, now(), now()]
+  );
+}
+
+export async function deleteSharedPrayer(groupId, userId, entryId) {
+  // Only the author or admin can delete
+  return execute(
+    `DELETE FROM family_prayer_journal WHERE id=? AND group_id=? AND user_id=?`,
+    [entryId, groupId, userId]
+  );
+}

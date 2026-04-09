@@ -176,6 +176,46 @@ export default function Premium() {
           <span>✝️</span> Supporting faith-based content
         </div>
       </div>
+
+      {/* Early Access section — Family plan */}
+      <div style={{ maxWidth: 760, margin: '0 auto 60px', padding: '0 20px' }}>
+        <div style={{
+          background: 'linear-gradient(135deg,rgba(249,115,22,.08),rgba(251,146,60,.05))',
+          border: '1.5px solid rgba(249,115,22,.2)', borderRadius: 24, padding: '32px 28px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+            <span style={{ fontSize: '2rem' }}>🚀</span>
+            <div>
+              <div style={{ fontFamily: "'Baloo 2',cursive", fontWeight: 800, fontSize: '1.2rem', color: 'var(--ink)' }}>
+                Early Access — Family Plan Exclusive
+              </div>
+              <div style={{ fontSize: '.78rem', color: 'var(--ink3)', fontWeight: 500 }}>
+                Family subscribers get first access to features before they launch to everyone
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 12 }}>
+            {[
+              { emoji: '🧑‍🏫', label: 'Bible AI Coach', desc: 'Personalized AI-powered Bible study coach' },
+              { emoji: '🏆', label: 'Family Challenges', desc: 'Weekly faith challenges for the whole family' },
+              { emoji: '🎙️', label: 'Voice Prayer Mode', desc: 'Speak your prayers with AI transcription' },
+              { emoji: '🥇', label: 'Memory League S2', desc: 'Competitive scripture memory with seasons' },
+            ].map((f, i) => (
+              <div key={i} style={{
+                background: 'var(--surface)', borderRadius: 14, padding: '14px 16px',
+                border: '1px solid rgba(249,115,22,.15)',
+              }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: 6 }}>{f.emoji}</div>
+                <div style={{ fontSize: '.82rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 3 }}>{f.label}</div>
+                <div style={{ fontSize: '.72rem', color: 'var(--ink3)', fontWeight: 500 }}>{f.desc}</div>
+                <div style={{ marginTop: 8, fontSize: '.66rem', fontWeight: 800, color: '#F97316', background: 'rgba(249,115,22,.1)', padding: '2px 8px', borderRadius: 100, display: 'inline-block' }}>
+                  Coming Soon
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

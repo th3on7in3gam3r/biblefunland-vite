@@ -20,12 +20,14 @@ export function AdsProvider({ children }) {
   const { user } = useAuth();
   const [consent, setConsent] = useState(() => getCookieConsent());
   const [isProUser, setIsProUser] = useState(false);
+  const [isFamilyUser, setIsFamilyUser] = useState(false);
   const [proChecked, setProChecked] = useState(false);
 
-  // Check Pro status from server
+  // Check Pro/Family status from server
   useEffect(() => {
     if (!user) {
       setIsProUser(false);
+      setIsFamilyUser(false);
       setProChecked(true);
       return;
     }
@@ -36,14 +38,20 @@ export function AdsProvider({ children }) {
     try {
       const { data } = await getSubscription(user.id);
       if (data?.status === 'active' && new Date(data.expires_at) > new Date()) {
-        setIsProUser(true);
+        const plan = data.plan || 'pro';
+        setIsFamilyUser(plan === 'family');
+        setIsProUser(true); // family includes all pro features
       } else {
         const localPro = localStorage.getItem('bfl_pro_status');
+        const localPlan = localStorage.getItem('bfl_plan');
         setIsProUser(localPro === 'active');
+        setIsFamilyUser(localPlan === 'family');
       }
     } catch {
       const localPro = localStorage.getItem('bfl_pro_status');
+      const localPlan = localStorage.getItem('bfl_plan');
       setIsProUser(localPro === 'active');
+      setIsFamilyUser(localPlan === 'family');
     }
     setProChecked(true);
   }
@@ -74,6 +82,7 @@ export function AdsProvider({ children }) {
         consent,
         showAds,
         isProUser,
+        isFamilyUser,
         proChecked,
         updateConsent,
         adsGranted,

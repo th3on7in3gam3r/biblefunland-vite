@@ -80,7 +80,7 @@ router.get('/code/:code', async (req, res) => {
       [group.id]
     );
 
-    res.json({ group: { ...group, members: members || [] } });
+    res.json({ group: { ...group, members: members || [], memberCount: (members || []).length, isFull: (members || []).length >= 5 } });
   } catch (err) {
     console.error('[FamilyGroups /code]', err);
     res.status(500).json({ error: err.message });
@@ -108,6 +108,15 @@ router.post('/join', async (req, res) => {
         [group.id, userId]
       );
       if (existing) return res.status(409).json({ error: 'You are already a member of this group.' });
+    }
+
+    // Enforce 5-member limit
+    const { data: memberCount } = await queryOne(
+      `SELECT COUNT(*) as count FROM family_group_members WHERE group_id = ?`,
+      [group.id]
+    );
+    if ((memberCount?.count ?? 0) >= 5) {
+      return res.status(403).json({ error: 'This family group is full (5 members maximum). The group admin would need to upgrade or remove a member.' });
     }
 
     const memberId = require('crypto').randomUUID();

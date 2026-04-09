@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useAds } from '../context/AdsContext';
+import { getJournalEntries, upsertJournalEntry, deleteJournalEntry, getSharedFamilyPrayers, upsertSharedPrayer, deleteSharedPrayer } from '../lib/db';
+import { Link } from 'react-router-dom';
 
 const CATEGORIES = [
   'All',
@@ -56,6 +60,12 @@ function uid() {
 }
 
 export default function PrayerJournal() {
+  const { user } = useAuth();
+  const { isFamilyUser } = useAds();
+  const [journalTab, setJournalTab] = useState('private'); // 'private' | 'shared'
+  const [familyGroupId, setFamilyGroupId] = useState(null);
+  const [sharedEntries, setSharedEntries] = useState([]);
+
   const [entries, setEntries] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('bfl_prayer_journal') || 'null') || SAMPLE;
@@ -84,7 +94,54 @@ export default function PrayerJournal() {
     localStorage.setItem('bfl_prayer_journal', JSON.stringify(entries));
   }, [entries]);
 
-  const filtered = entries
+  // Sync from DB when logged in
+  useEffect(() => {
+    if (!user) return;
+    getJournalEntries(user.id).then(({ data }) => {
+      if (data?.length) {
+        const dbEntries = data.map(e => ({
+          ...e,
+          tags: e.tags ? e.tags.split(',').filter(Boolean) : [],
+          verseText: e.verse_text || '',
+          answered: !!e.answered,
+          answeredNote: e.answered_note || '',
+          answeredDate: e.answered_date || '',
+        }));
+        setEntries(dbEntries);
+        localStorage.setItem('bfl_prayer_journal', JSON.stringify(dbEntries));
+      }
+    }).catch(() => {});
+  }, [user]);
+
+  // Load family group + shared prayers for family users
+  useEffect(() => {
+    if (!user || !isFamilyUser) return;
+    fetch(`/api/family-groups/user/${user.id}`)
+      .then(r => r.json())
+      .then(({ groups }) => {
+        const firstGroup = groups?.[0];
+        if (firstGroup) {
+          setFamilyGroupId(firstGroup.id);
+          return getSharedFamilyPrayers(firstGroup.id);
+        }
+      })
+      .then(result => {
+        if (result?.data?.length) {
+          setSharedEntries(result.data.map(e => ({
+            ...e,
+            tags: e.tags ? e.tags.split(',').filter(Boolean) : [],
+            verseText: e.verse_text || '',
+            answered: !!e.answered,
+            answeredNote: e.answered_note || '',
+            answeredDate: e.answered_date || '',
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [user, isFamilyUser]);
+
+  const activeEntries = journalTab === 'shared' ? sharedEntries : entries;
+  const filtered = activeEntries
     .filter((e) => view === 'all' || (view === 'answered' ? e.answered : !e.answered))
     .filter((e) => filter === 'All' || e.category === filter)
     .filter(
@@ -95,41 +152,41 @@ export default function PrayerJournal() {
     )
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const answeredCount = entries.filter((e) => e.answered).length;
-  const activeCount = entries.filter((e) => !e.answered).length;
+  const answeredCount = activeEntries.filter((e) => e.answered).length;
+  const activeCount = activeEntries.filter((e) => !e.answered).length;
 
   function save() {
     if (!form.title.trim() || !form.text.trim()) return;
+    const isShared = journalTab === 'shared';
     if (editId) {
-      setEntries((es) =>
-        es.map((e) =>
-          e.id === editId
-            ? {
-                ...e,
-                ...form,
-                tags: form.tags
-                  .split(',')
-                  .map((t) => t.trim())
-                  .filter(Boolean),
-              }
-            : e
-        )
-      );
+      const updated = isShared
+        ? sharedEntries.map(e => e.id === editId ? { ...e, ...form, tags: form.tags.split(',').map(t=>t.trim()).filter(Boolean) } : e)
+        : entries.map(e => e.id === editId ? { ...e, ...form, tags: form.tags.split(',').map(t=>t.trim()).filter(Boolean) } : e);
+      if (isShared) {
+        setSharedEntries(updated);
+        const entry = updated.find(e => e.id === editId);
+        if (user && familyGroupId) upsertSharedPrayer(familyGroupId, user.id, entry).catch(() => {});
+      } else {
+        setEntries(updated);
+        const entry = updated.find(e => e.id === editId);
+        if (user) upsertJournalEntry(user.id, entry).catch(() => {});
+      }
     } else {
-      setEntries((es) => [
-        {
-          id: uid(),
-          ...form,
-          tags: form.tags
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean),
-          answered: false,
-          answeredNote: '',
-          date: new Date().toISOString().split('T')[0],
-        },
-        ...es,
-      ]);
+      const newEntry = {
+        id: uid(),
+        ...form,
+        tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+        answered: false,
+        answeredNote: '',
+        date: new Date().toISOString().split('T')[0],
+      };
+      if (isShared) {
+        setSharedEntries(es => [newEntry, ...es]);
+        if (user && familyGroupId) upsertSharedPrayer(familyGroupId, user.id, newEntry).catch(() => {});
+      } else {
+        setEntries(es => [newEntry, ...es]);
+        if (user) upsertJournalEntry(user.id, newEntry).catch(() => {});
+      }
     }
     setForm({ title: '', category: 'Personal', verse: '', verseText: '', text: '', tags: '' });
     setShowForm(false);
@@ -137,24 +194,34 @@ export default function PrayerJournal() {
   }
 
   function markAnswered(id) {
-    setEntries((es) =>
-      es.map((e) =>
-        e.id === id
-          ? {
-              ...e,
-              answered: true,
-              answeredNote: answerNote,
-              answeredDate: new Date().toISOString().split('T')[0],
-            }
-          : e
-      )
-    );
+    const isShared = journalTab === 'shared';
+    const update = e => e.id === id ? { ...e, answered: true, answeredNote: answerNote, answeredDate: new Date().toISOString().split('T')[0] } : e;
+    if (isShared) {
+      const updated = sharedEntries.map(update);
+      setSharedEntries(updated);
+      const entry = updated.find(e => e.id === id);
+      if (user && familyGroupId) upsertSharedPrayer(familyGroupId, user.id, entry).catch(() => {});
+    } else {
+      const updated = entries.map(update);
+      setEntries(updated);
+      const entry = updated.find(e => e.id === id);
+      if (user) upsertJournalEntry(user.id, entry).catch(() => {});
+    }
     setAnswering(null);
     setAnswerNote('');
   }
 
   function deleteEntry(id) {
-    if (confirm('Delete this prayer?')) setEntries((es) => es.filter((e) => e.id !== id));
+    const isShared = journalTab === 'shared';
+    if (confirm('Delete this prayer?')) {
+      if (isShared) {
+        setSharedEntries(es => es.filter(e => e.id !== id));
+        if (user && familyGroupId) deleteSharedPrayer(familyGroupId, user.id, id).catch(() => {});
+      } else {
+        setEntries(es => es.filter(e => e.id !== id));
+        if (user) deleteJournalEntry(user.id, id).catch(() => {});
+      }
+    }
   }
 
   function startEdit(entry) {
@@ -193,7 +260,7 @@ export default function PrayerJournal() {
             border: '1px solid rgba(16,185,129,.2)',
           }}
         >
-          🔒 Private · Saved on your device · Never shared
+          {user ? '☁️ Synced to your account' : '🔒 Private · Saved on your device · Never shared'}
         </div>
         <h1
           style={{
@@ -215,7 +282,7 @@ export default function PrayerJournal() {
 
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginTop: 16 }}>
           {[
-            ['🙏', entries.length, 'Total Prayers'],
+            ['🙏', activeEntries.length, 'Total Prayers'],
             ['✅', answeredCount, 'Answered'],
             ['⏳', activeCount, 'Active'],
           ].map(([e, v, l]) => (
@@ -246,6 +313,24 @@ export default function PrayerJournal() {
       </div>
 
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 20px' }}>
+        {/* Private / Shared tabs — family users only */}
+        {isFamilyUser && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+            {[['private','🔒 My Journal'],['shared','👨‍👩‍👧 Family Shared']].map(([v,l]) => (
+              <button key={v} onClick={() => setJournalTab(v)} style={{
+                padding: '9px 18px', borderRadius: 12, fontWeight: 700, fontSize: '.82rem', cursor: 'pointer',
+                border: `1.5px solid ${journalTab===v ? 'var(--green)' : 'var(--border)'}`,
+                background: journalTab===v ? 'var(--green-bg)' : 'var(--surface)',
+                color: journalTab===v ? 'var(--green)' : 'var(--ink3)',
+              }}>{l}</button>
+            ))}
+            {journalTab === 'shared' && !familyGroupId && (
+              <span style={{ fontSize: '.78rem', color: 'var(--ink3)', alignSelf: 'center', marginLeft: 8 }}>
+                <Link to="/family-groups" style={{ color: 'var(--blue)', fontWeight: 700 }}>Join a family group</Link> to use shared journal
+              </span>
+            )}
+          </div>
+        )}
         {/* Controls */}
         <div
           style={{

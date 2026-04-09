@@ -30,6 +30,14 @@ const CONTACT_CARDS = [
     border: 'rgba(139,92,246,.2)',
   },
   {
+    icon: '👨‍👩‍👧‍👦',
+    label: 'Family Priority Support',
+    email: 'family@biblefunland.com',
+    color: '#F97316',
+    bg: 'rgba(249,115,22,.1)',
+    border: 'rgba(249,115,22,.2)',
+  },
+  {
     icon: '⛪',
     label: 'Partnerships',
     email: 'ministry@biblefunland.com',
@@ -50,6 +58,7 @@ const CONTACT_CARDS = [
 const RESPONSE_TIMES = [
   { label: 'General inquiries', time: '1–2 business days' },
   { label: 'Pro support', time: 'Within 24 hours' },
+  { label: 'Family priority support', time: 'Within 12 hours' },
   { label: 'Bug reports', time: 'Within 48 hours' },
   { label: 'Privacy requests', time: 'Within 30 days' },
 ];
@@ -179,7 +188,7 @@ export default function Contact() {
       {/* ── Contact cards row ────────────────────────────── */}
       <section style={{ padding: '48px 24px 0', maxWidth: 960, margin: '0 auto' }}>
         <div
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14 }}
           className="contact-cards-grid"
         >
           {CONTACT_CARDS.map((c, i) => (
