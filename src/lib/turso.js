@@ -8,8 +8,6 @@
  * are not available (e.g. during local dev without VITE_ vars set).
  */
 
-import API_URL from './api-config';
-
 const TURSO_URL = import.meta.env.VITE_TURSO_DATABASE_URL;
 const TURSO_TOKEN = import.meta.env.VITE_TURSO_AUTH_TOKEN;
 
@@ -75,14 +73,16 @@ async function tursoHttp(sql, args = []) {
 }
 
 /**
- * Fallback: proxy through Express backend (local dev)
+ * Fallback: proxy through Express/Vercel API routes (same-origin, relative path)
  */
 async function apiCall(endpoint, body = {}) {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    const response = await fetch(`${API_URL}/api/db${endpoint}`, {
+    // Always use relative path — works on Vercel (same origin) and proxied in dev via vite config
+    const base = import.meta.env.DEV ? 'http://localhost:3001' : '';
+    const response = await fetch(`${base}/api/db${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
