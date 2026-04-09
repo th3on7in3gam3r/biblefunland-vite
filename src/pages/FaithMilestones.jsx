@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { API_URL as API } from '../lib/api-config';
+import { API_URL } from '../lib/api-config';
 import styles from './FaithMilestones.module.css';
 import Timeline from '../components/Timeline';
 import FormModal from '../components/FormModal';
@@ -246,13 +246,11 @@ const FaithMilestones = () => {
   const [showModal, setShowModal] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
 
-  const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
-
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
       setLoading(true);
-      const response = await fetch(`${API}/api/faith-milestones/summary`, {
+      const response = await fetch(`${API_URL}/api/faith-milestones/summary`, {
         headers: { 'x-user-id': user.id },
       });
       if (!response.ok) throw new Error('Failed to load data');
@@ -283,7 +281,7 @@ const FaithMilestones = () => {
             ? 'verses'
             : 'prayers';
     try {
-      const response = await fetch(`${API}/api/faith-milestones/${endpoint}/${id}`, {
+      const response = await fetch(`${API_URL}/api/faith-milestones/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: { 'x-user-id': user.id },
       });

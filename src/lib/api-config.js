@@ -1,18 +1,19 @@
 /**
  * src/lib/api-config.js — Centralized API configuration
  *
- * This ensures consistency across the frontend for backend requests.
- * Uses the VITE_API_URL env var if available, falls back to:
- *  - http://localhost:3001 in development (direct access)
- *  - /api in production (relative path)
- *
- * If VITE_API_URL is set to '/api' in .env (recommended), it will prioritize that.
+ * In production, uses VITE_APP_URL as the base so API calls go to the
+ * correct domain (e.g. https://biblefunland.com/api/...).
+ * In dev, falls back to localhost:3001.
  */
 
+const appUrl = import.meta.env.VITE_APP_URL || import.meta.env.VITE_SITE_URL || '';
+
 export const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'http://localhost:3001' : '');
+  import.meta.env.VITE_API_BASE_URL?.startsWith('http')
+    ? import.meta.env.VITE_API_BASE_URL
+    : import.meta.env.DEV
+      ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001')
+      : appUrl;
 
 export const HAS_BACKEND = import.meta.env.VITE_HAS_BACKEND === 'true';
 

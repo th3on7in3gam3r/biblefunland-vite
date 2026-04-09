@@ -24,7 +24,7 @@ const requireAuth = (req, res, next) => {
 // CRUD FACTORY
 // ────────────────────────────────────────────────────────────────────────────
 
-function registerCrud(path, { table, label, idPrefix, requiredFields, columns, orderBy }) {
+function registerCrud(path, { table, label, idPrefix, requiredFields, columns, columnMap = {}, orderBy }) {
   // GET all
   router.get(`/${path}`, requireAuth, async (req, res) => {
     try {
@@ -67,7 +67,7 @@ function registerCrud(path, { table, label, idPrefix, requiredFields, columns, o
       const id = `${idPrefix}_${Date.now()}`;
       const now = new Date().toISOString();
       const values = columns.map(col => {
-        const val = req.body[col];
+        const val = req.body[columnMap[col] ?? col];
         if (typeof val === 'boolean') return val ? 1 : 0;
         return val ?? null;
       });
@@ -105,7 +105,7 @@ function registerCrud(path, { table, label, idPrefix, requiredFields, columns, o
       if (!existing) return res.status(404).json({ error: `${label} not found` });
 
       const values = columns.map(col => {
-        const val = req.body[col];
+        const val = req.body[columnMap[col] ?? col];
         if (typeof val === 'boolean') return val ? 1 : 0;
         return val ?? null;
       });
@@ -155,7 +155,9 @@ registerCrud('milestones', {
   label: 'Milestone',
   idPrefix: 'milestone',
   requiredFields: ['category', 'title'],
-  columns: ['category', 'title', 'description', 'milestone_date', 'photo_url', 'impact_story', 'tags', 'is_public'],
+  // milestone_type is a legacy NOT NULL column — mirror category into it
+  columns: ['category', 'milestone_type', 'title', 'description', 'milestone_date', 'photo_url', 'impact_story', 'tags', 'is_public'],
+  columnMap: { milestone_type: 'category' }, // read from category field
   orderBy: 'milestone_date',
 });
 
