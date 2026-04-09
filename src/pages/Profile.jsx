@@ -233,7 +233,7 @@ export default function Profile() {
   // ── Derived ───────────────────────────────────────────────────────────────
   const currentAvatar = AVATARS.find((a) => a.id === profile.avatar) || AVATARS[0];
   const earnedCount = earned.size;
-  const totalBadges = Object.keys(BADGE_DEFS).length;
+  const totalBadges = Object.values(BADGE_DEFS).filter(b => !b.legacy).length;
   const displayName = profile.displayName || user?.email?.split('@')[0] || 'Bible Explorer';
   const dates30 = last30();
   const heatmap = Object.fromEntries((readDays || []).map((d) => [d, true]));
@@ -545,8 +545,17 @@ export default function Profile() {
   }
 
   // ── Filtered badges ────────────────────────────────────────────────────
+  // Legacy aliases (e.g. s01 → streak_1) are hidden; their canonical badge
+  // shows as earned if any alias is in the earned set.
+  const legacyAliases = { s01: 'streak_1' };
+  const effectiveEarned = new Set([...earned]);
+  Object.entries(legacyAliases).forEach(([alias, canonical]) => {
+    if (earned.has(alias)) effectiveEarned.add(canonical);
+  });
+
   const filteredBadges = Object.entries(BADGE_DEFS).filter(
     ([id, b]) =>
+      !b.legacy &&
       (badgeCat === 'All' || b.category === badgeCat) &&
       (badgeRarity === 'All' || b.rarity === badgeRarity)
   );
@@ -1979,9 +1988,9 @@ export default function Profile() {
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {Object.entries(RARITY_COLORS).map(([rarity, rc]) => {
-                  const total = Object.values(BADGE_DEFS).filter((b) => b.rarity === rarity).length;
+                  const total = Object.values(BADGE_DEFS).filter((b) => b.rarity === rarity && !b.legacy).length;
                   const got = Object.entries(BADGE_DEFS).filter(
-                    ([id, b]) => b.rarity === rarity && earned.has(id)
+                    ([id, b]) => b.rarity === rarity && !b.legacy && effectiveEarned.has(id)
                   ).length;
                   return (
                     <div
@@ -2058,7 +2067,7 @@ export default function Profile() {
               }}
             >
               {filteredBadges.map(([id, badge]) => {
-                const isEarned = earned.has(id);
+                const isEarned = effectiveEarned.has(id);
                 const rc = RARITY_COLORS[badge.rarity];
                 return (
                   <div

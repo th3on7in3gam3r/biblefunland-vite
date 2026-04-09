@@ -24,6 +24,15 @@ export const BADGE_DEFS = {
     category: 'Streak',
     rarity: 'common',
   },
+  // Legacy alias — old data used 's01' for the first check-in badge
+  s01: {
+    emoji: '🌱',
+    name: 'First Step',
+    desc: 'Check in for the first time',
+    category: 'Streak',
+    rarity: 'common',
+    legacy: true, // hidden from badge grid — aliased to streak_1
+  },
   streak_3: {
     emoji: '🔥',
     name: '3-Day Streak',
