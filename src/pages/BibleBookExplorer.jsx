@@ -21,11 +21,13 @@ const HIGHLIGHT_COLORS = [
 const FONT_SIZES = { sm: '15px', md: '18px', lg: '22px' };
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
 function makeApiFetch(userId) {
   return async function apiFetch(path) {
     const headers = { 'Content-Type': 'application/json' };
     if (userId) headers['Authorization'] = `Bearer ${userId}`;
-    const res = await fetch('/api/bible' + path, { headers });
+    const res = await fetch(`${API_BASE}/api/bible` + path, { headers });
     if (!res.ok) throw new Error(`Request failed: ${res.status}`);
     return res.json();
   };
@@ -34,7 +36,7 @@ function makeApiFetch(userId) {
 async function apiPost(path, body, userId) {
   const headers = { 'Content-Type': 'application/json' };
   if (userId) headers['Authorization'] = `Bearer ${userId}`;
-  const res = await fetch('/api/bible' + path, {
+  const res = await fetch(`${API_BASE}/api/bible` + path, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
@@ -46,7 +48,7 @@ async function apiPost(path, body, userId) {
 async function apiDelete(path, userId) {
   const headers = { 'Content-Type': 'application/json' };
   if (userId) headers['Authorization'] = `Bearer ${userId}`;
-  const res = await fetch('/api/bible' + path, { method: 'DELETE', headers });
+  const res = await fetch(`${API_BASE}/api/bible` + path, { method: 'DELETE', headers });
   if (!res.ok) throw new Error(`Request failed: ${res.status}`);
   return res.json();
 }

@@ -69,7 +69,7 @@ export function OfflineProvider({ children }) {
       console.log('🔄 Starting sync...');
 
       // Call the sync endpoint
-      const response = await fetch('/api/sync-queue', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/sync-queue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

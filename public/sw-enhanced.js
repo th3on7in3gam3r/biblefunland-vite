@@ -1,9 +1,9 @@
 // Enhanced Service Worker for Offline PWA Caching
 // Focus on kids content with intelligent caching strategies with TTL validation
 
-const CACHE_NAME = 'biblefunland-kids-v5'
-const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v5'
-const STATIC_CACHE = 'biblefunland-static-v5'
+const CACHE_NAME = 'biblefunland-kids-v6'
+const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v6'
+const STATIC_CACHE = 'biblefunland-static-v6'
 
 // Cache TTL configurations (in milliseconds)
 const CACHE_TTL = {

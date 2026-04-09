@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { requestQueue } from '../lib/requestQueue';
 
+const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
 export default function AggregatedProgressSection() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ export default function AggregatedProgressSection() {
         const classroomsRes = await requestQueue.execute(
           `teacher-classrooms:${user.id}`,
           async () => {
-            const response = await fetch(`/api/classrooms?teacherId=${user.id}`);
+            const response = await fetch(`${API}/api/classrooms?teacherId=${user.id}`);
             if (!response.ok) throw new Error('Failed to fetch classrooms');
             return response.json();
           },
@@ -42,7 +44,7 @@ export default function AggregatedProgressSection() {
           const classroomRes = await requestQueue.execute(
             `classroom-students:${classroom.id}`,
             async () => {
-              const response = await fetch(`/api/classrooms/${classroom.id}/students`);
+              const response = await fetch(`${API}/api/classrooms/${classroom.id}/students`);
               if (!response.ok) throw new Error('Failed to fetch students');
               return response.json();
             },
@@ -67,7 +69,7 @@ export default function AggregatedProgressSection() {
           requestQueue.execute(
             `student-progress:${studentId}`,
             async () => {
-              const response = await fetch(`/api/progress/${studentId}?period=7d`);
+              const response = await fetch(`${API}/api/progress/${studentId}?period=7d`);
               if (!response.ok) return null;
               return response.json();
             },

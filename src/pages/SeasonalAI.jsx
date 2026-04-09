@@ -52,7 +52,7 @@ export default function SeasonalAI() {
       const type = CONTENT_TYPES.find((t) => t.id === selectedType);
       const prompt = `Create a ${type.label} themed for ${season.label}. Theme: ${season.aiTheme}. Make it engaging for families and children. Keep it Scripture-based and faith-centered.`;
 
-      const res = await fetch('/api/ai/generate', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/ai/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.id}` },
         body: JSON.stringify({ prompt, type: selectedType, season: selectedSeason }),

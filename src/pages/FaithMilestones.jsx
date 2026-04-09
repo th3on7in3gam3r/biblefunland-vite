@@ -246,11 +246,13 @@ const FaithMilestones = () => {
   const [showModal, setShowModal] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
 
+  const API = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
       setLoading(true);
-      const response = await fetch('/api/faith-milestones/summary', {
+      const response = await fetch(`${API}/api/faith-milestones/summary`, {
         headers: { 'x-user-id': user.id },
       });
       if (!response.ok) throw new Error('Failed to load data');
@@ -259,7 +261,8 @@ const FaithMilestones = () => {
       setError(null);
     } catch (err) {
       if (import.meta.env.DEV) console.error('✨ FaithMilestones Load Error:', err);
-      setError(err.message);
+      // Don't show error for network issues — just show empty state
+      setData({ milestones: [], mentors: [], verses: [], prayers: [] });
     } finally {
       setLoading(false);
     }
@@ -280,7 +283,7 @@ const FaithMilestones = () => {
             ? 'verses'
             : 'prayers';
     try {
-      const response = await fetch(`/api/faith-milestones/${endpoint}/${id}`, {
+      const response = await fetch(`${API}/api/faith-milestones/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: { 'x-user-id': user.id },
       });
@@ -288,7 +291,6 @@ const FaithMilestones = () => {
       loadData();
     } catch (err) {
       if (import.meta.env.DEV) console.error('✨ FaithMilestones Delete Error:', err);
-      setError(err.message);
     }
   };
 

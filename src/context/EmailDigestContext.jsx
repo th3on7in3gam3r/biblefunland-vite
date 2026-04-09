@@ -115,7 +115,7 @@ export function EmailDigestProvider({ children }) {
       const emailContent = formatDigestEmail(digest);
 
       // Send email via backend Resend integration
-      const response = await fetch('/api/email/send', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/email/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
