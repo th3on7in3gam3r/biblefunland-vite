@@ -7,8 +7,8 @@
  */
 
 export const API_URL = import.meta.env.DEV
-  ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001')
-  : '';
+  ? 'http://localhost:3001'
+  : '';  // production: always use relative paths (same origin on Vercel)
 
 export const HAS_BACKEND = import.meta.env.VITE_HAS_BACKEND === 'true';
 
