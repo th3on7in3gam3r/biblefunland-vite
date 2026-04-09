@@ -250,7 +250,7 @@ const FaithMilestones = () => {
     if (!user) return;
     try {
       setLoading(true);
-      const response = await fetch(`${API}/faith-milestones/summary`, {
+      const response = await fetch('/api/faith-milestones/summary', {
         headers: { 'x-user-id': user.id },
       });
       if (!response.ok) throw new Error('Failed to load data');
@@ -280,7 +280,7 @@ const FaithMilestones = () => {
             ? 'verses'
             : 'prayers';
     try {
-      const response = await fetch(`${API}/faith-milestones/${endpoint}/${id}`, {
+      const response = await fetch(`/api/faith-milestones/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: { 'x-user-id': user.id },
       });

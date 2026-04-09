@@ -70,7 +70,7 @@ async function initMetadataDB() {
   if (dbPromise) return dbPromise;
   
   dbPromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 7)
+    const request = indexedDB.open(DB_NAME, 8)
     
     request.onerror = () => {
       dbPromise = null;
