@@ -27,6 +27,9 @@ export function StreakProvider({ children }) {
   const [checkedToday, setCheckedToday] = useState(false);
   const [checkinCount, setCheckinCount] = useState(0);
 
+  // Track last_checkin separately so checkIn can use it without re-fetching
+  const [lastCheckin, setLastCheckin] = useState(null);
+
   // Load from Turso (if logged in) or localStorage
   useEffect(() => {
     if (user) {
@@ -34,8 +37,9 @@ export function StreakProvider({ children }) {
         .then(({ data }) => {
           if (data) {
             setStreak(data.streak ?? 0);
-            setReadDays(data.read_days ? data.read_days.split(',') : []);
+            setReadDays(data.read_days ? data.read_days.split(',').filter(Boolean) : []);
             setCheckinCount(data.checkin_count ?? 0);
+            setLastCheckin(data.last_checkin ?? null);
             setCheckedToday(data.last_checkin === todayStr());
           }
         })
@@ -45,6 +49,7 @@ export function StreakProvider({ children }) {
       setStreak(s.streak ?? 0);
       setReadDays(s.readDays ?? []);
       setCheckinCount(s.checkinCount ?? 0);
+      setLastCheckin(s.lastCheckin ?? null);
       setCheckedToday(s.lastCheckin === todayStr());
     }
   }, [user]);
@@ -56,26 +61,25 @@ export function StreakProvider({ children }) {
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    const local = getLocalState();
-    const isConsecutive = local.lastCheckin === yesterdayStr;
-    const newStreak = isConsecutive ? (local.streak ?? 0) + 1 : 1;
-    const newReadDays = [...(local.readDays ?? []), today].filter(
-      (d, i, arr) => arr.indexOf(d) === i
-    );
-    const newCheckinCount = (local.checkinCount ?? 0) + 1;
-
-    const stateUpdate = {
-      streak: newStreak,
-      lastCheckin: today,
-      readDays: newReadDays,
-      checkinCount: newCheckinCount,
-    };
+    // Use React state (loaded from DB for logged-in users) — not localStorage
+    const isConsecutive = lastCheckin === yesterdayStr;
+    const newStreak = isConsecutive ? streak + 1 : 1;
+    const newReadDays = [...readDays, today].filter((d, i, arr) => arr.indexOf(d) === i);
+    const newCheckinCount = checkinCount + 1;
 
     setStreak(newStreak);
     setReadDays(newReadDays);
     setCheckinCount(newCheckinCount);
     setCheckedToday(true);
-    setLocalState(stateUpdate);
+    setLastCheckin(today);
+
+    // Always keep localStorage in sync as a fallback
+    setLocalState({
+      streak: newStreak,
+      lastCheckin: today,
+      readDays: newReadDays,
+      checkinCount: newCheckinCount,
+    });
 
     if (user) {
       await upsertStreak(user.id, {
