@@ -826,9 +826,194 @@ function QuickStart({ todayVerse }) {
   ];
 
   return (
-    <section style={{ padding: '40px 24px 64px', background: '#FAFBFF' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48 }}>
+    <section style={{ padding: '80px 24px 64px', background: '#FAFBFF', position: 'relative', overflow: 'hidden' }}>
+      {/* Decorative background elements */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '200px',
+        background: 'linear-gradient(180deg, rgba(59,130,246,0.03) 0%, transparent 100%)',
+        pointerEvents: 'none',
+      }} />
+      
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
+        {/* Fancy Title Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          style={{ 
+            textAlign: 'center', 
+            marginBottom: 60,
+            position: 'relative',
+          }}
+        >
+          {/* Floating emojis */}
+          <motion.div
+            animate={{ 
+              y: [0, -15, 0],
+              rotate: [0, 5, 0, -5, 0],
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            style={{
+              position: 'absolute',
+              left: '10%',
+              top: -20,
+              fontSize: '2.5rem',
+              opacity: 0.7,
+            }}
+          >
+            🎮
+          </motion.div>
+          
+          <motion.div
+            animate={{ 
+              y: [0, -20, 0],
+              rotate: [0, -5, 0, 5, 0],
+            }}
+            transition={{ 
+              duration: 5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 0.5,
+            }}
+            style={{
+              position: 'absolute',
+              right: '10%',
+              top: -10,
+              fontSize: '2.5rem',
+              opacity: 0.7,
+            }}
+          >
+            ✨
+          </motion.div>
+
+          <motion.div
+            animate={{ 
+              y: [0, -10, 0],
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 1,
+            }}
+            style={{
+              position: 'absolute',
+              left: '25%',
+              bottom: 20,
+              fontSize: '2rem',
+              opacity: 0.6,
+            }}
+          >
+            📖
+          </motion.div>
+
+          <motion.div
+            animate={{ 
+              y: [0, -12, 0],
+            }}
+            transition={{ 
+              duration: 3.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 1.5,
+            }}
+            style={{
+              position: 'absolute',
+              right: '25%',
+              bottom: 30,
+              fontSize: '2rem',
+              opacity: 0.6,
+            }}
+          >
+            🙏
+          </motion.div>
+
+          <motion.span 
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{
+              display: 'inline-block', 
+              fontSize: '.75rem', 
+              fontWeight: 800,
+              letterSpacing: '1.5px', 
+              textTransform: 'uppercase',
+              color: '#F59E0B', 
+              background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
+              padding: '6px 16px', 
+              borderRadius: 100, 
+              marginBottom: 20,
+              border: '2px solid #F59E0B',
+              boxShadow: '0 4px 12px rgba(245,158,11,0.2)',
+            }}>
+            ⚡ Quick Start
+          </motion.span>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{
+              fontFamily: "'Baloo 2', cursive",
+              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontWeight: 800, 
+              color: '#1E1B4B', 
+              marginBottom: 16,
+              lineHeight: 1.1,
+              textShadow: '0 2px 20px rgba(59,130,246,0.1)',
+            }}>
+            Jump Into <span style={{ 
+              background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>Bible Fun</span> 🎯
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            style={{ 
+              color: '#6B7280', 
+              fontSize: '1.1rem', 
+              maxWidth: 600, 
+              margin: '0 auto 24px',
+              lineHeight: 1.7,
+              fontWeight: 500,
+            }}>
+            Everything is <strong style={{ color: '#10B981' }}>100% free</strong>. Pick what sounds fun and start your faith adventure today!
+          </motion.p>
+
+          {/* Decorative divider */}
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            style={{
+              width: '120px',
+              height: '4px',
+              background: 'linear-gradient(90deg, transparent, #F59E0B, transparent)',
+              margin: '0 auto',
+              borderRadius: '2px',
+            }}
+          />
+        </motion.div>
+        
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48, display: 'none' }}>
           <motion.span 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
