@@ -826,27 +826,59 @@ function QuickStart({ todayVerse }) {
   ];
 
   return (
-    <section style={{ padding: '80px 24px 64px', background: '#FAFBFF' }}>
+    <section style={{ padding: '40px 24px 64px', background: '#FAFBFF' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 52 }}>
-          <span style={{
-            display: 'inline-block', fontSize: '.72rem', fontWeight: 800,
-            letterSpacing: '1px', textTransform: 'uppercase',
-            color: '#3B82F6', background: '#EFF6FF',
-            padding: '5px 14px', borderRadius: 100, marginBottom: 14,
-          }}>
-            Get Started
-          </span>
-          <h2 style={{
-            fontFamily: "'Baloo 2', cursive",
-            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-            fontWeight: 800, color: '#1E1B4B', marginBottom: 10,
-          }}>
-            Where would you like to begin?
-          </h2>
-          <p style={{ color: '#6B7280', fontSize: '.95rem', maxWidth: 460, margin: '0 auto' }}>
-            Everything is free. Pick what sounds fun and dive in.
-          </p>
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48 }}>
+          <motion.span 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            style={{
+              display: 'inline-block', fontSize: '.75rem', fontWeight: 800,
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#F59E0B', background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
+              padding: '6px 16px', borderRadius: 100, marginBottom: 16,
+              border: '2px solid #F59E0B',
+              boxShadow: '0 4px 12px rgba(245,158,11,0.2)',
+            }}>
+            ⚡ Quick Start
+          </motion.span>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            style={{
+              fontFamily: "'Baloo 2', cursive",
+              fontSize: 'clamp(2rem, 4.5vw, 3.2rem)',
+              fontWeight: 800, 
+              color: '#1E1B4B', 
+              marginBottom: 12,
+              lineHeight: 1.2,
+            }}>
+            Jump Into <span style={{ 
+              background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>Bible Fun</span> 🎮
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{ 
+              color: '#6B7280', 
+              fontSize: '1rem', 
+              maxWidth: 520, 
+              margin: '0 auto',
+              lineHeight: 1.6,
+              fontWeight: 500,
+            }}>
+            Everything is 100% free. Pick what sounds fun and start your faith adventure today!
+          </motion.p>
         </div>
 
         <div style={{
