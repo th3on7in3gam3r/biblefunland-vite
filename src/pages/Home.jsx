@@ -755,15 +755,17 @@ function QuickStart({ todayVerse }) {
   );
   const QUICK_CARDS = [
     {
-      icon: '📖',
+      icon: '🎮',
       title: 'Bible Letters Adventure',
-      desc: 'NEW! Learn Bible words through interactive spelling & sentence games — perfect for kids!',
+      desc: 'NEW! Interactive spelling game with 52 Bible words, animations & rewards — kids love it!',
       to: 'https://letter.biblefunland.com',
-      color: '#FBBF24',
-      bg: '#FFFBEB',
-      label: 'Play Now →',
+      color: '#F59E0B',
+      bg: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+      label: 'Start Playing →',
       isExternal: true,
-      tag: '✨ NEW GAME',
+      tag: '🎉 NEW',
+      featured: true,
+      gradient: true,
     },
     {
       icon: '🎮',
@@ -865,61 +867,162 @@ function QuickStart({ todayVerse }) {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07, duration: 0.45 }}
-                  whileHover={{ y: -6, boxShadow: `0 18px 40px ${card.color}20` }}
+                  whileHover={{ 
+                    y: card.featured ? -10 : -6, 
+                    scale: card.featured ? 1.02 : 1,
+                    boxShadow: card.featured 
+                      ? '0 25px 50px rgba(245,158,11,0.35)' 
+                      : `0 18px 40px ${card.color}20` 
+                  }}
+                  animate={card.featured ? {
+                    boxShadow: [
+                      '0 8px 30px rgba(245,158,11,0.2)',
+                      '0 12px 40px rgba(245,158,11,0.3)',
+                      '0 8px 30px rgba(245,158,11,0.2)',
+                    ]
+                  } : {}}
+                  transition={{
+                    boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                  }}
                   style={{
-                    background: card.bg,
+                    background: card.gradient ? card.bg : card.bg,
                     borderRadius: 20,
                     padding: '28px 22px',
-                    border: `1.5px solid ${card.color}1A`,
+                    border: card.featured 
+                      ? '2px solid #F59E0B' 
+                      : `1.5px solid ${card.color}1A`,
                     display: 'flex', flexDirection: 'column', gap: 14,
                     height: '100%', cursor: 'pointer',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-                    transition: 'box-shadow 0.25s, transform 0.25s',
+                    boxShadow: card.featured 
+                      ? '0 8px 30px rgba(245,158,11,0.25)' 
+                      : '0 2px 12px rgba(0,0,0,0.04)',
+                    transition: 'all 0.3s ease',
                     position: 'relative',
+                    overflow: 'hidden',
                   }}
                 >
+                  {/* Sparkle effect for featured card */}
+                  {card.featured && (
+                    <>
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [0.3, 0.6, 0.3],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: -50,
+                          right: -50,
+                          width: 150,
+                          height: 150,
+                          borderRadius: '50%',
+                          background: 'radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%)',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      <motion.div
+                        animate={{
+                          rotate: [0, 360],
+                        }}
+                        transition={{
+                          duration: 20,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: 10,
+                          left: 10,
+                          fontSize: '1.2rem',
+                          opacity: 0.6,
+                        }}
+                      >
+                        ✨
+                      </motion.div>
+                    </>
+                  )}
+                  
                   {card.tag && (
-                    <div style={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      fontSize: '.65rem',
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 100,
-                      background: card.color,
-                      color: 'white',
-                      letterSpacing: '0.5px',
-                      boxShadow: `0 2px 8px ${card.color}40`,
-                    }}>
+                    <motion.div
+                      animate={card.featured ? {
+                        scale: [1, 1.05, 1],
+                      } : {}}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        fontSize: '.65rem',
+                        fontWeight: 800,
+                        padding: '5px 12px',
+                        borderRadius: 100,
+                        background: card.featured 
+                          ? 'linear-gradient(135deg, #F59E0B, #EF4444)'
+                          : card.color,
+                        color: 'white',
+                        letterSpacing: '0.5px',
+                        boxShadow: card.featured
+                          ? '0 4px 12px rgba(245,158,11,0.5)'
+                          : `0 2px 8px ${card.color}40`,
+                      }}>
                       {card.tag}
-                    </div>
+                    </motion.div>
                   )}
                   <div style={{
                     width: 52, height: 52, borderRadius: 16,
-                    background: card.color, display: 'flex',
+                    background: card.featured 
+                      ? 'linear-gradient(135deg, #F59E0B, #EF4444)'
+                      : card.color,
+                    display: 'flex',
                     alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.5rem', boxShadow: `0 6px 16px ${card.color}40`,
+                    fontSize: '1.5rem', 
+                    boxShadow: card.featured
+                      ? '0 8px 20px rgba(245,158,11,0.5)'
+                      : `0 6px 16px ${card.color}40`,
                     flexShrink: 0,
                   }}>
                     {card.icon}
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
                     <div style={{
-                      fontFamily: "'Baloo 2', cursive", fontSize: '1.1rem',
-                      fontWeight: 800, color: '#1E1B4B', marginBottom: 6,
+                      fontFamily: "'Baloo 2', cursive", fontSize: '1.15rem',
+                      fontWeight: 800, 
+                      color: card.featured ? '#92400E' : '#1E1B4B',
+                      marginBottom: 6,
                     }}>
                       {card.title}
                     </div>
-                    <p style={{ fontSize: '.82rem', color: '#6B7280', lineHeight: 1.65, margin: 0 }}>
+                    <p style={{ 
+                      fontSize: '.84rem', 
+                      color: card.featured ? '#78350F' : '#6B7280',
+                      lineHeight: 1.65, 
+                      margin: 0,
+                      fontWeight: card.featured ? 600 : 400,
+                    }}>
                       {card.desc}
                     </p>
                   </div>
                   <div style={{
-                    color: card.color, fontWeight: 800, fontSize: '.8rem',
-                    display: 'flex', alignItems: 'center', gap: 4,
+                    color: card.featured ? '#92400E' : card.color,
+                    fontWeight: 800, 
+                    fontSize: '.85rem',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 6,
+                    position: 'relative',
+                    zIndex: 1,
                   }}>
                     {card.label}
+                    {card.featured && <span style={{ fontSize: '1rem' }}>🎯</span>}
                   </div>
                 </motion.div>
               </CardWrapper>
