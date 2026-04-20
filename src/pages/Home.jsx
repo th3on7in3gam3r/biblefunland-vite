@@ -755,6 +755,17 @@ function QuickStart({ todayVerse }) {
   );
   const QUICK_CARDS = [
     {
+      icon: '📖',
+      title: 'Bible Letters Adventure',
+      desc: 'NEW! Learn Bible words through interactive spelling & sentence games — perfect for kids!',
+      to: 'https://letter.biblefunland.com',
+      color: '#FBBF24',
+      bg: '#FFFBEB',
+      label: 'Play Now →',
+      isExternal: true,
+      tag: '✨ NEW GAME',
+    },
+    {
       icon: '🎮',
       title: 'Play Games',
       desc: 'Bible trivia, runners, escape rooms & more — all ages welcome',
@@ -841,54 +852,79 @@ function QuickStart({ todayVerse }) {
           gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
           gap: 20,
         }}>
-          {QUICK_CARDS.map((card, i) => (
-            <Link key={i} to={card.to} style={{ textDecoration: 'none' }}>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.45 }}
-                whileHover={{ y: -6, boxShadow: `0 18px 40px ${card.color}20` }}
-                style={{
-                  background: card.bg,
-                  borderRadius: 20,
-                  padding: '28px 22px',
-                  border: `1.5px solid ${card.color}1A`,
-                  display: 'flex', flexDirection: 'column', gap: 14,
-                  height: '100%', cursor: 'pointer',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
-                  transition: 'box-shadow 0.25s, transform 0.25s',
-                }}
-              >
-                <div style={{
-                  width: 52, height: 52, borderRadius: 16,
-                  background: card.color, display: 'flex',
-                  alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', boxShadow: `0 6px 16px ${card.color}40`,
-                  flexShrink: 0,
-                }}>
-                  {card.icon}
-                </div>
-                <div style={{ flex: 1 }}>
+          {QUICK_CARDS.map((card, i) => {
+            const CardWrapper = card.isExternal ? 'a' : Link;
+            const linkProps = card.isExternal 
+              ? { href: card.to, target: '_blank', rel: 'noopener noreferrer' }
+              : { to: card.to };
+            
+            return (
+              <CardWrapper key={i} {...linkProps} style={{ textDecoration: 'none' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07, duration: 0.45 }}
+                  whileHover={{ y: -6, boxShadow: `0 18px 40px ${card.color}20` }}
+                  style={{
+                    background: card.bg,
+                    borderRadius: 20,
+                    padding: '28px 22px',
+                    border: `1.5px solid ${card.color}1A`,
+                    display: 'flex', flexDirection: 'column', gap: 14,
+                    height: '100%', cursor: 'pointer',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                    transition: 'box-shadow 0.25s, transform 0.25s',
+                    position: 'relative',
+                  }}
+                >
+                  {card.tag && (
+                    <div style={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 12,
+                      fontSize: '.65rem',
+                      fontWeight: 800,
+                      padding: '4px 10px',
+                      borderRadius: 100,
+                      background: card.color,
+                      color: 'white',
+                      letterSpacing: '0.5px',
+                      boxShadow: `0 2px 8px ${card.color}40`,
+                    }}>
+                      {card.tag}
+                    </div>
+                  )}
                   <div style={{
-                    fontFamily: "'Baloo 2', cursive", fontSize: '1.1rem',
-                    fontWeight: 800, color: '#1E1B4B', marginBottom: 6,
+                    width: 52, height: 52, borderRadius: 16,
+                    background: card.color, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem', boxShadow: `0 6px 16px ${card.color}40`,
+                    flexShrink: 0,
                   }}>
-                    {card.title}
+                    {card.icon}
                   </div>
-                  <p style={{ fontSize: '.82rem', color: '#6B7280', lineHeight: 1.65, margin: 0 }}>
-                    {card.desc}
-                  </p>
-                </div>
-                <div style={{
-                  color: card.color, fontWeight: 800, fontSize: '.8rem',
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}>
-                  {card.label}
-                </div>
-              </motion.div>
-            </Link>
-          ))}
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontFamily: "'Baloo 2', cursive", fontSize: '1.1rem',
+                      fontWeight: 800, color: '#1E1B4B', marginBottom: 6,
+                    }}>
+                      {card.title}
+                    </div>
+                    <p style={{ fontSize: '.82rem', color: '#6B7280', lineHeight: 1.65, margin: 0 }}>
+                      {card.desc}
+                    </p>
+                  </div>
+                  <div style={{
+                    color: card.color, fontWeight: 800, fontSize: '.8rem',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}>
+                    {card.label}
+                  </div>
+                </motion.div>
+              </CardWrapper>
+            );
+          })}
         </div>
       </div>
     </section>
