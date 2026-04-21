@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getStreak, upsertStreak } from '../lib/db';
 import { useAuth } from './AuthContext';
+import { useBadges } from './BadgeContext';
 
 const StreakContext = createContext(null);
 
@@ -22,6 +23,7 @@ function setLocalState(data) {
 
 export function StreakProvider({ children }) {
   const { user } = useAuth();
+  const { awardBadge, hasBadge } = useBadges();
   const [streak, setStreak] = useState(0);
   const [readDays, setReadDays] = useState([]);
   const [checkedToday, setCheckedToday] = useState(false);
@@ -89,6 +91,13 @@ export function StreakProvider({ children }) {
         checkin_count: newCheckinCount,
       }).catch(() => {});
     }
+
+    // Award streak badges based on new streak count
+    if (newStreak >= 1 && !hasBadge('streak_1')) awardBadge('streak_1');
+    if (newStreak >= 3 && !hasBadge('streak_3')) awardBadge('streak_3');
+    if (newStreak >= 7 && !hasBadge('streak_7')) awardBadge('streak_7');
+    if (newStreak >= 30 && !hasBadge('streak_30')) awardBadge('streak_30');
+    if (newStreak >= 100 && !hasBadge('streak_100')) awardBadge('streak_100');
 
     return newStreak;
   };

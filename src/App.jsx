@@ -232,9 +232,9 @@ export default function App() {
           <AuthProvider>
             <ParentModeToggler />
             <OfflineProvider>
-              <StreakProvider>
-                <MusicProvider>
-                  <BadgeProvider>
+              <BadgeProvider>
+                <StreakProvider>
+                  <MusicProvider>
                     <KidsModeProvider>
                       <RealTimeProvider>
                         <ParentalControlsProvider>
@@ -1623,9 +1623,9 @@ export default function App() {
                         </ParentalControlsProvider>
                       </RealTimeProvider>
                     </KidsModeProvider>
-                  </BadgeProvider>
-                </MusicProvider>
-              </StreakProvider>
+                  </MusicProvider>
+                </StreakProvider>
+              </BadgeProvider>
             </OfflineProvider>
           </AuthProvider>
         </LanguageProvider>
