@@ -29,6 +29,8 @@ export function AdsProvider({ children }) {
       setIsProUser(false);
       setIsFamilyUser(false);
       setProChecked(true);
+      // Clear user data from localStorage when logged out
+      localStorage.removeItem('bfl_user');
       return;
     }
     checkProStatus();
@@ -41,17 +43,54 @@ export function AdsProvider({ children }) {
         const plan = data.plan || 'pro';
         setIsFamilyUser(plan === 'family');
         setIsProUser(true); // family includes all pro features
+        
+        // Sync user data to localStorage for Bible Letters Adventure
+        const userData = {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName || user.email?.split('@')[0],
+          subscription: {
+            plan: plan,
+            status: data.status,
+            expiresAt: data.expires_at
+          }
+        };
+        localStorage.setItem('bfl_user', JSON.stringify(userData));
       } else {
         const localPro = localStorage.getItem('bfl_pro_status');
         const localPlan = localStorage.getItem('bfl_plan');
         setIsProUser(localPro === 'active');
         setIsFamilyUser(localPlan === 'family');
+        
+        // Sync free user data to localStorage
+        const userData = {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName || user.email?.split('@')[0],
+          subscription: {
+            plan: 'free',
+            status: 'inactive'
+          }
+        };
+        localStorage.setItem('bfl_user', JSON.stringify(userData));
       }
     } catch {
       const localPro = localStorage.getItem('bfl_pro_status');
       const localPlan = localStorage.getItem('bfl_plan');
       setIsProUser(localPro === 'active');
       setIsFamilyUser(localPlan === 'family');
+      
+      // Sync user data even on error (fallback to localStorage values)
+      const userData = {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName || user.email?.split('@')[0],
+        subscription: {
+          plan: localPlan || 'free',
+          status: localPro || 'inactive'
+        }
+      };
+      localStorage.setItem('bfl_user', JSON.stringify(userData));
     }
     setProChecked(true);
   }
