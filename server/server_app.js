@@ -18,10 +18,10 @@ app.use(express.json());
 
 // ─── Routes (Flattened pathing) ──────────────────────────────────────────────────────────
 // Each route module is now located directly in the /api/routes folder.
-const mount = (path, middleware) => {
-  app.use(path, middleware);
+const mount = (path, ...handlers) => {
+  app.use(path, ...handlers);
   if (path.startsWith('/api')) {
-    app.use(path.replace('/api', ''), middleware);
+    app.use(path.replace('/api', ''), ...handlers);
   }
 };
 
