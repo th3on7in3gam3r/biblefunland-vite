@@ -121,7 +121,8 @@
     }
     </script>
     <!-- Explicit CSP to satisfy Turnstile/Clerk -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; connect-src *;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://challenges.cloudflare.com https://*.clerk.accounts.dev https://www.youtube.com https://player.vimeo.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+
     
     <!-- Safe SW Purge (Prevents Reload Loops) -->
     <script>
