@@ -12,7 +12,6 @@ import styles from './Nav.module.css';
 
 // ── Nav structure ─────────────────────────────────────────────────────────────
 const PRIMARY_NAV = [
-  { to: '/', label: 'Home', end: true },
   {
     to: '/play',
     label: '🎲 Play',
@@ -140,40 +139,42 @@ export default function Nav() {
   return (
     <>
       <nav className={styles.nav}>
-        {/* Logo */}
-        <div className={styles.logo} onClick={handleLogoClick}>
-          <div className={styles.logoIcon}>✝️</div>
-          <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
-          <a
-            href="https://jr.biblefunland.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            title="BibleFunLand Jr. — For ages 2–7"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              marginLeft: 8,
-              background: 'linear-gradient(135deg, #c8f7e8, #e8f7ff)',
-              border: '2px solid #6ECFB0',
-              color: '#1A6B50',
-              fontWeight: 800,
-              fontSize: '.62rem',
-              letterSpacing: 0.5,
-              padding: '2px 8px',
-              borderRadius: 100,
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-              lineHeight: 1.6,
-              transition: 'transform 0.15s ease',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-          >
-            🦁 Jr.
-          </a>
-        </div>
+        {/* Logo — clicks to Home */}
+        <NavLink to="/" style={{ textDecoration: 'none' }}>
+          <div className={styles.logo} onClick={handleLogoClick}>
+            <div className={styles.logoIcon}>✝️</div>
+            <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
+            <a
+              href="https://jr.biblefunland.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title="BibleFunLand Jr. — For ages 2–7"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                marginLeft: 8,
+                background: 'linear-gradient(135deg, #c8f7e8, #e8f7ff)',
+                border: '2px solid #6ECFB0',
+                color: '#1A6B50',
+                fontWeight: 800,
+                fontSize: '.62rem',
+                letterSpacing: 0.5,
+                padding: '2px 8px',
+                borderRadius: 100,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.6,
+                transition: 'transform 0.15s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            >
+              🦁 Jr.
+            </a>
+          </div>
+        </NavLink>
 
         {/* Desktop links */}
         <ul className={styles.links} ref={navRef}>
