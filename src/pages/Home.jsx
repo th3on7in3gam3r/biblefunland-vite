@@ -17,6 +17,7 @@ import InviteFamily from '../components/InviteFamily';
 import { getSeasonalMarketingHook } from '../lib/seasonal';
 import JourneyCards from '../components/JourneyCards';
 import { SkeletonQuickCard } from '../components/Skeleton';
+import BibleFunLandJrBanner from '../components/BibleFunLandJrBanner';
 
 // ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
@@ -714,6 +715,11 @@ export default function Home() {
           FOR PARENTS & TEACHERS
       ══════════════════════════════════════════ */}
       <ParentsSection />
+
+      {/* ══════════════════════════════════════════
+          BIBLEFUNLAND JR. — FOR LITTLE ONES
+      ══════════════════════════════════════════ */}
+      <BibleFunLandJrBanner />
 
       {/* ══════════════════════════════════════════
           NEWSLETTER
