@@ -134,7 +134,7 @@ export default function Profile() {
   async function verifyPastorCode() {
     if (!pastorCode.trim()) return;
     try {
-      const res = await fetch(`${API_URL}/profiles/${user?.id}/role`, {
+      const res = await fetch(`${API_URL}/api/profiles/${user?.id}/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: 'Pastor', pastor_code: pastorCode.trim() }),
@@ -195,7 +195,7 @@ export default function Profile() {
     setPastorReqSubmitting(true);
     setPastorReqError(null);
     try {
-      const res = await fetch(`${API_URL}/pastor-requests`, {
+      const res = await fetch(`${API_URL}/api/pastor-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -324,7 +324,7 @@ export default function Profile() {
       try {
         // Call backend enforcement endpoints for age and role
         if (updatedProfile.age && willLockAge) {
-          const ageRes = await fetch(`${API_URL}/profiles/${user.id}/age`, {
+          const ageRes = await fetch(`${API_URL}/api/profiles/${user.id}/age`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ age: parseInt(updatedProfile.age) }),
@@ -336,7 +336,7 @@ export default function Profile() {
         }
 
         if (updatedProfile.role !== profile.role) {
-          const roleRes = await fetch(`${API_URL}/profiles/${user.id}/role`, {
+          const roleRes = await fetch(`${API_URL}/api/profiles/${user.id}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ role: updatedProfile.role }),
@@ -420,7 +420,7 @@ export default function Profile() {
 
   async function createChild(childData) {
     try {
-      const res = await fetch(`${API_URL}/children/${user.id}`, {
+      const res = await fetch(`${API_URL}/api/children/${user.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(childData),
@@ -454,7 +454,7 @@ export default function Profile() {
   async function handlePinSetupComplete(newPin) {
     try {
       // Save the new PIN via API endpoint
-      const res = await fetch(`${API_URL}/parental-controls/${user.id}`, {
+      const res = await fetch(`${API_URL}/api/parental-controls/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -505,7 +505,7 @@ export default function Profile() {
     if (!childToDelete || !user?.id) return;
 
     try {
-      const res = await fetch(`${API_URL}/children/${user.id}/${childToDelete}`, {
+      const res = await fetch(`${API_URL}/api/children/${user.id}/${childToDelete}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: deletePin }),
