@@ -9,6 +9,7 @@ import { useKidsMode } from '../context/KidsModeContext';
 import { useBedtimeMode } from '../context/BedtimeModeContext';
 import * as db from '../lib/db';
 import PinSetupModal from '../components/PinSetupModal';
+import SettingsTab from '../components/SettingsTab';
 
 const API_URL =
   import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
@@ -854,6 +855,7 @@ export default function Profile() {
             ['badges', '🏆 Badges'],
             ['stats', '📊 Stats'],
             ['activity', '⚡ Activity'],
+            ['settings', '⚙️ Settings'],
           ].map(([id, label]) => (
             <button
               key={id}
@@ -2816,6 +2818,10 @@ export default function Profile() {
             </div>
           </div>
         )}
+
+        {/* ─ SETTINGS ─────────────────────────────────────────────────────── */}
+        {tab === 'settings' && <SettingsTab signOut={signOut} />}
+
       </div>
 
       <style>{`
