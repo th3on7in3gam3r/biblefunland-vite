@@ -154,7 +154,7 @@ export default function Nav() {
             <div className={styles.logoIcon}>✝️</div>
             <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
             <a
-              href="https://junior.biblefunland.com"
+              href="https://jr.biblefunland.com"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -234,14 +234,7 @@ export default function Nav() {
                   {isOpen && (
                     <div className={styles.moreDropdown} role="menu">
                       {link.dropdown.map((item) => (
-                        !item.isExternal ? (
-                          <NavLink key={item.to} to={item.to}
-                            className={({ isActive }) => isActive ? styles.dropActive : ''}
-                            onClick={() => setActiveMenu(null)}
-                          >
-                            {item.label}
-                          </NavLink>
-                        ) : (
+                        item.isExternal ? (
                           <a key={item.to} href={item.to}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -250,6 +243,13 @@ export default function Nav() {
                           >
                             {item.label}
                           </a>
+                        ) : (
+                          <NavLink key={item.to} to={item.to}
+                            className={({ isActive }) => isActive ? styles.dropActive : ''}
+                            onClick={() => setActiveMenu(null)}
+                          >
+                            {item.label}
+                          </NavLink>
                         )
                       ))}
                     </div>
