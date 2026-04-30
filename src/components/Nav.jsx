@@ -154,7 +154,7 @@ export default function Nav() {
             <div className={styles.logoIcon}>✝️</div>
             <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
             <a
-              href="https://jr.biblefunland.com"
+              href="https://junior.biblefunland.com"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
