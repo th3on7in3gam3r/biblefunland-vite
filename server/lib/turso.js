@@ -1,0 +1,117 @@
+/**
+ * server/lib/turso.js — Server-side database client
+ * This connects to Turso and is used by API routes only
+ */
+
+const { createClient } = require('@libsql/client');
+const path = require('path');
+
+// Safe environment variable reading for both dev and production
+// In standard Node.js, process.env is the source of truth.
+// In some Vite-bundled environments, import.meta.env might be used.
+const getEnv = (key) => {
+  try {
+    // Standard Node.js environment variables
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+      return process.env[key];
+    }
+    // If the server is bundled with Vite/ESM, we'd need a different approach,
+    // but for this CommonJS file, process.env is the standard.
+  } catch (e) {
+    // Ignore errors reading env
+  }
+  return undefined;
+};
+
+const url = getEnv('TURSO_DATABASE_URL') || getEnv('VITE_TURSO_DATABASE_URL');
+const authToken = getEnv('TURSO_AUTH_TOKEN') || getEnv('VITE_TURSO_AUTH_TOKEN');
+
+// On Vercel serverless, there's no local filesystem — always require remote DB
+const isVercel = !!(process.env.VERCEL || process.env.VERCEL_ENV);
+// Local fallback URL — only used in local dev, never on Vercel
+const localUrl = isVercel ? null : `file:${path.join(__dirname, '../local.db')}`;
+
+let client = null;
+
+function getOrCreateClient() {
+  if (client) return client;
+
+  try {
+    let dbUrl = url || localUrl;
+    const dbToken = authToken || undefined;
+
+    if (!dbUrl) {
+      console.error('[Turso Init] No database URL found. Set TURSO_DATABASE_URL or VITE_TURSO_DATABASE_URL in Vercel env vars.');
+      return {
+        execute: async () => { throw new Error('No Turso database URL configured'); },
+      };
+    }
+
+    // Convert libsql:// → https:// for Vercel serverless (HTTP driver is more stable)
+    const isVercelEnv = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
+    if (dbUrl.startsWith('libsql://') && (isVercelEnv || process.env.NODE_ENV === 'production')) {
+      dbUrl = dbUrl.replace('libsql://', 'https://');
+      console.log(`[Turso Init] Protocol: libsql -> https`);
+    }
+
+    console.log(`[Turso Init] URL Type: ${dbUrl.startsWith('file:') ? 'local' : 'remote'}`);
+
+    client = createClient({ url: dbUrl, authToken: dbToken });
+    return client;
+  } catch (err) {
+    console.error('[Turso Lazy Init Error]', err.message);
+    return {
+      execute: async () => { throw new Error(`Database client failed to init: ${err.message}`); },
+    };
+  }
+}
+
+/**
+ * Execute a query and return { data, error, success }
+ */
+async function query(sql, args = []) {
+  try {
+    const db = getOrCreateClient();
+    const result = await db.execute({ sql, args });
+    return { data: result.rows, error: null, success: true };
+  } catch (err) {
+    // Only log once to avoid terminal spam
+    if (!err.message?.includes('no such table')) {
+      console.warn(`[Turso Query Error] SQL: ${sql.slice(0, 50)}... | Error: ${err.message}`);
+    }
+    return { data: [], error: err.message, success: false };
+  }
+}
+
+/**
+ * Get a single row or null
+ */
+async function queryOne(sql, args = []) {
+  try {
+    const { data, success, error } = await query(sql, args);
+    return { data: data?.[0] ?? null, error, success };
+  } catch (err) {
+    return { data: null, error: err.message, success: false };
+  }
+}
+
+/**
+ * Execute without expecting rows (INSERT, UPDATE, DELETE)
+ */
+async function execute(sql, args = []) {
+  try {
+    const db = getOrCreateClient();
+    const result = await db.execute({ sql, args });
+    return { data: result, error: null, success: true };
+  } catch (err) {
+    console.error(`[Turso Execute Error] SQL: ${sql.slice(0, 50)}... | Error: ${err.message}`);
+    return { data: null, error: err.message, success: false };
+  }
+}
+
+module.exports = { 
+  get client() { return getOrCreateClient(); },
+  query, 
+  queryOne, 
+  execute 
+};

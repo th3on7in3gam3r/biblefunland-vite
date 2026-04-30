@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#3B82F6"/>
+  
+  <!-- Cross -->
+  <rect x="40" y="15" width="20" height="70" rx="3" fill="white"/>
+  <rect x="20" y="35" width="60" height="20" rx="3" fill="white"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+</svg>

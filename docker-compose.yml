@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Frontend - React + Vite
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biblefunland-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+      - VITE_ADMIN_PIN=${VITE_ADMIN_PIN}
+    depends_on:
+      - backend
+    networks:
+      - biblefunland-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Backend - Express + Node
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: biblefunland-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - VITE_TURSO_DATABASE_URL=${VITE_TURSO_DATABASE_URL}
+      - VITE_TURSO_AUTH_TOKEN=${VITE_TURSO_AUTH_TOKEN}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+    networks:
+      - biblefunland-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  biblefunland-network:
+    driver: bridge

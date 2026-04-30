@@ -1,0 +1,211 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BibleFunLand API",
+    "description": "Backend API for BibleFunLand - Bible learning platform with AI features, payments, and more",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support",
+      "email": "support@biblefunland.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/api",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.biblefunland.com/api",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/ai": {
+      "post": {
+        "summary": "AI Devotional & Content Generation",
+        "description": "Generate AI-powered devotionals, Bible character chats, study guides, and more using Claude API",
+        "tags": ["AI"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "The prompt for Claude AI"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["devotional", "character-chat", "study-guide", "prayer-response"],
+                    "description": "Type of AI content to generate"
+                  },
+                  "context": {
+                    "type": "object",
+                    "description": "Additional context for the AI"
+                  }
+                },
+                "required": ["prompt", "type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated AI content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "string",
+                      "description": "Generated AI content"
+                    },
+                    "tokens": {
+                      "type": "number",
+                      "description": "Number of tokens used"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Server error during generation"
+          }
+        }
+      }
+    },
+    "/email": {
+      "post": {
+        "summary": "Send Email",
+        "description": "Send emails (newsletter, notifications, confirmations) using Resend",
+        "tags": ["Email"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "description": "Recipient email address"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Email subject"
+                  },
+                  "template": {
+                    "type": "string",
+                    "enum": ["newsletter", "verification", "receipt", "password-reset"],
+                    "description": "Email template to use"
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "Template variables"
+                  }
+                },
+                "required": ["to", "subject", "template"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent successfully"
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    },
+    "/checkout": {
+      "post": {
+        "summary": "Stripe Checkout Session",
+        "description": "Create a Stripe checkout session for Premium subscriptions",
+        "tags": ["Payments"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "priceId": {
+                    "type": "string",
+                    "description": "Stripe price ID"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "User ID from Clerk"
+                  },
+                  "successUrl": {
+                    "type": "string",
+                    "description": "URL to redirect on successful payment"
+                  },
+                  "cancelUrl": {
+                    "type": "string",
+                    "description": "URL to redirect on cancelled payment"
+                  }
+                },
+                "required": ["priceId", "successUrl", "cancelUrl"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "description": "Stripe checkout URL"
+                    },
+                    "sessionId": {
+                      "type": "string",
+                      "description": "Stripe session ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Clerk JWT token"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
