@@ -60,6 +60,33 @@ const DAILY_VERSES = [
   },
 ];
 
+const TILES = [
+  {
+    icon: '📊',
+    title: 'Progress Tracking',
+    desc: 'Track reading streaks, quiz scores, and faith milestones for every child',
+    to: '/parents',
+  },
+  {
+    icon: '📋',
+    title: 'Lesson Plans & Resources',
+    desc: 'Free Bible lesson plans, activity sheets, and printables for classrooms',
+    to: '/parents',
+  },
+  {
+    icon: '🔒',
+    title: 'Child Profiles & Controls',
+    desc: 'Safe profiles per child with age filters, time limits, and bedtime mode',
+    to: '/parents',
+  },
+  {
+    icon: '🎓',
+    title: 'Certification & Milestones',
+    desc: 'Kids earn real Bible certification badges as they grow in faith',
+    to: '/grow/certification',
+  },
+];
+
 const AGE_GROUPS = [
   {
     label: 'Preschool',
@@ -1553,32 +1580,6 @@ function SeasonalHighlight() {
 
 // ── Parents & Teachers ────────────────────────────────────────────────────────
 function ParentsSection() {
-  const TILES = [
-    {
-      icon: '📊',
-      title: 'Progress Tracking',
-      desc: 'Track reading streaks, quiz scores, and faith milestones for every child',
-      to: '/parents',
-    },
-    {
-      icon: '📋',
-      title: 'Lesson Plans & Resources',
-      desc: 'Free Bible lesson plans, activity sheets, and printables for classrooms',
-      to: '/parents',
-    },
-    {
-      icon: '🔒',
-      title: 'Child Profiles & Controls',
-      desc: 'Safe profiles per child with age filters, time limits, and bedtime mode',
-      to: '/parents',
-    },
-    {
-      icon: '🎓',
-      title: 'Certification & Milestones',
-      desc: 'Kids earn real Bible certification badges as they grow in faith',
-      to: '/grow/certification',
-    },
-  ];
 
   return (
     <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)' }}>
@@ -1719,37 +1720,6 @@ function ProCta({ user, isSubscriber }) {
             }}>
               {user ? '📊 My Dashboard' : '🔐 Free Account'}
             </Link>
-          </div>
-
-          {/* Right side tiles */}
-          <div className="reveal" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 20,
-          }}>
-            {TILES.map((tile, i) => (
-              <Link key={i} to={tile.to} style={{ textDecoration: 'none' }}>
-                <motion.div
-                  whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(16,185,129,0.1)' }}
-                  style={{
-                    background: 'white', padding: '24px', borderRadius: 20,
-                    border: '1.5px solid #E2E8F0', height: '100%',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <div style={{ fontSize: '1.8rem', marginBottom: 12 }}>{tile.icon}</div>
-                  <h3 style={{
-                    fontFamily: "'Baloo 2', cursive", fontSize: '1.05rem',
-                    fontWeight: 800, color: '#064E3B', marginBottom: 6,
-                  }}>
-                    {tile.title}
-                  </h3>
-                  <p style={{ fontSize: '.8rem', color: '#6B7280', margin: 0, lineHeight: 1.5 }}>
-                    {tile.desc}
-                  </p>
-                </motion.div>
-              </Link>
-            ))}
           </div>
         </div>
       </div>
