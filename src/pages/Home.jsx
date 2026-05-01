@@ -363,27 +363,104 @@ export default function Home() {
   return (
     <div style={{ background: '#FAFBFF', fontFamily: 'Poppins,sans-serif', overflowX: 'hidden' }}>
       {/* ══════════════════════════════════════════
-          HERO
+          HERO — Epic Adventure Through God's Word
       ══════════════════════════════════════════ */}
       <section
         style={{
           position: 'relative',
-          minHeight: '90vh',
+          minHeight: '95vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-          padding: '80px 24px 60px',
+          padding: '100px 24px 80px',
           textAlign: 'center',
-          background: 'linear-gradient(135deg,#1E1B4B 0%,#312E81 30%,#0F172A 60%,#064E3B 100%)',
+          background: 'linear-gradient(160deg,#0D1B2A 0%,#1B2A4A 25%,#2D1B4E 55%,#0A2218 80%,#0D1B2A 100%)',
         }}
       >
-        {/* Animated blobs */}
+        {/* Parallax landscape silhouette — desert dunes + olive trees */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%',
+          background: 'linear-gradient(180deg, transparent 0%, rgba(6,30,18,0.85) 100%)',
+          pointerEvents: 'none', zIndex: 1,
+        }} />
+        {/* Dune silhouette layer */}
+        <svg
+          viewBox="0 0 1440 220"
+          preserveAspectRatio="none"
+          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, width: '100%', height: 220, zIndex: 1, pointerEvents: 'none' }}
+          aria-hidden="true"
+        >
+          <path d="M0,180 C200,120 400,200 600,150 C800,100 1000,180 1200,140 C1320,115 1400,160 1440,145 L1440,220 L0,220 Z" fill="rgba(15,40,25,0.7)" />
+          <path d="M0,200 C180,160 360,210 540,185 C720,160 900,200 1080,175 C1260,150 1380,195 1440,180 L1440,220 L0,220 Z" fill="rgba(10,28,18,0.9)" />
+          {/* Olive tree silhouettes */}
+          <g fill="rgba(20,50,30,0.8)">
+            <ellipse cx="120" cy="175" rx="28" ry="40" />
+            <rect x="117" y="175" width="6" height="30" />
+            <ellipse cx="1320" cy="168" rx="32" ry="44" />
+            <rect x="1317" y="168" width="6" height="35" />
+            <ellipse cx="1360" cy="172" rx="22" ry="32" />
+            <rect x="1357" y="172" width="5" height="25" />
+          </g>
+          {/* Distant Jerusalem skyline */}
+          <g fill="rgba(30,60,45,0.5)">
+            <rect x="680" y="148" width="12" height="30" />
+            <rect x="695" y="140" width="18" height="38" />
+            <rect x="716" y="152" width="10" height="26" />
+            <rect x="728" y="144" width="14" height="34" />
+            <polygon points="704,140 713,125 722,140" />
+          </g>
+        </svg>
+
+        {/* Star field */}
+        {!prefersReducedMotion && Array.from({ length: 28 }).map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.7 + Math.random() * 0.3, 0.3, 0.8, 0] }}
+            transition={{ delay: i * 0.18, duration: 3 + Math.random() * 4, repeat: Infinity, repeatDelay: Math.random() * 3 }}
+            style={{
+              position: 'absolute',
+              width: i % 5 === 0 ? 3 : 2,
+              height: i % 5 === 0 ? 3 : 2,
+              borderRadius: '50%',
+              background: 'white',
+              left: `${(i * 37 + 5) % 100}%`,
+              top: `${(i * 23 + 3) % 55}%`,
+              pointerEvents: 'none',
+              zIndex: 1,
+              boxShadow: i % 5 === 0 ? '0 0 6px 2px rgba(255,255,255,0.4)' : 'none',
+            }}
+          />
+        ))}
+
+        {/* Floating particles — doves & sparkles */}
+        {!prefersReducedMotion && [
+          { emoji: '🕊️', left: '8%', delay: 0, dur: 7 },
+          { emoji: '✨', left: '22%', delay: 1.2, dur: 5 },
+          { emoji: '🕊️', left: '78%', delay: 0.6, dur: 8 },
+          { emoji: '⭐', left: '88%', delay: 2, dur: 6 },
+          { emoji: '✨', left: '55%', delay: 3, dur: 5.5 },
+        ].map((p, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            animate={{ y: [0, -60, -120], opacity: [0, 0.8, 0] }}
+            transition={{ delay: p.delay, duration: p.dur, repeat: Infinity, ease: 'easeOut' }}
+            style={{
+              position: 'absolute', bottom: '15%', left: p.left,
+              fontSize: '1.4rem', pointerEvents: 'none', zIndex: 2,
+            }}
+          >
+            {p.emoji}
+          </motion.div>
+        ))}
+
+        {/* Animated color blobs */}
         {[
-          ['#60A5FA', '15%', '10%'],
-          ['#F472B6', '80%', '20%'],
-          ['#34D399', '10%', '70%'],
-          ['#FCD34D', '75%', '75%'],
+          ['#60A5FA', '12%', '8%'],
+          ['#A78BFA', '82%', '15%'],
+          ['#34D399', '8%', '65%'],
+          ['#FCD34D', '78%', '70%'],
         ].map(([c, l, t], i) => (
           <motion.div
             key={i}
@@ -392,23 +469,40 @@ export default function Home() {
             transition={{ delay: i * 0.2, duration: 1.2 }}
             style={{
               position: 'absolute',
-              width: 300 + i * 80,
-              height: 300 + i * 80,
+              width: 320 + i * 80,
+              height: 320 + i * 80,
               borderRadius: '50%',
-              background: `radial-gradient(circle,${c}22 0%,transparent 70%)`,
+              background: `radial-gradient(circle,${c}1A 0%,transparent 70%)`,
               left: l,
               top: t,
               pointerEvents: 'none',
-              animation: `floatP ${6 + i * 2}s ease-in-out ${i * -1.5}s infinite`,
+              animation: `floatP ${7 + i * 2}s ease-in-out ${i * -1.5}s infinite`,
             }}
           />
         ))}
+
+        {/* Open Bible with light rays — center bottom */}
+        <div style={{
+          position: 'absolute', bottom: '12%', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 2, pointerEvents: 'none', opacity: 0.18,
+        }}>
+          <svg width="160" height="90" viewBox="0 0 160 90" aria-hidden="true">
+            {/* Light rays */}
+            {[0, 30, -30, 15, -15, 45, -45].map((angle, i) => (
+              <line key={i} x1="80" y1="70" x2={80 + Math.sin(angle * Math.PI / 180) * 120} y2={70 - Math.cos(angle * Math.PI / 180) * 120}
+                stroke="#FCD34D" strokeWidth={i === 0 ? 3 : 1.5} strokeOpacity={i === 0 ? 0.9 : 0.5} />
+            ))}
+            {/* Bible pages */}
+            <path d="M20,70 Q80,50 80,70 Q80,50 140,70 L140,85 Q80,65 80,85 Q80,65 20,85 Z" fill="#FEF3C7" />
+            <path d="M80,70 L80,85" stroke="#D97706" strokeWidth="1.5" />
+          </svg>
+        </div>
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={stagger}
-          style={{ position: 'relative', zIndex: 1, maxWidth: 800 }}
+          style={{ position: 'relative', zIndex: 3, maxWidth: 820 }}
         >
           {/* Badge */}
           <motion.div
@@ -448,51 +542,51 @@ export default function Home() {
             variants={stagger}
             style={{
               fontFamily: "'Baloo 2',cursive",
-              fontSize: 'clamp(2.8rem,8vw,5.5rem)',
+              fontSize: 'clamp(2.8rem,8vw,5.8rem)',
               fontWeight: 800,
               color: 'white',
-              lineHeight: 1.05,
+              lineHeight: 1.02,
               marginBottom: 20,
+              letterSpacing: '-1px',
             }}
           >
             <motion.span
               variants={fadeUp}
               transition={{ duration: 0.45 }}
-              style={{ display: 'inline-block', marginRight: '0.25em' }}
+              style={{ display: 'block' }}
             >
-              Where
+              An Epic Adventure
             </motion.span>
             <motion.span
               variants={fadeUp}
               transition={{ duration: 0.45 }}
-              style={{ display: 'inline-block', marginRight: '0.25em' }}
+              style={{ display: 'block' }}
             >
-              Faith
-            </motion.span>
-            <br />
-            <motion.span
-              variants={
-                prefersReducedMotion
-                  ? {}
-                  : {
-                      hidden: { opacity: 0, scale: 0.7, y: 20 },
-                      visible: {
-                        opacity: 1,
-                        scale: 1,
-                        y: 0,
-                        transition: { type: 'spring', stiffness: 300, damping: 18, delay: 0.1 },
-                      },
-                    }
-              }
-              style={{
-                display: 'inline-block',
-                background: 'linear-gradient(90deg,#60A5FA,#C084FC,#F472B6,#FCD34D,#34D399)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              Meets Fun
+              Through{' '}
+              <motion.span
+                variants={
+                  prefersReducedMotion
+                    ? {}
+                    : {
+                        hidden: { opacity: 0, scale: 0.7, y: 20 },
+                        visible: {
+                          opacity: 1,
+                          scale: 1,
+                          y: 0,
+                          transition: { type: 'spring', stiffness: 300, damping: 18, delay: 0.1 },
+                        },
+                      }
+                }
+                style={{
+                  display: 'inline-block',
+                  background: 'linear-gradient(90deg,#FCD34D,#F472B6,#60A5FA,#34D399)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                God's Word
+              </motion.span>
             </motion.span>
           </motion.h1>
 
@@ -501,17 +595,17 @@ export default function Home() {
             variants={fadeUp}
             transition={{ duration: 0.5 }}
             style={{
-              fontSize: 'clamp(.95rem,2vw,1.15rem)',
-              color: 'rgba(255,255,255,.6)',
+              fontSize: 'clamp(1rem,2vw,1.2rem)',
+              color: 'rgba(255,255,255,.72)',
               fontWeight: 500,
               lineHeight: 1.75,
               marginBottom: 40,
-              maxWidth: 560,
+              maxWidth: 580,
               margin: '0 auto 40px',
             }}
           >
-            Interactive Bible learning for kids &amp; families — games, AI devotionals, prayer, and
-            so much more. Completely free.
+            Interactive Bible games, AI devotionals, prayer, maps &amp; more — for kids &amp; families.{' '}
+            <strong style={{ color: '#4ADE80', fontWeight: 800 }}>100% free, always.</strong>
           </motion.p>
 
           {/* Buttons */}
@@ -531,27 +625,24 @@ export default function Home() {
               whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
               <Link
-                to="/trivia"
+                to="/play"
                 onClick={() => trackHeroCta('click')}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 8,
-                  padding: '14px 28px',
-                  borderRadius: 16,
-                  background: 'linear-gradient(135deg,#3B82F6,#8B5CF6)',
+                  gap: 10,
+                  padding: '16px 32px',
+                  borderRadius: 18,
+                  background: 'linear-gradient(135deg,#F59E0B,#EF4444)',
                   color: 'white',
                   fontWeight: 800,
-                  fontSize: '1rem',
+                  fontSize: '1.05rem',
                   textDecoration: 'none',
-                  boxShadow: '0 8px 30px rgba(99,102,241,.5)',
+                  boxShadow: '0 10px 36px rgba(245,158,11,.55)',
+                  letterSpacing: '0.2px',
                 }}
               >
-                {heroCta === 'ai_fun'
-                  ? '✨ Try AI Fun'
-                  : heroCta === 'streak'
-                    ? '🔥 Start Your Streak'
-                    : '🎮 Start Playing Games'}
+                🚀 Start Your Free Journey →
               </Link>
             </motion.div>
 
@@ -566,14 +657,14 @@ export default function Home() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '14px 28px',
-                  borderRadius: 16,
+                  padding: '16px 28px',
+                  borderRadius: 18,
                   background: 'rgba(255,255,255,.1)',
                   color: 'white',
                   fontWeight: 700,
                   fontSize: '1rem',
                   textDecoration: 'none',
-                  border: '1.5px solid rgba(255,255,255,.2)',
+                  border: '1.5px solid rgba(255,255,255,.22)',
                   backdropFilter: 'blur(8px)',
                 }}
               >
@@ -581,12 +672,12 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            <motion.div
-              variants={btnVariant}
-              whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
-              whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
-            >
-              {!isProUser && !isFamilyUser && (
+            {!isProUser && !isFamilyUser && (
+              <motion.div
+                variants={btnVariant}
+                whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+              >
                 <Link
                   to="/premium"
                   onClick={() => trackPro('click')}
@@ -594,20 +685,21 @@ export default function Home() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '14px 28px',
-                    borderRadius: 16,
-                    background: 'linear-gradient(135deg,#F59E0B,#F97316)',
-                    color: 'white',
-                    fontWeight: 800,
+                    padding: '16px 28px',
+                    borderRadius: 18,
+                    background: 'rgba(255,255,255,.08)',
+                    color: 'rgba(255,255,255,.85)',
+                    fontWeight: 700,
                     fontSize: '1rem',
                     textDecoration: 'none',
-                    boxShadow: '0 8px 24px rgba(245,158,11,.4)',
+                    border: '1.5px solid rgba(255,255,255,.15)',
+                    backdropFilter: 'blur(8px)',
                   }}
                 >
                   {proLabel || '💎 Go Pro'}
                 </Link>
-              )}
-            </motion.div>
+              </motion.div>
+            )}
 
             {!user && (
               <motion.div
@@ -621,14 +713,14 @@ export default function Home() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '14px 28px',
-                    borderRadius: 16,
-                    background: 'rgba(255,255,255,.08)',
-                    color: 'rgba(255,255,255,.85)',
+                    padding: '16px 28px',
+                    borderRadius: 18,
+                    background: 'rgba(255,255,255,.06)',
+                    color: 'rgba(255,255,255,.75)',
                     fontWeight: 700,
                     fontSize: '1rem',
                     textDecoration: 'none',
-                    border: '1.5px solid rgba(255,255,255,.18)',
+                    border: '1.5px solid rgba(255,255,255,.12)',
                     backdropFilter: 'blur(8px)',
                   }}
                 >
@@ -642,33 +734,40 @@ export default function Home() {
           <motion.div
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}
+            style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}
           >
             {[
-              '🌍 Prayer Map',
-              '📿 Prayer Beads',
-              '🏃 Scripture Runner',
-              '🎰 Spin the Verse',
-              '🧩 Escape Room',
-              '🎓 Certification',
+              { label: '🗺️ Bible Map', to: '/explore/world' },
+              { label: '🏃 Scripture Runner', to: '/play/game/runner' },
+              { label: '🎰 Spin the Verse', to: '/play/game/spin-the-verse' },
+              { label: '🧩 Escape Room', to: '/game/escape-room' },
+              { label: '🎓 Certification', to: '/grow/certification' },
+              { label: '📿 Prayer Beads', to: '/prayer' },
             ].map((p, i) => (
-              <motion.span
+              <motion.div
                 key={i}
                 initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
                 animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + i * 0.06, duration: 0.35 }}
-                style={{
-                  fontSize: '.7rem',
-                  fontWeight: 700,
-                  padding: '5px 12px',
-                  borderRadius: 100,
-                  background: 'rgba(255,255,255,.07)',
-                  color: 'rgba(255,255,255,.5)',
-                  border: '1px solid rgba(255,255,255,.1)',
-                }}
               >
-                {p}
-              </motion.span>
+                <Link
+                  to={p.to}
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '.7rem',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: 100,
+                    background: 'rgba(255,255,255,.07)',
+                    color: 'rgba(255,255,255,.55)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    textDecoration: 'none',
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                >
+                  {p.label}
+                </Link>
+              </motion.div>
             ))}
           </motion.div>
 
@@ -702,7 +801,7 @@ export default function Home() {
                 <div
                   style={{
                     fontFamily: "'Baloo 2',cursive",
-                    fontSize: '1.6rem',
+                    fontSize: '1.7rem',
                     fontWeight: 800,
                     color: 'white',
                     lineHeight: 1,
@@ -729,6 +828,11 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════
+          DAILY MANNA GREETING
+      ══════════════════════════════════════════ */}
+      <DailyMannaGreeting />
+
+      {/* ══════════════════════════════════════════
           QUICK START
       ══════════════════════════════════════════ */}
       <QuickStart todayVerse={todayVerse} />
@@ -737,6 +841,11 @@ export default function Home() {
           SEASONAL HIGHLIGHT
       ══════════════════════════════════════════ */}
       <SeasonalHighlight />
+
+      {/* ══════════════════════════════════════════
+          TESTIMONIALS — What Families Are Saying
+      ══════════════════════════════════════════ */}
+      <TestimonialsCarousel />
 
       {/* ══════════════════════════════════════════
           FOR PARENTS & TEACHERS
@@ -771,16 +880,70 @@ export default function Home() {
         @keyframes floatP{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-18px) rotate(3deg)}66%{transform:translateY(-8px) rotate(-2deg)}}
         .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
         .reveal.in{opacity:1;transform:translateY(0)}
+        @media(max-width:600px){
+          .hero-btns{flex-direction:column;align-items:stretch}
+          .hero-btns a{text-align:center;justify-content:center}
+        }
       `}</style>
     </div>
   );
 }
 
 
+// ── Daily Manna Greeting ─────────────────────────────────────────────────────
+function DailyMannaGreeting() {
+  const hour = new Date().getHours();
+  const greeting = hour < 12
+    ? { emoji: '🌅', label: 'Good Morning', verse: 'This is the day the Lord has made; let us rejoice and be glad in it.', ref: 'Psalm 118:24', color: '#F59E0B', bg: 'linear-gradient(135deg,#FEF3C7,#FDE68A)', textColor: '#78350F' }
+    : hour < 17
+    ? { emoji: '☀️', label: 'Good Afternoon', verse: 'I can do all this through him who gives me strength.', ref: 'Philippians 4:13', color: '#3B82F6', bg: 'linear-gradient(135deg,#EFF6FF,#DBEAFE)', textColor: '#1E3A8A' }
+    : hour < 21
+    ? { emoji: '🌇', label: 'Good Evening', verse: 'Trust in the Lord with all your heart and lean not on your own understanding.', ref: 'Proverbs 3:5', color: '#8B5CF6', bg: 'linear-gradient(135deg,#F5F3FF,#EDE9FE)', textColor: '#4C1D95' }
+    : { emoji: '🌙', label: 'Good Night', verse: 'He grants sleep to those he loves.', ref: 'Psalm 127:2', color: '#6366F1', bg: 'linear-gradient(135deg,#EEF2FF,#E0E7FF)', textColor: '#312E81' };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{
+        background: greeting.bg,
+        borderBottom: `2px solid ${greeting.color}22`,
+        padding: '14px 24px',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '1.4rem' }}>{greeting.emoji}</span>
+        <span style={{ fontWeight: 800, fontSize: '.88rem', color: greeting.textColor }}>
+          {greeting.label}!
+        </span>
+        <span style={{ fontSize: '.82rem', color: greeting.textColor, opacity: 0.8, fontStyle: 'italic' }}>
+          "{greeting.verse}" — <strong>{greeting.ref}</strong>
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
 // ── Quick Start ───────────────────────────────────────────────────────────────
 function QuickStart({ todayVerse }) {
   const [ready, setReady] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 300); return () => clearTimeout(t); }, []);
+
+  function speakVerse(verse) {
+    if (!verse || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    if (speaking) { setSpeaking(false); return; }
+    const utt = new SpeechSynthesisUtterance(`${verse.text} — ${verse.ref}`);
+    utt.rate = 0.88;
+    utt.pitch = 1.05;
+    utt.onend = () => setSpeaking(false);
+    utt.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(utt);
+  }
 
   if (!ready) return (
     <section style={{ padding: '80px 24px 64px', background: '#FAFBFF' }}>
@@ -806,17 +969,6 @@ function QuickStart({ todayVerse }) {
       gradient: true,
     },
     {
-      icon: '🏠',
-      title: 'HomeSchool Hub',
-      desc: 'Complete Bible curriculum, lesson plans & resources for your homeschool journey.',
-      to: 'https://homeschool.biblefunland.com',
-      color: '#065F46',
-      bg: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
-      label: 'Visit Hub →',
-      isExternal: true,
-      tag: '✨ Hub',
-    },
-    {
       icon: '🎮',
       title: 'Play Games',
       desc: 'Bible trivia, runners, escape rooms & more — all ages welcome',
@@ -837,11 +989,12 @@ function QuickStart({ todayVerse }) {
     {
       icon: '🌍',
       title: 'Living Bible Map',
-      desc: 'Walk through 3D Bible lands and immerse yourself in Scripture',
+      desc: 'Walk through 3D Bible lands — hover over the Sea of Galilee, Jerusalem & more',
       to: '/explore/world',
       color: '#C05C33',
       bg: '#FFF7ED',
       label: 'Explore Now →',
+      tag: '🗺️ Interactive',
     },
     {
       icon: '📖',
@@ -852,7 +1005,9 @@ function QuickStart({ todayVerse }) {
       to: '/explore/bible',
       color: '#10B981',
       bg: '#ECFDF5',
-      label: 'Read More →',
+      label: 'Read & Listen →',
+      hasAudio: true,
+      audioVerse: todayVerse,
     },
     {
       icon: '🕊️',
@@ -862,6 +1017,17 @@ function QuickStart({ todayVerse }) {
       color: '#F59E0B',
       bg: '#FFFBEB',
       label: 'Pray Now →',
+    },
+    {
+      icon: '🏠',
+      title: 'HomeSchool Hub',
+      desc: 'Complete Bible curriculum, lesson plans & resources for your homeschool journey.',
+      to: 'https://homeschool.biblefunland.com',
+      color: '#065F46',
+      bg: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
+      label: 'Visit Hub →',
+      isExternal: true,
+      tag: '✨ Hub',
     },
     {
       icon: '🌱',
@@ -875,7 +1041,14 @@ function QuickStart({ todayVerse }) {
   ];
 
   return (
-    <section style={{ padding: '80px 24px 64px', background: '#FAFBFF', position: 'relative', overflow: 'hidden' }}>
+    <section style={{ 
+      padding: '88px 24px 72px', 
+      background: '#FAFBFF', 
+      position: 'relative', 
+      overflow: 'hidden',
+      // Subtle papyrus/linen texture via repeating gradient
+      backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(59,82,180,0.025) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(59,82,180,0.015) 40px)',
+    }}>
       {/* Decorative background elements */}
       <div style={{
         position: 'absolute',
@@ -883,7 +1056,7 @@ function QuickStart({ todayVerse }) {
         left: 0,
         right: 0,
         height: '200px',
-        background: 'linear-gradient(180deg, rgba(59,130,246,0.03) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(59,130,246,0.04) 0%, transparent 100%)',
         pointerEvents: 'none',
       }} />
       
@@ -1015,11 +1188,12 @@ function QuickStart({ todayVerse }) {
             transition={{ duration: 0.6, delay: 0.3 }}
             style={{
               fontFamily: "'Baloo 2', cursive",
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
               fontWeight: 800, 
               color: '#1E1B4B', 
               marginBottom: 16,
-              lineHeight: 1.1,
+              lineHeight: 1.05,
+              letterSpacing: '-1px',
               textShadow: '0 2px 20px rgba(59,130,246,0.1)',
             }}>
             Jump Into <span style={{ 
@@ -1037,13 +1211,13 @@ function QuickStart({ todayVerse }) {
             transition={{ duration: 0.6, delay: 0.4 }}
             style={{ 
               color: '#6B7280', 
-              fontSize: '1.1rem', 
+              fontSize: '1.15rem', 
               maxWidth: 600, 
               margin: '0 auto 24px',
               lineHeight: 1.7,
               fontWeight: 500,
             }}>
-            Everything is <strong style={{ color: '#10B981' }}>100% free</strong>. Pick what sounds fun and start your faith adventure today!
+            Everything is <strong style={{ color: '#10B981', fontWeight: 800 }}>100% free</strong>. Pick what sounds fun and start your faith adventure today!
           </motion.p>
 
           {/* Decorative divider */}
@@ -1062,63 +1236,10 @@ function QuickStart({ todayVerse }) {
           />
         </motion.div>
         
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48, display: 'none' }}>
-          <motion.span 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            style={{
-              display: 'inline-block', fontSize: '.75rem', fontWeight: 800,
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#F59E0B', background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
-              padding: '6px 16px', borderRadius: 100, marginBottom: 16,
-              border: '2px solid #F59E0B',
-              boxShadow: '0 4px 12px rgba(245,158,11,0.2)',
-            }}>
-            ⚡ Quick Start
-          </motion.span>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            style={{
-              fontFamily: "'Baloo 2', cursive",
-              fontSize: 'clamp(2rem, 4.5vw, 3.2rem)',
-              fontWeight: 800, 
-              color: '#1E1B4B', 
-              marginBottom: 12,
-              lineHeight: 1.2,
-            }}>
-            Jump Into <span style={{ 
-              background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>Bible Fun</span> 🎮
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ 
-              color: '#6B7280', 
-              fontSize: '1rem', 
-              maxWidth: 520, 
-              margin: '0 auto',
-              lineHeight: 1.6,
-              fontWeight: 500,
-            }}>
-            Everything is 100% free. Pick what sounds fun and start your faith adventure today!
-          </motion.p>
-        </div>
-
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 20,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))',
+          gap: 22,
         }}>
           {QUICK_CARDS.map((card, i) => {
             const CardWrapper = card.isExternal ? 'a' : Link;
@@ -1132,7 +1253,6 @@ function QuickStart({ todayVerse }) {
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.07, duration: 0.45 }}
                   whileHover={{ 
                     y: card.featured ? -10 : -6, 
                     scale: card.featured ? 1.02 : 1,
@@ -1148,6 +1268,7 @@ function QuickStart({ todayVerse }) {
                     ]
                   } : {}}
                   transition={{
+                    default: { delay: i * 0.07, duration: 0.45 },
                     boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
                   }}
                   style={{
@@ -1156,12 +1277,12 @@ function QuickStart({ todayVerse }) {
                     padding: '28px 22px',
                     border: card.featured 
                       ? '2px solid #F59E0B' 
-                      : `1.5px solid ${card.color}1A`,
+                      : `1.5px solid ${card.color}28`,
                     display: 'flex', flexDirection: 'column', gap: 14,
                     height: '100%', cursor: 'pointer',
                     boxShadow: card.featured 
                       ? '0 8px 30px rgba(245,158,11,0.25)' 
-                      : '0 2px 12px rgba(0,0,0,0.04)',
+                      : '0 2px 14px rgba(0,0,0,0.05)',
                     transition: 'all 0.3s ease',
                     position: 'relative',
                     overflow: 'hidden',
@@ -1278,17 +1399,38 @@ function QuickStart({ todayVerse }) {
                     </p>
                   </div>
                   <div style={{
-                    color: card.featured ? '#92400E' : card.color,
-                    fontWeight: 800, 
-                    fontSize: '.85rem',
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 6,
-                    position: 'relative',
-                    zIndex: 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    position: 'relative', zIndex: 1,
                   }}>
-                    {card.label}
-                    {card.featured && <span style={{ fontSize: '1rem' }}>🎯</span>}
+                    <div style={{
+                      color: card.featured ? '#92400E' : card.color,
+                      fontWeight: 800, 
+                      fontSize: '.85rem',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 6,
+                    }}>
+                      {card.label}
+                      {card.featured && <span style={{ fontSize: '1rem' }}>🎯</span>}
+                    </div>
+                    {card.hasAudio && card.audioVerse && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); speakVerse(card.audioVerse); }}
+                        title={speaking ? 'Stop reading' : 'Listen to verse'}
+                        aria-label={speaking ? 'Stop reading verse aloud' : 'Listen to verse aloud'}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 5,
+                          padding: '5px 12px', borderRadius: 100,
+                          background: speaking ? '#10B981' : 'rgba(16,185,129,0.12)',
+                          border: '1.5px solid #10B981',
+                          color: speaking ? 'white' : '#10B981',
+                          fontWeight: 700, fontSize: '.72rem', cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        {speaking ? '⏹ Stop' : '🔊 Listen'}
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               </CardWrapper>
@@ -1431,8 +1573,39 @@ function getSeasonData() {
   };
 }
 
+// ── Seasonal Countdown Timer ─────────────────────────────────────────────────
+function useCountdown(targetDate) {
+  const [timeLeft, setTimeLeft] = useState({});
+  useEffect(() => {
+    function calc() {
+      const diff = new Date(targetDate) - new Date();
+      if (diff <= 0) return setTimeLeft({ expired: true });
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+      });
+    }
+    calc();
+    const t = setInterval(calc, 1000);
+    return () => clearInterval(t);
+  }, [targetDate]);
+  return timeLeft;
+}
+
 function SeasonalHighlight() {
   const season = getSeasonData();
+  // Countdown for summer challenge — always ends Aug 15 of the current year
+  const now = new Date();
+  const summerDeadline = new Date(now.getFullYear(), 7, 15, 23, 59, 59).toISOString();
+  const summerStart = new Date(now.getFullYear(), 4, 1); // May 1
+  const summerEnd = new Date(now.getFullYear(), 7, 15);  // Aug 15
+  const summerTotalDays = (summerEnd - summerStart) / (1000 * 60 * 60 * 24);
+  const countdown = useCountdown(season.id === 'summer' ? summerDeadline : new Date(9999, 0, 1).toISOString());
+  const summerProgress = season.id === 'summer'
+    ? Math.min(100, Math.max(0, Math.round(((now - summerStart) / (1000 * 60 * 60 * 24)) / summerTotalDays * 100)))
+    : 0;
 
   return (
     <section style={{
@@ -1469,8 +1642,9 @@ function SeasonalHighlight() {
           </span>
           <h2 style={{
             fontFamily: "'Baloo 2', cursive",
-            fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+            fontSize: 'clamp(2rem, 4.5vw, 3.2rem)',
             fontWeight: 800, color: 'white', marginBottom: 12,
+            letterSpacing: '-0.5px',
           }}>
             {season.emoji} {season.label}
           </h2>
@@ -1489,6 +1663,55 @@ function SeasonalHighlight() {
           }}>
             {season.fomo}
           </span>
+
+          {/* Summer countdown timer */}
+          {season.id === 'summer' && !countdown.expired && countdown.days !== undefined && (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>
+                ⏳ Challenge ends in
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                {[
+                  { val: countdown.days, label: 'Days' },
+                  { val: countdown.hours, label: 'Hours' },
+                  { val: countdown.minutes, label: 'Mins' },
+                  { val: countdown.seconds, label: 'Secs' },
+                ].map(({ val, label }) => (
+                  <div key={label} style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: `1.5px solid ${season.accentColor}40`,
+                    borderRadius: 12,
+                    padding: '10px 16px',
+                    minWidth: 60,
+                    textAlign: 'center',
+                  }}>
+                    <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1.6rem', fontWeight: 800, color: season.accentColor, lineHeight: 1 }}>
+                      {String(val).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontSize: '.6rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>
+                      {label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Progress bar */}
+              <div style={{ marginTop: 16, maxWidth: 400, margin: '16px auto 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
+                  <span>Summer Progress</span>
+                  <span>{summerProgress}% complete</span>
+                </div>
+                <div style={{ height: 8, background: 'rgba(255,255,255,0.1)', borderRadius: 99, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${summerProgress}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                    style={{ height: '100%', background: `linear-gradient(90deg, ${season.accentColor}, #F97316)`, borderRadius: 99 }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Cards */}
@@ -1601,8 +1824,9 @@ function ParentsSection() {
             </span>
             <h2 style={{
               fontFamily: "'Baloo 2', cursive",
-              fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
-              fontWeight: 800, color: '#064E3B', marginBottom: 14, lineHeight: 1.15,
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 800, color: '#064E3B', marginBottom: 14, lineHeight: 1.1,
+              letterSpacing: '-0.5px',
             }}>
               Built with families in mind
             </h2>
@@ -1663,7 +1887,7 @@ function ProCta({ user, isSubscriber }) {
   if (isSubscriber) return null;
   return (
     <section style={{ padding: '72px 24px', background: 'linear-gradient(135deg,#0F0F1A,#1A0533,#0A1A0F)' }}>
-      <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}>
+      <div style={{ maxWidth: 820, margin: '0 auto', textAlign: 'center' }}>
         <div className="reveal" style={{
           background: 'linear-gradient(135deg,rgba(99,102,241,.12),rgba(168,85,247,.08))',
           borderRadius: 32, border: '1.5px solid rgba(139,92,246,.2)',
@@ -1679,28 +1903,69 @@ function ProCta({ user, isSubscriber }) {
           </h2>
           <p style={{
             fontSize: '.9rem', color: 'rgba(255,255,255,.5)',
-            lineHeight: 1.75, maxWidth: 420, margin: '0 auto 24px',
+            lineHeight: 1.75, maxWidth: 420, margin: '0 auto 32px',
           }}>
             Go Pro for unlimited AI tools, Bible certification, family progress tracking, and priority access to every new feature.
           </p>
 
-          {/* Simple perk list */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28, textAlign: 'left', maxWidth: 360, margin: '0 auto 28px' }}>
-            {[
-              '🤖 Unlimited AI Devotionals, Parables & Adventures',
-              '🎓 Full Bible Certification courses',
-              '📊 Family progress reports & child profiles',
-              '🗺️ Complete Living Bible Map access',
-              '🏅 Exclusive Pro-only badges',
-            ].map((perk, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                fontSize: '.83rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)',
-              }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B5CF6', flexShrink: 0 }} />
-                {perk}
+          {/* Free vs Pro comparison table */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16,
+            maxWidth: 560, margin: '0 auto 32px', textAlign: 'left',
+          }}>
+            {/* Free column */}
+            <div style={{
+              background: 'rgba(255,255,255,0.04)', borderRadius: 16,
+              border: '1.5px solid rgba(255,255,255,0.08)', padding: '20px 18px',
+            }}>
+              <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 14 }}>
+                🆓 Free
               </div>
-            ))}
+              {[
+                '✅ All Bible games',
+                '✅ 5 AI devotionals/mo',
+                '✅ Prayer Wall',
+                '✅ Verse of the Day',
+                '❌ Certification',
+                '❌ Family profiles',
+                '❌ Full Bible Map',
+              ].map((item, i) => (
+                <div key={i} style={{ fontSize: '.78rem', color: item.startsWith('✅') ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.25)', marginBottom: 7, fontWeight: 600 }}>
+                  {item}
+                </div>
+              ))}
+            </div>
+            {/* Pro column */}
+            <div style={{
+              background: 'linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1))',
+              borderRadius: 16, border: '1.5px solid rgba(139,92,246,0.35)', padding: '20px 18px',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute', top: -10, right: 12,
+                background: 'linear-gradient(135deg,#8B5CF6,#6366F1)',
+                color: 'white', fontSize: '.6rem', fontWeight: 800,
+                padding: '3px 10px', borderRadius: 100, letterSpacing: 1,
+              }}>
+                BEST VALUE
+              </div>
+              <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: '#C4B5FD', marginBottom: 14 }}>
+                💎 Pro — $3.99/mo
+              </div>
+              {[
+                '✅ All Bible games',
+                '✅ Unlimited AI tools',
+                '✅ Prayer Wall',
+                '✅ Verse of the Day',
+                '✅ Full Certification',
+                '✅ Family profiles',
+                '✅ Complete Bible Map',
+              ].map((item, i) => (
+                <div key={i} style={{ fontSize: '.78rem', color: '#C4B5FD', marginBottom: 7, fontWeight: 600 }}>
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>

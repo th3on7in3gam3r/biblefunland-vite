@@ -49,11 +49,7 @@ const Trivia = lazy_(() => import('./pages/Trivia'));
 const Devotional = lazy_(() => import('./pages/Devotional'));
 const BibleMap = lazy_(() => import('./pages/BibleMap'));
 const Flashcards = lazy_(() => import('./pages/Flashcards'));
-const SermonNotes = lazy_(() => import('./pages/SermonNotes'));
-const ShareCards = lazy_(() => import('./pages/ShareCards'));
 const Premium = lazy_(() => import('./pages/Premium'));
-const Videos = lazy_(() => import('./pages/Videos'));
-const Blog = lazy_(() => import('./pages/Blog'));
 const PrayerWall = lazy_(() => import('./pages/PrayerWallRealtime'));
 const Dashboard = lazy_(() => import('./pages/Dashboard'));
 const Admin = lazy_(() => import('./pages/Admin'));
@@ -642,7 +638,18 @@ export default function App() {
                                                       path="leaderboard"
                                                       element={<SP c={Leaderboard} />}
                                                     />
+                                                    <Route
+                                                      path="church-finder"
+                                                      element={<SP c={ChurchFinder} />}
+                                                    />
                                                   </Route>
+
+                                                  <Route
+                                                    path="/church-finder"
+                                                    element={
+                                                      <Navigate to="/community/church-finder" replace />
+                                                    }
+                                                  />
 
                                                   <Route
                                                     path="/prayer"

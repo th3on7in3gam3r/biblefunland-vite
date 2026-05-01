@@ -70,9 +70,20 @@ export default function TestimonialsCarousel() {
   const t = TESTIMONIALS[current];
 
   return (
-    <section style={{ padding: '60px 24px', background: 'white' }}>
+    <section style={{ 
+      padding: '80px 24px', 
+      background: 'linear-gradient(135deg, #FAFBFF 0%, #F5F3FF 50%, #EFF6FF 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Decorative quote marks */}
+      <div style={{
+        position: 'absolute', top: 20, left: 40,
+        fontFamily: 'Georgia,serif', fontSize: '12rem', lineHeight: 1,
+        color: '#8B5CF6', opacity: 0.04, pointerEvents: 'none', userSelect: 'none',
+      }}>❝</div>
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 36 }}>
+        <div className="reveal" style={{ textAlign: 'center', marginBottom: 40 }}>
           <div
             style={{
               display: 'inline-block',
@@ -84,7 +95,7 @@ export default function TestimonialsCarousel() {
               borderRadius: 100,
               background: '#F5F3FF',
               color: '#8B5CF6',
-              marginBottom: 12,
+              marginBottom: 14,
             }}
           >
             ❤️ Loved by Families
@@ -92,16 +103,17 @@ export default function TestimonialsCarousel() {
           <h2
             style={{
               fontFamily: "'Baloo 2',cursive",
-              fontSize: 'clamp(1.5rem,3.5vw,2.2rem)',
+              fontSize: 'clamp(1.8rem,4vw,2.8rem)',
               fontWeight: 800,
               color: '#1E1B4B',
-              marginBottom: 6,
+              marginBottom: 8,
+              letterSpacing: '-0.5px',
             }}
           >
-            Used by Families &amp; Churches Worldwide
+            What Families Are Saying
           </h2>
-          <p style={{ color: '#6B7280', fontSize: '.88rem' }}>
-            Join thousands of families making Bible learning fun
+          <p style={{ color: '#6B7280', fontSize: '.9rem', maxWidth: 480, margin: '0 auto' }}>
+            Join thousands of families making Bible learning fun every day
           </p>
         </div>
 
