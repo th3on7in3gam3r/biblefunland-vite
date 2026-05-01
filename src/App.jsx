@@ -2,10 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy, useEffect } from 'react';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
-import MusicPlayer from './components/MusicPlayer';
 import PwaInstallBanner from './components/PwaInstallBanner';
 import EmailPopup from './components/EmailPopup';
-import BibleRadio from './components/BibleRadio';
 import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ErrorBoundary';
 import OnboardingModal from './components/OnboardingModal';
@@ -1620,8 +1618,6 @@ export default function App() {
                                                 </Routes>
                                               </main>
                                               <Footer />
-                                              <MusicPlayer />
-                                              <BibleRadio />
                                             </div>
                                           </AdsProvider>
                                         </FamilyChallengesProvider>
