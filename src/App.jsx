@@ -150,6 +150,7 @@ const Apologetics = lazy_(() => import('./pages/Apologetics'));
 const BibleNames = lazy_(() => import('./pages/BibleNames'));
 const ChristianFinance = lazy_(() => import('./pages/ChristianFinance'));
 const FaithMilestones = lazy_(() => import('./pages/FaithMilestones'));
+const WorshipRadioHub = lazy_(() => import('./pages/WorshipRadioHub'));
 
 // ── v11 Features ──────────────────────────────────────────────────────────────
 const BibleWordle = lazy_(() => import('./pages/BibleWordle'));
@@ -1401,6 +1402,10 @@ export default function App() {
                                                   <Route
                                                     path="/podcast"
                                                     element={<SP c={Podcast} />}
+                                                  />
+                                                  <Route
+                                                    path="/worship-radio"
+                                                    element={<SP c={WorshipRadioHub} />}
                                                   />
                                                   <Route
                                                     path="/seasonal"
