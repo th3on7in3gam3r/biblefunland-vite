@@ -162,7 +162,7 @@ async function isCacheValid(url) {
     const isValid = now < metadata.expiresAt
     
     if (isValid) {
-      console.log(`✅ Cache valid for ${url} (expires in ${Math.round((metadata.expiresAt - now) / 1000)}s)`)
+      console.debug(`✅ Cache valid for ${url} (expires in ${Math.round((metadata.expiresAt - now) / 1000)}s)`)
       // Update last access time
       updateAccessTime(url)
     } else {
@@ -448,7 +448,7 @@ async function handleKidsContent(request) {
     if (cachedResponse) {
       const isValid = await isCacheValid(url)
       if (isValid) {
-        console.log(`📦 Serving cached kids content: ${url}`)
+        console.debug(`📦 Serving cached kids content: ${url}`)
         return cachedResponse
       } else {
         console.log(`⏳ Cached content expired, fetching fresh: ${url}`)
@@ -488,7 +488,7 @@ async function handleCoreContent(request) {
     if (cachedResponse) {
       const isValid = await isCacheValid(url)
       if (isValid) {
-        console.log(`📦 Serving cached core content: ${url}`)
+        console.debug(`📦 Serving cached core content: ${url}`)
         return cachedResponse
       } else {
         console.log(`⏳ Core content cache expired, fetching fresh: ${url}`)
@@ -503,7 +503,7 @@ async function handleCoreContent(request) {
         const cache = await caches.open(KIDS_CONTENT_CACHE)
         cache.put(request, networkResponse.clone())
         await storeMetadata(url, 'cache-first', CACHE_TTL.CONTENT)
-        console.log(`✅ Cached core content: ${url}`)
+        console.debug(`✅ Cached core content: ${url}`)
         return networkResponse
       } else if (networkResponse.status === 206) {
         return networkResponse
@@ -529,7 +529,7 @@ async function handleStaticAsset(request) {
   if (cachedResponse) {
     const isValid = await isCacheValid(url)
     if (isValid) {
-      console.log(`📦 Serving cached static asset: ${url}`)
+      console.debug(`📦 Serving cached static asset: ${url}`)
       return cachedResponse
     } else {
       console.log(`⏳ Static asset cache expired, fetching fresh: ${url}`)
@@ -542,7 +542,7 @@ async function handleStaticAsset(request) {
       const cache = await caches.open(STATIC_CACHE)
       cache.put(request, networkResponse.clone())
       await storeMetadata(url, 'cache-first', CACHE_TTL.STATIC)
-      console.log(`✅ Cached static asset: ${url}`)
+      console.debug(`✅ Cached static asset: ${url}`)
     }
     return networkResponse
   } catch (error) {
@@ -564,7 +564,7 @@ async function handleAPIRequest(request) {
       // Determine TTL based on endpoint type
       const ttl = url.includes('/api/user') ? CACHE_TTL.API_USER : CACHE_TTL.API_STATIC
       await storeMetadata(url, 'network-first', ttl)
-      console.log(`✅ Cached API response: ${url}`)
+      console.debug(`✅ Cached API response: ${url}`)
     }
     return networkResponse
   } catch (error) {
@@ -574,7 +574,7 @@ async function handleAPIRequest(request) {
       const isValid = await isCacheValid(url)
       if (isValid || !isValid) {
         // Return cached response even if expired (stale-while-revalidate)
-        console.log(`📦 Serving ${isValid ? 'valid' : 'stale'} cached API response: ${url}`)
+        console.debug(`📦 Serving ${isValid ? 'valid' : 'stale'} cached API response: ${url}`)
         return cachedResponse
       }
     }
