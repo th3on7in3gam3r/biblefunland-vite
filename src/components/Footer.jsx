@@ -7,7 +7,7 @@ const EXPLORE_LINKS = [
   { to: '/explore/bible', label: '📖 Bible Explorer' },
   { to: '/map', label: '🗺️ Bible Map' },
   { to: '/game/runner', label: '🏃 Scripture Runner' },
-  { to: '/resources', label: '📚 Kingdom Resources' },
+  { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
 ];
 
 const COMMUNITY_LINKS = [
@@ -85,7 +85,13 @@ export default function Footer() {
             <ul>
               {EXPLORE_LINKS.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to}>{l.label}</Link>
+                  {l.isExternal ? (
+                    <a href={l.to} target="_blank" rel="noopener noreferrer">
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link to={l.to}>{l.label}</Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -42,6 +42,7 @@ const PRIMARY_NAV = [
       { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
       { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
       { to: '/ai/miracle-art', label: '🖼️ Miracle Art' },
+      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
     ],
   },
   { to: '/grow', label: '🌱 Grow' },
@@ -60,6 +61,7 @@ const PRIMARY_NAV = [
     dropdown: [
       { to: '/parents', label: '🏫 Parents Hub' },
       { to: 'https://homeschool.biblefunland.com', label: '🏠 HomeSchool Hub', isExternal: true },
+      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes (Scribe)', isExternal: true },
       { to: '/grow/certification', label: '🎓 Kids Certification' },
     ],
   },
@@ -97,6 +99,7 @@ const DRAWER_SECTIONS = [
       { to: '/ai/drama-scripts', label: '🎭 Drama Scripts', kidsHide: true },
       { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
       { to: '/ai/miracle-art', label: '🖼️ Miracle Art' },
+      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes' },
     ],
   },
   {

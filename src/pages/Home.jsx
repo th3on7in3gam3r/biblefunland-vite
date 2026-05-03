@@ -1019,6 +1019,17 @@ function QuickStart({ todayVerse }) {
       label: 'Pray Now →',
     },
     {
+      icon: '✍️',
+      title: 'Rhema Notes',
+      desc: 'NEW! Transform your church sermons into AI-powered insights & growth plans.',
+      to: 'https://rhemanotes.biblefunland.com',
+      color: '#8B5CF6',
+      bg: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)',
+      label: 'Try Sermon Scribe →',
+      isExternal: true,
+      tag: '✨ NEW',
+    },
+    {
       icon: '🏠',
       title: 'HomeSchool Hub',
       desc: 'Complete Bible curriculum, lesson plans & resources for your homeschool journey.',
