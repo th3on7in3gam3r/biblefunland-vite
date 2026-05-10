@@ -42,7 +42,31 @@ import ClerkProtectedRoute from './components/ClerkProtectedRoute';
 import ProGate from './components/ProGate';
 
 // Lazy pages
-const lazy_ = (fn) => lazy(fn);
+// Lazy pages with retry logic for "ChunkLoadError" (common after new deployments)
+const lazy_ = (componentImport) => {
+  return lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.error('📦 Lazy Load Error:', error);
+      
+      // Check if it's a chunk load error
+      const isChunkError = 
+        error.name === 'ChunkLoadError' || 
+        error.message?.includes('Failed to fetch dynamically imported module') ||
+        error.message?.includes('loading chunk');
+
+      if (isChunkError && !sessionStorage.getItem('chunk_retry_attempted')) {
+        sessionStorage.setItem('chunk_retry_attempted', 'true');
+        console.warn('🔄 Chunk load failed. Attempting hard reload to get fresh assets...');
+        window.location.reload(true);
+        return { default: () => null }; // Return placeholder while reloading
+      }
+
+      throw error;
+    }
+  });
+};
 const Trivia = lazy_(() => import('./pages/Trivia'));
 const Devotional = lazy_(() => import('./pages/Devotional'));
 const BibleMap = lazy_(() => import('./pages/BibleMap'));

@@ -543,10 +543,17 @@ async function handleStaticAsset(request) {
       cache.put(request, networkResponse.clone())
       await storeMetadata(url, 'cache-first', CACHE_TTL.STATIC)
       console.debug(`✅ Cached static asset: ${url}`)
+      return networkResponse
     }
+    
+    // If not 200, don't return HTML, just return the response
     return networkResponse
   } catch (error) {
-    return new Response('Asset not available offline', { status: 503 })
+    // Return a proper error response instead of HTML
+    return new Response('Asset not available offline', { 
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
+    })
   }
 }
 
@@ -586,12 +593,25 @@ async function handleAPIRequest(request) {
 
 // Handle general requests
 async function handleGeneralRequest(request) {
+  const url = new URL(request.url)
+  const isStatic = isStaticAsset(request.url)
+
   try {
     const networkResponse = await fetch(request)
     return networkResponse
   } catch (error) {
     const cachedResponse = await caches.match(request)
-    return cachedResponse || new Response('Offline', { status: 503 })
+    if (cachedResponse) return cachedResponse
+
+    // If it's a static asset, return 503, don't fall back to HTML
+    if (isStatic) {
+      return new Response('Offline', { 
+        status: 503,
+        headers: { 'Content-Type': 'text/plain' }
+      })
+    }
+
+    return new Response('Offline', { status: 503 })
   }
 }
 
