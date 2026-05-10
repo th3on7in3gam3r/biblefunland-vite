@@ -620,6 +620,20 @@ async function getOfflineContent(request) {
   const url = new URL(request.url)
   const path = url.pathname
   
+  if (path.includes('manifest.json')) {
+    return new Response(JSON.stringify({
+      name: "BibleFunLand",
+      short_name: "BibleFunLand",
+      start_url: "/",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#4F46E5",
+      icons: []
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   if (path.includes('/trivia')) {
     return new Response(getOfflineTrivia(), {
       headers: { 'Content-Type': 'text/html' }
