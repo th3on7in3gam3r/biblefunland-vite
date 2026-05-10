@@ -694,15 +694,15 @@ export default function App() {
                                                   />
 
                                                   {/* Parents/Teachers */}
-                                                  <Route element={<ClerkProtectedRoute />}>
+                                                  <Route
+                                                    path="/parents"
+                                                    element={<SP c={ParentsLayout} />}
+                                                  >
                                                     <Route
-                                                      path="/parents"
-                                                      element={<SP c={ParentsLayout} />}
-                                                    >
-                                                      <Route
-                                                        index
-                                                        element={<SP c={ParentsOverview} />}
-                                                      />
+                                                      index
+                                                      element={<SP c={ParentsOverview} />}
+                                                    />
+                                                    <Route element={<ClerkProtectedRoute />}>
                                                       <Route
                                                         path="parent-hub"
                                                         element={<SP c={ParentTeacherHub} />}
@@ -718,7 +718,7 @@ export default function App() {
                                                       <Route
                                                         path="controls"
                                                         element={<SP c={ParentalControlsPage} />}
-                                                      />{' '}
+                                                      />
                                                       <Route
                                                         path="progress"
                                                         element={
@@ -726,7 +726,7 @@ export default function App() {
                                                             <SP c={ParentsProgress} />
                                                           </ProGate>
                                                         }
-                                                      />{' '}
+                                                      />
                                                     </Route>
                                                   </Route>
 
