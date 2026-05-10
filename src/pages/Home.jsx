@@ -853,6 +853,11 @@ export default function Home() {
       <ParentsSection />
 
       {/* ══════════════════════════════════════════
+          ADULT MINISTRIES & RESOURCES
+      ══════════════════════════════════════════ */}
+      <AdultMinistriesSection />
+
+      {/* ══════════════════════════════════════════
           BIBLEFUNLAND JR. — FOR LITTLE ONES
       ══════════════════════════════════════════ */}
       <BibleFunLandJrBanner />
@@ -1048,6 +1053,17 @@ function QuickStart({ todayVerse }) {
       color: '#10B981',
       bg: '#ECFDF5',
       label: 'Start Today →',
+    },
+    {
+      icon: '⛪',
+      title: 'Vesper Ministry',
+      desc: 'NEW! The advanced ministry platform for sermon archives, team collaboration & growth.',
+      to: 'https://vesper.biblefunland.com',
+      color: '#3B82F6',
+      bg: 'linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)',
+      label: 'Enter Platform →',
+      isExternal: true,
+      tag: '🔥 PRO',
     },
   ];
 
@@ -1997,6 +2013,149 @@ function ProCta({ user, isSubscriber }) {
               {user ? '📊 My Dashboard' : '🔐 Free Account'}
             </Link>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Adult Ministries Section ──────────────────────────────────────────────────
+function AdultMinistriesSection() {
+  const ADULT_RESOURCES = [
+    {
+      title: 'Rhema Notes',
+      desc: 'Transform your church sermons into AI-powered insights, personal growth plans, and deep theological study tools.',
+      to: 'https://rhemanotes.biblefunland.com/',
+      icon: '✍️',
+      color: '#8B5CF6',
+      tag: 'Sermon Scribe',
+      bg: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05))',
+    },
+    {
+      title: 'HomeSchool Hub',
+      desc: 'The complete Bible-based curriculum and resource center for families dedicated to faith-led education.',
+      to: 'https://homeschool.biblefunland.com/',
+      icon: '🏠',
+      color: '#10B981',
+      tag: 'Curriculum',
+      bg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))',
+    },
+    {
+      title: 'Vesper Ministry',
+      desc: 'The premier platform for ministry leaders and families to archive, manage, and share their spiritual legacy.',
+      to: 'https://vesper.biblefunland.com/',
+      icon: '⛪',
+      color: '#3B82F6',
+      tag: 'Ministry Hub',
+      bg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05))',
+    }
+  ];
+
+  return (
+    <section style={{ 
+      padding: '100px 24px', 
+      background: 'linear-gradient(180deg, #FAFBFF 0%, #F3F4F6 100%)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 60 }}>
+          <span style={{
+            display: 'inline-block', fontSize: '.75rem', fontWeight: 800,
+            letterSpacing: '2px', textTransform: 'uppercase',
+            color: '#4F46E5', background: 'rgba(79, 70, 229, 0.1)',
+            padding: '8px 20px', borderRadius: 100, marginBottom: 20,
+            border: '1.5px solid rgba(79, 70, 229, 0.2)',
+          }}>
+            For Adults & Ministry Leaders
+          </span>
+          <h2 style={{
+            fontFamily: "'Baloo 2', cursive",
+            fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
+            fontWeight: 800, color: '#1E1B4B', marginBottom: 20, lineHeight: 1.1,
+          }}>
+            Take Your Faith <span style={{ color: '#4F46E5' }}>To The Next Level</span> 🚀
+          </h2>
+          <p style={{
+            fontSize: '1.1rem', color: '#4B5563',
+            lineHeight: 1.7, maxWidth: 700, margin: '0 auto', fontWeight: 500,
+          }}>
+            Explore our ecosystem of advanced tools designed to empower parents, teachers, and ministry leaders in their spiritual journey.
+          </p>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 24,
+        }}>
+          {ADULT_RESOURCES.map((item, i) => (
+            <a key={i} href={item.to} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                style={{
+                  background: 'white',
+                  borderRadius: 24,
+                  padding: '40px 32px',
+                  height: '100%',
+                  border: '1px solid rgba(0,0,0,0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 20,
+                  transition: 'all 0.3s ease',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Decorative background circle */}
+                <div style={{
+                  position: 'absolute', top: -20, right: -20, width: 120, height: 120,
+                  background: item.bg, borderRadius: '50%', zIndex: 0
+                }} />
+
+                <div style={{
+                  width: 64, height: 64, borderRadius: 20,
+                  background: item.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '2rem', color: 'white',
+                  boxShadow: `0 10px 20px ${item.color}40`,
+                  position: 'relative', zIndex: 1
+                }}>
+                  {item.icon}
+                </div>
+
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <span style={{
+                    fontSize: '.65rem', fontWeight: 800, color: item.color,
+                    background: `${item.color}15`, padding: '4px 12px',
+                    borderRadius: 100, textTransform: 'uppercase', letterSpacing: 0.5
+                  }}>
+                    {item.tag}
+                  </span>
+                  <h3 style={{
+                    fontFamily: "'Baloo 2', cursive", fontSize: '1.6rem',
+                    fontWeight: 800, color: '#1E1B4B', marginTop: 12, marginBottom: 8
+                  }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ fontSize: '1rem', color: '#6B7280', lineHeight: 1.6, margin: 0 }}>
+                    {item.desc}
+                  </p>
+                </div>
+
+                <div style={{
+                  marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 8,
+                  color: item.color, fontWeight: 700, fontSize: '.95rem'
+                }}>
+                  Visit Website <span style={{ fontSize: '1.2rem' }}>→</span>
+                </div>
+              </motion.div>
+            </a>
+          ))}
         </div>
       </div>
     </section>

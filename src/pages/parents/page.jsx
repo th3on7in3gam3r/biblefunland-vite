@@ -503,6 +503,117 @@ export default function ParentsOverview() {
           </div>
         </div>
 
+        {/* ── Adult Ministries & Extended Resources ───────────────────────────── */}
+        <div style={{ marginTop: 64, marginBottom: 48 }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <span style={{
+              display: 'inline-block', fontSize: '.72rem', fontWeight: 800,
+              letterSpacing: '1px', textTransform: 'uppercase',
+              color: '#4F46E5', background: 'rgba(79, 70, 229, 0.1)',
+              padding: '6px 16px', borderRadius: 100, marginBottom: 12,
+              border: '1.5px solid rgba(79, 70, 229, 0.2)',
+            }}>
+              Ministry & Leadership
+            </span>
+            <h2 style={{
+              fontFamily: "'Baloo 2', cursive", fontSize: '2rem',
+              fontWeight: 800, color: 'var(--ink)', margin: 0
+            }}>
+              Adult Ministries & Resources
+            </h2>
+            <p style={{ color: 'var(--ink3)', fontSize: '.95rem', marginTop: 8 }}>
+              Advanced tools for spiritual growth and ministry leadership.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 24,
+          }}>
+            {[
+              {
+                title: 'Rhema Notes',
+                desc: 'Transform your church sermons into AI-powered insights and theological study tools.',
+                to: 'https://rhemanotes.biblefunland.com/',
+                icon: '✍️',
+                color: '#8B5CF6',
+                tag: 'Sermon Scribe'
+              },
+              {
+                title: 'HomeSchool Hub',
+                desc: 'Complete Bible-based curriculum and resource center for homeschool families.',
+                to: 'https://homeschool.biblefunland.com/',
+                icon: '🏠',
+                color: '#10B981',
+                tag: 'Education'
+              },
+              {
+                title: 'Vesper Ministry',
+                desc: 'The premier platform for ministry leaders to archive and share their spiritual legacy.',
+                to: 'https://vesper.biblefunland.com/',
+                icon: '⛪',
+                color: '#3B82F6',
+                tag: 'Ministry Hub'
+              }
+            ].map((item, i) => (
+              <a key={i} href={item.to} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'white', borderRadius: 24, padding: '32px',
+                  height: '100%', border: '1.5px solid var(--border)',
+                  display: 'flex', flexDirection: 'column', gap: 16,
+                  transition: 'all 0.3s ease', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-6px)';
+                  e.currentTarget.style.borderColor = item.color + '66';
+                  e.currentTarget.style.boxShadow = `0 20px 40px ${item.color}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = '';
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
+                }}
+                >
+                  <div style={{
+                    width: 52, height: 52, borderRadius: 14,
+                    background: item.color, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.6rem', color: 'white',
+                    boxShadow: `0 8px 16px ${item.color}40`
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div>
+                    <span style={{
+                      fontSize: '.62rem', fontWeight: 800, color: item.color,
+                      background: item.color + '15', padding: '3px 10px',
+                      borderRadius: 100, textTransform: 'uppercase'
+                    }}>
+                      {item.tag}
+                    </span>
+                    <h3 style={{
+                      fontFamily: "'Baloo 2', cursive", fontSize: '1.4rem',
+                      fontWeight: 800, color: 'var(--ink)', marginTop: 10, marginBottom: 6
+                    }}>
+                      {item.title}
+                    </h3>
+                    <p style={{ fontSize: '.85rem', color: 'var(--ink3)', lineHeight: 1.6, margin: 0 }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                  <div style={{
+                    marginTop: 'auto', color: item.color, fontWeight: 700,
+                    fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: 4
+                  }}>
+                    Visit Platform →
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* ── Scripture banner ────────────────────────────────────────────────── */}
         <div
           style={{

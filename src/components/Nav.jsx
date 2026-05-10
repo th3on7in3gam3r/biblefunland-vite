@@ -61,7 +61,8 @@ const PRIMARY_NAV = [
     dropdown: [
       { to: '/parents', label: '🏫 Parents Hub' },
       { to: 'https://homeschool.biblefunland.com', label: '🏠 HomeSchool Hub', isExternal: true },
-      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes (Scribe)', isExternal: true },
+      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
+      { to: 'https://vesper.biblefunland.com', label: '⛪ Vesper Ministry', isExternal: true },
       { to: '/grow/certification', label: '🎓 Kids Certification' },
     ],
   },
@@ -112,6 +113,7 @@ const DRAWER_SECTIONS = [
       { to: '/community/family', label: '👨‍👩‍👧 Family Groups' },
       { to: '/church-finder', label: '⛪ Church Finder' },
       { to: '/worship-radio', label: '🎵 Worship & Radio' },
+      { to: 'https://vesper.biblefunland.com', label: '⛪ Vesper Ministry' },
       { to: '/podcast', label: '🎙️ Podcast', kidsHide: true },
     ],
   },
