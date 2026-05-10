@@ -370,9 +370,31 @@ export default function Nav() {
             <span className={styles.drawerLabel}>{section.label}</span>
             {section.items
               .filter(item => !(kidsMode && item.kidsHide))
-              .map(item => (
-                <NavLink key={item.to} to={item.to} onClick={() => setDrawerOpen(false)}>{item.label}</NavLink>
-              ))}
+              .map(item => {
+                const isExternal = item.to.startsWith('http');
+                if (isExternal) {
+                  return (
+                    <a 
+                      key={item.to} 
+                      href={item.to} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  );
+                }
+                return (
+                  <NavLink 
+                    key={item.to} 
+                    to={item.to} 
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    {item.label}
+                  </NavLink>
+                );
+              })}
           </div>
         ))}
 
