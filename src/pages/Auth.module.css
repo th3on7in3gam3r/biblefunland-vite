@@ -626,13 +626,15 @@
     max-height: none;
   }
 
+  /* Auth form first on mobile — no scrolling to sign in */
+  .rightPanel {
+    order: -1;
+    padding: 36px;
+  }
+
   .leftPanel {
     padding: 36px;
     min-height: auto;
-  }
-
-  .rightPanel {
-    padding: 36px;
   }
 
   .brandTitle {
@@ -649,21 +651,39 @@
     border-radius: 20px;
   }
 
-  .leftPanel,
   .rightPanel {
-    padding: 24px;
+    padding: 24px 20px;
+  }
+
+  .leftPanel {
+    padding: 24px 20px;
+  }
+
+  /* Hide heavy branding on small screens — form is the priority */
+  .features {
+    display: none;
+  }
+
+  .stats {
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .testimonial {
+    display: none;
+  }
+
+  .brandTitle {
+    font-size: 24px;
+  }
+
+  .brandSubtitle {
+    font-size: 13px;
   }
 
   .logoText {
     font-size: 22px;
-  }
-
-  .brandTitle {
-    font-size: 28px;
-  }
-
-  .brandSubtitle {
-    font-size: 14px;
   }
 
   .authTitle {
@@ -676,15 +696,6 @@
   }
 
   .modeIcon {
-    display: none;
-  }
-
-  .stats {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .testimonial {
     display: none;
   }
 }
