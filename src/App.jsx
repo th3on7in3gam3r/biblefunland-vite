@@ -274,7 +274,7 @@ export default function App() {
                                                 rel="noopener noreferrer"
                                                 className="studio-banner"
                                               >
-                                                🎬 BibleFunLand Studios — Create faith-based content with AI tools →
+                                                ✨ From the Creator of BibleFunLand — Explore BibleFunLand Studios →
                                               </a>
                                               <Nav />
                                               <OnboardingModal />
