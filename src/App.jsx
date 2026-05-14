@@ -268,6 +268,14 @@ export default function App() {
                                           <AdsProvider>
                                             <div className="app-shell">
                                               <OfflineIndicator />
+                                              <a
+                                                href="https://biblefunlandstudios.com"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="studio-banner"
+                                              >
+                                                🎬 BibleFunLand Studios — Create faith-based content with AI tools →
+                                              </a>
                                               <Nav />
                                               <OnboardingModal />
                                               <PwaInstallBanner />
