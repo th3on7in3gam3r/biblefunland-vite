@@ -872,6 +872,11 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════
+          VERSE VERSE CTA
+      ══════════════════════════════════════════ */}
+      <VerseVerseCTA />
+
+      {/* ══════════════════════════════════════════
           HOMESCHOOL HUB CTA
       ══════════════════════════════════════════ */}
       <HomeSchoolHubCTA />
@@ -1022,6 +1027,17 @@ function QuickStart({ todayVerse }) {
       color: '#F59E0B',
       bg: '#FFFBEB',
       label: 'Pray Now →',
+    },
+    {
+      icon: '†',
+      title: 'Verse Verse',
+      desc: 'Scroll scripture by Strength, Comfort & Love — AI devotion, prayers, meditate & share every verse.',
+      to: 'https://verse-verse.biblefunland.com',
+      color: '#14B8A6',
+      bg: 'linear-gradient(135deg, #0F172A 0%, #134E4A 50%, #312E81 100%)',
+      label: 'Open Verse Verse →',
+      isExternal: true,
+      tag: '✨ NEW',
     },
     {
       icon: '✍️',
@@ -2023,6 +2039,15 @@ function ProCta({ user, isSubscriber }) {
 function AdultMinistriesSection() {
   const ADULT_RESOURCES = [
     {
+      title: 'Verse Verse',
+      desc: 'A cinematic, scrollable scripture feed — daily verses, AI Faith Companion, prayer wall & guided meditation.',
+      to: 'https://verse-verse.biblefunland.com/',
+      icon: '†',
+      color: '#14B8A6',
+      tag: 'NEW',
+      bg: 'linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(139, 92, 246, 0.08))',
+    },
+    {
       title: 'Rhema Notes',
       desc: 'Transform your church sermons into AI-powered insights, personal growth plans, and deep theological study tools.',
       to: 'https://rhemanotes.biblefunland.com/',
@@ -2157,6 +2182,133 @@ function AdultMinistriesSection() {
             </a>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Verse Verse CTA ───────────────────────────────────────────────────────────
+const VERSE_VERSE_URL = 'https://verse-verse.biblefunland.com';
+
+function VerseVerseCTA() {
+  return (
+    <section style={{ padding: '100px 24px', background: '#FAFBFF', position: 'relative', overflow: 'hidden' }}>
+      <div style={{
+        position: 'absolute', top: '20%', right: '-8%', width: '420px', height: '420px',
+        background: 'radial-gradient(circle, rgba(20,184,166,0.12) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: '10%', left: '-6%', width: '360px', height: '360px',
+        background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+      }} />
+
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          style={{
+            background: 'linear-gradient(135deg, #0a0a1a 0%, #134E4A 45%, #312E81 100%)',
+            borderRadius: 32,
+            padding: '72px 40px',
+            textAlign: 'center',
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 25px 60px rgba(15,23,42,0.35), 0 0 0 1px rgba(255,255,255,0.06) inset',
+          }}
+        >
+          <motion.div
+            animate={{ y: [0, -16, 0], opacity: [0.15, 0.25, 0.15] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ position: 'absolute', top: 32, left: '8%', fontSize: '2.5rem', pointerEvents: 'none' }}
+          >
+            📖
+          </motion.div>
+          <motion.div
+            animate={{ y: [0, 14, 0], opacity: [0.12, 0.22, 0.12] }}
+            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+            style={{ position: 'absolute', bottom: 36, right: '8%', fontSize: '2.5rem', pointerEvents: 'none' }}
+          >
+            🙏
+          </motion.div>
+
+          <div style={{ maxWidth: 720, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            <span style={{
+              display: 'inline-block', fontSize: '.75rem', fontWeight: 800,
+              letterSpacing: '2px', textTransform: 'uppercase',
+              color: '#5EEAD4', background: 'rgba(20,184,166,0.15)',
+              padding: '8px 20px', borderRadius: 100, marginBottom: 24,
+              border: '1.5px solid rgba(94,234,212,0.25)',
+            }}>
+              New from BibleFunLand
+            </span>
+
+            <p style={{
+              fontSize: '.7rem', fontWeight: 800, letterSpacing: '0.35em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: 12,
+            }}>
+              † Verse Verse
+            </p>
+
+            <h2 style={{
+              fontFamily: "'Baloo 2', cursive",
+              fontSize: 'clamp(2rem, 5vw, 3.2rem)',
+              fontWeight: 800, color: 'white', marginBottom: 20, lineHeight: 1.15,
+            }}>
+              Scripture That <span style={{ color: '#5EEAD4' }}>Meets You</span> Where You Are
+            </h2>
+
+            <p style={{
+              fontSize: '1.1rem', color: 'rgba(255,255,255,0.82)',
+              lineHeight: 1.7, marginBottom: 36, fontWeight: 500,
+            }}>
+              Swipe through Strength, Comfort & Love — save verses, join the prayer wall,
+              meditate in cinematic scenes, and let the AI Faith Companion guide your heart.
+            </p>
+
+            <div style={{
+              display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
+              marginBottom: 40,
+            }}>
+              {['Scrollable Verses', 'AI Faith Companion', 'Prayer & Meditate'].map((f, i) => (
+                <span
+                  key={i}
+                  style={{
+                    fontSize: '.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)',
+                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+                    padding: '8px 16px', borderRadius: 100, backdropFilter: 'blur(8px)',
+                  }}
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
+
+            <motion.a
+              href={VERSE_VERSE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                padding: '18px 36px', borderRadius: 18,
+                background: 'linear-gradient(135deg, #2DD4BF, #14B8A6)',
+                color: '#042F2E', fontWeight: 800, fontSize: '1.05rem',
+                textDecoration: 'none', boxShadow: '0 15px 35px rgba(20,184,166,0.35)',
+              }}
+            >
+              † Open Verse Verse — Free
+            </motion.a>
+            <p style={{ marginTop: 20, fontSize: '.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>
+              NIV · ESV · KJV · Works offline · No app store required
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

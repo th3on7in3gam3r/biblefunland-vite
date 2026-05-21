@@ -60,6 +60,7 @@ const PRIMARY_NAV = [
     label: '🏫 Parents',
     dropdown: [
       { to: '/parents', label: '🏫 Parents Hub' },
+      { to: 'https://verse-verse.biblefunland.com', label: '† Verse Verse', isExternal: true },
       { to: 'https://homeschool.biblefunland.com', label: '🏠 HomeSchool Hub', isExternal: true },
       { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
       { to: 'https://vesper.biblefunland.com', label: '⛪ Vesper Ministry', isExternal: true },
@@ -101,6 +102,7 @@ const DRAWER_SECTIONS = [
       { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
       { to: '/ai/miracle-art', label: '🖼️ Miracle Art' },
       { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes' },
+      { to: 'https://verse-verse.biblefunland.com', label: '† Verse Verse' },
     ],
   },
   {
