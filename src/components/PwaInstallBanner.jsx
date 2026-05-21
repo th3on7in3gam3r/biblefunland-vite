@@ -74,11 +74,13 @@ export default function PwaInstallBanner() {
   }
 
   return (
-    <div className={styles.banner}>
-      {/* Background gradient */}
-      <div className={styles.bgGradient} />
+    <div
+      className={styles.banner}
+      role="region"
+      aria-label="Install BibleFunLand app"
+    >
+      <div className={styles.bgGradient} aria-hidden="true" />
 
-      {/* Content */}
       <div className={styles.content}>
         <div className={styles.icon}>📖</div>
         <div className={styles.text}>

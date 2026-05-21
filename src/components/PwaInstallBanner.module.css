@@ -1,9 +1,11 @@
 .banner {
-  position: fixed;
+  position: sticky;
   top: 60px;
-  left: 0;
-  right: 0;
-  z-index: 190;
+  z-index: 199;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 72px;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
   border-bottom: 1.5px solid rgba(59, 130, 246, 0.15);
   padding: 14px 24px;
@@ -19,10 +21,18 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
+[data-theme='dark'] .banner {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border-bottom-color: rgba(59, 130, 246, 0.25);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(59, 130, 246, 0.15);
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translateY(-12px);
   }
   to {
     opacity: 1;
@@ -47,6 +57,7 @@
   align-items: center;
   gap: 14px;
   flex: 1;
+  min-width: 0;
   position: relative;
   z-index: 1;
 }
@@ -68,6 +79,7 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 }
 
 .title {
@@ -76,6 +88,7 @@
   color: var(--ink);
   margin: 0;
   letter-spacing: -0.3px;
+  line-height: 1.25;
 }
 
 .subtitle {
@@ -83,6 +96,7 @@
   color: var(--ink2);
   font-weight: 500;
   margin: 0;
+  line-height: 1.3;
 }
 
 .actions {
@@ -134,7 +148,7 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--ink2);
   border: 1.5px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
@@ -144,11 +158,19 @@
   font-weight: 600;
 }
 
+[data-theme='dark'] .closeBtn {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .closeBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.75);
   color: var(--ink);
   border-color: rgba(0, 0, 0, 0.08);
   transform: scale(1.05);
+}
+
+[data-theme='dark'] .closeBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .closeBtn:active {
@@ -188,8 +210,31 @@
   }
 }
 
+@media (max-width: 600px) {
+  .banner {
+    top: 56px;
+    min-height: 64px;
+    padding: 12px 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .content {
+    flex: 1 1 auto;
+    min-width: min(100%, 200px);
+  }
+
+  .actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+}
+
 @media (max-width: 480px) {
   .banner {
+    top: 56px;
+    min-height: auto;
     padding: 10px 12px;
     gap: 10px;
   }
