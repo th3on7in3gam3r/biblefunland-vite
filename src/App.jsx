@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import PwaInstallBanner from './components/PwaInstallBanner';
 import EmailPopup from './components/EmailPopup';
 import CookieConsent from './components/CookieConsent';
+import BackToTop from './components/BackToTop';
 import ErrorBoundary from './components/ErrorBoundary';
 import OnboardingModal from './components/OnboardingModal';
 import OfflineIndicator from './components/OfflineIndicator';
@@ -281,6 +282,7 @@ export default function App() {
                                               <PwaInstallBanner />
                                               <EmailPopup />
                                               <CookieConsent onConsent={() => {}} />
+                                              <BackToTop />
                                               <main className="main-content">
                                                 <Routes>
                                                   <Route path="/" element={<Home />} />
