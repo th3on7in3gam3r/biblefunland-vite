@@ -1,9 +1,8 @@
 /**
  * BibleFunLand Podcast — episodes & host info
  *
- * audioUrl options:
- *   - Host on this site:  '/podcast/episode-1.mp3'  (drop files in public/podcast/)
- *   - External CDN:       'https://your-cdn.com/episode.mp3'
+ * Audio files live in public/podcast/ and are served by Vercel at:
+ *   https://www.biblefunland.com/podcast/your-file.mp3
  */
 
 export const PODCAST_HOST = {
@@ -45,7 +44,7 @@ export const EPISODES = [
     season: 1,
     episode: 2,
     tags: ["Noah's Ark", 'Animals', 'Obedience', "God's Provision"],
-    audioUrl: 'https://nabthatslot.com/podcast/podcast-2-inside-noah-ark.mp3',
+    audioUrl: '/podcast/podcast-2-inside-noah-ark.mp3',
     status: 'released',
     featured: true,
   },
@@ -59,7 +58,7 @@ export const EPISODES = [
     season: 1,
     episode: 1,
     tags: ['Genesis', 'Noah', 'Faith', 'Family'],
-    audioUrl: 'https://nabthatslot.com/podcast/podcast-1-noah.mp3',
+    audioUrl: '/podcast/podcast-1-noah.mp3',
     status: 'released',
     featured: false,
   },
