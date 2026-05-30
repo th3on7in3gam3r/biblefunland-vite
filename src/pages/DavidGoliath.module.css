@@ -1,0 +1,315 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Poppins', sans-serif;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 24px 44px;
+  text-align: center;
+  background: linear-gradient(135deg, #0f0a1a 0%, #1e1b4b 45%, #312e81 100%);
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 20%, rgba(251, 191, 36, 0.18), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 80% 30%, rgba(236, 72, 153, 0.14), transparent 50%);
+  pointer-events: none;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  color: #fcd34d;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.title {
+  position: relative;
+  z-index: 1;
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  margin: 0 0 10px;
+  background: linear-gradient(90deg, #fcd34d, #fb923c, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.92rem;
+  font-weight: 500;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.shell {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.menuHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.menuIcon {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 8px 24px rgba(249, 115, 22, 0.25));
+}
+
+.menuTitle {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.highScore {
+  font-size: 0.84rem;
+  color: var(--ink3);
+  font-weight: 700;
+}
+
+.levelGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.levelCard {
+  position: relative;
+  border-radius: 18px;
+  padding: 18px 10px 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 1.5px solid var(--level-color, var(--border));
+  background: linear-gradient(180deg, var(--surface) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.levelCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  border-color: var(--level-color);
+}
+
+.levelStones {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.levelLabel {
+  font-family: 'Baloo 2', cursive;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--level-color);
+}
+
+.levelNum {
+  font-size: 0.66rem;
+  color: var(--ink3);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.factCard {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.05));
+  border: 1.5px solid rgba(139, 92, 246, 0.18);
+  border-radius: 16px;
+  padding: 16px 18px;
+  font-size: 0.84rem;
+  color: var(--ink2);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.playBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.playMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.levelPill {
+  font-family: 'Baloo 2', cursive;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.statPill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.gameFrame {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid rgba(251, 191, 36, 0.22);
+  box-shadow:
+    0 28px 70px rgba(15, 23, 42, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 48px rgba(251, 146, 60, 0.12);
+  background: #0a1628;
+  aspect-ratio: 800 / 480;
+  max-width: 100%;
+}
+
+.gameMount {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.gameMount canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.hint {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--ink3);
+}
+
+.resultCard {
+  text-align: center;
+  padding: 44px 20px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--surface) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--sh-lg);
+}
+
+.resultEmoji {
+  font-size: 4.5rem;
+  margin-bottom: 14px;
+}
+
+.resultTitle {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.resultScore {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #f97316, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.resultMeta {
+  font-size: 0.84rem;
+  color: var(--ink3);
+  font-weight: 600;
+  margin-bottom: 22px;
+}
+
+.verseBox {
+  max-width: 520px;
+  margin: 0 auto 24px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 0.84rem;
+  color: var(--ink2);
+  font-style: italic;
+  line-height: 1.65;
+}
+
+.verseWin {
+  background: var(--green-bg);
+  border: 1.5px solid var(--green);
+}
+
+.verseLose {
+  background: var(--orange-bg);
+  border: 1.5px solid var(--orange);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.bounce {
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@media (max-width: 768px) {
+  .levelGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .levelGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero {
+    padding: 44px 16px 32px;
+  }
+}
