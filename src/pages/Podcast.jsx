@@ -1,39 +1,31 @@
 import { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { EPISODES, PODCAST_HOST, PODCAST_SHOW } from '../data/podcasts';
+import { EPISODES, PODCAST_HOSTS, PODCAST_SHOW } from '../data/podcasts';
 import styles from './Podcast.module.css';
 
-function HostCard() {
-  const initials = PODCAST_HOST.name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-
+function HostsSection() {
   return (
-    <section className={styles.hostCard} aria-label="Podcast host">
-      <div className={styles.hostAvatarWrap}>
-        {PODCAST_HOST.avatarUrl ? (
-          <img
-            src={PODCAST_HOST.avatarUrl}
-            alt={PODCAST_HOST.name}
-            className={styles.hostAvatar}
-          />
-        ) : (
-          <div className={styles.hostAvatarFallback} aria-hidden="true">
-            {initials}
-          </div>
-        )}
-        <span className={styles.hostMicBadge} aria-hidden="true">
+    <section className={styles.hostsSection} aria-label="Podcast hosts">
+      <div className={styles.hostsBannerWrap}>
+        <img
+          src={PODCAST_SHOW.hostsBannerUrl}
+          alt={`${PODCAST_SHOW.title} podcast hosts in studio`}
+          className={styles.hostsBanner}
+          width={1200}
+          height={675}
+          loading="lazy"
+          decoding="async"
+        />
+        <div className={styles.hostsBannerGlow} aria-hidden="true" />
+        <span className={styles.hostsMicBadge} aria-hidden="true">
           🎙️
         </span>
       </div>
-      <div className={styles.hostBody}>
-        <p className={styles.hostLabel}>Your Host</p>
-        <h2 className={styles.hostName}>{PODCAST_HOST.name}</h2>
-        <p className={styles.hostTitle}>{PODCAST_HOST.title}</p>
-        <p className={styles.hostBio}>{PODCAST_HOST.bio}</p>
+      <div className={styles.hostsBody}>
+        <p className={styles.hostLabel}>{PODCAST_HOSTS.headline}</p>
+        <h2 className={styles.hostName}>{PODCAST_HOSTS.names}</h2>
+        <p className={styles.hostTitle}>{PODCAST_HOSTS.title}</p>
+        <p className={styles.hostBio}>{PODCAST_HOSTS.bio}</p>
       </div>
     </section>
   );
@@ -229,6 +221,7 @@ export default function Podcast() {
         <div className={styles.heroBlob} />
         <div className={styles.heroIcon}>🎙️</div>
         <h1 className={styles.title}>{PODCAST_SHOW.title}</h1>
+        <p className={styles.showSubtitle}>{PODCAST_SHOW.subtitle}</p>
         <p className={styles.subtitle}>
           {PODCAST_SHOW.tagline} {PODCAST_SHOW.schedule}
         </p>
@@ -242,7 +235,7 @@ export default function Podcast() {
       </div>
 
       <div className={styles.content}>
-        <HostCard />
+        <HostsSection />
 
         <nav className={styles.tabs}>
           {[

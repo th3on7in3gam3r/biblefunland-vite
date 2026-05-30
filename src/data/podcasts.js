@@ -5,18 +5,20 @@
  *   https://www.biblefunland.com/podcast/your-file.mp3
  */
 
-export const PODCAST_HOST = {
-  name: 'Jerless',
-  title: 'Host & Creator of BibleFunLand',
-  bio: 'Storyteller, developer, and founder of BibleFunLand — bringing Scripture to life for kids, families, and teachers through faith-filled adventures.',
-  // Add a photo later: avatarUrl: '/podcast/jerless-host.jpg',
-  avatarUrl: null,
+export const PODCAST_SHOW = {
+  title: 'Faith & Adventure',
+  subtitle: 'Bible Stories for Kids',
+  tagline:
+    'Warm, faith-filled Bible stories for kids and families — brought to you by BibleFunLand.',
+  schedule: 'New episodes every Monday.',
+  hostsBannerUrl: '/hosts-duo.jpg',
 };
 
-export const PODCAST_SHOW = {
-  title: 'BibleFunLand Podcast',
-  tagline: 'Faith adventures and bedtime stories for families, kids, and teachers.',
-  schedule: 'New episodes every Monday.',
+export const PODCAST_HOSTS = {
+  headline: 'Meet Your Hosts',
+  names: 'Jerless & co-host',
+  title: 'Faith & Adventure · BibleFunLand Podcast',
+  bio: 'From a cozy studio with microphones and open Bibles, your hosts bring Genesis to life with patience, wonder, and stories kids remember — for car rides, bedtime, and Sunday school.',
 };
 
 export const EPISODES = [
