@@ -16,9 +16,19 @@ export const PODCAST_SHOW = {
 
 export const PODCAST_HOSTS = {
   headline: 'Meet Your Hosts',
-  names: 'Jerless & co-host',
+  names: 'Jerless & Sarah Mitchell',
+  hosts: [
+    {
+      name: 'Jerless',
+      role: 'Host · Creator of BibleFunLand',
+    },
+    {
+      name: 'Sarah Mitchell',
+      role: 'Co-Host · Faith & Adventure',
+    },
+  ],
   title: 'Faith & Adventure · BibleFunLand Podcast',
-  bio: 'From a cozy studio with microphones and open Bibles, your hosts bring Genesis to life with patience, wonder, and stories kids remember — for car rides, bedtime, and Sunday school.',
+  bio: 'Jerless and Sarah Mitchell record from their studio with open Bibles and warm microphones — bringing Genesis to life with patience, wonder, and stories kids remember for car rides, bedtime, and Sunday school.',
 };
 
 export const EPISODES = [

@@ -9,7 +9,7 @@ function HostsSection() {
       <div className={styles.hostsBannerWrap}>
         <img
           src={PODCAST_SHOW.hostsBannerUrl}
-          alt={`${PODCAST_SHOW.title} podcast hosts in studio`}
+          alt={`${PODCAST_HOSTS.names} — ${PODCAST_SHOW.title} podcast hosts`}
           className={styles.hostsBanner}
           width={1200}
           height={675}
@@ -24,6 +24,16 @@ function HostsSection() {
       <div className={styles.hostsBody}>
         <p className={styles.hostLabel}>{PODCAST_HOSTS.headline}</p>
         <h2 className={styles.hostName}>{PODCAST_HOSTS.names}</h2>
+        {PODCAST_HOSTS.hosts?.length > 0 && (
+          <ul className={styles.hostList}>
+            {PODCAST_HOSTS.hosts.map((host) => (
+              <li key={host.name}>
+                <span className={styles.hostListName}>{host.name}</span>
+                <span className={styles.hostListRole}>{host.role}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <p className={styles.hostTitle}>{PODCAST_HOSTS.title}</p>
         <p className={styles.hostBio}>{PODCAST_HOSTS.bio}</p>
       </div>

@@ -168,8 +168,36 @@
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--ink);
-  margin: 0 0 4px;
+  margin: 0 0 12px;
   line-height: 1.2;
+}
+
+.hostList {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hostList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+}
+
+.hostListName {
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.hostListRole {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink3);
 }
 
 .hostTitle {
