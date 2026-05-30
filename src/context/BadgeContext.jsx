@@ -287,35 +287,60 @@ export const RARITY_COLORS = {
 
 const BadgeContext = createContext(null);
 
+function badgeStorageKey(userId) {
+  return userId ? `bfl_badges_${userId}` : 'bfl_badges_guest';
+}
+
+function readBadgeCache(userId) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(badgeStorageKey(userId)) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
+function writeBadgeCache(userId, ids) {
+  localStorage.setItem(badgeStorageKey(userId), JSON.stringify([...ids]));
+}
+
 export function BadgeProvider({ children }) {
   const { user } = useAuth();
-  const [earned, setEarned] = useState(() => {
-    try {
-      return new Set(JSON.parse(localStorage.getItem('bfl_badges') || '[]'));
-    } catch {
-      return new Set();
-    }
-  });
+  const [earned, setEarned] = useState(() => readBadgeCache(null));
   const [toasts, setToasts] = useState([]);
 
-  // Load from Turso when user logs in
+  // Load per-account badges — reset immediately on account switch
   useEffect(() => {
-    if (!user) return;
+    const userId = user?.id ?? null;
+    let cancelled = false;
+
+    setEarned(new Set());
+
+    if (!userId) {
+      setEarned(readBadgeCache(null));
+      return undefined;
+    }
+
     requestQueue
-      .execute(`badges:${user.id}`, () => db.getBadges(user.id), {
+      .execute(`badges:${userId}`, () => db.getBadges(userId), {
         priority: 4,
         cacheable: true,
         ttl: 10 * 60 * 1000,
       })
       .then(({ data }) => {
-        if (data?.length) {
-          const ids = new Set(data.map((b) => b.badge_id));
-          setEarned(ids);
-          localStorage.setItem('bfl_badges', JSON.stringify([...ids]));
-        }
+        if (cancelled) return;
+        const ids = new Set((data ?? []).map((b) => b.badge_id));
+        setEarned(ids);
+        writeBadgeCache(userId, ids);
       })
-      .catch(() => {});
-  }, [user]);
+      .catch(() => {
+        if (cancelled) return;
+        setEarned(readBadgeCache(userId));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const awardBadge = useCallback(
     (badgeId) => {
@@ -325,7 +350,7 @@ export function BadgeProvider({ children }) {
       const badge = BADGE_DEFS[badgeId];
       const newEarned = new Set([...earned, badgeId]);
       setEarned(newEarned);
-      localStorage.setItem('bfl_badges', JSON.stringify([...newEarned]));
+      writeBadgeCache(user?.id ?? null, newEarned);
 
       // Show toast
       const toastId = Date.now();
