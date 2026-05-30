@@ -101,6 +101,52 @@ function getHpString(hp) {
   return '❤️'.repeat(hp) + '🖤'.repeat(GAME_CONFIG.goliathHp - hp);
 }
 
+/** Map screen clicks to game coordinates (fixes stretched canvas mis-aim). */
+function worldPointer(scene, pointer) {
+  const sm = scene.scale;
+  if (sm?.transformX && pointer.event) {
+    return {
+      x: sm.transformX(pointer.event.pageX ?? pointer.x),
+      y: sm.transformY(pointer.event.pageY ?? pointer.y),
+    };
+  }
+  return { x: pointer.x, y: pointer.y };
+}
+
+/** Pull back from David (left/down) → stone flies toward Goliath (right/up). */
+function computeThrowVelocity(pullX, pullY, throwOrigin, targetX, targetY) {
+  const pullLen = Math.hypot(pullX, pullY);
+  if (pullLen < 20) {
+    const angle = Math.atan2(targetY - throwOrigin.y, targetX - throwOrigin.x);
+    const speed = GAME_CONFIG.stoneSpeed * 0.92;
+    return { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle };
+  }
+  const power = Phaser.Math.Clamp(pullLen / 100, 0.45, 1);
+  let angle = Math.atan2(pullY, pullX);
+  angle = Phaser.Math.Clamp(angle, -Math.PI + 0.2, -0.1);
+  const speed = GAME_CONFIG.stoneSpeed * power;
+  return {
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    angle,
+  };
+}
+
+function drawTrajectoryPreview(scene, aimLine, aimGlow, throwOrigin, vx, vy) {
+  aimLine.clear();
+  aimGlow.clear();
+  for (let t = 0; t <= 0.9; t += 0.035) {
+    const px = throwOrigin.x + vx * t;
+    const py = throwOrigin.y + vy * t + 0.5 * GAME_CONFIG.gravity * t * t;
+    if (px < 0 || px > GAME_CONFIG.width || py > GAME_CONFIG.height - 58) break;
+    const alpha = 0.75 - t * 0.7;
+    aimGlow.fillStyle(0xfbbf24, alpha * 0.35);
+    aimGlow.fillCircle(px, py, 5);
+    aimLine.fillStyle(0xffffff, alpha);
+    aimLine.fillCircle(px, py, 2.5);
+  }
+}
+
 function buildSceneCallbacks(refs) {
   return {
     onShotsChange: (n) => refs.setShotsLeft(n),
@@ -272,6 +318,25 @@ function createGameInstance(mountEl, lvl, callbacks) {
         scene.aimLine = scene.add.graphics();
         scene.aimGlow = scene.add.graphics();
 
+        scene.helpText = scene.add
+          .text(GAME_CONFIG.width / 2, GAME_CONFIG.height - 88, 'Drag ↙ away from David, then release to sling', {
+            fontSize: '14px',
+            fill: '#FDE68A',
+            fontFamily: 'Poppins, sans-serif',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(15,23,42,0.65)',
+            padding: { x: 12, y: 6 },
+          })
+          .setOrigin(0.5)
+          .setDepth(20);
+        scene.time.delayedCall(8000, () => {
+          scene.tweens.add({ targets: scene.helpText, alpha: 0, duration: 600 });
+        });
+
+        const onResize = () => scene.scale.refresh();
+        window.addEventListener('resize', onResize);
+        scene.events.once('shutdown', () => window.removeEventListener('resize', onResize));
+
         stonesGroup = scene.physics.add.group();
 
         const finishRound = (won) => {
@@ -385,60 +450,42 @@ function createGameInstance(mountEl, lvl, callbacks) {
         });
 
         const throwOrigin = { x: GAME_CONFIG.davidX + 8, y: GAME_CONFIG.davidY - 44 };
-
-        scene.input.on('pointermove', (ptr) => {
-          if (!canThrow || gameOver || shotsLocal <= 0) return;
-
-          const dx = ptr.x - throwOrigin.x;
-          const dy = ptr.y - throwOrigin.y;
-          const angle = Math.atan2(dy, dx);
-          drawDavid(davidGfx, GAME_CONFIG.davidX, GAME_CONFIG.davidY, angle);
-
-          scene.aimLine.clear();
-          scene.aimGlow.clear();
-
-          const vx = Math.cos(angle) * GAME_CONFIG.stoneSpeed;
-          const vy = Math.sin(angle) * GAME_CONFIG.stoneSpeed;
-
-          for (let t = 0; t <= 0.85; t += 0.035) {
-            const px = throwOrigin.x + vx * t;
-            const py = throwOrigin.y + vy * t + 0.5 * GAME_CONFIG.gravity * t * t;
-            if (px < 0 || px > GAME_CONFIG.width || py > GAME_CONFIG.height - 58) break;
-            const alpha = 0.75 - t * 0.7;
-            scene.aimGlow.fillStyle(0xfbbf24, alpha * 0.35);
-            scene.aimGlow.fillCircle(px, py, 5);
-            scene.aimLine.fillStyle(0xffffff, alpha);
-            scene.aimLine.fillCircle(px, py, 2.5);
-          }
+        const goliathTarget = () => ({
+          x: goliathContainer.x,
+          y: goliathContainer.y - 52,
         });
 
-        scene.input.on('pointerdown', (ptr) => {
-          if (!canThrow || gameOver || shotsLocal <= 0) return;
+        let isAiming = false;
 
-          const dx = ptr.x - throwOrigin.x;
-          const dy = ptr.y - throwOrigin.y;
-          let angle = Math.atan2(dy, dx);
-          angle = Phaser.Math.Clamp(angle, -Math.PI + 0.15, -0.05);
+        const launchStone = (pullX, pullY) => {
+          const target = goliathTarget();
+          const { vx, vy, angle } = computeThrowVelocity(
+            pullX,
+            pullY,
+            throwOrigin,
+            target.x,
+            target.y
+          );
 
           canThrow = false;
+          isAiming = false;
           scene.aimLine.clear();
           scene.aimGlow.clear();
+          if (scene.helpText?.alpha > 0) scene.helpText.setAlpha(0);
 
           const stone = scene.add.circle(throwOrigin.x, throwOrigin.y, cfg.stoneSize, 0x9ca3af);
           stone.setStrokeStyle(2, 0xe5e7eb, 0.9);
           scene.physics.add.existing(stone);
           stone.body.setCircle(cfg.stoneSize);
           stone.body.setBounce(0.15);
-          stone.body.setVelocity(
-            Math.cos(angle) * GAME_CONFIG.stoneSpeed,
-            Math.sin(angle) * GAME_CONFIG.stoneSpeed
-          );
+          stone.body.setVelocity(vx, vy);
           stonesGroup.add(stone);
           stonesThrown++;
           shotsLocal--;
           callbacks.onShotsChange(shotsLocal);
           scene.shotsText.setText(`🪨 ×${shotsLocal}`);
 
+          drawDavid(davidGfx, GAME_CONFIG.davidX, GAME_CONFIG.davidY, angle);
           scene.tweens.add({
             targets: davidGfx,
             x: -4,
@@ -455,6 +502,39 @@ function createGameInstance(mountEl, lvl, callbacks) {
               finishRound(false);
             }
           });
+        };
+
+        scene.input.on('pointerdown', (ptr) => {
+          if (!canThrow || gameOver || shotsLocal <= 0) return;
+          isAiming = true;
+        });
+
+        scene.input.on('pointermove', (ptr) => {
+          if (!isAiming || !canThrow || gameOver || shotsLocal <= 0) return;
+
+          const p = worldPointer(scene, ptr);
+          const pullX = throwOrigin.x - p.x;
+          const pullY = throwOrigin.y - p.y;
+          const target = goliathTarget();
+          const { vx, vy, angle } = computeThrowVelocity(
+            pullX,
+            pullY,
+            throwOrigin,
+            target.x,
+            target.y
+          );
+
+          drawDavid(davidGfx, GAME_CONFIG.davidX, GAME_CONFIG.davidY, angle);
+          drawTrajectoryPreview(scene, scene.aimLine, scene.aimGlow, throwOrigin, vx, vy);
+        });
+
+        scene.input.on('pointerup', (ptr) => {
+          if (!isAiming || !canThrow || gameOver || shotsLocal <= 0) return;
+
+          const p = worldPointer(scene, ptr);
+          const pullX = throwOrigin.x - p.x;
+          const pullY = throwOrigin.y - p.y;
+          launchStone(pullX, pullY);
         });
       },
       update() {
@@ -566,8 +646,8 @@ export default function DavidGoliath() {
         <div className={styles.heroBadge}>Arcade · 1 Samuel 17</div>
         <h1 className={styles.title}>David vs Goliath</h1>
         <p className={styles.subtitle}>
-          Aim with your mouse or finger, pull back, and release faith. Five stones. One giant. Glory
-          to God.
+          Pull the sling back from David and release toward Goliath. Five stones. One giant. Glory to
+          God.
         </p>
       </header>
 
@@ -625,7 +705,10 @@ export default function DavidGoliath() {
               <div ref={mountRef} className={styles.gameMount} />
             </div>
 
-            <p className={styles.hint}>Move to aim · Click or tap to sling · Hit Goliath 5 times to win</p>
+            <p className={styles.hint}>
+              Press on David, drag down-left ↙ to pull the sling, release to throw · Hit Goliath 5
+              times · 5 stones
+            </p>
             <div className={styles.factCard} style={{ marginTop: 12 }}>
               {fact}
             </div>

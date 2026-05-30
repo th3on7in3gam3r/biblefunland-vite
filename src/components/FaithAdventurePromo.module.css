@@ -1,0 +1,101 @@
+.promo {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) 1fr;
+  gap: 24px;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1.5px solid rgba(251, 191, 36, 0.35);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.2),
+    0 0 40px rgba(249, 115, 22, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.promo:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 28px 60px rgba(15, 23, 42, 0.28),
+    0 0 48px rgba(251, 191, 36, 0.15);
+}
+
+.media {
+  position: relative;
+  line-height: 0;
+  min-height: 140px;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  object-fit: cover;
+  object-position: center 35%;
+  display: block;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(249, 115, 22, 0.9);
+  color: white;
+}
+
+.body {
+  padding: 20px 24px 20px 0;
+  color: white;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fcd34d;
+}
+
+.title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  font-weight: 800;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.desc {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fde68a;
+}
+
+@media (max-width: 640px) {
+  .promo {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .body {
+    padding: 18px 20px 22px;
+  }
+}

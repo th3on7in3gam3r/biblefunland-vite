@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import usePageMetadata from '../../hooks/usePageMetadata';
 import { useAuth } from '../../context/AuthContext';
 import Tooltip from '../../components/Tooltip';
+import FaithAdventurePromo from '../../components/FaithAdventurePromo';
 
 const FEATURES = [
   {
@@ -296,6 +297,10 @@ export default function ParentsOverview() {
       </section>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '44px 24px' }}>
+        <div style={{ marginBottom: 40 }}>
+          <FaithAdventurePromo />
+        </div>
+
         {/* ── Feature cards ───────────────────────────────────────────────────── */}
         <div style={{ marginBottom: 48 }}>
           <div style={{ marginBottom: 24 }}>

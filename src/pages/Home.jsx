@@ -18,6 +18,7 @@ import { getSeasonalMarketingHook } from '../lib/seasonal';
 import JourneyCards from '../components/JourneyCards';
 import { SkeletonQuickCard } from '../components/Skeleton';
 import BibleFunLandJrBanner from '../components/BibleFunLandJrBanner';
+import FaithAdventurePromo from '../components/FaithAdventurePromo';
 
 // ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
@@ -1846,15 +1847,17 @@ function SeasonalHighlight() {
 
 // ── Parents & Teachers ────────────────────────────────────────────────────────
 function ParentsSection() {
-
   return (
     <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{
+        <div
+          style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 56, alignItems: 'center',
-        }}>
+          marginBottom: 40,
+        }}
+        >
           {/* Left copy */}
           <div className="reveal">
             <span style={{
@@ -1919,6 +1922,10 @@ function ParentsSection() {
               </Link>
             ))}
           </div>
+        </div>
+
+        <div className="reveal">
+          <FaithAdventurePromo />
         </div>
       </div>
     </section>
