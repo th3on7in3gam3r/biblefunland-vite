@@ -52,6 +52,7 @@ export default function ScriptureRunner() {
   const animRef = useRef(null);
   const [showCanvas, setShowCanvas] = useState(false);
   const [phase, setPhase] = useState('menu'); // menu | playing | dead
+  const [gameKey, setGameKey] = useState(0);
   const [score, setScore] = useState(0);
   const [collected, setCollected] = useState([]);
   const [highScore] = useState(() => parseInt(localStorage.getItem('bfl_runner_hs') || '0'));
@@ -84,8 +85,18 @@ export default function ScriptureRunner() {
     setPhase('playing');
     setScore(0);
     setCollected([]);
-    loop();
+    setGameKey((k) => k + 1);
   }
+
+  useEffect(() => {
+    if (phase !== 'playing' || !showCanvas) return undefined;
+    if (!canvasRef.current) return undefined;
+
+    stateRef.current.running = true;
+    loop();
+
+    return () => cancelAnimationFrame(animRef.current);
+  }, [phase, showCanvas, gameKey]);
 
   function loop() {
     const canvas = canvasRef.current;
@@ -204,12 +215,13 @@ export default function ScriptureRunner() {
     ctx.fillRect(0, 0, W, H);
 
     // Clouds
-    ctx.fillStyle = 'rgba(255,255,255,0.8)'[
-      ([s.cloudX + 80, 50],
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    [
+      [s.cloudX + 80, 50],
       [s.cloudX + 280, 40],
       [s.cloudX + 500, 60],
       [s.cloudX + 700, 45],
-      [s.cloudX + 900, 55])
+      [s.cloudX + 900, 55],
     ].forEach(([cx, cy]) => {
       const x = ((cx % W) + W) % W;
       ctx.beginPath();

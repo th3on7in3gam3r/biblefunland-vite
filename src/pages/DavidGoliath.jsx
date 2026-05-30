@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Phaser from 'phaser';
 
 // ─────────────────────────────────────────────
 //  David & Goliath — Full Phaser.js Browser Game
@@ -37,6 +37,7 @@ export default function DavidGoliath() {
   const mountRef = useRef(null);
   const gameRef = useRef(null);
   const [gameState, setGameState] = useState('menu'); // menu | playing | win | lose
+  const [pendingLevel, setPendingLevel] = useState(null);
   const [level, setLevel] = useState(0);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() =>
@@ -56,33 +57,28 @@ export default function DavidGoliath() {
   }, []);
 
   function startGame(lvl = 0) {
+    if (gameRef.current) {
+      gameRef.current.destroy(true);
+      gameRef.current = null;
+    }
     setLevel(lvl);
     setScore(0);
     setShotsLeft(5);
     setGoliathHp(GAME_CONFIG.goliathHp);
     setHits(0);
     setGameState('playing');
-    if (gameRef.current) {
-      gameRef.current.destroy(true);
-      gameRef.current = null;
-    }
-    initPhaser(lvl);
+    setPendingLevel(lvl);
   }
 
-  function initPhaser(lvl) {
-    // Load Phaser from CDN
-    if (!window.Phaser) {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js';
-      script.onload = () => createGame(lvl);
-      document.head.appendChild(script);
-    } else {
-      createGame(lvl);
-    }
-  }
+  useEffect(() => {
+    if (gameState !== 'playing' || pendingLevel === null || !mountRef.current) return;
+
+    createGame(pendingLevel);
+    setPendingLevel(null);
+  }, [gameState, pendingLevel]);
 
   function createGame(lvl) {
-    const P = window.Phaser;
+    const P = Phaser;
     const cfg = GAME_CONFIG.levels[lvl];
     let stones = [],
       goliath,
