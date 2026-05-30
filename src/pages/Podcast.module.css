@@ -85,6 +85,112 @@
   padding: 40px 20px 100px;
 }
 
+.hostCard {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  margin-bottom: 40px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(251, 191, 36, 0.06));
+  border: 1.5px solid rgba(249, 115, 22, 0.2);
+  box-shadow: 0 12px 40px rgba(249, 115, 22, 0.08);
+}
+
+.hostAvatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hostAvatar,
+.hostAvatarFallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  object-fit: cover;
+  border: 3px solid rgba(249, 115, 22, 0.35);
+  box-shadow: 0 10px 28px rgba(249, 115, 22, 0.25);
+}
+
+.hostAvatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f97316, #fbbf24);
+  color: white;
+  font-family: 'Baloo 2', cursive;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.hostMicBadge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0f0f1a;
+  border: 2px solid rgba(249, 115, 22, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.hostBody {
+  min-width: 0;
+}
+
+.hostLabel {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f97316;
+  margin: 0 0 6px;
+}
+
+.hostName {
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.hostTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink2);
+  margin: 0 0 10px;
+}
+
+.hostBio {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.65;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.audioErrorText {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: #ef4444;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.audioErrorText code {
+  font-size: 0.72rem;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
 .tabs {
   display: flex;
   gap: 12px;
@@ -416,6 +522,15 @@
 @media (max-width: 600px) {
   .hero {
     padding: 60px 20px 40px;
+  }
+  .hostCard {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+  }
+  .hostMicBadge {
+    right: -4px;
+    bottom: -4px;
   }
   .featuredCard {
     border-radius: 20px;

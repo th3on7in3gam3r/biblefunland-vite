@@ -1,57 +1,43 @@
 import { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { EPISODES, PODCAST_HOST, PODCAST_SHOW } from '../data/podcasts';
 import styles from './Podcast.module.css';
 
-/**
- * EPISODES — add new episodes here.
- * audioUrl: direct link to your .mp3 (Supabase Storage, S3, Cloudflare R2, etc.)
- * status: 'released' or 'future' (controls whether it appears in Released or Coming Soon tabs)
- * To add an episode: copy the object, fill in the fields, add it to the TOP of the array.
- */
-const EPISODES = [
-  {
-    id: 3,
-    title: 'Topic #3: “The Flood & The Waiting”',
-    description: `👉 This episode hits deeper because it teaches patience + trust. 
-    Builds tension with perfect storytelling and sets up the rainbow promise beautifully. Relatable for both kids & adults!`,
-    date: 'May 2026',
-    duration: '—',
-    season: 1,
-    episode: 3,
-    tags: ['The Flood', 'Patience', 'Trust', 'Family'],
-    audioUrl: null,
-    status: 'future',
-    featured: false,
-  },
-  {
-    id: 2,
-    title: 'What Was Inside the Ark?',
-    description:
-      "Building directly from Episode 1, we step inside Noah's completed Ark! Discover the amazing dimensions, the fun and imaginative reality of sharing space with all those animals, and the profound lessons of order, obedience, and God's perfect provision.",
-    date: 'April 2026',
-    duration: '—',
-    season: 1,
-    episode: 2,
-    tags: ["Noah's Ark", 'Animals', 'Obedience', "God's Provision"],
-    audioUrl: 'https://nabthatslot.com/podcast/podcast-2-inside-noah-ark.mp3',
-    status: 'released',
-    featured: true,
-  },
-  {
-    id: 1,
-    title: 'Why Did God Choose Noah?',
-    description:
-      'Out of everyone in the whole world — why Noah? In this first episode we dig into Genesis 6, explore what made Noah stand out in a corrupt generation, and discover what it means to find favour with God. A question for kids, parents, and everyone in between.',
-    date: 'March 2026',
-    duration: '18:45',
-    season: 1,
-    episode: 1,
-    tags: ['Genesis', 'Noah', 'Faith', 'Family'],
-    audioUrl: 'https://nabthatslot.com/podcast/podcast-1-noah.mp3',
-    status: 'released',
-    featured: false,
-  },
-];
+function HostCard() {
+  const initials = PODCAST_HOST.name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <section className={styles.hostCard} aria-label="Podcast host">
+      <div className={styles.hostAvatarWrap}>
+        {PODCAST_HOST.avatarUrl ? (
+          <img
+            src={PODCAST_HOST.avatarUrl}
+            alt={PODCAST_HOST.name}
+            className={styles.hostAvatar}
+          />
+        ) : (
+          <div className={styles.hostAvatarFallback} aria-hidden="true">
+            {initials}
+          </div>
+        )}
+        <span className={styles.hostMicBadge} aria-hidden="true">
+          🎙️
+        </span>
+      </div>
+      <div className={styles.hostBody}>
+        <p className={styles.hostLabel}>Your Host</p>
+        <h2 className={styles.hostName}>{PODCAST_HOST.name}</h2>
+        <p className={styles.hostTitle}>{PODCAST_HOST.title}</p>
+        <p className={styles.hostBio}>{PODCAST_HOST.bio}</p>
+      </div>
+    </section>
+  );
+}
 
 function AudioPlayer({ src, title }) {
   const audioRef = useRef(null);
@@ -59,29 +45,48 @@ function AudioPlayer({ src, title }) {
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState('0:00');
   const [duration, setDuration] = useState('—');
+  const [loadError, setLoadError] = useState(false);
+
+  const fmt = (s) => {
+    if (!s || Number.isNaN(s)) return '—';
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const togglePlay = (e) => {
     e?.stopPropagation();
-    if (!src) return;
+    if (!src || loadError) return;
     const a = audioRef.current;
     if (playing) {
       a.pause();
       setPlaying(false);
     } else {
-      a.play().catch((err) => console.error('Playback failed:', err));
+      a.play().catch((err) => {
+        console.error('Playback failed:', err);
+        setLoadError(true);
+        setPlaying(false);
+      });
       setPlaying(true);
     }
   };
 
   const onTimeUpdate = () => {
     const a = audioRef.current;
-    if (!a.duration) return;
+    if (!a?.duration) return;
     setProgress((a.currentTime / a.duration) * 100);
     setCurrentTime(fmt(a.currentTime));
   };
 
   const onLoadedMetadata = () => {
     setDuration(fmt(audioRef.current.duration));
+    setLoadError(false);
+  };
+
+  const onAudioError = () => {
+    setLoadError(true);
+    setPlaying(false);
+    setProgress(0);
   };
 
   const onEnded = () => {
@@ -91,19 +96,12 @@ function AudioPlayer({ src, title }) {
 
   const handleSeek = (e) => {
     e.stopPropagation();
-    if (!src) return;
+    if (!src || loadError) return;
     const a = audioRef.current;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percent = clickX / rect.width;
     a.currentTime = percent * a.duration;
-  };
-
-  const fmt = (s) => {
-    if (!s || isNaN(s)) return '—';
-    const mins = Math.floor(s / 60);
-    const secs = Math.floor(s % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -112,17 +110,20 @@ function AudioPlayer({ src, title }) {
         <audio
           ref={audioRef}
           src={src}
+          preload="metadata"
           onTimeUpdate={onTimeUpdate}
           onLoadedMetadata={onLoadedMetadata}
+          onError={onAudioError}
           onEnded={onEnded}
         />
       )}
       <div className={styles.playerMain}>
         <button
           onClick={togglePlay}
-          disabled={!src}
+          disabled={!src || loadError}
           className={styles.playBtn}
           title={src ? (playing ? 'Pause' : 'Play') : 'Coming Soon'}
+          aria-label={src ? (playing ? 'Pause episode' : 'Play episode') : 'Episode coming soon'}
         >
           {playing ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
@@ -148,6 +149,12 @@ function AudioPlayer({ src, title }) {
       </div>
       {!src && (
         <div className={styles.comingSoonText}>🎙️ Episode coming soon to your favorite player!</div>
+      )}
+      {src && loadError && (
+        <div className={styles.audioErrorText}>
+          ⚠️ Audio couldn&apos;t load. If you have the file, add it to <code>public/podcast/</code> and
+          update the episode URL in <code>src/data/podcasts.js</code>.
+        </div>
       )}
     </div>
   );
@@ -221,10 +228,9 @@ export default function Podcast() {
       <div className={styles.hero}>
         <div className={styles.heroBlob} />
         <div className={styles.heroIcon}>🎙️</div>
-        <h1 className={styles.title}>BibleFunLand Podcast</h1>
+        <h1 className={styles.title}>{PODCAST_SHOW.title}</h1>
         <p className={styles.subtitle}>
-          Faith adventures and bedtime stories for families, kids, and teachers. New episodes every
-          Monday.
+          {PODCAST_SHOW.tagline} {PODCAST_SHOW.schedule}
         </p>
         <div className={styles.platforms}>
           {['🍎 Apple Podcasts', '🎵 Spotify', '📻 Google Podcasts'].map((p, i) => (
@@ -236,6 +242,8 @@ export default function Podcast() {
       </div>
 
       <div className={styles.content}>
+        <HostCard />
+
         <nav className={styles.tabs}>
           {[
             { key: 'released', label: 'Released', count: releasedEpisodes.length, icon: '▶' },
