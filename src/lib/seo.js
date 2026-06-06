@@ -13,9 +13,9 @@ const BASE = {
 
 export const PAGE_META = {
   home: {
-    title: 'BibleFunLand — Free Bible Games for Kids & Families',
+    title: 'BibleFunLand: Free Bible Games & AI Devotionals for Kids',
     description:
-      '80+ free Bible games, AI devotionals, and scripture tools for kids and families. Sunday school printables, prayer wall, and faith activities—100% free.',
+      'Discover 80+ free Bible games, interactive AI devotionals, and scripture memory tools for families. Safe, fun, and COPPA-compliant Christian learning.',
     keywords:
       'free bible games for kids, bible games for kids 6-9, bible games for kids 3-5, christian games for kids, bible trivia for kids, AI bible devotional for families, printable bible activity sheets, sunday school resources free, family devotionals online, kids bible app free, scripture memory games, christian homeschool resources',
     ageRange: '3-12',
