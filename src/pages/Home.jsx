@@ -506,14 +506,14 @@ export default function Home() {
               transition={{ duration: 0.45 }}
               style={{ display: 'block' }}
             >
-              An Epic Adventure
+              Free Bible Games
             </motion.span>
             <motion.span
               variants={fadeUp}
               transition={{ duration: 0.45 }}
               style={{ display: 'block' }}
             >
-              Through{' '}
+              for{' '}
               <motion.span
                 variants={
                   prefersReducedMotion
@@ -530,7 +530,7 @@ export default function Home() {
                 }
                 className="premium-hero__title-accent"
               >
-                God's Word
+                Kids &amp; Families
               </motion.span>
             </motion.span>
           </motion.h1>

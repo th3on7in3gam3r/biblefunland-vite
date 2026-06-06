@@ -122,3 +122,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </HelmetProvider>
   </React.StrictMode>
 );
+
+// Remove static SEO fallback once the app mounts (crawlers without JS still see it)
+document.getElementById('seo-static')?.remove();
