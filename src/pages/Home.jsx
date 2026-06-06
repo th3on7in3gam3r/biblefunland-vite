@@ -362,23 +362,11 @@ export default function Home() {
   const filteredAiTools = filteredItems.filter((item) => item.itemType === 'AI Tool');
 
   return (
-    <div style={{ background: '#FAFBFF', fontFamily: 'Poppins,sans-serif', overflowX: 'hidden' }}>
+    <div style={{ overflowX: 'hidden' }}>
       {/* ══════════════════════════════════════════
           HERO — Epic Adventure Through God's Word
       ══════════════════════════════════════════ */}
-      <section
-        style={{
-          position: 'relative',
-          minHeight: '95vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          padding: '100px 24px 80px',
-          textAlign: 'center',
-          background: 'linear-gradient(160deg,#0D1B2A 0%,#1B2A4A 25%,#2D1B4E 55%,#0A2218 80%,#0D1B2A 100%)',
-        }}
-      >
+      <section className="premium-hero">
         {/* Parallax landscape silhouette — desert dunes + olive trees */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%',
@@ -503,54 +491,16 @@ export default function Home() {
           initial="hidden"
           animate="visible"
           variants={stagger}
-          style={{ position: 'relative', zIndex: 3, maxWidth: 820 }}
+          className="premium-hero__inner"
         >
           {/* Badge */}
-          <motion.div
-            variants={fadeUp}
-            transition={{ duration: 0.5 }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: '.72rem',
-              fontWeight: 800,
-              letterSpacing: 1,
-              textTransform: 'uppercase',
-              background: 'rgba(99,102,241,.2)',
-              color: '#A5B4FC',
-              border: '1px solid rgba(99,102,241,.3)',
-              padding: '6px 18px',
-              borderRadius: 100,
-              marginBottom: 24,
-            }}
-          >
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                background: '#4ADE80',
-                boxShadow: '0 0 8px #4ADE80',
-                display: 'inline-block',
-              }}
-            />
+          <motion.div variants={fadeUp} transition={{ duration: 0.5 }} className="premium-hero__badge">
+            <span className="premium-hero__badge-dot" />
             60+ Features · AI-Powered · 100% Free
           </motion.div>
 
           {/* Title — staggered words */}
-          <motion.h1
-            variants={stagger}
-            style={{
-              fontFamily: "'Baloo 2',cursive",
-              fontSize: 'clamp(2.8rem,8vw,5.8rem)',
-              fontWeight: 800,
-              color: 'white',
-              lineHeight: 1.02,
-              marginBottom: 20,
-              letterSpacing: '-1px',
-            }}
-          >
+          <motion.h1 variants={stagger} className="premium-hero__title">
             <motion.span
               variants={fadeUp}
               transition={{ duration: 0.45 }}
@@ -578,13 +528,7 @@ export default function Home() {
                         },
                       }
                 }
-                style={{
-                  display: 'inline-block',
-                  background: 'linear-gradient(90deg,#FCD34D,#F472B6,#60A5FA,#34D399)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
+                className="premium-hero__title-accent"
               >
                 God's Word
               </motion.span>
@@ -592,34 +536,13 @@ export default function Home() {
           </motion.h1>
 
           {/* Subtitle */}
-          <motion.p
-            variants={fadeUp}
-            transition={{ duration: 0.5 }}
-            style={{
-              fontSize: 'clamp(1rem,2vw,1.2rem)',
-              color: 'rgba(255,255,255,.72)',
-              fontWeight: 500,
-              lineHeight: 1.75,
-              marginBottom: 40,
-              maxWidth: 580,
-              margin: '0 auto 40px',
-            }}
-          >
+          <motion.p variants={fadeUp} transition={{ duration: 0.5 }} className="premium-hero__subtitle">
             Interactive Bible games, AI devotionals, prayer, maps &amp; more — for kids &amp; families.{' '}
             <strong style={{ color: '#4ADE80', fontWeight: 800 }}>100% free, always.</strong>
           </motion.p>
 
           {/* Buttons */}
-          <motion.div
-            variants={stagger}
-            style={{
-              display: 'flex',
-              gap: 14,
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginBottom: 32,
-            }}
-          >
+          <motion.div variants={stagger} className="premium-hero__actions">
             <motion.div
               variants={btnVariant}
               whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -3 }}
@@ -628,20 +551,7 @@ export default function Home() {
               <Link
                 to="/play"
                 onClick={() => trackHeroCta('click')}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '16px 32px',
-                  borderRadius: 18,
-                  background: 'linear-gradient(135deg,#F59E0B,#EF4444)',
-                  color: 'white',
-                  fontWeight: 800,
-                  fontSize: '1.05rem',
-                  textDecoration: 'none',
-                  boxShadow: '0 10px 36px rgba(245,158,11,.55)',
-                  letterSpacing: '0.2px',
-                }}
+                className="premium-cta-primary"
               >
                 🚀 Start Your Free Journey →
               </Link>
@@ -652,23 +562,7 @@ export default function Home() {
               whileHover={prefersReducedMotion ? {} : { scale: 1.04, y: -2 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              <Link
-                to="/devotional"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '16px 28px',
-                  borderRadius: 18,
-                  background: 'rgba(255,255,255,.1)',
-                  color: 'white',
-                  fontWeight: 700,
-                  fontSize: '1rem',
-                  textDecoration: 'none',
-                  border: '1.5px solid rgba(255,255,255,.22)',
-                  backdropFilter: 'blur(8px)',
-                }}
-              >
+              <Link to="/devotional" className="premium-cta-secondary">
                 🙏 Try AI Devotional
               </Link>
             </motion.div>
@@ -1848,7 +1742,7 @@ function SeasonalHighlight() {
 // ── Parents & Teachers ────────────────────────────────────────────────────────
 function ParentsSection() {
   return (
-    <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #F0FDF4, #ECFDF5)' }}>
+    <section className="section-premium section-premium--mint">
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div
           style={{
@@ -1898,16 +1792,14 @@ function ParentsSection() {
             {TILES.map((t, i) => (
               <Link key={i} to={t.to} style={{ textDecoration: 'none' }}>
                 <motion.div
-                  className="reveal"
+                  className="reveal surface-elevated"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08, duration: 0.45 }}
-                  whileHover={{ y: -4, boxShadow: '0 12px 28px rgba(16,185,129,.15)' }}
                   style={{
-                    background: 'white', borderRadius: 16, padding: '20px 18px',
-                    border: '1.5px solid #D1FAE5', cursor: 'pointer',
-                    transition: 'box-shadow 0.2s, transform 0.2s',
+                    padding: '20px 18px',
+                    cursor: 'pointer',
                     height: '100%',
                   }}
                 >

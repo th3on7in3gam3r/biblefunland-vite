@@ -267,7 +267,7 @@ export default function App() {
                                       <AdvancedAnalyticsProvider>
                                         <FamilyChallengesProvider>
                                           <AdsProvider>
-                                            <div className="app-shell">
+                                            <div className="app-shell app-shell--premium">
                                               <OfflineIndicator />
                                               <a
                                                 href="https://biblefunlandstudios.com"

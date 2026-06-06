@@ -10,6 +10,7 @@ import { initAnalytics, trackPage } from './lib/analytics';
 import { initErrorMonitoring, setupGlobalHandlers } from './lib/errorMonitoring';
 import App from './App.jsx';
 import './index.css';
+import './styles/premium.css';
 
 validateEnv();
 initializeDevTools();

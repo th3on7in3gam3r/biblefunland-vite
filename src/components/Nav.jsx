@@ -163,7 +163,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} nav--premium`}>
         {/* Logo — clicks to Home */}
         <NavLink to="/" style={{ textDecoration: 'none' }}>
           <div className={styles.logo} onClick={handleLogoClick}>

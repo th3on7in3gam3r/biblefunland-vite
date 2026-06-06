@@ -7,9 +7,9 @@
 /* ── CSS Variables: Light Mode ── */
 :root {
   /* ── Backgrounds ── */
-  --bg: #FAFBFF;
-  --bg2: #F3F4FF;
-  --bg3: #ECEEFF;
+  --bg: #F8F6F1;
+  --bg2: #F3F1EC;
+  --bg3: #ECE8E2;
   --surface: #ffffff;
 
   /* ── Borders & Shadows ── */

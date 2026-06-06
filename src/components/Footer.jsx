@@ -32,7 +32,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} footer--premium`}>
       <div className={styles.inner}>
         <div className={styles.grid}>
           {/* Column 1: Brand */}
