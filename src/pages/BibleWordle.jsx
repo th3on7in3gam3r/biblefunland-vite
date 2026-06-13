@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import usePageMetadata from '../hooks/usePageMetadata';
+import styles from './BibleWordle.module.css';
 
 // ── Daily word pool — all 5-letter Bible words ──────────────────────────────
 const WORDS = [
@@ -116,6 +119,12 @@ function shareText(guesses, won) {
 }
 
 export default function BibleWordle() {
+  usePageMetadata({
+    title: "Bible Wordle — Guess Today's 5-Letter Bible Word",
+    description:
+      'Play Bible Wordle free — guess the daily 5-letter Scripture word in 6 tries. Green, yellow, and grey tiles show how close you are.',
+  });
+
   const [guesses, setGuesses] = useState([]); // [{word, states}]
   const [current, setCurrent] = useState('');
   const [phase, setPhase] = useState('playing'); // playing | won | lost
@@ -123,7 +132,9 @@ export default function BibleWordle() {
   const [reveal, setReveal] = useState(false);
   const [keyStates, setKeyStates] = useState({});
   const [shared, setShared] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
+  const [showInfo, setShowInfo] = useState(
+    () => localStorage.getItem('bfl_wordle_help_collapsed') !== '1'
+  );
   const [streak, setStreak] = useState(() =>
     parseInt(localStorage.getItem('bfl_wordle_streak') || '0')
   );
@@ -217,6 +228,23 @@ export default function BibleWordle() {
     setTimeout(() => setShared(false), 2000);
   }
 
+  const toggleHelp = () => {
+    setShowInfo((open) => {
+      const next = !open;
+      localStorage.setItem('bfl_wordle_help_collapsed', next ? '0' : '1');
+      return next;
+    });
+  };
+
+  const submitHint =
+    phase === 'playing' && current.length > 0
+      ? current.length < 5
+        ? `Type ${5 - current.length} more letter${5 - current.length === 1 ? '' : 's'}, then press ENTER`
+        : 'Ready! Press ENTER (or tap ENTER below) to submit your guess'
+      : phase === 'playing' && guesses.length === 0
+        ? 'Type any 5-letter word, then press ENTER to start'
+        : null;
+
   // Build display grid
   const rows = [];
   for (let r = 0; r < MAX_ROWS; r++) {
@@ -235,21 +263,11 @@ export default function BibleWordle() {
       cells.push(
         <div
           key={c}
+          className={`${styles.tile}${isCurrent && letter ? ` ${styles.tileActive}` : ''}`}
           style={{
-            width: 52,
-            height: 52,
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: "'Baloo 2',cursive",
-            fontWeight: 800,
-            fontSize: '1.5rem',
             color: colors.color,
             background: colors.bg,
             border: `2px solid ${colors.border}`,
-            transition: 'all .1s',
-            transform: isCurrent && letter ? 'scale(1.06)' : 'scale(1)',
             animation: isReveal
               ? `flip .5s ${c * 0.1}s ease both`
               : shake && isCurrent
@@ -263,178 +281,122 @@ export default function BibleWordle() {
       );
     }
     rows.push(
-      <div key={r} style={{ display: 'flex', gap: 6 }}>
+      <div key={r} className={styles.row}>
         {cells}
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        background: 'var(--bg)',
-        minHeight: '100vh',
-        fontFamily: 'Poppins,sans-serif',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          width: '100%',
-          background: 'linear-gradient(135deg,#0F0F1A,#1E1B4B)',
-          padding: '28px 24px 20px',
-          textAlign: 'center',
-          borderBottom: '1px solid rgba(255,255,255,.08)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 12,
-            marginBottom: 6,
-          }}
-        >
-          <h1
-            style={{
-              fontFamily: "'Baloo 2',cursive",
-              fontSize: 'clamp(1.6rem,4vw,2.4rem)',
-              fontWeight: 800,
-              color: 'white',
-              margin: 0,
-            }}
-          >
-            📖 Bible Wordle
-          </h1>
-          <button
-            onClick={() => setShowInfo((i) => !i)}
-            style={{
-              background: 'rgba(255,255,255,.1)',
-              border: 'none',
-              color: 'white',
-              borderRadius: '50%',
-              width: 28,
-              height: 28,
-              cursor: 'pointer',
-              fontSize: '.9rem',
-              fontWeight: 800,
-            }}
-          >
-            ?
-          </button>
-        </div>
-        <p style={{ color: 'rgba(255,255,255,.4)', fontSize: '.8rem', margin: 0 }}>
-          Guess today's 5-letter Bible word · Resets at midnight
-        </p>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 12 }}>
-          {[
-            ['🔥', streak, 'Streak'],
-            ['📅', guesses.length, 'Guesses'],
-            ['✝️', WORD_LIST.length, 'Words'],
-          ].map(([e, v, l]) => (
-            <div key={l} style={{ textAlign: 'center' }}>
-              <div
-                style={{
-                  fontFamily: "'Baloo 2',cursive",
-                  fontWeight: 800,
-                  color: 'white',
-                  fontSize: '1.1rem',
-                }}
-              >
-                {e} {v}
-              </div>
-              <div
-                style={{
-                  fontSize: '.6rem',
-                  color: 'rgba(255,255,255,.35)',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                }}
-              >
-                {l}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* How to play */}
-      {showInfo && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: 400,
-            background: 'var(--surface)',
-            border: '1.5px solid var(--border)',
-            borderRadius: 14,
-            padding: '16px 20px',
-            margin: '12px 0 0',
-            textAlign: 'left',
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "'Baloo 2',cursive",
-              fontWeight: 800,
-              color: 'var(--ink)',
-              marginBottom: 10,
-            }}
-          >
-            How to Play
-          </div>
-          <div
-            style={{ fontSize: '.82rem', color: 'var(--ink2)', lineHeight: 1.8, fontWeight: 500 }}
-          >
-            Guess the 5-letter Bible word in 6 tries.
-            <br />
-            <span style={{ color: '#16a34a', fontWeight: 700 }}>🟩 Green</span> — right letter,
-            right spot
-            <br />
-            <span style={{ color: '#ca8a04', fontWeight: 700 }}>🟨 Yellow</span> — right letter,
-            wrong spot
-            <br />
-            <span
-              style={{
-                color: '#374151',
-                fontWeight: 700,
-                background: '#374151',
-                padding: '0 3px',
-                borderRadius: 3,
-              }}
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.headerTop}>
+          <Link to="/play" className={styles.back}>
+            ← Play Hub
+          </Link>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>📖 Bible Wordle</h1>
+            <button
+              type="button"
+              onClick={toggleHelp}
+              className={styles.helpBtn}
+              aria-label={showInfo ? 'Hide how to play' : 'Show how to play'}
+              aria-expanded={showInfo}
             >
-              ⬛ Grey
-            </span>{' '}
-            — letter not in the word
-            <br />
-            <br />
-            All words are from the Bible — names, places, themes.
+              ?
+            </button>
+          </div>
+          <p className={styles.subtitle}>
+            Guess today&apos;s 5-letter Bible word · New puzzle every day at midnight
+          </p>
+          <div className={styles.stats}>
+            {[
+              ['🔥', streak, 'Day streak'],
+              ['📅', guesses.length, 'Guesses today'],
+              ['✝️', WORD_LIST.length, 'Words in pool'],
+            ].map(([e, v, l]) => (
+              <div key={l} style={{ textAlign: 'center' }}>
+                <div className={styles.statValue}>
+                  {e} {v}
+                </div>
+                <div className={styles.statLabel}>{l}</div>
+              </div>
+            ))}
           </div>
         </div>
+      </header>
+
+      {showInfo && (
+        <section className={styles.guide} aria-label="How to play Bible Wordle">
+          <h2 className={styles.guideTitle}>📋 How to Play</h2>
+          <ol className={styles.guideSteps}>
+            <li>
+              <strong>Type a 5-letter word</strong> using your keyboard or the on-screen keys below.
+            </li>
+            <li>
+              <strong>Press ENTER</strong> to submit — letters stay white until you submit!
+            </li>
+            <li>
+              <strong>Use the colored feedback</strong> to refine your next guess (up to 6 tries).
+            </li>
+            <li>
+              <strong>Win</strong> when every tile turns green, or come back tomorrow for a new
+              word.
+            </li>
+          </ol>
+          <div className={styles.legend}>
+            <div className={styles.legendItem}>
+              <span className={`${styles.legendSwatch} ${styles.swatchCorrect}`}>A</span>
+              <span>
+                <strong>Green</strong> — right letter, right spot
+              </span>
+            </div>
+            <div className={styles.legendItem}>
+              <span className={`${styles.legendSwatch} ${styles.swatchPresent}`}>A</span>
+              <span>
+                <strong>Yellow</strong> — right letter, wrong spot
+              </span>
+            </div>
+            <div className={styles.legendItem}>
+              <span className={`${styles.legendSwatch} ${styles.swatchAbsent}`}>A</span>
+              <span>
+                <strong>Grey</strong> — letter not in today&apos;s word
+              </span>
+            </div>
+          </div>
+          <p
+            style={{
+              margin: '12px 0 0',
+              fontSize: '0.76rem',
+              color: 'var(--ink3)',
+              lineHeight: 1.6,
+            }}
+          >
+            Words are Bible-themed — names, places, and faith words like GRACE, FAITH, DAVID, and
+            PSALM. Use <strong>⌫</strong> to delete a letter.
+          </p>
+        </section>
       )}
 
-      {/* Grid */}
-      <div style={{ padding: '24px 0 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {rows}
-      </div>
+      {submitHint && (
+        <p
+          className={`${styles.submitHint}${
+            current.length === 5 ? ` ${styles.submitHintReady}` : ''
+          }`}
+          role="status"
+        >
+          {submitHint}
+        </p>
+      )}
+
+      <div className={styles.grid}>{rows}</div>
 
       {/* Win / Lose banner */}
       {phase !== 'playing' && (
         <div
-          style={{
-            maxWidth: 360,
-            width: '90%',
-            background: 'var(--surface)',
-            borderRadius: 20,
-            border: `1.5px solid ${phase === 'won' ? 'var(--green)' : 'var(--red)'}`,
-            padding: '20px 24px',
-            textAlign: 'center',
-            marginBottom: 16,
-            animation: 'popIn .4s cubic-bezier(.34,1.56,.64,1)',
-          }}
+          className={`${styles.resultBanner} ${
+            phase === 'won' ? styles.resultBannerWon : styles.resultBannerLost
+          }`}
         >
           <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>{phase === 'won' ? '🎉' : '😔'}</div>
           <div
@@ -473,11 +435,10 @@ export default function BibleWordle() {
         </div>
       )}
 
-      {/* Keyboard */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingBottom: 28 }}>
+      <div className={styles.keyboard}>
         {[ALPHABET.slice(0, 10), ALPHABET.slice(10, 19), ['⌫', ...ALPHABET.slice(19), 'ENTER']].map(
           (row, ri) => (
-            <div key={ri} style={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
+            <div key={ri} className={styles.keyRow}>
               {row.map((key) => {
                 const state = keyStates[key];
                 const colors = tileColor(state);
@@ -485,21 +446,15 @@ export default function BibleWordle() {
                 return (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => onKey(key)}
+                    className={`${styles.key} ${isWide ? styles.keyWide : styles.keyNormal}`}
                     style={{
-                      width: isWide ? 52 : 36,
-                      height: 44,
-                      borderRadius: 8,
-                      border: 'none',
                       background: state ? colors.bg : 'var(--bg3)',
                       color: state ? colors.color : 'var(--ink)',
-                      fontFamily: "'Baloo 2',cursive",
-                      fontWeight: 800,
-                      fontSize: isWide ? '.6rem' : '.9rem',
-                      cursor: 'pointer',
-                      transition: 'all .15s',
                       boxShadow: state === 'correct' ? '0 0 8px rgba(22,163,74,.35)' : 'none',
                     }}
+                    aria-label={key === '⌫' ? 'Backspace' : key === 'ENTER' ? 'Submit guess' : key}
                   >
                     {key}
                   </button>
@@ -511,9 +466,9 @@ export default function BibleWordle() {
       </div>
 
       <style>{`
+        .${styles.tile} { animation-name: flip, shake; }
         @keyframes flip { 0%{transform:rotateX(0)} 50%{transform:rotateX(-90deg)} 100%{transform:rotateX(0)} }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
-        @keyframes popIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
       `}</style>
     </div>
   );
