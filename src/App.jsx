@@ -334,6 +334,22 @@ export default function App() {
                                                       element={<SP c={SpinTheVerse} />}
                                                     />
                                                     <Route
+                                                      path="challenge"
+                                                      element={<SP c={DailyChallenge} />}
+                                                    />
+                                                    <Route
+                                                      path="wordle"
+                                                      element={<SP c={BibleWordle} />}
+                                                    />
+                                                    <Route
+                                                      path="game/memory-league"
+                                                      element={<SP c={ScriptureMemoryLeague} />}
+                                                    />
+                                                    <Route
+                                                      path="game/battle-arena"
+                                                      element={<SP c={BibleBattleArena} />}
+                                                    />
+                                                    <Route
                                                       path="kids-stories"
                                                       element={<Navigate to="/kids-stories" replace />}
                                                     />
