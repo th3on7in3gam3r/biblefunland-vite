@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './BibleTimeline.module.css';
 
 const ERAS = [
@@ -851,6 +852,9 @@ export default function BibleTimeline() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
+        <Link to="/explore" className={styles.backLink}>
+          ← Explore Hub
+        </Link>
         <h1 className={styles.title}>🌍 Bible Timeline</h1>
         <p className={styles.subtitle}>
           {eraFilter === 'All'

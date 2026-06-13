@@ -907,15 +907,6 @@ export default function App() {
                                                     }
                                                   />
                                                   <Route
-                                                    path="/bible-search"
-                                                    element={
-                                                      <Navigate
-                                                        to="/explore/bible-search"
-                                                        replace
-                                                      />
-                                                    }
-                                                  />
-                                                  <Route
                                                     path="/language-explorer"
                                                     element={
                                                       <Navigate

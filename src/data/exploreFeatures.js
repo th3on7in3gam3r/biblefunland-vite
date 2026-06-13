@@ -1,0 +1,171 @@
+/** Single source of truth for Explore hub cards, filters, and nav metadata */
+
+export const EXPLORE_AGE_OPTIONS = [
+  { value: 'Preschool', label: 'Preschool (3–5)' },
+  { value: 'Elementary', label: 'Elementary (6–9)' },
+  { value: 'Tweens', label: 'Tweens (10–12)' },
+  { value: 'Family', label: 'Family' },
+];
+
+export const EXPLORE_TOPIC_OPTIONS = [
+  'Scripture',
+  'Geography',
+  'History',
+  'Study',
+  'Languages',
+  'Reference',
+];
+
+export const EXPLORE_TYPE_OPTIONS = [
+  'Interactive',
+  'Map',
+  'Reader',
+  'Study Tool',
+];
+
+export const EXPLORE_FEATURES = [
+  {
+    id: 'living-bible-map',
+    icon: '🗺️',
+    title: 'Living Bible Map',
+    desc: 'Discover Bible lands across six eras — unlock locations, complete daily quests, and earn map badges.',
+    to: '/explore/world',
+    color: '#10B981',
+    tag: 'Featured',
+    verse: 'Joshua 1:3',
+    detail: '12 locations · 6 eras · Daily quests',
+    age: 'Family',
+    topic: ['Geography', 'History'],
+    type: 'Map',
+    difficulty: 2,
+    bibleRef: 'Joshua 1:3',
+  },
+  {
+    id: 'bible-explorer',
+    icon: '📖',
+    title: 'Bible Explorer',
+    desc: 'Read, search, highlight, and bookmark Scripture across 100+ Bible translations.',
+    to: '/explore/bible',
+    color: '#059669',
+    tag: 'Essential',
+    verse: 'Hebrews 4:12',
+    detail: 'KJV · NIV · ESV · 100+ more',
+    age: 'Family',
+    topic: ['Scripture', 'Study'],
+    type: 'Reader',
+    difficulty: 2,
+    bibleRef: 'Hebrews 4:12',
+  },
+  {
+    id: 'bible-map',
+    icon: '📍',
+    title: 'Study Bible Map',
+    desc: 'Classic interactive map with GPS pins, story panels, and verses for nine key biblical cities.',
+    to: '/explore/map',
+    color: '#3B82F6',
+    tag: 'Geography',
+    verse: 'Acts 1:8',
+    detail: '9 locations · Story panels',
+    age: 'Family',
+    topic: ['Geography', 'History'],
+    type: 'Map',
+    difficulty: 2,
+    bibleRef: 'Acts 1:8',
+  },
+  {
+    id: 'bible-timeline',
+    icon: '📜',
+    title: 'Bible Timeline',
+    desc: 'Scroll through 90+ events from Creation to the early church — filter by era or search by keyword.',
+    to: '/explore/timeline',
+    color: '#8B5CF6',
+    tag: 'History',
+    verse: 'Ecclesiastes 3:1',
+    detail: '10 eras · 90+ events',
+    age: 'Family',
+    topic: ['History', 'Scripture'],
+    type: 'Interactive',
+    difficulty: 2,
+    bibleRef: 'Ecclesiastes 3:1',
+  },
+  {
+    id: 'original-languages',
+    icon: '🔤',
+    title: 'Original Languages',
+    desc: 'Study curated Hebrew and Greek word studies with Strong\'s definitions, roots, and verse examples.',
+    to: '/explore/language-explorer',
+    color: '#F59E0B',
+    tag: 'Deep Study',
+    verse: 'Proverbs 2:6',
+    detail: 'Hebrew · Greek word studies',
+    age: 'Tweens',
+    topic: ['Languages', 'Study'],
+    type: 'Study Tool',
+    difficulty: 4,
+    bibleRef: 'Proverbs 2:6',
+  },
+  {
+    id: 'cross-reference',
+    icon: '🔗',
+    title: 'Cross Reference Web',
+    desc: 'Explore an interactive graph of connected verses — drag nodes, filter by theme, and trace Scripture themes.',
+    to: '/explore/cross-reference',
+    color: '#EC4899',
+    tag: 'Study',
+    verse: '2 Timothy 3:16',
+    detail: '20 key verses · Interactive graph',
+    age: 'Family',
+    topic: ['Study', 'Scripture'],
+    type: 'Interactive',
+    difficulty: 3,
+    bibleRef: '2 Timothy 3:16',
+  },
+  {
+    id: 'voice-bible-reader',
+    icon: '🎙️',
+    title: 'Voice Bible Reader',
+    desc: 'Listen to curated KJV passages with adjustable speed and volume using your browser\'s text-to-speech.',
+    to: '/explore/voice-reader',
+    color: '#0369A1',
+    tag: 'Listen',
+    verse: 'Psalm 119:11',
+    detail: '6 books · Adjustable playback',
+    age: 'Family',
+    topic: ['Scripture', 'Reference'],
+    type: 'Reader',
+    difficulty: 2,
+    bibleRef: 'Psalm 119:11',
+  },
+  {
+    id: 'bible-names',
+    icon: '🌍',
+    title: 'Bible Names',
+    desc: 'Look up meanings, origins, and stories behind thousands of names found throughout Scripture.',
+    to: '/names',
+    color: '#14B8A6',
+    tag: 'Reference',
+    verse: 'Isaiah 43:1',
+    detail: '3,000+ names explained',
+    age: 'Family',
+    topic: ['Reference', 'Study'],
+    type: 'Study Tool',
+    difficulty: 2,
+    bibleRef: 'Isaiah 43:1',
+  },
+];
+
+export const EXPLORE_STATS = [
+  { n: String(EXPLORE_FEATURES.length), label: 'Study Tools' },
+  { n: '100+', label: 'Translations' },
+  { n: '90+', label: 'Timeline Events' },
+  { n: '100%', label: 'Free' },
+];
+
+export function filterExploreFeatures(features, { age = [], topic = [], type = [] } = {}) {
+  return features.filter((item) => {
+    const hasAge = !age.length || age.includes(item.age);
+    const hasType = !type.length || type.includes(item.type);
+    const hasTopic = !topic.length || topic.some((t) => item.topic.includes(t));
+    return hasAge && hasType && hasTopic;
+  });
+}

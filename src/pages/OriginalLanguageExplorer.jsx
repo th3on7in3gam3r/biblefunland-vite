@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 // Public domain Strong's data — key words
 const HEBREW = [
@@ -349,6 +350,21 @@ export default function OriginalLanguageExplorer() {
           textAlign: 'center',
         }}
       >
+        <Link
+          to="/explore"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: '.78rem',
+            fontWeight: 700,
+            color: 'rgba(255,255,255,.5)',
+            textDecoration: 'none',
+            marginBottom: 16,
+          }}
+        >
+          ← Explore Hub
+        </Link>
         <h1
           style={{
             fontFamily: "'Baloo 2',cursive",
@@ -372,8 +388,8 @@ export default function OriginalLanguageExplorer() {
             margin: '0 auto',
           }}
         >
-          Discover what the Bible really says in Hebrew and Greek — the languages God chose to write
-          His Word in. No seminary required.
+          Discover curated Hebrew and Greek word studies with Strong&apos;s definitions, roots, and
+          verse examples.
         </p>
       </div>
 
@@ -727,7 +743,7 @@ export default function OriginalLanguageExplorer() {
                   marginBottom: 12,
                 }}
               >
-                🔍 Enter a verse reference
+                🔍 Try a sample verse
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
                 <input

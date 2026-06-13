@@ -1,0 +1,33 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr clamp(260px, 32%, 360px);
+  }
+}
+
+.mapPane {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  height: min(560px, 70vh);
+  min-height: 320px;
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  position: sticky;
+  top: 80px;
+  max-height: 560px;
+  overflow-y: auto;
+}

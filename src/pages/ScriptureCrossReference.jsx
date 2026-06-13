@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 // Cross-reference data — verse nodes and their connections
 const NODES = [
@@ -260,6 +261,21 @@ export default function ScriptureCrossReference() {
           textAlign: 'center',
         }}
       >
+        <Link
+          to="/explore"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: '.78rem',
+            fontWeight: 700,
+            color: 'rgba(255,255,255,.5)',
+            textDecoration: 'none',
+            marginBottom: 16,
+          }}
+        >
+          ← Explore Hub
+        </Link>
         <h1
           style={{
             fontFamily: "'Baloo 2',cursive",
@@ -275,8 +291,8 @@ export default function ScriptureCrossReference() {
           Scripture Cross-Reference Web
         </h1>
         <p style={{ color: 'rgba(255,255,255,.45)', fontSize: '.88rem', fontWeight: 500 }}>
-          See how Bible verses connect to each other. Click any verse to explore its web of meaning.
-          Drag nodes to rearrange.
+          Explore 20 curated verse connections in an interactive graph. Click any node, filter by
+          theme, and drag to rearrange.
         </p>
       </div>
 

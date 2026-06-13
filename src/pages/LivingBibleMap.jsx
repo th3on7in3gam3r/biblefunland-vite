@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -6,7 +7,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useBadges } from '../context/BadgeContext';
 import { useKidsMode } from '../context/KidsModeContext';
-import { execute, query } from '../lib/db';
 import { BibleLoader, SkeletonMapPanel } from '../components/Skeleton';
 import { LOCATIONS, ERAS, DAILY_QUESTS } from '../data/bibleMapLocations';
 
@@ -308,6 +308,21 @@ export default function LivingBibleMap() {
           <div key={i} style={{ position: 'absolute', width: 240, height: 240, borderRadius: '50%', background: `radial-gradient(circle,${c}18 0%,transparent 70%)`, left: l, top: t, pointerEvents: 'none' }} />
         ))}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ position: 'relative', zIndex: 1 }}>
+          <Link
+            to="/explore"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '.78rem',
+              fontWeight: 700,
+              color: 'rgba(255,255,255,.5)',
+              textDecoration: 'none',
+              marginBottom: 14,
+            }}
+          >
+            ← Explore Hub
+          </Link>
           <div style={{ fontSize: kidsMode ? '3.5rem' : '2.8rem', marginBottom: 10, filter: 'drop-shadow(0 4px 16px rgba(16,185,129,0.5))' }}>🗺️</div>
           <h1 style={{
             fontFamily: "'Baloo 2',cursive", fontWeight: 800,

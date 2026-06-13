@@ -4,6 +4,22 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  margin-bottom: 14px;
+  transition: color 0.15s;
+}
+
+.backLink:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .header {
   background: linear-gradient(135deg, #0f0f1a, #1a0a2e);
   padding: 32px 20px 28px;

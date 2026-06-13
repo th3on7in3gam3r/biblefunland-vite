@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import ExploreToolShell from '../components/ExploreToolShell';
+import styles from './BibleMap.module.css';
 
 // Fix Leaflet default icon broken by bundlers
 delete L.Icon.Default.prototype._getIconUrl;
@@ -197,52 +199,16 @@ export default function BibleMap() {
   }, []);
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
-      {/* Header */}
-      <div
-        id="interactive-bible-map"
-        style={{
-          background: 'linear-gradient(135deg,#064E3B,#065F46,#047857)',
-          padding: '60px 36px 44px',
-          textAlign: 'center',
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: "'Baloo 2',cursive",
-            fontSize: 'clamp(2rem,4.5vw,3.4rem)',
-            fontWeight: 800,
-            color: 'white',
-            letterSpacing: -1,
-            marginBottom: 8,
-          }}
-        >
-          🗺️ Interactive Bible Map
-        </h1>
-        <p style={{ color: 'rgba(255,255,255,.6)', fontSize: '.9rem', fontWeight: 500 }}>
-          Click any pin to explore Bible stories, history, and key scriptures.
-        </p>
-      </div>
-
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr clamp(260px,32%,360px)',
-            gap: 24,
-            alignItems: 'start',
-          }}
-        >
+    <ExploreToolShell
+      icon="📍"
+      title="Study Bible Map"
+      subtitle="Nine key biblical cities with GPS pins, story panels, and supporting verses."
+      gradient="linear-gradient(135deg,#064E3B,#065F46,#047857)"
+      maxWidth={1200}
+    >
+      <div id="interactive-bible-map" className={styles.layout}>
           {/* Leaflet Map */}
-          <div
-            style={{
-              borderRadius: 20,
-              overflow: 'hidden',
-              border: '1.5px solid var(--border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,.1)',
-              height: 560,
-            }}
-          >
+          <div className={styles.mapPane}>
             <MapContainer
               center={[31.5, 35.5]}
               zoom={7}
@@ -287,19 +253,7 @@ export default function BibleMap() {
           </div>
 
           {/* Info panel */}
-          <div
-            style={{
-              background: 'var(--surface)',
-              borderRadius: 20,
-              border: '1.5px solid var(--border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,.08)',
-              padding: 24,
-              position: 'sticky',
-              top: 80,
-              maxHeight: 560,
-              overflowY: 'auto',
-            }}
-          >
+          <div className={styles.panel}>
             {!loc ? (
               <div>
                 <div style={{ textAlign: 'center', padding: '16px 0 20px', color: 'var(--ink3)' }}>
@@ -450,7 +404,6 @@ export default function BibleMap() {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </ExploreToolShell>
   );
 }
