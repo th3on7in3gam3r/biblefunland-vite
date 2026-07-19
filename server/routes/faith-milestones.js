@@ -21,10 +21,30 @@ const requireAuth = (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
+// ALLOWED TABLE NAMES (whitelist to prevent SQL injection via interpolation)
+// ────────────────────────────────────────────────────────────────────────────
+
+const ALLOWED_TABLES = [
+  'faith_milestones',
+  'spiritual_mentors',
+  'hard_season_verses',
+  'answered_prayers_milestones',
+];
+
+function assertTableAllowed(table) {
+  if (!ALLOWED_TABLES.includes(table)) {
+    throw new Error(`Invalid table name: ${table}`);
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // CRUD FACTORY
 // ────────────────────────────────────────────────────────────────────────────
 
 function registerCrud(path, { table, label, idPrefix, requiredFields, columns, columnMap = {}, orderBy }) {
+  // Validate table name at registration time (fail fast on misconfiguration)
+  assertTableAllowed(table);
+
   // GET all
   router.get(`/${path}`, requireAuth, async (req, res) => {
     try {
@@ -136,6 +156,8 @@ function registerCrud(path, { table, label, idPrefix, requiredFields, columns, c
       if (checkError) throw checkError;
       if (!existing) return res.status(404).json({ error: `${label} not found` });
 
+      // Guard: re-validate table name before interpolation into SQL
+      assertTableAllowed(table);
       const { error } = await execute(`DELETE FROM ${table} WHERE id = ?`, [req.params.id]);
       if (error) throw error;
       res.json({ success: true });
