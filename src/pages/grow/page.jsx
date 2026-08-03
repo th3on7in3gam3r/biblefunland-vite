@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BibleLoader } from '../../components/Skeleton';
 import usePageMetadata from '../../hooks/usePageMetadata';
+import { useAds } from '../../context/AdsContext';
+import { PLAN_PRICES } from '../../lib/membershipOffers';
 
 const GROW_FEATURES = [
   {
@@ -79,6 +81,7 @@ export default function GrowOverview() {
     title: 'Grow — BibleFunLand',
     description: 'Grow your faith with Bible certification, reading plans, milestones, and worship discovery.',
   });
+  const { isProUser } = useAds();
   const [ready, setReady] = useState(false);
   useEffect(() => { const t = setTimeout(() => setReady(true), 400); return () => clearTimeout(t); }, []);
   if (!ready) return <BibleLoader message="Growing in faith..." />;
@@ -155,7 +158,9 @@ export default function GrowOverview() {
             padding: '5px 14px', borderRadius: 100,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', boxShadow: '0 0 8px #4ADE80', display: 'inline-block' }} />
-            Pro Feature — Included in your plan
+            {isProUser
+              ? 'Pro Feature — Included in your plan'
+              : `Pro exclusive — from ${PLAN_PRICES.pro.monthly}/mo`}
           </span>
         </motion.div>
       </div>

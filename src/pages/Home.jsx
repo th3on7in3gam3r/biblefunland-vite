@@ -19,6 +19,12 @@ import JourneyCards from '../components/JourneyCards';
 import { SkeletonQuickCard } from '../components/Skeleton';
 import BibleFunLandJrBanner from '../components/BibleFunLandJrBanner';
 import FaithAdventurePromo from '../components/FaithAdventurePromo';
+import {
+  FAMILY_TEASER,
+  HOME_COMPARE,
+  PLAN_PRICES,
+  PRO_EXCLUSIVES,
+} from '../lib/membershipOffers';
 
 // ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
@@ -202,6 +208,7 @@ const AI_TOOLS = [
     ageGroup: 'Family',
     topics: ['Jesus', 'New Testament'],
     itemType: 'AI Tool',
+    proExclusive: true,
   },
   {
     icon: '💬',
@@ -212,6 +219,7 @@ const AI_TOOLS = [
     ageGroup: 'Tweens',
     topics: ['Heroes', 'Old Testament', 'New Testament'],
     itemType: 'AI Tool',
+    proExclusive: true,
   },
   {
     icon: '🎵',
@@ -222,6 +230,7 @@ const AI_TOOLS = [
     ageGroup: 'Tweens',
     topics: ['Jesus', 'New Testament'],
     itemType: 'AI Tool',
+    proExclusive: true,
   },
   {
     icon: '🖼️',
@@ -232,6 +241,7 @@ const AI_TOOLS = [
     ageGroup: 'All Ages',
     topics: ['Jesus', 'Stories'],
     itemType: 'AI Tool',
+    proExclusive: true,
   },
 ];
 
@@ -743,6 +753,11 @@ export default function Home() {
       <TestimonialsCarousel />
 
       {/* ══════════════════════════════════════════
+          PRO CTA — exclusive features (mid-page)
+      ══════════════════════════════════════════ */}
+      <ProCta user={user} isSubscriber={isProUser || isFamilyUser} />
+
+      {/* ══════════════════════════════════════════
           FOR PARENTS & TEACHERS
       ══════════════════════════════════════════ */}
       <ParentsSection />
@@ -775,11 +790,6 @@ export default function Home() {
           HOMESCHOOL HUB CTA
       ══════════════════════════════════════════ */}
       <HomeSchoolHubCTA />
-
-      {/* ══════════════════════════════════════════
-          PRO CTA
-      ══════════════════════════════════════════ */}
-      <ProCta user={user} isSubscriber={isProUser || isFamilyUser} />
 
       <style>{`
         @keyframes floatP{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-18px) rotate(3deg)}66%{transform:translateY(-8px) rotate(-2deg)}}
@@ -890,6 +900,7 @@ function QuickStart({ todayVerse }) {
       color: '#8B5CF6',
       bg: '#F5F3FF',
       label: 'Get Devotional →',
+      proExclusive: true,
     },
     {
       icon: '🌍',
@@ -964,6 +975,7 @@ function QuickStart({ todayVerse }) {
       color: '#10B981',
       bg: '#ECFDF5',
       label: 'Start Today →',
+      proExclusive: true,
     },
     {
       icon: '⛪',
@@ -1302,6 +1314,25 @@ function QuickStart({ todayVerse }) {
                       {card.tag}
                     </motion.div>
                   )}
+                  {card.proExclusive && !card.tag && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        fontSize: '.65rem',
+                        fontWeight: 800,
+                        padding: '5px 12px',
+                        borderRadius: 100,
+                        background: 'linear-gradient(135deg, #8B5CF6, #6366F1)',
+                        color: 'white',
+                        letterSpacing: '0.5px',
+                        boxShadow: '0 2px 8px rgba(139,92,246,0.4)',
+                      }}
+                    >
+                      💎 Pro
+                    </div>
+                  )}
                   <div style={{
                     width: 52, height: 52, borderRadius: 16,
                     background: card.featured 
@@ -1323,8 +1354,26 @@ function QuickStart({ todayVerse }) {
                       fontWeight: 800, 
                       color: card.featured ? '#92400E' : '#1E1B4B',
                       marginBottom: 6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      flexWrap: 'wrap',
                     }}>
                       {card.title}
+                      {card.proExclusive && card.tag && (
+                        <span style={{
+                          fontFamily: 'Plus Jakarta Sans, sans-serif',
+                          fontSize: '.6rem',
+                          fontWeight: 800,
+                          padding: '3px 8px',
+                          borderRadius: 100,
+                          background: 'linear-gradient(135deg, #8B5CF6, #6366F1)',
+                          color: 'white',
+                          letterSpacing: '0.4px',
+                        }}>
+                          💎 Pro
+                        </span>
+                      )}
                     </div>
                     <p style={{ 
                       fontSize: '.84rem', 
@@ -1845,15 +1894,36 @@ function ProCta({ user, isSubscriber }) {
           </h2>
           <p style={{
             fontSize: '.9rem', color: 'rgba(255,255,255,.5)',
-            lineHeight: 1.75, maxWidth: 420, margin: '0 auto 32px',
+            lineHeight: 1.75, maxWidth: 460, margin: '0 auto 20px',
           }}>
-            Go Pro for unlimited AI tools, Bible certification, family progress tracking, and priority access to every new feature.
+            Go Pro for {PRO_EXCLUSIVES.slice(0, 3).join(', ').toLowerCase()}, and more.
           </p>
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center',
+            marginBottom: 28,
+          }}>
+            {PRO_EXCLUSIVES.map((item) => (
+              <span
+                key={item}
+                style={{
+                  fontSize: '.68rem',
+                  fontWeight: 700,
+                  color: '#C4B5FD',
+                  background: 'rgba(139,92,246,0.15)',
+                  border: '1px solid rgba(139,92,246,0.3)',
+                  padding: '5px 10px',
+                  borderRadius: 100,
+                }}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
 
           {/* Free vs Pro comparison table */}
           <div style={{
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16,
-            maxWidth: 560, margin: '0 auto 32px', textAlign: 'left',
+            maxWidth: 560, margin: '0 auto 24px', textAlign: 'left',
           }}>
             {/* Free column */}
             <div style={{
@@ -1863,17 +1933,17 @@ function ProCta({ user, isSubscriber }) {
               <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 14 }}>
                 🆓 Free
               </div>
-              {[
-                '✅ All Bible games',
-                '✅ 5 AI devotionals/mo',
-                '✅ Prayer Wall',
-                '✅ Verse of the Day',
-                '❌ Certification',
-                '❌ Family profiles',
-                '❌ Full Bible Map',
-              ].map((item, i) => (
-                <div key={i} style={{ fontSize: '.78rem', color: item.startsWith('✅') ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.25)', marginBottom: 7, fontWeight: 600 }}>
-                  {item}
+              {HOME_COMPARE.free.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    fontSize: '.78rem',
+                    color: item.ok ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.25)',
+                    marginBottom: 7,
+                    fontWeight: 600,
+                  }}
+                >
+                  {item.ok ? '✅' : '❌'} {item.text}
                 </div>
               ))}
             </div>
@@ -1892,23 +1962,25 @@ function ProCta({ user, isSubscriber }) {
                 BEST VALUE
               </div>
               <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: '1rem', fontWeight: 800, color: '#C4B5FD', marginBottom: 14 }}>
-                💎 Pro — $3.99/mo
+                💎 Pro — {PLAN_PRICES.pro.monthly}/mo
               </div>
-              {[
-                '✅ All Bible games',
-                '✅ Unlimited AI tools',
-                '✅ Prayer Wall',
-                '✅ Verse of the Day',
-                '✅ Full Certification',
-                '✅ Family profiles',
-                '✅ Complete Bible Map',
-              ].map((item, i) => (
+              {HOME_COMPARE.pro.map((item, i) => (
                 <div key={i} style={{ fontSize: '.78rem', color: '#C4B5FD', marginBottom: 7, fontWeight: 600 }}>
-                  {item}
+                  {item.ok ? '✅' : '❌'} {item.text}
                 </div>
               ))}
             </div>
           </div>
+
+          <p style={{
+            fontSize: '.78rem', color: 'rgba(251,146,60,0.9)',
+            fontWeight: 600, marginBottom: 24,
+          }}>
+            {FAMILY_TEASER}{' '}
+            <Link to="/premium" style={{ color: '#FDBA74', fontWeight: 800 }}>
+              Compare plans →
+            </Link>
+          </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/premium" style={{
@@ -1917,7 +1989,7 @@ function ProCta({ user, isSubscriber }) {
               color: 'white', fontWeight: 800, fontSize: '.9rem',
               textDecoration: 'none', boxShadow: '0 8px 28px rgba(139,92,246,.35)',
             }}>
-              ✨ See Pro Plans — from $3.99/mo
+              ✨ See Pro Plans — from {PLAN_PRICES.pro.monthly}/mo
             </Link>
             <Link to={user ? '/dashboard' : '/auth'} style={{
               padding: '14px 28px', borderRadius: 14,

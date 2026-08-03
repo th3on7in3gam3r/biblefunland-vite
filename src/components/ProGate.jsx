@@ -2,6 +2,11 @@ import { useAds } from '../context/AdsContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import {
+  FAMILY_TEASER,
+  PLAN_PRICES,
+  PRO_EXCLUSIVES,
+} from '../lib/membershipOffers';
 
 const FEATURE_CONFIG = {
   AI: {
@@ -69,6 +74,7 @@ export default function ProGate({ children, feature = 'Pro' }) {
 
   // Not Pro — show upgrade wall (BLOCKS content entirely)
   const cfg = FEATURE_CONFIG[feature] || FEATURE_CONFIG.AI;
+  const perkList = cfg.perks;
 
   return (
     <div style={{
@@ -117,19 +123,42 @@ export default function ProGate({ children, feature = 'Pro' }) {
           </h2>
           <p style={{
             color: 'rgba(255,255,255,0.55)', fontSize: '.9rem',
-            lineHeight: 1.7, marginBottom: 28, maxWidth: 380, margin: '0 auto 28px',
+            lineHeight: 1.7, marginBottom: 20, maxWidth: 380, margin: '0 auto 20px',
           }}>
             {user
               ? `Upgrade to Pro to access all ${feature} tools — ad-free, priority AI, and full access.`
               : 'Sign in and upgrade to Pro to unlock these powerful faith-building tools.'}
           </p>
 
+          {/* Shared Pro exclusives */}
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center',
+            marginBottom: 20,
+          }}>
+            {PRO_EXCLUSIVES.map((item) => (
+              <span
+                key={item}
+                style={{
+                  fontSize: '.65rem',
+                  fontWeight: 700,
+                  color: 'rgba(255,255,255,0.75)',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${cfg.color}40`,
+                  padding: '4px 9px',
+                  borderRadius: 100,
+                }}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+
           {/* Perks list */}
           <div style={{
             background: 'rgba(255,255,255,0.06)',
             border: `1px solid ${cfg.color}25`,
             borderRadius: 16, padding: '20px 24px',
-            marginBottom: 28, textAlign: 'left',
+            marginBottom: 24, textAlign: 'left',
           }}>
             <div style={{
               fontSize: '.7rem', fontWeight: 800, letterSpacing: '1px',
@@ -137,11 +166,11 @@ export default function ProGate({ children, feature = 'Pro' }) {
             }}>
               What you get with Pro
             </div>
-            {cfg.perks.map((perk, i) => (
+            {perkList.map((perk, i) => (
               <div key={i} style={{
                 fontSize: '.85rem', color: 'rgba(255,255,255,0.75)',
                 fontWeight: 500, padding: '5px 0',
-                borderBottom: i < cfg.perks.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderBottom: i < perkList.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
               }}>
                 {perk}
               </div>
@@ -158,7 +187,7 @@ export default function ProGate({ children, feature = 'Pro' }) {
               boxShadow: `0 8px 24px ${cfg.glow}40`,
               display: 'inline-flex', alignItems: 'center', gap: 6,
             }}>
-              💎 Upgrade to Pro — from $3.99/mo
+              💎 Upgrade to Pro — from {PLAN_PRICES.pro.monthly}/mo
             </Link>
             {!user && (
               <Link to="/auth" style={{
@@ -173,12 +202,33 @@ export default function ProGate({ children, feature = 'Pro' }) {
             )}
           </div>
 
+          <p style={{
+            marginTop: 18, fontSize: '.78rem',
+            color: 'rgba(251,146,60,0.85)', fontWeight: 600,
+          }}>
+            {FAMILY_TEASER}
+          </p>
+          <Link
+            to="/premium"
+            style={{
+              display: 'inline-block',
+              marginTop: 8,
+              fontSize: '.78rem',
+              fontWeight: 800,
+              color: 'rgba(255,255,255,0.7)',
+              textDecoration: 'underline',
+              textUnderlineOffset: 3,
+            }}
+          >
+            Compare Free, Pro & Family plans →
+          </Link>
+
           {/* Free preview note */}
           <p style={{
-            marginTop: 20, fontSize: '.75rem',
+            marginTop: 16, fontSize: '.75rem',
             color: 'rgba(255,255,255,0.3)', fontWeight: 500,
           }}>
-            Some features have a free preview — explore the rest of the site while you decide.
+            Games, prayer wall, and Verse of the Day stay free — explore while you decide.
           </p>
         </div>
       </motion.div>
