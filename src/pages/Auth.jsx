@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SignIn, SignUp, useUser } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { trackPulseEvent } from '../lib/pulse';
 import styles from './Auth.module.css';
 
 export default function Auth() {
@@ -22,6 +23,12 @@ export default function Auth() {
     const urlMode = params.get('mode');
     if (urlMode === 'signup') setMode('signup');
   }, [params]);
+
+  useEffect(() => {
+    if (mode === 'signup') {
+      trackPulseEvent('signup', { source: 'auth_join_us' });
+    }
+  }, [mode]);
 
   if (!isLoaded) {
     return (

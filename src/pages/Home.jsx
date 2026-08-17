@@ -25,6 +25,7 @@ import {
   PLAN_PRICES,
   PRO_EXCLUSIVES,
 } from '../lib/membershipOffers';
+import { trackPulseEvent } from '../lib/pulse';
 
 // ── Reveal-on-scroll ──────────────────────────────────
 function useReveal() {
@@ -560,7 +561,10 @@ export default function Home() {
             >
               <Link
                 to="/play"
-                onClick={() => trackHeroCta('click')}
+                onClick={() => {
+                  trackHeroCta('click');
+                  trackPulseEvent('cta_hero_start_journey', { destination: '/play' });
+                }}
                 className="premium-cta-primary"
               >
                 🚀 Start Your Free Journey →
@@ -572,7 +576,11 @@ export default function Home() {
               whileHover={prefersReducedMotion ? {} : { scale: 1.04, y: -2 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
             >
-              <Link to="/devotional" className="premium-cta-secondary">
+              <Link
+                to="/devotional"
+                className="premium-cta-secondary"
+                onClick={() => trackPulseEvent('cta_hero_try_devotional', { destination: '/devotional' })}
+              >
                 🙏 Try AI Devotional
               </Link>
             </motion.div>
@@ -585,7 +593,10 @@ export default function Home() {
               >
                 <Link
                   to="/premium"
-                  onClick={() => trackPro('click')}
+                  onClick={() => {
+                    trackPro('click');
+                    trackPulseEvent('pricing_viewed', { source: 'hero_go_pro' });
+                  }}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -614,6 +625,7 @@ export default function Home() {
               >
                 <Link
                   to="/auth"
+                  onClick={() => trackPulseEvent('cta_hero_sign_in', { destination: '/auth' })}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',

@@ -7,6 +7,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { validateEnv } from './lib/validateEnv';
 import { initializeDevTools } from './lib/devTools';
 import { initAnalytics, trackPage } from './lib/analytics';
+import { trackPulsePageview } from './lib/pulse';
 import { initErrorMonitoring, setupGlobalHandlers } from './lib/errorMonitoring';
 import App from './App.jsx';
 import './index.css';
@@ -30,6 +31,7 @@ const NO_SCROLL_TOP = ['/play/', '/explore/'];
 
 function RouteTracker() {
   const location = useLocation();
+  const isFirstPath = React.useRef(true);
 
   React.useEffect(() => {
     // Save scroll position of the page we're leaving
@@ -42,18 +44,23 @@ function RouteTracker() {
     const skipScroll = NO_SCROLL_TOP.some(
       (prefix) => location.pathname.startsWith(prefix) && location.pathname !== prefix.slice(0, -1)
     );
-    if (skipScroll) return;
-
-    // If navigating back (popstate), restore saved position
-    const saved = scrollPositions.get(location.pathname);
-    if (saved !== undefined && window.history.state?.idx !== undefined) {
-      // Small delay to let the page render before restoring
-      requestAnimationFrame(() => window.scrollTo(0, saved));
-    } else {
-      window.scrollTo(0, 0);
+    if (!skipScroll) {
+      // If navigating back (popstate), restore saved position
+      const saved = scrollPositions.get(location.pathname);
+      if (saved !== undefined && window.history.state?.idx !== undefined) {
+        // Small delay to let the page render before restoring
+        requestAnimationFrame(() => window.scrollTo(0, saved));
+      } else {
+        window.scrollTo(0, 0);
+      }
+      trackPage(location.pathname);
     }
 
-    trackPage(location.pathname);
+    if (isFirstPath.current) {
+      isFirstPath.current = false;
+    } else {
+      trackPulsePageview();
+    }
   }, [location.pathname]);
 
   return null;

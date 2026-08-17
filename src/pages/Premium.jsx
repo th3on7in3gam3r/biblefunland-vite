@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { redirectToCheckout } from '../lib/stripe';
 import { trackEvent } from '../lib/analytics';
+import { trackPulseEvent } from '../lib/pulse';
 import { EARLY_ACCESS_FLAGS } from '../lib/featureFlags';
 import {
   EARLY_ACCESS_EMOJIS,
@@ -17,8 +18,13 @@ export default function Premium() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    trackPulseEvent('pricing_viewed', { source: 'premium_page' });
+  }, []);
+
   async function handleSubscribe(plan) {
     trackEvent('pro_conversion_start', { plan: plan.name, annual });
+    trackPulseEvent('trial_started', { plan: plan.name, annual });
 
     if (!plan.priceId) {
       navigate('/');

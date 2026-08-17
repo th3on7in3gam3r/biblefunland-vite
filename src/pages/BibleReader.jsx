@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BIBLE_BOOKS, resolveBook } from '../lib/bibleMap';
 import { API_URL as API } from '../lib/api-config';
+import { trackPulseEvent } from '../lib/pulse';
 
 const DEFAULT_BIBLE_ID = 'de4e12af7f28f599-02'; // KJV
 const FALLBACK_BIBLES = [
@@ -191,6 +192,11 @@ const apiPost = async (path, body) => {
       .then((json) => {
         setChapterContent(json.data);
         window.scrollTo(0, 0);
+        trackPulseEvent('bible_chapter_read', {
+          book: resolvedBook.id,
+          chapter: currentChapter,
+          translation: selectedBible,
+        });
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

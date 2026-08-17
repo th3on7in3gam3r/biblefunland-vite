@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useStreak } from '../../context/StreakContext';
 import usePageMetadata from '../../hooks/usePageMetadata';
+import { trackPulseEvent } from '../../lib/pulse';
 import {
   PLAY_FEATURES,
   PLAY_STATS,
@@ -121,10 +122,18 @@ export default function PlayOverview() {
           </p>
 
           <div className={styles.heroActions}>
-            <Link to="/play/trivia" className={styles.heroBtnPrimary}>
+            <Link
+              to="/play/trivia"
+              className={styles.heroBtnPrimary}
+              onClick={() => trackPulseEvent('game_started', { game: 'trivia', source: 'play_hub' })}
+            >
               ❓ Play Trivia
             </Link>
-            <Link to="/play/game/runner" className={styles.heroBtnGhost}>
+            <Link
+              to="/play/game/runner"
+              className={styles.heroBtnGhost}
+              onClick={() => trackPulseEvent('game_started', { game: 'ScriptureRunner', source: 'play_hub' })}
+            >
               🏃 Scripture Runner
             </Link>
             <button

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { trackPulseEvent } from '../lib/pulse';
 const VIDS = [
   {
     id: 1,
@@ -229,6 +230,11 @@ export default function Videos() {
   const visible = filter === 'All' ? VIDS : VIDS.filter((v) => v.cat === filter);
   const featured = VIDS.find((v) => v.featured);
 
+  function openVideo(video, source) {
+    trackPulseEvent('video_played', { title: video.title, cat: video.cat, yt: video.yt, source });
+    setModal(video);
+  }
+
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', fontFamily: 'Poppins,sans-serif' }}>
       {modal && (
@@ -395,7 +401,7 @@ export default function Videos() {
               />
             </div>
             <button
-              onClick={() => setModal(featured)}
+              onClick={() => openVideo(featured, 'featured')}
               style={{
                 marginTop: 20,
                 padding: '12px 28px',
@@ -468,7 +474,7 @@ export default function Videos() {
             .map((v) => (
               <div
                 key={v.id}
-                onClick={() => setModal(v)}
+                onClick={() => openVideo(v, 'grid')}
                 style={{
                   borderRadius: 20,
                   background: 'var(--surface)',

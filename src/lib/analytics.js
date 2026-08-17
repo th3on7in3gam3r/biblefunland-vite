@@ -4,6 +4,8 @@
  * All tracking is no-op when GA4 is not configured.
  */
 
+import { trackPulseEvent } from './pulse';
+
 const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
 function gtag(...args) {
@@ -37,6 +39,7 @@ export function trackPage(path) {
  * @param {object} params     — additional dimensions
  */
 export function trackEvent(eventName, params = {}) {
+  trackPulseEvent(eventName, params);
   if (!GA_ID || GA_ID === 'G-XXXXXXXXXX') return;
   gtag('event', eventName, { ...params, send_to: GA_ID });
 }

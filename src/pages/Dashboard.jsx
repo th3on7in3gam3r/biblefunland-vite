@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStreak } from '../context/StreakContext';
 import { useAuth } from '../context/AuthContext';
 import { useBadges, BADGE_DEFS } from '../context/BadgeContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { trackPulseEvent } from '../lib/pulse';
 function todayStr() {
   return new Date().toISOString().split('T')[0];
 }
@@ -13,7 +14,9 @@ export default function Dashboard() {
   const { streak, readDays, checkedToday, checkIn } = useStreak();
   const { user } = useAuth();
   const { earned } = useBadges();
+  const [searchParams] = useSearchParams();
   const [calDate, setCalDate] = useState(new Date());
+  const trackedCheckout = useRef(false);
   const now = new Date();
   const y = calDate.getFullYear(),
     m = calDate.getMonth();
@@ -22,6 +25,13 @@ export default function Dashboard() {
   const thisMonthRead = readDays.filter((d) =>
     d.startsWith(`${y}-${String(m + 1).padStart(2, '0')}`)
   ).length;
+
+  useEffect(() => {
+    if (trackedCheckout.current) return;
+    if (searchParams.get('success') !== 'true') return;
+    trackedCheckout.current = true;
+    trackPulseEvent('checkout_completed', { source: 'stripe' });
+  }, [searchParams]);
 
   // Build badge display from BadgeContext
   const RARITY_COLORS = {
