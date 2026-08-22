@@ -99,6 +99,15 @@ export const PAGE_META = {
       'christian podcast for families, bible podcast for kids, faith podcast free, christian family podcast, bible stories podcast for children',
     ageRange: 'All Ages',
   },
+  fromAi: {
+    title: 'Welcome to BibleFunLand — Free Bible Games & AI Devotionals',
+    description:
+      'Explore 80+ free Bible games, AI devotionals, and scripture tools for kids and families. Safe, faith-filled, and completely free — start your journey today.',
+    keywords:
+      'free bible games for kids, AI bible devotional, christian learning for families, bible games online free, kids bible app, sunday school resources',
+    ageRange: '3-12',
+    bibleRef: 'Jeremiah 29:11',
+  },
 };
 
 /**

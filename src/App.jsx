@@ -13,6 +13,7 @@ import { PageLoader } from './components/Skeleton';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import { useSEO } from './hooks/useSEO';
+import { captureAiReferral } from './lib/aiReferral';
 import AdminLogin from './pages/AdminLogin';
 import NotFound from './pages/NotFound';
 
@@ -70,6 +71,7 @@ const lazy_ = (componentImport) => {
 };
 const Trivia = lazy_(() => import('./pages/Trivia'));
 const Devotional = lazy_(() => import('./pages/Devotional'));
+const FromAI = lazy_(() => import('./pages/FromAI'));
 const BibleMap = lazy_(() => import('./pages/BibleMap'));
 const Flashcards = lazy_(() => import('./pages/Flashcards'));
 const Premium = lazy_(() => import('./pages/Premium'));
@@ -244,6 +246,7 @@ export default function App() {
       // Store for conversion tracking after signup
       sessionStorage.setItem('bfl_ref', ref);
     }
+    captureAiReferral(params, window.location.pathname);
   }, []);
   return (
     <ErrorBoundary>
@@ -286,6 +289,7 @@ export default function App() {
                                               <main className="main-content">
                                                 <Routes>
                                                   <Route path="/" element={<Home />} />
+                                                  <Route path="/from-ai" element={<SP c={FromAI} />} />
                                                   <Route path="/auth" element={<Auth />} />
                                                   <Route
                                                     path="/admin/login"

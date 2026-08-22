@@ -4,6 +4,7 @@ import { setPageMeta, PAGE_META } from '../lib/seo';
 
 const ROUTE_MAP = {
   '/': PAGE_META.home,
+  '/from-ai': PAGE_META.fromAi,
   '/play': PAGE_META.play,
   '/explore': PAGE_META.explore,
   '/ai': PAGE_META.ai,

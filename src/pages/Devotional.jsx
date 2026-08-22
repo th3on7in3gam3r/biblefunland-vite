@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { generateAIContent } from '../lib/ai';
+import { trackAiReferralConversion } from '../lib/aiReferral';
 const TOPICS = [
   '😌 Anxiety & Peace',
   '💪 Strength & Courage',
@@ -41,6 +42,7 @@ export default function Devotional() {
           prayer: (t.match(/PRAYER:\s*([\s\S]+?)$/i)?.[1] || '').trim(),
           raw: t,
         });
+        trackAiReferralConversion('devotional_generated', { topic: topic.trim() });
       } else setError('AI returned an empty response. Please try again.');
     } catch (err) {
       setError(err.message || 'Connection failed. Please try again later.');

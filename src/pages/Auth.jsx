@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SignIn, SignUp, useUser } from '@clerk/clerk-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackPulseEvent } from '../lib/pulse';
+import { trackAiReferralConversion } from '../lib/aiReferral';
 import styles from './Auth.module.css';
 
 export default function Auth() {
@@ -27,6 +28,7 @@ export default function Auth() {
   useEffect(() => {
     if (mode === 'signup') {
       trackPulseEvent('signup', { source: 'auth_join_us' });
+      trackAiReferralConversion('signup');
     }
   }, [mode]);
 
