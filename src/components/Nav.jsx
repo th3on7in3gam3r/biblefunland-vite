@@ -8,6 +8,8 @@ import { ChildSwitcherButton } from '../context/ChildSwitcherContext';
 import { useAds } from '../context/AdsContext';
 import SleepMode from './SleepMode';
 import GlobalSearch from './GlobalSearch';
+import RainbowLogo from './RainbowLogo';
+import '../styles/storybook.css';
 import styles from './Nav.module.css';
 
 // ── Nav structure ─────────────────────────────────────────────────────────────
@@ -60,19 +62,6 @@ const PRIMARY_NAV = [
     ],
   },
   { to: '/podcast', label: 'Podcast' },
-  {
-    to: '/community',
-    label: 'Community',
-    dropdown: [
-      { to: '/community', label: '🌐 Community Hub' },
-      { to: '/prayer', label: '🙏 Prayer Wall' },
-      { to: '/community/family', label: '👨‍👩‍👧 Family Groups' },
-      { to: '/community/chat', label: '💬 Chat Rooms' },
-      { to: '/leaderboard', label: '🏆 Leaderboard' },
-      { to: '/church-finder', label: '⛪ Church Finder' },
-      { to: '/worship-radio', label: '🎵 Worship & Radio' },
-    ],
-  },
 ];
 
 // ── Mobile drawer ─────────────────────────────────────────────────────────────
@@ -182,19 +171,7 @@ export default function Nav() {
         {/* Logo — clicks to Home (5 quick taps opens admin) */}
         <NavLink to="/" className={styles.logoLink} aria-label="BibleFunLand home">
           <div className={styles.logo} onClick={handleLogoClick}>
-            <span className={styles.logoIcon} aria-hidden="true">
-              <svg viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="19" className={styles.logoSun} />
-                <path
-                  d="M9 27c0-6 5-8 11-6 6-2 11 0 11 6v1c-6-2-11 0-11 0s-5-2-11 0z"
-                  className={styles.logoBook}
-                />
-                <path d="M20 8v11M16 12h8" className={styles.logoCross} />
-              </svg>
-            </span>
-            <span className={styles.logoText}>
-              Bible<span>Fun</span>Land
-            </span>
+            <RainbowLogo />
           </div>
         </NavLink>
 

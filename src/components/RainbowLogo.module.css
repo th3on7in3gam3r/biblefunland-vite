@@ -1,0 +1,52 @@
+.logo {
+  --arc: 24px;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--sb-font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--sb-ink);
+  white-space: nowrap;
+}
+.lg {
+  --arc: 28px;
+  font-size: 2.1rem;
+}
+.fun {
+  color: var(--sb-orange);
+}
+.iWrap {
+  position: relative;
+}
+.rainbow {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--arc) * -0.42);
+  width: var(--arc);
+  height: calc(var(--arc) / 2);
+  transform: translateX(-50%);
+  overflow: hidden;
+  pointer-events: none;
+}
+.arcOuter,
+.arcMid,
+.arcInner {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid;
+  aspect-ratio: 1;
+}
+.arcOuter {
+  inset: 0 0 auto 0;
+  border-color: var(--sb-orange);
+}
+.arcMid {
+  inset: 3px 3px auto 3px;
+  border-color: var(--sb-sun);
+}
+.arcInner {
+  inset: 6px 6px auto 6px;
+  border-color: var(--sb-sky);
+}

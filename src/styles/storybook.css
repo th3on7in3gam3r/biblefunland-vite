@@ -1,0 +1,61 @@
+/* Storybook redesign — self-hosted fonts + shared tokens.
+   Fonts: Fredoka (headings), Nunito (body), Gochi Hand (hand-written notes). */
+@font-face {
+  font-family: 'Fredoka Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('/fonts/fredoka-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Nunito Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 1000;
+  src: url('/fonts/nunito-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Gochi Hand';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/gochi-hand-latin-400-normal.woff2') format('woff2');
+}
+
+:root {
+  --sb-cream: #fff8ec;
+  --sb-cream-2: #fdf0d9;
+  --sb-card: #ffffff;
+  --sb-ink: #2b2350;
+  --sb-ink-soft: #5b5478;
+  --sb-line: #e2d7cd;
+  --sb-orange: #f4511e;
+  --sb-orange-600: #d93f10;
+  --sb-orange-700: #b4310d;
+  --sb-grape: #7c4dea;
+  --sb-grape-700: #5a29b8;
+  --sb-sun: #ffc531;
+  --sb-leaf: #3bb273;
+  --sb-sky: #3a8dff;
+  --sb-sky-text: #1f6fe0;
+  --sb-teal: #1fa3a0;
+  --sb-tint-leaf: #eef6e4;
+  --sb-tint-grape: #efeafd;
+  --sb-shadow: rgba(43, 35, 80, 0.14);
+  --sb-font-heading: 'Fredoka Variable', 'Nunito Variable', system-ui, sans-serif;
+  --sb-font-body: 'Nunito Variable', system-ui, -apple-system, sans-serif;
+  --sb-font-hand: 'Gochi Hand', 'Nunito Variable', cursive;
+}
+
+[data-theme='dark'] {
+  --sb-cream: #1b1631;
+  --sb-cream-2: #231c3f;
+  --sb-card: #2a2250;
+  --sb-ink: #f6f1ff;
+  --sb-ink-soft: #c8c0e3;
+  --sb-line: #463c78;
+  --sb-tint-leaf: #1c2a24;
+  --sb-tint-grape: #241d45;
+  --sb-shadow: rgba(0, 0, 0, 0.45);
+  --sb-sky-text: #8db9ff;
+}

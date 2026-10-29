@@ -1,176 +1,139 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useKidsMode } from '../context/KidsModeContext';
 import { useChildSwitcher } from '../context/ChildSwitcherContext';
 import KidsDashboard from './KidsDashboard';
+import StoryIcon from '../components/StoryIcon';
 import { trackPulseEvent } from '../lib/pulse';
+import '../styles/storybook.css';
 import styles from './Home.module.css';
 
-// Storybook illustrations (generated for the redesign).
-// TODO: copy these into /public/home/ and point IMG at local paths.
-const CDN = 'https://cdn.ploy.ai/79cd5e36-0ac2-4e32-a53d-6a80df28cf48/user';
-const IMG = {
-  hero: `${CDN}/ai-hero-noahs-ark-261029150101.webp`,
-  runner: `${CDN}/ai-game-scripture-runner-261029150108.webp`,
-  david: `${CDN}/ai-game-david-goliath-261029150111.webp`,
-  spin: `${CDN}/ai-game-spin-the-verse-261029150117.webp`,
-  trivia: `${CDN}/ai-game-bible-trivia-261029150114.webp`,
-  bible: `${CDN}/ai-devotional-open-bible-261029150116.webp`,
-  family: `${CDN}/ai-parents-family-tablet-261029150128.webp`,
-  podcast: `${CDN}/ai-podcast-mic-headphones-261029150132.webp`,
-};
+const img = (name) => `/home/${name}.webp`;
 
 const STATS = [
-  { value: '80+', label: 'Bible games', sub: 'From Genesis to Revelation', tone: 'sun' },
-  { value: '100%', label: 'Free to play', sub: 'No subscriptions needed', tone: 'leaf' },
-  { value: '🛡️', label: 'Safe for kids', sub: 'PIN-protected Kids Mode', tone: 'sky' },
+  { icon: 'star', title: '80+ games', sub: 'Faith-filled and growing', chip: 'sun', filled: true },
+  { icon: 'heart', title: '100% free', sub: 'Free for every family', chip: 'leaf', filled: true },
+  { icon: 'gamepad', title: 'No subscriptions', sub: 'No paywalls, ever', chip: 'sky' },
+  { icon: 'shield', title: 'Safe for kids', sub: 'PIN-protected Kids Mode', chip: 'grape' },
 ];
 
 const GAMES = [
   {
     title: 'Scripture Runner',
-    desc: 'Dash, jump and collect verses in an arcade run through the Bible.',
-    img: IMG.runner,
+    desc: 'An arcade-style dash through Scripture.',
+    img: 'game-scripture-runner',
     alt: 'A boy running happily along a sunny hillside path',
     to: '/game/runner',
     tone: 'sun',
   },
   {
     title: 'David & Goliath',
-    desc: 'Step into one of the bravest stories ever told — sling at the ready.',
-    img: IMG.david,
+    desc: "Step into one of the Bible's bravest stories.",
+    img: 'game-david-goliath',
     alt: 'Young David with his sling facing the giant Goliath',
     to: '/game/david-goliath',
-    tone: 'coral',
+    tone: 'sky',
   },
   {
     title: 'Spin the Verse',
-    desc: 'Give the wheel a whirl and learn a brand-new memory verse.',
-    img: IMG.spin,
-    alt: 'Kids cheering around a rainbow prize wheel with an open Bible',
+    desc: 'Spin the wheel and learn a new verse.',
+    img: 'game-spin-the-verse',
+    alt: 'Kids cheering around a rainbow prize wheel with an open Bible in the middle',
     to: '/game/spin-the-verse',
     tone: 'grape',
   },
   {
     title: 'Bible Trivia',
-    desc: 'Test what you know with quizzes for every age and every book.',
-    img: IMG.trivia,
-    alt: 'A smiling girl thinking, surrounded by colorful question marks',
+    desc: 'Test what you know, from Genesis to Revelation.',
+    img: 'game-bible-trivia',
+    alt: 'A smiling girl thinking, surrounded by colorful question marks and a light bulb',
     to: '/play/trivia',
-    tone: 'sky',
+    tone: 'leaf',
   },
 ];
 
-const DEVOTIONAL_FEATURES = [
-  'Personalized devotionals for your whole family',
-  'Chat with Bible characters like Moses and Ruth',
-  'Scripture-inspired miracle art',
-  'Drama scripts for Sunday school and VBS',
-  'Lesson plans and printables in minutes',
-  'Reading plans from preschool to tweens',
+const DEVOTIONAL_TOOLS = [
+  {
+    icon: 'bookHeart',
+    label: 'Personalized family devotionals',
+    chip: 'orange',
+    to: '/devotional',
+  },
+  { icon: 'chat', label: 'Chat with Bible characters', chip: 'sky', to: '/chat/characters' },
+  { icon: 'palette', label: 'Scripture-inspired art', chip: 'grape', to: '/ai/miracle-art' },
+  {
+    icon: 'drama',
+    label: 'Drama scripts for church and homeschool',
+    chip: 'teal',
+    to: '/ai/drama-scripts',
+  },
+  { icon: 'notebook', label: 'AI lesson plans and printables', chip: 'leaf', to: '/parents' },
+  { icon: 'calendar', label: 'Reading plans for every age', chip: 'sun', to: '/devotional' },
 ];
 
 const EXPLORE = [
   {
     title: 'Living Bible Map',
-    desc: 'Travel the lands of the Bible, from Eden to Rome.',
+    desc: 'See where the stories happened.',
+    img: 'explore-bible-map',
+    alt: 'Watercolor parchment map of Bible lands with sea, rivers, hills and towns',
     to: '/explore/world',
-    icon: '🗺️',
-    tone: 'sky',
+    icon: 'mapPin',
+    chip: 'sky',
   },
   {
     title: 'Interactive Timeline',
-    desc: 'See how every story fits into God’s big story.',
+    desc: "Watch God's plan unfold from Creation to the early church.",
+    img: 'explore-timeline',
+    alt: 'An ancient walled city on a hill with a rainbow stepping-stone path leading toward it',
     to: '/explore/timeline',
-    icon: '📜',
-    tone: 'sun',
+    icon: 'clock',
+    chip: 'grape',
   },
   {
     title: 'Family Tree',
-    desc: 'Meet the families from Adam all the way to Jesus.',
+    desc: 'Discover how people connect across generations.',
+    img: 'explore-family-tree',
+    alt: 'A big leafy tree holding round portraits of people from Bible times',
     to: '/family-tree',
-    icon: '🌳',
-    tone: 'leaf',
+    icon: 'users',
+    chip: 'teal',
   },
 ];
 
 const PARENT_FEATURES = [
-  'Child profiles with progress tracking',
+  'Child profiles and progress tracking',
   'Parental controls and PIN-protected Kids Mode',
-  'Time limits and age-appropriate filters',
-  'Weekly email digests of what your kids learned',
-  'Classroom tools for teachers and homeschoolers',
+  'Safe time limits and age filters',
+  'Weekly email digests',
+  'Classroom tools, lesson plans and printables',
 ];
 
 const COMMUNITY = [
-  {
-    icon: '🙏',
-    title: 'Global prayer wall',
-    desc: 'Share requests and pray for families everywhere.',
-    to: '/prayer',
-  },
-  {
-    icon: '👨‍👩‍👧',
-    title: 'Family groups',
-    desc: 'Grow together with friends from church and home.',
-    to: '/community/family',
-  },
-  {
-    icon: '💬',
-    title: 'Chat rooms',
-    desc: 'Moderated, kid-safe spaces to talk faith.',
-    to: '/community/chat',
-  },
+  { icon: 'handHeart', label: 'Global prayer wall', chip: 'orange', to: '/prayer' },
+  { icon: 'users', label: 'Family groups', chip: 'teal', to: '/community/family' },
+  { icon: 'messageHeart', label: 'Chat rooms', chip: 'sky', to: '/community/chat' },
 ];
 
-function useReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll(`.${styles.reveal}`);
-    if (!('IntersectionObserver' in window)) {
-      els.forEach((el) => el.classList.add(styles.in));
-      return undefined;
-    }
-    const obs = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add(styles.in);
-            obs.unobserve(e.target);
-          }
-        }),
-      { threshold: 0.1 }
-    );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
-  }, []);
-}
-
-function Check() {
+function Chip({ icon, tone, size = 'md', filled }) {
   return (
-    <svg className={styles.check} viewBox="0 0 20 20" aria-hidden="true">
-      <circle cx="10" cy="10" r="10" />
-      <path d="M5.5 10.5l3 3 6-7" />
-    </svg>
+    <span className={`${styles.chip} ${styles[`chip_${tone}`]} ${styles[`chip_${size}`]}`}>
+      <StoryIcon name={icon} filled={filled} />
+    </span>
   );
 }
 
-function Squiggle() {
+function Sparkles() {
   return (
-    <svg
-      className={styles.squiggle}
-      viewBox="0 0 220 14"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <path d="M2 9c18-8 34-8 52 0s34 8 52 0 34-8 52 0 34 8 60-2" />
-    </svg>
+    <>
+      <StoryIcon name="star" filled className={`${styles.sparkle} ${styles.sparkleLeft}`} />
+      <StoryIcon name="star" filled className={`${styles.sparkle} ${styles.sparkleRight}`} />
+    </>
   );
 }
 
 export default function Home() {
   const { kidsMode } = useKidsMode();
   const { isChildSession } = useChildSwitcher();
-  useReveal();
 
   if (kidsMode || isChildSession) return <KidsDashboard />;
 
@@ -181,269 +144,291 @@ export default function Home() {
       {/* ── Hero ─────────────────────────────────────── */}
       <section className={styles.hero}>
         <div className={styles.heroCopy}>
-          <div className={styles.tags}>
-            <span className={`${styles.tag} ${styles.toneSun}`}>Games</span>
-            <span className={`${styles.tag} ${styles.toneGrape}`}>Faith</span>
-            <span className={`${styles.tag} ${styles.toneLeaf}`}>Family</span>
-          </div>
           <h1 className={styles.heroTitle}>
-            Free Bible games &amp; devotionals for{' '}
-            <span className={styles.highlight}>
-              kids and families
-              <Squiggle />
-            </span>
+            Free Bible games &amp; devotionals for kids and families
           </h1>
-          <p className={styles.lead}>
-            BibleFunLand is a free, interactive place to learn God’s Word — made for children,
-            parents, Sunday school teachers and homeschool families. Play 80+ games, grow with
-            devotionals, print activities and hide Scripture in your heart.
+          <p className={styles.heroBody}>
+            A free, interactive Bible learning platform for children, parents, Sunday school
+            teachers, and homeschool families. Make God&apos;s Word engaging, memorable, and fun.
           </p>
-          <div className={styles.ctaRow}>
+          <div className={styles.heroActions}>
             <Link
               to="/play"
-              className={`${styles.btn} ${styles.btnPrimary}`}
+              className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
               onClick={track('cta_hero_start_journey', '/play')}
             >
-              🎮 Play free Bible games
+              Play free Bible games
             </Link>
             <Link
               to="/devotional"
-              className={`${styles.btn} ${styles.btnGhost}`}
+              className={`${styles.btn} ${styles.btnSecondary} ${styles.btnLg}`}
               onClick={track('cta_hero_try_devotional', '/devotional')}
             >
-              ✨ Try AI devotionals
+              Try AI devotionals
             </Link>
           </div>
+          <span className={`${styles.handNote} ${styles.heroNote}`}>
+            <span>
+              Games
+              <StoryIcon name="heart" filled className={styles.noteHeart} />
+            </span>
+            <span>
+              Faith
+              <StoryIcon name="heart" filled className={styles.noteHeart} />
+            </span>
+            <span>Family</span>
+          </span>
         </div>
-        <figure className={styles.heroArt}>
+        <div className={styles.heroArt}>
           <img
-            src={IMG.hero}
-            alt="Storybook illustration of Noah's ark on the waves under a rainbow, with animals looking out"
-            width="1200"
-            height="900"
+            src={img('hero-noahs-ark')}
+            alt="Storybook illustration of Noah's ark on the waves under a rainbow, with an elephant, lion, giraffe, monkey and zebra looking out"
+            width="1400"
+            height="1050"
             fetchpriority="high"
+            className={styles.heroImage}
           />
-        </figure>
+        </div>
       </section>
 
-      {/* ── Stats ────────────────────────────────────── */}
-      <section className={styles.stats} aria-label="BibleFunLand at a glance">
-        {STATS.map((s) => (
-          <div key={s.label} className={`${styles.stat} ${styles[`tone${cap(s.tone)}`]}`}>
-            <span className={styles.statValue}>{s.value}</span>
-            <span className={styles.statLabel}>{s.label}</span>
-            <span className={styles.statSub}>{s.sub}</span>
+      {/* ── Trust badges ─────────────────────────────── */}
+      <section className={styles.trust} aria-label="Why families love BibleFunLand">
+        <div className={styles.container}>
+          <div className={styles.trustGrid}>
+            {STATS.map((s) => (
+              <div key={s.title} className={styles.trustItem}>
+                <Chip icon={s.icon} tone={s.chip} size="lg" filled={s.filled} />
+                <div>
+                  <p className={styles.trustTitle}>{s.title}</p>
+                  <p className={styles.trustSub}>{s.sub}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </section>
 
       {/* ── Games ────────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.reveal}`} id="games">
-        <header className={styles.sectionHead}>
-          <span className={styles.eyebrow}>Play</span>
-          <h2>Bible games kids love</h2>
-          <p>
-            Arcade-style adventures that bring Bible stories and heroes to life — from Genesis to
-            Revelation.
-          </p>
-        </header>
-        <div className={styles.gameGrid}>
-          {GAMES.map((g) => (
-            <article key={g.title} className={`${styles.gameCard} ${styles[`tone${cap(g.tone)}`]}`}>
-              <Link to={g.to} className={styles.gameImg} tabIndex={-1} aria-hidden="true">
-                <img src={g.img} alt={g.alt} loading="lazy" width="600" height="450" />
-              </Link>
-              <div className={styles.gameBody}>
-                <h3>{g.title}</h3>
-                <p>{g.desc}</p>
-                <Link to={g.to} className={styles.playBtn}>
-                  Play now <span aria-hidden="true">→</span>
-                </Link>
+      <section className={styles.section} id="games">
+        <div className={styles.container}>
+          <div className={styles.sectionHead}>
+            <Sparkles />
+            <h2 className={styles.h2}>Bible games kids love</h2>
+            <p className={styles.lead}>
+              Arcade-style games rooted in Scripture that bring Bible stories, heroes, and themes to
+              life from Genesis through Revelation.
+            </p>
+          </div>
+          <div className={styles.gameGrid}>
+            {GAMES.map((g) => (
+              <div
+                key={g.title}
+                className={`${styles.card} ${styles.gameCard} ${styles[`top_${g.tone}`]}`}
+              >
+                <img
+                  src={img(g.img)}
+                  alt={g.alt}
+                  width="900"
+                  height="675"
+                  loading="lazy"
+                  className={styles.gameImg}
+                />
+                <div className={styles.gameBody}>
+                  <h3 className={styles.h3}>{g.title}</h3>
+                  <p className={styles.gameDesc}>{g.desc}</p>
+                  <Link
+                    to={g.to}
+                    aria-label={`Play ${g.title}`}
+                    className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}
+                  >
+                    Play now
+                  </Link>
+                </div>
               </div>
-            </article>
-          ))}
-        </div>
-        <div className={styles.moreRow}>
-          <p>
-            Plus Parable Escape Room and dozens more — with streaks, badges and a family
-            leaderboard.
-          </p>
-          <Link to="/play" className={`${styles.btn} ${styles.btnInk}`}>
-            See all 80+ games
-          </Link>
+            ))}
+          </div>
+          <div className={styles.more}>
+            <p>
+              Plus Parable Escape Room and dozens more, with streaks, badges, and a friendly
+              leaderboard.
+            </p>
+            <Link to="/play" className={`${styles.btn} ${styles.btnSecondary} ${styles.btnMd}`}>
+              See all 80+ games
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ── AI devotionals ───────────────────────────── */}
-      <section className={`${styles.section} ${styles.split} ${styles.reveal}`} id="devotionals">
+      <section className={`${styles.split} ${styles.devotionals}`} id="devotionals">
         <div className={styles.splitCopy}>
-          <span className={styles.eyebrow}>Grow</span>
-          <h2>AI devotionals for every curious heart</h2>
-          <p>
-            Short, warm devotionals written for your family’s ages and questions — plus creative
-            tools that make Bible time the best part of the day.
+          <h2 className={`${styles.h2} ${styles.left}`}>AI devotionals for every curious heart</h2>
+          <p className={styles.splitBody}>
+            Generate personalized family devotionals, chat with Bible characters, and create
+            scripture-inspired art. Parents and teachers save time with lesson plans, printables,
+            and reading plans for every age from preschool through tweens.
           </p>
-          <ul className={styles.checkList}>
-            {DEVOTIONAL_FEATURES.map((f) => (
-              <li key={f}>
-                <Check />
-                {f}
-              </li>
+          <div className={styles.tools}>
+            {DEVOTIONAL_TOOLS.map((t) => (
+              <Link key={t.label} to={t.to} className={styles.tool}>
+                <Chip icon={t.icon} tone={t.chip} size="sm" />
+                <span>{t.label}</span>
+              </Link>
             ))}
-          </ul>
+          </div>
           <Link
             to="/devotional"
-            className={`${styles.btn} ${styles.btnPrimary}`}
+            className={`${styles.btn} ${styles.btnPrimary} ${styles.btnMd} ${styles.splitCta}`}
             onClick={track('cta_home_devotional', '/devotional')}
           >
-            ✨ Try AI devotionals
+            Try AI devotionals
           </Link>
         </div>
-        <figure className={`${styles.splitArt} ${styles.tiltRight}`}>
+        <div className={styles.splitArt}>
           <img
-            src={IMG.bible}
-            alt="Watercolor open Bible on a wooden table with sunrise light"
+            src={img('devotional-open-bible')}
+            alt="Watercolor open Bible on a wooden table with sunrise light, leafy plants and a mug"
+            width="1400"
+            height="788"
             loading="lazy"
-            width="900"
-            height="700"
+            className={`${styles.fadeImg} ${styles.fadeDevotional}`}
           />
-          <figcaption className={styles.sticker}>Today’s devotional · 5 min</figcaption>
-        </figure>
+          <span className={`${styles.handNote} ${styles.noteBigQuestions}`}>
+            Big questions, bright answers
+          </span>
+        </div>
       </section>
 
       {/* ── Explore ──────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.reveal}`} id="explore">
-        <header className={styles.sectionHead}>
-          <span className={styles.eyebrow}>Discover</span>
-          <h2>Explore the Bible</h2>
-          <p>Maps, timelines and family trees that turn reading into an adventure.</p>
-        </header>
-        <div className={styles.exploreGrid}>
-          {EXPLORE.map((e) => (
-            <Link
-              key={e.title}
-              to={e.to}
-              className={`${styles.exploreCard} ${styles[`tone${cap(e.tone)}`]}`}
-            >
-              <span className={styles.exploreIcon} aria-hidden="true">
-                {e.icon}
-              </span>
-              <h3>{e.title}</h3>
-              <p>{e.desc}</p>
-              <span className={styles.exploreGo}>Explore →</span>
-            </Link>
-          ))}
+      <section className={styles.section} id="explore">
+        <div className={styles.container}>
+          <div className={styles.sectionHead}>
+            <Sparkles />
+            <h2 className={styles.h2}>Explore the Bible</h2>
+            <p className={styles.lead}>
+              Kids and grown-ups can picture where stories happened, how people connect, and how
+              God&apos;s plan unfolds.
+            </p>
+          </div>
+          <div className={styles.exploreGrid}>
+            {EXPLORE.map((e) => (
+              <Link key={e.title} to={e.to} className={`${styles.card} ${styles.exploreCard}`}>
+                <img
+                  src={img(e.img)}
+                  alt={e.alt}
+                  width="900"
+                  height="598"
+                  loading="lazy"
+                  className={styles.exploreImg}
+                />
+                <div className={styles.exploreBody}>
+                  <Chip icon={e.icon} tone={e.chip} />
+                  <div className={styles.exploreText}>
+                    <h3 className={`${styles.h3} ${styles.left} ${styles.h3Sm}`}>{e.title}</h3>
+                    <p>{e.desc}</p>
+                  </div>
+                  <span className={styles.arrow}>
+                    <StoryIcon name="arrowRight" size={18} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <p className={styles.alsoInside}>
+            Also inside: a <Link to="/explore/voice-reader">voice Bible reader</Link> and a{' '}
+            <Link to="/explore/bible">book-by-book explorer</Link>.
+          </p>
         </div>
-        <p className={styles.footnote}>
-          Also inside: a <Link to="/explore/voice-reader">voice Bible reader</Link> and a{' '}
-          <Link to="/explore/bible">book-by-book explorer</Link>.
-        </p>
       </section>
 
-      {/* ── Parents & Teachers ───────────────────────── */}
-      <section
-        className={`${styles.section} ${styles.split} ${styles.splitReverse} ${styles.reveal}`}
-        id="parents"
-      >
-        <figure className={`${styles.splitArt} ${styles.tiltLeft}`}>
-          <img
-            src={IMG.family}
-            alt="A mother and her two children smiling at a tablet showing a rainbow"
-            loading="lazy"
-            width="900"
-            height="700"
-          />
-          <figcaption className={styles.sticker}>Built with parents, for parents</figcaption>
-        </figure>
+      {/* ── Parents & teachers ───────────────────────── */}
+      <section className={`${styles.split} ${styles.parents}`} id="parents">
         <div className={styles.splitCopy}>
-          <span className={styles.eyebrow}>For grown-ups</span>
-          <h2>For parents, teachers and homeschool families</h2>
-          <p>Peace of mind for you, joyful learning for them.</p>
-          <ul className={styles.checkList}>
+          <h2 className={`${styles.h2} ${styles.left}`}>
+            For parents, teachers and homeschool families
+          </h2>
+          <p className={styles.splitBody}>
+            The Parents &amp; Teachers Hub helps you set safe limits, follow each child&apos;s
+            progress, and celebrate milestones as your family grows in faith together.
+          </p>
+          <ul className={styles.checks}>
             {PARENT_FEATURES.map((f) => (
               <li key={f}>
-                <Check />
+                <span className={styles.checkDot}>
+                  <StoryIcon name="check" size={16} strokeWidth={3} />
+                </span>
                 {f}
               </li>
             ))}
           </ul>
-          <Link to="/parents" className={`${styles.btn} ${styles.btnInk}`}>
+          <Link
+            to="/parents"
+            className={`${styles.btn} ${styles.btnPrimary} ${styles.btnMd} ${styles.splitCta}`}
+          >
             Visit the Parents &amp; Teachers Hub
           </Link>
         </div>
-      </section>
-
-      {/* ── Podcast ──────────────────────────────────── */}
-      <section className={`${styles.podcast} ${styles.reveal}`} id="podcast">
-        <div className={styles.podcastCopy}>
-          <span className={styles.eyebrowLight}>Listen</span>
-          <h2>Faith &amp; Adventure podcast</h2>
-          <p>
-            Bible stories told with heart — perfect for car rides, bedtime and Sunday school prep.
-          </p>
-          <Link
-            to="/podcast"
-            className={`${styles.btn} ${styles.btnSun}`}
-            onClick={track('cta_home_podcast', '/podcast')}
-          >
-            🎧 Listen to the podcast
-          </Link>
-        </div>
-        <figure className={styles.podcastArt}>
+        <div className={styles.splitArt}>
           <img
-            src={IMG.podcast}
-            alt="Watercolor microphone and purple headphones with music notes"
+            src={img('parents-family-tablet')}
+            alt="A mother and her two children smiling at a tablet showing a rainbow"
+            width="1400"
+            height="1050"
             loading="lazy"
-            width="700"
-            height="700"
+            className={`${styles.fadeImg} ${styles.fadeParents}`}
           />
-        </figure>
-      </section>
-
-      {/* ── Community ────────────────────────────────── */}
-      <section className={`${styles.section} ${styles.reveal}`} id="community">
-        <header className={styles.sectionHead}>
-          <span className={styles.eyebrow}>Together</span>
-          <h2>Pray and grow together with families around the world</h2>
-        </header>
-        <div className={styles.communityGrid}>
-          {COMMUNITY.map((c) => (
-            <Link key={c.title} to={c.to} className={styles.communityCard}>
-              <span className={styles.communityIcon} aria-hidden="true">
-                {c.icon}
-              </span>
-              <h3>{c.title}</h3>
-              <p>{c.desc}</p>
-            </Link>
-          ))}
+          <span className={`${styles.handNote} ${styles.underlined} ${styles.noteGrowing}`}>
+            Growing in faith together
+          </span>
         </div>
       </section>
 
-      {/* ── Closing CTA ──────────────────────────────── */}
-      <section className={`${styles.closing} ${styles.reveal}`}>
-        <h2>Ready for some Bible fun?</h2>
-        <p>Jump in free — no credit card, no subscription.</p>
-        <div className={styles.ctaRow}>
-          <Link
-            to="/play"
-            className={`${styles.btn} ${styles.btnPrimary}`}
-            onClick={track('cta_home_closing_play', '/play')}
-          >
-            🎮 Play free
-          </Link>
-          <Link
-            to="/auth"
-            className={`${styles.btn} ${styles.btnGhost}`}
-            onClick={track('cta_home_closing_signup', '/auth')}
-          >
-            Create a family account
-          </Link>
+      {/* ── Podcast + community ──────────────────────── */}
+      <section className={`${styles.section} ${styles.podcastBand}`} id="podcast">
+        <div className={styles.container}>
+          <div className={styles.podcastGrid}>
+            <div>
+              <h2 className={`${styles.h2} ${styles.left}`}>Faith &amp; Adventure podcast</h2>
+              <p className={styles.podcastBody}>
+                Bible stories kids remember, perfect for car rides, bedtime, and Sunday school prep.
+              </p>
+              <Link
+                to="/podcast"
+                className={`${styles.btn} ${styles.btnPrimary} ${styles.btnMd}`}
+                onClick={track('cta_home_podcast', '/podcast')}
+              >
+                Listen to the podcast
+              </Link>
+            </div>
+            <div className={styles.podcastArt}>
+              <img
+                src={img('podcast-mic-headphones')}
+                alt="Watercolor microphone and purple headphones with music notes"
+                width="900"
+                height="675"
+                loading="lazy"
+              />
+              <span className={`${styles.handNote} ${styles.noteStories}`}>
+                Stories kids remember
+              </span>
+            </div>
+          </div>
+
+          <div className={`${styles.card} ${styles.community}`}>
+            <h3 className={`${styles.h3} ${styles.left} ${styles.communityTitle}`}>
+              Pray and grow together with families around the world
+            </h3>
+            <div className={styles.communityItems}>
+              {COMMUNITY.map((c) => (
+                <Link key={c.label} to={c.to} className={styles.communityItem}>
+                  <Chip icon={c.icon} tone={c.chip} />
+                  <span>{c.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </div>
   );
-}
-
-function cap(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
