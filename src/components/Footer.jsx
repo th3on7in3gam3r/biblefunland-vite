@@ -1,69 +1,86 @@
 import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 
-const EXPLORE_LINKS = [
-  { to: '/trivia', label: '🎮 Scripture Trivia' },
-  { to: '/devotional', label: '🙏 AI Devotional' },
-  { to: '/explore/bible', label: '📖 Bible Explorer' },
-  { to: '/map', label: '🗺️ Bible Map' },
-  { to: '/game/runner', label: '🏃 Scripture Runner' },
-  { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
+const COLUMNS = [
+  {
+    title: 'Play & learn',
+    links: [
+      { to: '/play', label: 'Games' },
+      { to: '/play/trivia', label: 'Bible Trivia' },
+      { to: '/devotional', label: 'Devotionals' },
+      { to: '/explore/bible', label: 'Explore the Bible' },
+      { to: '/podcast', label: 'Podcast' },
+      { to: 'https://junior.biblefunland.com', label: 'BibleFunLand Jr.', isExternal: true },
+    ],
+  },
+  {
+    title: 'Families',
+    links: [
+      { to: '/parents', label: 'Parents & Teachers' },
+      { to: '/prayer', label: 'Prayer Wall' },
+      { to: '/community/family', label: 'Family Groups' },
+      { to: '/leaderboard', label: 'Leaderboard' },
+      { to: '/church-finder', label: 'Church Finder' },
+      { to: 'https://homeschool.biblefunland.com', label: 'HomeSchool Hub', isExternal: true },
+    ],
+  },
+  {
+    title: 'BibleFunLand',
+    links: [
+      { to: '/premium', label: 'Go Pro' },
+      { to: '/affiliate', label: 'Partner With Us' },
+      { to: '/partner', label: 'Ministry Partnership' },
+      { to: '/creators', label: 'Creator Program' },
+      { to: '/contact', label: 'Contact Us' },
+      { to: 'https://biblefunlandstudios.com', label: 'BibleFunLand Studios', isExternal: true },
+    ],
+  },
 ];
 
-const COMMUNITY_LINKS = [
-  { to: '/prayer', label: '🌍 Prayer Wall' },
-  { to: '/parent-hub', label: '🏫 Parents & Teachers' },
-  { to: '/leaderboard', label: '🏆 Leaderboard' },
-  { to: '/podcast', label: '🎙️ Podcast' },
-  { to: '/church-finder', label: '⛪ Church Finder' },
-  { to: '/contact', label: '📬 Contact Us' },
-];
-
-const PARTNER_LINKS = [
-  { to: '/affiliate', label: '🏛️ Partner With Us' },
-  { to: '/partner', label: '⛪ Ministry Partnership' },
-  { to: '/creators', label: '🎙️ Creator Program' },
-  { to: '/premium', label: '👑 Go Pro' },
-  { to: '/privacy', label: '🔒 Privacy Policy' },
-  { to: '/terms', label: '📄 Terms of Service' },
-];
+function FooterLink({ to, label, isExternal }) {
+  if (isExternal) {
+    return (
+      <a href={to} target="_blank" rel="noopener noreferrer">
+        {label}
+      </a>
+    );
+  }
+  return <Link to={to}>{label}</Link>;
+}
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
   return (
-    <footer className={`${styles.footer} footer--premium`}>
+    <footer className={styles.footer}>
+      <svg
+        className={styles.wave}
+        viewBox="0 0 1440 60"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path d="M0 40c120-30 240-30 360 0s240 30 360 0 240-30 360 0 240 30 360 0v20H0z" />
+      </svg>
       <div className={styles.inner}>
         <div className={styles.grid}>
-          {/* Column 1: Brand */}
           <div className={styles.brand}>
-            <div className={styles.logo}>
-              <div className={styles.logoIcon}>✝️</div>
-              <span className={styles.logoText}>
-                Bible<span>Fun</span>Land
-              </span>
-            </div>
-            <p className={styles.desc}>
-              An epic journey through God's Word — built with love for families. 100% free, always
-              growing, dedicated to the Kingdom.
-            </p>
-            <Link to="/affiliate" className={styles.supportBtn}>
-              🤝 Partner With Us
+            <Link to="/" className={styles.logo}>
+              Bible<span>Fun</span>Land
+            </Link>
+            <p className={styles.tagline}>100% free Bible fun for Christian families worldwide.</p>
+            <Link to="/play" className={styles.cta}>
+              Play free
             </Link>
             <div className={styles.social}>
-              <a
-                href="mailto:hello@biblefunland.com"
-                className={styles.socialLink}
-                title="Email us"
-              >
+              <a href="mailto:hello@biblefunland.com" title="Email us" aria-label="Email us">
                 ✉️
               </a>
               <a
                 href="https://twitter.com/biblefunland"
                 target="_blank"
                 rel="noreferrer"
-                className={styles.socialLink}
-                title="Twitter / X"
+                title="X / Twitter"
+                aria-label="X / Twitter"
               >
                 𝕏
               </a>
@@ -71,65 +88,30 @@ export default function Footer() {
                 href="https://facebook.com/biblefunland"
                 target="_blank"
                 rel="noreferrer"
-                className={styles.socialLink}
                 title="Facebook"
+                aria-label="Facebook"
               >
-                📘
+                f
               </a>
             </div>
           </div>
 
-          {/* Column 2: Explore */}
-          <div className={styles.col}>
-            <h4>Explore</h4>
-            <ul>
-              {EXPLORE_LINKS.map((l) => (
-                <li key={l.to}>
-                  {l.isExternal ? (
-                    <a href={l.to} target="_blank" rel="noopener noreferrer">
-                      {l.label}
-                    </a>
-                  ) : (
-                    <Link to={l.to}>{l.label}</Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Community */}
-          <div className={styles.col}>
-            <h4>Community</h4>
-            <ul>
-              {COMMUNITY_LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to}>{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 4: Partners & Legal */}
-          <div className={styles.col}>
-            <h4>Partnership</h4>
-            <ul>
-              {PARTNER_LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to}>{l.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {COLUMNS.map((col) => (
+            <nav key={col.title} className={styles.col} aria-label={col.title}>
+              <h4>{col.title}</h4>
+              <ul>
+                {col.links.map((l) => (
+                  <li key={l.to}>
+                    <FooterLink {...l} />
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
 
-        {/* Bottom bar */}
         <div className={styles.bottom}>
-          <p className={styles.copy}>© {currentYear} BibleFunLand · Built for the Kingdom 🙏</p>
-          <div className={styles.chips}>
-            <span className={styles.chip}>Faith</span>
-            <span className={styles.chip}>Fun</span>
-            <span className={styles.chip}>Family</span>
-          </div>
+          <p>© {year} BibleFunLand · Built for the Kingdom 🙏</p>
           <div className={styles.legal}>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
@@ -137,26 +119,12 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Safety + GDPR note */}
-        <div
-          style={{
-            borderTop: '1px solid rgba(255,255,255,.06)',
-            marginTop: 16,
-            paddingTop: 14,
-            textAlign: 'center',
-            fontSize: '.68rem',
-            color: 'rgba(255,255,255,.25)',
-            lineHeight: 1.8,
-          }}
-        >
+        <p className={styles.safety}>
           🛡️ Moderated community for families. All content rooted in Scripture. · 🔒 We do not sell
-          your data. Community content is moderated for child safety. · GDPR: EU users may request
-          data deletion at{' '}
-          <a href="mailto:privacy@biblefunland.com" style={{ color: 'rgba(255,255,255,.35)' }}>
-            privacy@biblefunland.com
-          </a>{' '}
-          · COPPA compliant — children under 13 require parental consent.
-        </div>
+          your data. · GDPR: EU users may request data deletion at{' '}
+          <a href="mailto:privacy@biblefunland.com">privacy@biblefunland.com</a> · COPPA compliant —
+          children under 13 require parental consent.
+        </p>
       </div>
     </footer>
   );

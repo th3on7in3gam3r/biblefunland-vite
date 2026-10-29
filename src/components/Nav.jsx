@@ -14,7 +14,7 @@ import styles from './Nav.module.css';
 const PRIMARY_NAV = [
   {
     to: '/play',
-    label: '🎲 Play',
+    label: 'Games',
     dropdown: [
       { to: '/play', label: '🏰 Games Arcade' },
       { to: '/play/trivia', label: '🎮 Trivia & Quizzes' },
@@ -23,9 +23,22 @@ const PRIMARY_NAV = [
     ],
   },
   {
-    to: '/explore',
-    label: '🔍 Explore',
+    to: '/devotional',
+    label: 'Devotionals',
     dropdown: [
+      { to: '/devotional', label: '🙏 AI Devotional' },
+      { to: '/chat/characters', label: '💬 Bible Character Chat' },
+      { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
+      { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
+      { to: '/ai/miracle-art', label: '🖼️ Miracle Art' },
+      { to: '/grow', label: '🌱 Grow' },
+    ],
+  },
+  {
+    to: '/explore',
+    label: 'Explore the Bible',
+    dropdown: [
+      { to: '/explore/bible', label: '📖 Read the Bible' },
       { to: '/explore/world', label: '🗺️ Living Bible Map' },
       { to: '/explore/timeline', label: '📜 Bible Timeline' },
       { to: '/family-tree', label: '🌳 Family Tree' },
@@ -34,37 +47,30 @@ const PRIMARY_NAV = [
     ],
   },
   {
-    to: '/ai',
-    label: '🤖 AI Fun',
-    dropdown: [
-      { to: '/devotional', label: '🙏 AI Devotional' },
-      { to: '/chat/characters', label: '💬 Bible Character Chat' },
-      { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
-      { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
-      { to: '/ai/miracle-art', label: '🖼️ Miracle Art' },
-      { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
-    ],
-  },
-  { to: '/grow', label: '🌱 Grow' },
-  { to: '/community', label: '🌐 Community', dropdown: [
-      { to: '/community', label: '🌐 Community Hub' },
-      { to: '/prayer', label: '🙏 Prayer Wall' },
-      { to: '/leaderboard', label: '🏆 Leaderboard' },
-      { to: '/community/chat', label: '💬 Chat Rooms' },
-      { to: '/church-finder', label: '⛪ Church Finder' },
-      { to: '/worship-radio', label: '🎵 Worship & Radio' },
-    ],
-  },
-  {
     to: '/parents',
-    label: '🏫 Parents',
+    label: 'Parents & Teachers',
     dropdown: [
       { to: '/parents', label: '🏫 Parents Hub' },
-      { to: 'https://verse-verse.biblefunland.com', label: '† Verse Verse', isExternal: true },
+      { to: '/grow/certification', label: '🎓 Kids Certification' },
       { to: 'https://homeschool.biblefunland.com', label: '🏠 HomeSchool Hub', isExternal: true },
+      { to: 'https://junior.biblefunland.com', label: '🦁 BibleFunLand Jr.', isExternal: true },
+      { to: 'https://verse-verse.biblefunland.com', label: '† Verse Verse', isExternal: true },
       { to: 'https://rhemanotes.biblefunland.com', label: '✍️ Rhema Notes', isExternal: true },
       { to: 'https://vesper.biblefunland.com', label: '⛪ Vesper Ministry', isExternal: true },
-      { to: '/grow/certification', label: '🎓 Kids Certification' },
+    ],
+  },
+  { to: '/podcast', label: 'Podcast' },
+  {
+    to: '/community',
+    label: 'Community',
+    dropdown: [
+      { to: '/community', label: '🌐 Community Hub' },
+      { to: '/prayer', label: '🙏 Prayer Wall' },
+      { to: '/community/family', label: '👨‍👩‍👧 Family Groups' },
+      { to: '/community/chat', label: '💬 Chat Rooms' },
+      { to: '/leaderboard', label: '🏆 Leaderboard' },
+      { to: '/church-finder', label: '⛪ Church Finder' },
+      { to: '/worship-radio', label: '🎵 Worship & Radio' },
     ],
   },
 ];
@@ -79,6 +85,7 @@ const DRAWER_SECTIONS = [
       { to: '/play/flashcards', label: '🧠 Flashcards' },
       { to: '/play/activity-sheets', label: '🖨️ Activity Sheets' },
       { to: 'https://homeschool.biblefunland.com', label: '🏠 HomeSchool Hub' },
+      { to: 'https://junior.biblefunland.com', label: '🦁 BibleFunLand Jr. (ages 2–7)' },
     ],
   },
   {
@@ -142,19 +149,27 @@ export default function Nav() {
     function handler(e) {
       if (avatarRef.current && !avatarRef.current.contains(e.target)) setAvatarOpen(false);
       if (navRef.current && !navRef.current.contains(e.target)) setActiveMenu(null);
-      if (e.key === 'Escape') { setAvatarOpen(false); setActiveMenu(null); }
+      if (e.key === 'Escape') {
+        setAvatarOpen(false);
+        setActiveMenu(null);
+      }
     }
     document.addEventListener('mousedown', handler);
     document.addEventListener('keydown', handler);
-    return () => { document.removeEventListener('mousedown', handler); document.removeEventListener('keydown', handler); };
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', handler);
+    };
   }, []);
 
   function handleLogoClick() {
     const count = logoClicks + 1;
     setLogoClicks(count);
     clearTimeout(logoTimer);
-    if (count >= 5) { setLogoClicks(0); navigate('/admin/login'); }
-    else setLogoTimer(setTimeout(() => setLogoClicks(0), 3000));
+    if (count >= 5) {
+      setLogoClicks(0);
+      navigate('/admin/login');
+    } else setLogoTimer(setTimeout(() => setLogoClicks(0), 3000));
   }
 
   const userRole = profile?.role?.toLowerCase() || '';
@@ -163,70 +178,23 @@ export default function Nav() {
 
   return (
     <>
-      <nav className={`${styles.nav} nav--premium`}>
-        {/* Logo — clicks to Home */}
-        <NavLink to="/" style={{ textDecoration: 'none' }}>
+      <nav className={styles.nav} aria-label="Main">
+        {/* Logo — clicks to Home (5 quick taps opens admin) */}
+        <NavLink to="/" className={styles.logoLink} aria-label="BibleFunLand home">
           <div className={styles.logo} onClick={handleLogoClick}>
-            <div className={styles.logoIcon}>✝️</div>
-            <span className={styles.logoText}>Bible<span>Fun</span>Land</span>
-            <a
-              href="https://junior.biblefunland.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              title="BibleFunLand Jr. — For ages 2–7"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                marginLeft: 8,
-                background: 'linear-gradient(135deg, #c8f7e8, #e8f7ff)',
-                border: '2px solid #6ECFB0',
-                color: '#1A6B50',
-                fontWeight: 800,
-                fontSize: '.62rem',
-                letterSpacing: 0.5,
-                padding: '2px 8px',
-                borderRadius: 100,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                lineHeight: 1.6,
-                transition: 'transform 0.15s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-            >
-              🦁 Jr.
-            </a>
-            <a
-              href="https://homeschool.biblefunland.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              title="BibleFunLand HomeSchool Hub — Complete Bible Curriculum"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                marginLeft: 6,
-                background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-                border: '2px solid #86EFAC',
-                color: '#166534',
-                fontWeight: 800,
-                fontSize: '.62rem',
-                letterSpacing: 0.5,
-                padding: '2px 8px',
-                borderRadius: 100,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                lineHeight: 1.6,
-                transition: 'transform 0.15s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-            >
-              🏠 Hub
-            </a>
+            <span className={styles.logoIcon} aria-hidden="true">
+              <svg viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="19" className={styles.logoSun} />
+                <path
+                  d="M9 27c0-6 5-8 11-6 6-2 11 0 11 6v1c-6-2-11 0-11 0s-5-2-11 0z"
+                  className={styles.logoBook}
+                />
+                <path d="M20 8v11M16 12h8" className={styles.logoCross} />
+              </svg>
+            </span>
+            <span className={styles.logoText}>
+              Bible<span>Fun</span>Land
+            </span>
           </div>
         </NavLink>
 
@@ -236,22 +204,31 @@ export default function Nav() {
             if (link.dropdown) {
               const isOpen = activeMenu === link.label;
               return (
-                <li key={link.to} className={styles.moreWrap}
+                <li
+                  key={link.to}
+                  className={styles.moreWrap}
                   onMouseEnter={() => setActiveMenu(link.label)}
                   onMouseLeave={() => setActiveMenu(null)}
                 >
-                  <NavLink to={link.to}
-                    className={({ isActive }) => `${styles.moreBtn} ${isActive || isOpen ? styles.moreBtnOpen : ''}`}
+                  <NavLink
+                    to={link.to}
+                    className={({ isActive }) =>
+                      `${styles.moreBtn} ${isActive || isOpen ? styles.moreBtnOpen : ''}`
+                    }
                     onClick={() => setActiveMenu(null)}
                   >
                     {link.label}
-                    <span className={`${styles.moreCaret} ${isOpen ? styles.caretOpen : ''}`}>▾</span>
+                    <span className={`${styles.moreCaret} ${isOpen ? styles.caretOpen : ''}`}>
+                      ▾
+                    </span>
                   </NavLink>
                   {isOpen && (
-                    <div className={styles.moreDropdown} role="menu">
-                      {link.dropdown.map((item) => (
+                    <div className={styles.moreDropdown}>
+                      {link.dropdown.map((item) =>
                         item.isExternal ? (
-                          <a key={item.to} href={item.to}
+                          <a
+                            key={item.to}
+                            href={item.to}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={styles.dropLink}
@@ -260,14 +237,16 @@ export default function Nav() {
                             {item.label}
                           </a>
                         ) : (
-                          <NavLink key={item.to} to={item.to}
-                            className={({ isActive }) => isActive ? styles.dropActive : ''}
+                          <NavLink
+                            key={item.to}
+                            to={item.to}
+                            className={({ isActive }) => (isActive ? styles.dropActive : '')}
                             onClick={() => setActiveMenu(null)}
                           >
                             {item.label}
                           </NavLink>
                         )
-                      ))}
+                      )}
                     </div>
                   )}
                 </li>
@@ -275,8 +254,10 @@ export default function Nav() {
             }
             return (
               <li key={link.to}>
-                <NavLink to={link.to} end={link.end}
-                  className={({ isActive }) => isActive ? styles.active : ''}
+                <NavLink
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => (isActive ? styles.active : '')}
                 >
                   {link.label}
                 </NavLink>
@@ -287,41 +268,66 @@ export default function Nav() {
 
         {/* Right side */}
         <div className={styles.right}>
-          <div className={styles.desktopSearch}><GlobalSearch /></div>
+          <div className={styles.desktopSearch}>
+            <GlobalSearch />
+          </div>
           <KidsModeToggle className={styles.kidsToggle} />
           {(isPastor || userRole === 'parent' || userRole === 'teacher') && <ChildSwitcherButton />}
 
+          <NavLink to="/play" className={styles.playFree}>
+            Play free
+          </NavLink>
+
           <div ref={avatarRef} className={styles.userSection}>
             {!user ? (
-              <NavLink to="/auth" className={styles.signInBtn}>🔐 Sign In</NavLink>
+              <NavLink to="/auth" className={styles.signInBtn}>
+                Sign in
+              </NavLink>
             ) : (
               <div className={styles.avatarWrap}>
                 {/* Plan badge / Go Pro pill */}
-                {proChecked && (
-                  isFamilyUser ? (
-                    <NavLink to="/premium" className={styles.familyBadge}>👨‍👩‍👧 Family</NavLink>
+                {proChecked &&
+                  (isFamilyUser ? (
+                    <NavLink to="/premium" className={styles.familyBadge}>
+                      👨‍👩‍👧 Family
+                    </NavLink>
                   ) : isProUser ? (
-                    <NavLink to="/premium" className={styles.proBadge}>💎 Pro</NavLink>
+                    <NavLink to="/premium" className={styles.proBadge}>
+                      💎 Pro
+                    </NavLink>
                   ) : (
-                    <NavLink to="/premium" className={styles.goProBtn}>💎 Go Pro</NavLink>
-                  )
-                )}
+                    <NavLink to="/premium" className={styles.goProBtn}>
+                      💎 Go Pro
+                    </NavLink>
+                  ))}
 
-                <button className={styles.avatarBtn} onClick={() => setAvatarOpen(o => !o)} title="My Account">
+                <button
+                  className={styles.avatarBtn}
+                  onClick={() => setAvatarOpen((o) => !o)}
+                  title="My Account"
+                >
                   {avatarInitial}
                 </button>
 
                 {avatarOpen && (
                   <div className={styles.avatarDropdown}>
                     <div className={styles.avatarDropdownSection}>
-                      <div className={styles.userName}>{user.firstName || user.email || 'My Account'}</div>
+                      <div className={styles.userName}>
+                        {user.firstName || user.email || 'My Account'}
+                      </div>
                       <div className={styles.userMeta}>
                         <span className={styles.streakPill}>🔥 {streak} Streak</span>
                         <span className={styles.roleTag}>{userRole || 'Member'}</span>
                       </div>
                     </div>
                     <div className={styles.avatarDropdownSection}>
-                      <button className={styles.avatarMenuToggle} onClick={() => { toggleTheme(); setAvatarOpen(false); }}>
+                      <button
+                        className={styles.avatarMenuToggle}
+                        onClick={() => {
+                          toggleTheme();
+                          setAvatarOpen(false);
+                        }}
+                      >
                         {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
                       </button>
                     </div>
@@ -330,14 +336,29 @@ export default function Nav() {
                       { to: '/bookmarks', label: '🔖 Bookmarks' },
                       { to: '/profile', label: '👤 Profile & Settings' },
                       ...(isPastor || userRole === 'parent' || userRole === 'teacher'
-                        ? [{ to: '/parents', label: '🏫 Parents Hub' }] : []),
-                    ].map(item => (
-                      <NavLink key={item.to} to={item.to} onClick={() => setAvatarOpen(false)} className={styles.avatarDropLink}>
+                        ? [{ to: '/parents', label: '🏫 Parents Hub' }]
+                        : []),
+                    ].map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setAvatarOpen(false)}
+                        className={styles.avatarDropLink}
+                      >
                         {item.label}
                       </NavLink>
                     ))}
-                    <div className={styles.avatarDropdownSection} style={{ border: 'none', marginTop: 8 }}>
-                      <button onClick={() => { signOut(); setAvatarOpen(false); }} className={styles.avatarSignOutBtn}>
+                    <div
+                      className={styles.avatarDropdownSection}
+                      style={{ border: 'none', marginTop: 8 }}
+                    >
+                      <button
+                        onClick={() => {
+                          signOut();
+                          setAvatarOpen(false);
+                        }}
+                        className={styles.avatarSignOutBtn}
+                      >
                         👋 Sign Out
                       </button>
                     </div>
@@ -348,9 +369,14 @@ export default function Nav() {
           </div>
 
           {/* Hamburger */}
-          <button className={`${styles.hamburger} ${drawerOpen ? styles.open : ''}`}
-            onClick={() => setDrawerOpen(!drawerOpen)} aria-label="Toggle menu">
-            <span /><span /><span />
+          <button
+            className={`${styles.hamburger} ${drawerOpen ? styles.open : ''}`}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            aria-label="Toggle menu"
+          >
+            <span />
+            <span />
+            <span />
           </button>
         </div>
       </nav>
@@ -359,27 +385,36 @@ export default function Nav() {
 
       {/* Mobile drawer */}
       <div className={`${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
-        <div className={styles.mobileSearch}><GlobalSearch /></div>
+        <div className={styles.mobileSearch}>
+          <GlobalSearch />
+        </div>
 
         <div className={styles.drawerSection}>
           <span className={styles.drawerLabel}>Quick Access</span>
-          <button onClick={() => { setSleepOpen(true); setDrawerOpen(false); }}>🌙 Bedtime Bible</button>
+          <button
+            onClick={() => {
+              setSleepOpen(true);
+              setDrawerOpen(false);
+            }}
+          >
+            🌙 Bedtime Bible
+          </button>
           <KidsModeToggle />
         </div>
 
-        {DRAWER_SECTIONS.map(section => (
+        {DRAWER_SECTIONS.map((section) => (
           <div className={styles.drawerSection} key={section.label}>
             <span className={styles.drawerLabel}>{section.label}</span>
             {section.items
-              .filter(item => !(kidsMode && item.kidsHide))
-              .map(item => {
+              .filter((item) => !(kidsMode && item.kidsHide))
+              .map((item) => {
                 const isExternal = item.to.startsWith('http');
                 if (isExternal) {
                   return (
-                    <a 
-                      key={item.to} 
-                      href={item.to} 
-                      target="_blank" 
+                    <a
+                      key={item.to}
+                      href={item.to}
+                      target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setDrawerOpen(false)}
                     >
@@ -388,11 +423,7 @@ export default function Nav() {
                   );
                 }
                 return (
-                  <NavLink 
-                    key={item.to} 
-                    to={item.to} 
-                    onClick={() => setDrawerOpen(false)}
-                  >
+                  <NavLink key={item.to} to={item.to} onClick={() => setDrawerOpen(false)}>
                     {item.label}
                   </NavLink>
                 );
@@ -403,31 +434,63 @@ export default function Nav() {
         {user && (
           <div className={styles.drawerSection}>
             <span className={styles.drawerLabel}>My Account</span>
-            <NavLink to="/dashboard" onClick={() => setDrawerOpen(false)}>📊 My Progress</NavLink>
-            <NavLink to="/bookmarks" onClick={() => setDrawerOpen(false)}>🔖 Bookmarks</NavLink>
-            <NavLink to="/profile" onClick={() => setDrawerOpen(false)}>👤 Profile & Settings</NavLink>
+            <NavLink to="/dashboard" onClick={() => setDrawerOpen(false)}>
+              📊 My Progress
+            </NavLink>
+            <NavLink to="/bookmarks" onClick={() => setDrawerOpen(false)}>
+              🔖 Bookmarks
+            </NavLink>
+            <NavLink to="/profile" onClick={() => setDrawerOpen(false)}>
+              👤 Profile & Settings
+            </NavLink>
             {!kidsMode && (isPastor || userRole === 'parent' || userRole === 'teacher') && (
-              <NavLink to="/parents" onClick={() => setDrawerOpen(false)}>🏫 Parents & Teachers Hub</NavLink>
+              <NavLink to="/parents" onClick={() => setDrawerOpen(false)}>
+                🏫 Parents & Teachers Hub
+              </NavLink>
             )}
           </div>
         )}
 
         <div className={styles.drawerSection}>
-          {!kidsMode && (
-            isFamilyUser ? (
-              <NavLink to="/premium" onClick={() => setDrawerOpen(false)} style={{ color: '#F97316', fontWeight: 700 }}>👨‍👩‍👧 Family Plan</NavLink>
+          {!kidsMode &&
+            (isFamilyUser ? (
+              <NavLink
+                to="/premium"
+                onClick={() => setDrawerOpen(false)}
+                style={{ color: '#F97316', fontWeight: 700 }}
+              >
+                👨‍👩‍👧 Family Plan
+              </NavLink>
             ) : isProUser ? (
-              <NavLink to="/premium" onClick={() => setDrawerOpen(false)} style={{ color: '#F59E0B', fontWeight: 700 }}>💎 Pro Member</NavLink>
+              <NavLink
+                to="/premium"
+                onClick={() => setDrawerOpen(false)}
+                style={{ color: '#F59E0B', fontWeight: 700 }}
+              >
+                💎 Pro Member
+              </NavLink>
             ) : (
-              <NavLink to="/premium" onClick={() => setDrawerOpen(false)}>💎 Go Pro</NavLink>
-            )
-          )}
+              <NavLink to="/premium" onClick={() => setDrawerOpen(false)}>
+                💎 Go Pro
+              </NavLink>
+            ))}
           {!user ? (
-            <NavLink to="/auth" onClick={() => setDrawerOpen(false)} className={styles.drawerAuthBtn}>
+            <NavLink
+              to="/auth"
+              onClick={() => setDrawerOpen(false)}
+              className={styles.drawerAuthBtn}
+            >
               🔐 Sign In / Sign Up
             </NavLink>
           ) : (
-            <button onClick={() => { signOut(); setDrawerOpen(false); }}>👋 Sign Out</button>
+            <button
+              onClick={() => {
+                signOut();
+                setDrawerOpen(false);
+              }}
+            >
+              👋 Sign Out
+            </button>
           )}
         </div>
       </div>
