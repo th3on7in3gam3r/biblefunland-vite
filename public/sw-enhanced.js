@@ -1,9 +1,9 @@
 // Enhanced Service Worker for Offline PWA Caching
 // Focus on kids content with intelligent caching strategies with TTL validation
 
-const CACHE_NAME = 'biblefunland-kids-v7'
-const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v7'
-const STATIC_CACHE = 'biblefunland-static-v7'
+const CACHE_NAME = 'biblefunland-kids-v8'
+const KIDS_CONTENT_CACHE = 'biblefunland-kids-content-v8'
+const STATIC_CACHE = 'biblefunland-static-v8'
 
 // Cache TTL configurations (in milliseconds)
 const CACHE_TTL = {
@@ -378,12 +378,37 @@ self.addEventListener('activate', (event) => {
 })
 
 // Helper functions - MUST be defined before fetch event listener
+// '/' matches only the home page; '/trivia' matches '/trivia' and '/trivia/...'
+function matchesRoute(pathname, route) {
+  if (route === '/') return pathname === '/'
+  return pathname === route || pathname.startsWith(route + '/')
+}
+
 function isCoreContentRoute(pathname) {
-  return CORE_CONTENT_ROUTES.some(route => pathname.startsWith(route))
+  return CORE_CONTENT_ROUTES.some(route => matchesRoute(pathname, route))
 }
 
 function isKidsContentRoute(pathname) {
-  return KIDS_CONTENT_ROUTES.some(route => pathname.startsWith(route))
+  return KIDS_CONTENT_ROUTES.some(route => matchesRoute(pathname, route))
+}
+
+// Page loads: always network-first so new deploys show immediately.
+// Whatever the network returns (redirects, 404s, auth pages) goes straight
+// to the browser; the offline page is only for a real network failure.
+async function handleNavigation(request) {
+  try {
+    const networkResponse = await fetch(request)
+    if (networkResponse.status === 200 && networkResponse.type === 'basic') {
+      const cache = await caches.open(KIDS_CONTENT_CACHE)
+      cache.put(request, networkResponse.clone())
+    }
+    return networkResponse
+  } catch (error) {
+    const cachedResponse =
+      (await caches.match(request, { ignoreSearch: true })) || (await caches.match('/'))
+    if (cachedResponse) return cachedResponse
+    return getOfflineContent(request)
+  }
 }
 
 function isStaticAsset(url) {
@@ -420,7 +445,9 @@ self.addEventListener('fetch', (event) => {
   ) return
   
   // Handle different types of requests
-  if (isCoreContentRoute(url.pathname)) {
+  if (request.mode === 'navigate') {
+    event.respondWith(handleNavigation(request))
+  } else if (isCoreContentRoute(url.pathname)) {
     // Core content - cache first with TTL validation
     event.respondWith(handleCoreContent(request))
   } else if (isKidsContentRoute(url.pathname)) {
@@ -465,13 +492,9 @@ async function handleKidsContent(request) {
       await storeMetadata(url, 'cache-first', CACHE_TTL.CONTENT)
       console.log(`✅ Cached kids content: ${url}`)
       return networkResponse
-    } else if (networkResponse.status === 206) {
-      console.log(`📡 Partial content (206) for ${url}, skipping cache`)
-      return networkResponse
     }
-    
-    // Return offline content if network fails
-    return getOfflineContent(request)
+    // Any other status (206, 3xx, 4xx, 5xx) is a real answer — pass it through
+    return networkResponse
   } catch (error) {
     console.log('📴 Service Worker: Network failed, returning offline content')
     return getOfflineContent(request)
@@ -505,9 +528,9 @@ async function handleCoreContent(request) {
         await storeMetadata(url, 'cache-first', CACHE_TTL.CONTENT)
         console.debug(`✅ Cached core content: ${url}`)
         return networkResponse
-      } else if (networkResponse.status === 206) {
-        return networkResponse
       }
+      // Any other status is a real answer from the server — pass it through
+      return networkResponse
     } catch (networkError) {
       console.log(`⚠️ Network fetch failed for core content: ${url}`)
     }
