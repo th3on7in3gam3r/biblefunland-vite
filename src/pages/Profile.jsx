@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { localDateStr, localDateDaysAgo, weekdayOf } from '../lib/dates';
 import { useAuth } from '../context/AuthContext';
 import { useStreak } from '../context/StreakContext';
 import { useBadges, BADGE_DEFS, RARITY_COLORS } from '../context/BadgeContext';
@@ -47,11 +48,7 @@ function saveLocal(key, val) {
 }
 
 function last30() {
-  return Array.from({ length: 30 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (29 - i));
-    return d.toISOString().split('T')[0];
-  });
+  return Array.from({ length: 30 }, (_, i) => localDateDaysAgo(29 - i));
 }
 
 function calcLongestStreak(days) {
@@ -255,7 +252,7 @@ export default function Profile() {
   const pctBible = Math.min(100, Math.round((chaptersRead / 1189) * 100));
   const dayCount = Array(7).fill(0);
   (readDays || []).forEach((d) => {
-    dayCount[new Date(d).getDay()]++;
+    dayCount[weekdayOf(d)]++;
   });
   const bestDayIdx = dayCount.indexOf(Math.max(...dayCount));
 
@@ -2280,7 +2277,7 @@ export default function Profile() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10,1fr)', gap: 5 }}>
                 {dates30.map((d) => {
                   const read = heatmap[d];
-                  const isToday = d === new Date().toISOString().split('T')[0];
+                  const isToday = d === localDateStr();
                   return (
                     <div
                       key={d}

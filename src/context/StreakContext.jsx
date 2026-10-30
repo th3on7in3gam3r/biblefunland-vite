@@ -2,11 +2,12 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { getStreak, upsertStreak } from '../lib/db';
 import { useAuth } from './AuthContext';
 import { useBadges } from './BadgeContext';
+import { localDateStr, localDateDaysAgo } from '../lib/dates';
 
 const StreakContext = createContext(null);
 
 function todayStr() {
-  return new Date().toISOString().split('T')[0];
+  return localDateStr();
 }
 
 function streakStorageKey(userId) {
@@ -112,9 +113,7 @@ export function StreakProvider({ children }) {
   const checkIn = async () => {
     if (checkedToday) return;
     const today = todayStr();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = localDateDaysAgo(1);
     const userId = user?.id ?? null;
 
     const isConsecutive = lastCheckin === yesterdayStr;
@@ -159,7 +158,15 @@ export function StreakProvider({ children }) {
     const newReadDays = isRead ? readDays.filter((d) => d !== dateStr) : [...readDays, dateStr];
     setReadDays(newReadDays);
     setLocalState(userId, { ...getLocalState(userId), readDays: newReadDays });
-    if (userId) await upsertStreak(userId, { read_days: newReadDays.join(',') }).catch(() => {});
+    // Send every field: upsertStreak fills missing ones with 0/blank, which used to
+    // wipe the streak and check-in count whenever a calendar day was toggled.
+    if (userId)
+      await upsertStreak(userId, {
+        streak,
+        last_checkin: lastCheckin,
+        read_days: newReadDays.join(','),
+        checkin_count: checkinCount,
+      }).catch(() => {});
   };
 
   return (

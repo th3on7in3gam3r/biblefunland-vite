@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { useBadges, BADGE_DEFS } from '../context/BadgeContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { trackPulseEvent } from '../lib/pulse';
+import { localDateStr } from '../lib/dates';
 function todayStr() {
-  return new Date().toISOString().split('T')[0];
+  return localDateStr();
 }
 function daysInMonth(y, m) {
   return new Date(y, m + 1, 0).getDate();
