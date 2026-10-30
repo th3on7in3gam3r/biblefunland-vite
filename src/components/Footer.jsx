@@ -7,7 +7,7 @@ import styles from './Footer.module.css';
 const MAIN_LINKS = [
   { to: '/play', label: 'Games' },
   { to: '/devotional', label: 'Devotionals' },
-  { to: '/explore/bible', label: 'Explore the Bible' },
+  { to: '/explore', label: 'Explore the Bible' },
   { to: '/parents', label: 'Parents & Teachers' },
   { to: '/podcast', label: 'Podcast' },
 ];

@@ -1,4 +1,5 @@
-/** Single source of truth for Explore hub cards, filters, and nav metadata */
+/** Single source of truth for Explore hub cards, filters, and nav metadata.
+ *  image/imageAlt/tone drive the storybook tool cards on /explore. */
 
 export const EXPLORE_AGE_OPTIONS = [
   { value: 'Preschool', label: 'Preschool (3–5)' },
@@ -16,19 +17,14 @@ export const EXPLORE_TOPIC_OPTIONS = [
   'Reference',
 ];
 
-export const EXPLORE_TYPE_OPTIONS = [
-  'Interactive',
-  'Map',
-  'Reader',
-  'Study Tool',
-];
+export const EXPLORE_TYPE_OPTIONS = ['Interactive', 'Map', 'Reader', 'Study Tool'];
 
 export const EXPLORE_FEATURES = [
   {
     id: 'living-bible-map',
     icon: '🗺️',
     title: 'Living Bible Map',
-    desc: 'Discover Bible lands across six eras — unlock locations, complete daily quests, and earn map badges.',
+    desc: 'Discover Bible lands across six eras. Unlock locations, complete daily quests, and earn map badges.',
     to: '/explore/world',
     color: '#10B981',
     tag: 'Featured',
@@ -39,6 +35,9 @@ export const EXPLORE_FEATURES = [
     type: 'Map',
     difficulty: 2,
     bibleRef: 'Joshua 1:3',
+    image: '/home/explore-bible-map.webp',
+    imageAlt: 'Watercolor treasure map of Bible lands beside an old scroll',
+    tone: 'leaf',
   },
   {
     id: 'bible-explorer',
@@ -55,6 +54,10 @@ export const EXPLORE_FEATURES = [
     type: 'Reader',
     difficulty: 2,
     bibleRef: 'Hebrews 4:12',
+    image: '/home/explore-card-bible-explorer.webp',
+    imageAlt:
+      'Boy smiling on his bed with a highlighter and a bookmarked Bible, a stack of Bibles beside him',
+    tone: 'orange',
   },
   {
     id: 'bible-map',
@@ -71,12 +74,16 @@ export const EXPLORE_FEATURES = [
     type: 'Map',
     difficulty: 2,
     bibleRef: 'Acts 1:8',
+    image: '/home/explore-card-study-map.webp',
+    imageAlt:
+      'Painted map of ancient cities marked with colorful pins and yarn paths, a toy camel and magnifying glass',
+    tone: 'sky',
   },
   {
     id: 'bible-timeline',
     icon: '📜',
     title: 'Bible Timeline',
-    desc: 'Scroll through 90+ events from Creation to the early church — filter by era or search by keyword.',
+    desc: 'Scroll through 90+ events from Creation to the early church. Filter by era or search by keyword.',
     to: '/explore/timeline',
     color: '#8B5CF6',
     tag: 'History',
@@ -87,12 +94,15 @@ export const EXPLORE_FEATURES = [
     type: 'Interactive',
     difficulty: 2,
     bibleRef: 'Ecclesiastes 3:1',
+    image: '/home/explore-timeline.webp',
+    imageAlt: 'Ancient city on a hill above a dotted timeline',
+    tone: 'grape',
   },
   {
     id: 'original-languages',
     icon: '🔤',
     title: 'Original Languages',
-    desc: 'Study curated Hebrew and Greek word studies with Strong\'s definitions, roots, and verse examples.',
+    desc: "Study curated Hebrew and Greek word studies with Strong's definitions, roots, and verse examples.",
     to: '/explore/language-explorer',
     color: '#F59E0B',
     tag: 'Deep Study',
@@ -103,12 +113,15 @@ export const EXPLORE_FEATURES = [
     type: 'Study Tool',
     difficulty: 4,
     bibleRef: 'Proverbs 2:6',
+    image: '/home/explore-card-original-languages.webp',
+    imageAlt: 'Girl in glasses studying an old scroll through a magnifying glass by lamplight',
+    tone: 'sun',
   },
   {
     id: 'cross-reference',
     icon: '🔗',
     title: 'Cross Reference Web',
-    desc: 'Explore an interactive graph of connected verses — drag nodes, filter by theme, and trace Scripture themes.',
+    desc: 'Explore an interactive graph of connected verses. Drag nodes, filter by theme, and trace Scripture themes.',
     to: '/explore/cross-reference',
     color: '#EC4899',
     tag: 'Study',
@@ -119,12 +132,15 @@ export const EXPLORE_FEATURES = [
     type: 'Interactive',
     difficulty: 3,
     bibleRef: '2 Timothy 3:16',
+    image: '/home/explore-card-cross-reference.webp',
+    imageAlt: 'Two kids linking picture cards on a cork board with rainbow yarn',
+    tone: 'orange',
   },
   {
     id: 'voice-bible-reader',
     icon: '🎙️',
     title: 'Voice Bible Reader',
-    desc: 'Listen to curated KJV passages with adjustable speed and volume using your browser\'s text-to-speech.',
+    desc: "Listen to curated KJV passages with adjustable speed and volume using your browser's text-to-speech.",
     to: '/explore/voice-reader',
     color: '#0369A1',
     tag: 'Listen',
@@ -135,6 +151,9 @@ export const EXPLORE_FEATURES = [
     type: 'Reader',
     difficulty: 2,
     bibleRef: 'Psalm 119:11',
+    image: '/home/explore-card-voice-reader.webp',
+    imageAlt: 'Boy relaxing with headphones beside an open Bible and a tablet at night',
+    tone: 'sky',
   },
   {
     id: 'bible-names',
@@ -151,6 +170,9 @@ export const EXPLORE_FEATURES = [
     type: 'Study Tool',
     difficulty: 2,
     bibleRef: 'Isaiah 43:1',
+    image: '/home/explore-family-tree.webp',
+    imageAlt: 'Watercolor family tree with portraits of Bible people',
+    tone: 'leaf',
   },
 ];
 
@@ -163,7 +185,8 @@ export const EXPLORE_STATS = [
 
 export function filterExploreFeatures(features, { age = [], topic = [], type = [] } = {}) {
   return features.filter((item) => {
-    const hasAge = !age.length || age.includes(item.age);
+    // 'Family' tools are for all ages, so they match any age filter
+    const hasAge = !age.length || age.includes(item.age) || item.age === 'Family';
     const hasType = !type.length || type.includes(item.type);
     const hasTopic = !topic.length || topic.some((t) => item.topic.includes(t));
     return hasAge && hasType && hasTopic;
