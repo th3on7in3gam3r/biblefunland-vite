@@ -1,0 +1,349 @@
+/* /devotional landing — layout only; buttons, cards, type come from Home.module.css */
+
+/* ── Hero ─────────────────────────────────────────── */
+.hero {
+  padding-top: 48px;
+  overflow-x: clip;
+}
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.heroNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.5rem;
+  color: var(--sb-orange-600);
+}
+.heroNote > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.heroCopy .heroTitle {
+  margin-top: 16px;
+  max-width: 18ch;
+  text-align: center;
+}
+.heroBody {
+  margin-top: 24px !important;
+  max-width: 40rem;
+  font-size: 1.125rem;
+  color: var(--sb-ink-soft);
+  text-wrap: pretty;
+}
+.actions {
+  margin-top: 36px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.heroArt {
+  max-width: 1440px;
+  margin: 40px auto 0;
+  overflow: hidden;
+}
+.heroImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 640px;
+  transform: translateX(calc((100vw - 640px) / 2));
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ── Tool cards ───────────────────────────────────── */
+.toolGrid {
+  margin-top: 48px;
+  display: grid;
+  gap: 24px;
+}
+.toolCard {
+  height: 100%;
+}
+.top_orange {
+  border-top: 10px solid var(--sb-orange);
+}
+.top_sky {
+  border-top: 10px solid var(--sb-sky);
+}
+.top_grape {
+  border-top: 10px solid var(--sb-grape);
+}
+.top_sun {
+  border-top: 10px solid var(--sb-sun);
+}
+.top_leaf {
+  border-top: 10px solid var(--sb-leaf);
+}
+
+.toolImgWide,
+.toolImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.toolImgWide {
+  aspect-ratio: 16 / 10;
+}
+.toolImg {
+  aspect-ratio: 4 / 3;
+}
+.toolBody,
+.toolBodyWide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 24px 24px;
+}
+.toolText {
+  flex: 1;
+}
+.toolText p {
+  margin-top: 6px !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--sb-ink-soft);
+}
+.toolBtn {
+  margin-top: 20px;
+  height: 44px;
+  padding: 0 24px;
+  font-size: 1rem;
+}
+
+/* ── Teacher resources ────────────────────────────── */
+.teachers {
+  position: relative;
+  overflow-x: clip;
+  background: var(--sb-cream-2);
+}
+.teachersGrid {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  align-items: center;
+}
+.teachersArt {
+  position: relative;
+}
+.teachersImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-mask-image:
+    linear-gradient(to left, transparent 0%, #000 14%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 90%, transparent 100%);
+  mask-image:
+    linear-gradient(to left, transparent 0%, #000 14%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.noteSunday {
+  display: none;
+  position: absolute;
+  left: 10%;
+  top: 16%;
+  font-size: 2.25rem;
+  line-height: 1.05;
+  color: var(--sb-orange-600);
+  transform: rotate(-5deg);
+}
+.teachersCopy {
+  padding: 0 20px 64px;
+}
+.maxH2 {
+  max-width: 18ch;
+}
+
+/* ── Free vs Pro ──────────────────────────────────── */
+.plans {
+  background: var(--sb-tint-grape);
+}
+.planGrid {
+  margin-top: 48px;
+  display: grid;
+  gap: 24px;
+}
+.planCard {
+  height: 100%;
+  padding: 28px;
+}
+.noLift:hover {
+  transform: none;
+}
+.planTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.planSub {
+  margin-top: 8px !important;
+  font-size: 0.875rem;
+  color: var(--sb-ink-soft);
+}
+.freeList,
+.proList {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+}
+.freeList {
+  display: grid;
+  gap: 16px;
+}
+.freeList a,
+.freeItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--sb-ink);
+  text-decoration: none;
+}
+.freeList a:hover span:last-child {
+  color: var(--sb-orange-600);
+}
+.proList {
+  display: grid;
+  gap: 16px;
+}
+.proList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--sb-ink);
+}
+.proList li > span {
+  margin-top: 1px;
+}
+.familyNote {
+  margin-top: 32px !important;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--sb-tint-grape);
+  font-weight: 700;
+  color: var(--sb-grape-700);
+}
+[data-theme='dark'] .familyNote {
+  color: #cbb8ff;
+}
+.planCta {
+  margin-top: auto;
+  padding-top: 32px;
+}
+
+/* ── Closing ──────────────────────────────────────── */
+.closing {
+  max-width: 768px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.closingNote {
+  display: inline-block;
+  font-size: 1.5rem;
+  color: var(--sb-grape-700);
+}
+.closingHead {
+  position: relative;
+  margin-top: 20px;
+}
+.closingLead {
+  max-width: 32rem;
+}
+
+/* ── ≥640px ───────────────────────────────────────── */
+@media (min-width: 640px) {
+  .hero {
+    padding-top: 64px;
+  }
+  .heroBody {
+    font-size: 1.25rem;
+  }
+  .actions {
+    width: auto;
+    flex-direction: row;
+  }
+  .heroArt {
+    margin-top: 24px;
+  }
+  .heroImage {
+    min-width: 0;
+    transform: none;
+  }
+  .toolGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lastCard {
+    grid-column: span 2;
+  }
+  .toolBodyWide {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .toolBodyWide .toolBtn {
+    margin-top: 0;
+  }
+  .noteSunday {
+    display: inline-block;
+  }
+  .teachersCopy {
+    padding: 0 32px 64px;
+  }
+  .planCard {
+    padding: 36px;
+  }
+  .planTitle {
+    font-size: 1.875rem;
+  }
+  .planSub {
+    font-size: 1rem;
+  }
+  .proList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── ≥1024px ──────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .toolGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .wide {
+    grid-column: span 3;
+  }
+  .narrow,
+  .lastCard {
+    grid-column: span 2;
+  }
+  .teachersGrid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+  .teachersCopy {
+    padding: 80px max(2rem, calc((100vw - 1296px) / 2)) 80px 24px;
+  }
+  .planGrid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+}

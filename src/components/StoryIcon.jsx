@@ -79,6 +79,12 @@ const PATHS = {
       <path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
     </>
   ),
+  bookOpen: (
+    <>
+      <path d="M12 7v14" />
+      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+    </>
+  ),
   arrowRight: <path d="M5 12h14M12 5l7 7-7 7" />,
   check: <path d="M20 6L9 17l-5-5" />,
   handHeart: (

@@ -3,6 +3,7 @@ import { useKidsMode } from '../context/KidsModeContext';
 import { useChildSwitcher } from '../context/ChildSwitcherContext';
 import KidsDashboard from './KidsDashboard';
 import StoryIcon from '../components/StoryIcon';
+import { Chip, Sparkles } from '../components/StoryBits';
 import { trackPulseEvent } from '../lib/pulse';
 import '../styles/storybook.css';
 import styles from './Home.module.css';
@@ -56,7 +57,7 @@ const DEVOTIONAL_TOOLS = [
     icon: 'bookHeart',
     label: 'Personalized family devotionals',
     chip: 'orange',
-    to: '/devotional',
+    to: '/ai/devotional',
   },
   { icon: 'chat', label: 'Chat with Bible characters', chip: 'sky', to: '/chat/characters' },
   { icon: 'palette', label: 'Scripture-inspired art', chip: 'grape', to: '/ai/miracle-art' },
@@ -113,23 +114,6 @@ const COMMUNITY = [
   { icon: 'users', label: 'Family groups', chip: 'teal', to: '/community/family' },
   { icon: 'messageHeart', label: 'Chat rooms', chip: 'sky', to: '/community/chat' },
 ];
-
-function Chip({ icon, tone, size = 'md', filled }) {
-  return (
-    <span className={`${styles.chip} ${styles[`chip_${tone}`]} ${styles[`chip_${size}`]}`}>
-      <StoryIcon name={icon} filled={filled} />
-    </span>
-  );
-}
-
-function Sparkles() {
-  return (
-    <>
-      <StoryIcon name="star" filled className={`${styles.sparkle} ${styles.sparkleLeft}`} />
-      <StoryIcon name="star" filled className={`${styles.sparkle} ${styles.sparkleRight}`} />
-    </>
-  );
-}
 
 export default function Home() {
   const { kidsMode } = useKidsMode();

@@ -28,7 +28,8 @@ const PRIMARY_NAV = [
     to: '/devotional',
     label: 'Devotionals',
     dropdown: [
-      { to: '/devotional', label: '🙏 AI Devotional' },
+      { to: '/devotional', label: '✨ All faith tools' },
+      { to: '/ai/devotional', label: '🙏 AI Devotional' },
       { to: '/chat/characters', label: '💬 Bible Character Chat' },
       { to: '/ai/drama-scripts', label: '🎭 Drama Scripts' },
       { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },
@@ -92,7 +93,8 @@ const DRAWER_SECTIONS = [
   {
     label: 'AI Fun',
     items: [
-      { to: '/devotional', label: '🙏 AI Devotional', kidsHide: true },
+      { to: '/devotional', label: '✨ AI Faith Tools', kidsHide: true },
+      { to: '/ai/devotional', label: '🙏 AI Devotional', kidsHide: true },
       { to: '/chat/characters', label: '💬 Bible Character Chat' },
       { to: '/ai/drama-scripts', label: '🎭 Drama Scripts', kidsHide: true },
       { to: '/ai/rap-generator', label: '🎵 Bible Rap Generator' },

@@ -36,7 +36,9 @@ export default function Footer() {
             <Link to="/" aria-label="BibleFunLand home" className={styles.logoLink}>
               <RainbowLogo size="lg" />
             </Link>
-            <p className={styles.tagline}>100% free Bible fun for Christian families worldwide.</p>
+            <p className={styles.tagline}>
+              Bible fun for Christian families worldwide, free to start.
+            </p>
           </div>
           <nav aria-label="Footer" className={styles.mainLinks}>
             {MAIN_LINKS.map((l) => (

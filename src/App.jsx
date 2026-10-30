@@ -71,6 +71,7 @@ const lazy_ = (componentImport) => {
 };
 const Trivia = lazy_(() => import('./pages/Trivia'));
 const Devotional = lazy_(() => import('./pages/Devotional'));
+const DevotionalLanding = lazy_(() => import('./pages/DevotionalLanding'));
 const FromAI = lazy_(() => import('./pages/FromAI'));
 const BibleMap = lazy_(() => import('./pages/BibleMap'));
 const Flashcards = lazy_(() => import('./pages/Flashcards'));
@@ -381,7 +382,7 @@ export default function App() {
                                                   <Route
                                                     path="/devotional"
                                                     element={
-                                                      <Navigate to="/ai/devotional" replace />
+                                                      <SP c={DevotionalLanding} />
                                                     }
                                                   />
                                                   <Route
@@ -559,7 +560,7 @@ export default function App() {
                                                   <Route
                                                     path="/devotional"
                                                     element={
-                                                      <Navigate to="/ai/devotional" replace />
+                                                      <SP c={DevotionalLanding} />
                                                     }
                                                   />
                                                   <Route
@@ -954,7 +955,7 @@ export default function App() {
                                                   <Route
                                                     path="/devotional"
                                                     element={
-                                                      <Navigate to="/ai/devotional" replace />
+                                                      <SP c={DevotionalLanding} />
                                                     }
                                                   />
                                                   <Route
