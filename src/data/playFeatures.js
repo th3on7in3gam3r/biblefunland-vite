@@ -1,4 +1,5 @@
-/** Single source of truth for Play hub games, filters, and nav metadata */
+/** Single source of truth for Play hub games, filters, and nav metadata.
+ *  image/imageAlt/tone drive the storybook game cards on /play. */
 
 export const PLAY_AGE_OPTIONS = [
   { value: 'Preschool', label: 'Preschool (3–5)' },
@@ -7,28 +8,16 @@ export const PLAY_AGE_OPTIONS = [
   { value: 'Family', label: 'Family' },
 ];
 
-export const PLAY_CATEGORY_OPTIONS = [
-  'Action',
-  'Quiz',
-  'Puzzle',
-  'Study',
-  'Casual',
-  'Printable',
-];
+export const PLAY_CATEGORY_OPTIONS = ['Action', 'Quiz', 'Puzzle', 'Study', 'Casual', 'Printable'];
 
-export const PLAY_TYPE_OPTIONS = [
-  'Online Game',
-  'Printable',
-  'Study Tool',
-  'Daily',
-];
+export const PLAY_TYPE_OPTIONS = ['Online Game', 'Printable', 'Study Tool', 'Daily'];
 
 export const PLAY_FEATURES = [
   {
     id: 'scripture-trivia',
     icon: '❓',
     title: 'Scripture Trivia',
-    desc: 'Timed rounds with three difficulty levels — earn badges as you test your Bible knowledge.',
+    desc: 'Timed rounds with three difficulty levels. Earn badges as you test your Bible knowledge.',
     to: '/play/trivia',
     color: '#3B82F6',
     tag: 'All Ages',
@@ -40,12 +29,15 @@ export const PLAY_FEATURES = [
     difficulty: 3,
     bibleRef: 'Psalm 119:11',
     hot: true,
+    image: '/home/game-bible-trivia.webp',
+    imageAlt: 'A smiling girl thinking, surrounded by colorful question marks and a light bulb',
+    tone: 'sun',
   },
   {
     id: 'scripture-runner',
     icon: '🏃',
     title: 'Scripture Runner',
-    desc: 'Endless runner — dodge obstacles and collect Fruits of the Spirit along the way.',
+    desc: 'Endless runner. Dodge obstacles and collect Fruits of the Spirit along the way.',
     to: '/play/game/runner',
     color: '#10B981',
     tag: 'Kids Fav',
@@ -57,6 +49,9 @@ export const PLAY_FEATURES = [
     difficulty: 2,
     bibleRef: 'Hebrews 12:1',
     hot: true,
+    image: '/home/game-scripture-runner.webp',
+    imageAlt: 'A boy running happily along a sunny hillside path',
+    tone: 'leaf',
   },
   {
     id: 'david-goliath',
@@ -74,6 +69,9 @@ export const PLAY_FEATURES = [
     difficulty: 3,
     bibleRef: '1 Samuel 17:45',
     hot: false,
+    image: '/home/game-david-goliath.webp',
+    imageAlt: 'Young David with his sling facing the giant Goliath',
+    tone: 'orange',
   },
   {
     id: 'spin-the-verse',
@@ -91,6 +89,9 @@ export const PLAY_FEATURES = [
     difficulty: 2,
     bibleRef: 'Proverbs 3:5',
     hot: false,
+    image: '/home/game-spin-the-verse.webp',
+    imageAlt: 'Kids cheering around a rainbow prize wheel with an open Bible in the middle',
+    tone: 'grape',
   },
   {
     id: 'parable-escape-room',
@@ -108,6 +109,9 @@ export const PLAY_FEATURES = [
     difficulty: 3,
     bibleRef: 'Matthew 13:34',
     hot: false,
+    image: '/home/play-card-escape-room.webp',
+    imageAlt: 'Two kids in a whale-themed escape room, one holding up a glowing golden key',
+    tone: 'sky',
   },
   {
     id: 'flashcards',
@@ -125,6 +129,10 @@ export const PLAY_FEATURES = [
     difficulty: 2,
     bibleRef: 'Deuteronomy 6:6',
     hot: false,
+    image: '/home/play-card-flashcards.webp',
+    imageAlt:
+      'A girl on a rainbow rug tossing picture flashcards of a dove, heart, lamp, sun and sheep',
+    tone: 'orange',
   },
   {
     id: 'activity-sheets',
@@ -142,12 +150,15 @@ export const PLAY_FEATURES = [
     difficulty: 1,
     bibleRef: 'Proverbs 22:6',
     hot: false,
+    image: '/home/play-card-activity-sheets.webp',
+    imageAlt: "Two kids coloring a Noah's ark page and a maze with crayons",
+    tone: 'sun',
   },
   {
     id: 'daily-challenge',
     icon: '📅',
     title: 'Daily Challenge',
-    desc: 'A new scripture scramble or riddle every 24 hours — come back daily.',
+    desc: 'A new scripture scramble or riddle every 24 hours. Come back daily.',
     to: '/play/challenge',
     color: '#F59E0B',
     tag: 'Daily',
@@ -159,12 +170,15 @@ export const PLAY_FEATURES = [
     difficulty: 3,
     bibleRef: 'Lamentations 3:23',
     hot: false,
+    image: '/home/play-card-daily-challenge.webp',
+    imageAlt: 'A boy in pajamas opening a star-filled puzzle box at sunrise',
+    tone: 'leaf',
   },
   {
     id: 'bible-wordle',
     icon: '📝',
     title: 'Bible Wordle',
-    desc: 'Guess the five-letter Bible word in six tries — a fresh puzzle every day.',
+    desc: 'Guess the five-letter Bible word in six tries. A fresh puzzle every day.',
     to: '/play/wordle',
     color: '#059669',
     tag: 'Daily',
@@ -176,6 +190,9 @@ export const PLAY_FEATURES = [
     difficulty: 3,
     bibleRef: 'Psalm 119:105',
     hot: false,
+    image: '/home/play-card-bible-wordle.webp',
+    imageAlt: 'A girl thinking beside a board of green, yellow and gray puzzle tiles',
+    tone: 'grape',
   },
   {
     id: 'memory-league',
@@ -193,12 +210,15 @@ export const PLAY_FEATURES = [
     difficulty: 4,
     bibleRef: 'Psalm 119:11',
     hot: false,
+    image: '/home/play-card-memory-league.webp',
+    imageAlt: "Three kids celebrating on a winners' podium with a golden trophy",
+    tone: 'sky',
   },
   {
     id: 'battle-arena',
     icon: '⚔️',
     title: 'Bible Battle Arena',
-    desc: 'Head-to-head Bible trivia battles — answer fast to win the arena.',
+    desc: 'Head-to-head Bible trivia battles. Answer fast to win the arena.',
     to: '/play/game/battle-arena',
     color: '#DC2626',
     tag: 'Multiplayer',
@@ -210,6 +230,9 @@ export const PLAY_FEATURES = [
     difficulty: 4,
     bibleRef: '2 Timothy 2:15',
     hot: false,
+    image: '/home/play-card-battle-arena.webp',
+    imageAlt: 'Two grinning kids slamming red and blue buzzers at a game-show table',
+    tone: 'orange',
   },
 ];
 
@@ -229,10 +252,7 @@ export const PLAY_STATS = [
   { n: '100%', label: 'Free' },
 ];
 
-export function filterPlayFeatures(
-  features,
-  { age = [], category = [], type = [] } = {}
-) {
+export function filterPlayFeatures(features, { age = [], category = [], type = [] } = {}) {
   return features.filter((item) => {
     const hasAge = !age.length || age.includes(item.age);
     const hasCategory = !category.length || category.includes(item.category);

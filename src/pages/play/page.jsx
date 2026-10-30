@@ -1,42 +1,63 @@
-import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useStreak } from '../../context/StreakContext';
 import usePageMetadata from '../../hooks/usePageMetadata';
 import { trackPulseEvent } from '../../lib/pulse';
+import StoryIcon from '../../components/StoryIcon';
+import { Chip } from '../../components/StoryBits';
 import {
   PLAY_FEATURES,
-  PLAY_STATS,
-  PLAY_AGE_OPTIONS,
   PLAY_CATEGORY_OPTIONS,
-  PLAY_TYPE_OPTIONS,
-  KIDS_LEARNING_LINKS,
-  filterPlayFeatures,
   getFeaturedPlayFeatures,
 } from '../../data/playFeatures';
-import styles from './Play.module.css';
+import '../../styles/storybook.css';
+import h from '../Home.module.css';
+import s from './PlayHub.module.css';
 
-function scrollToSection(sectionId) {
-  const el = document.getElementById(sectionId);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+// Play hub (route: /play). Games, categories and art come from data/playFeatures.js.
 
-function syncMultiParam(searchParams, key, values) {
-  searchParams.delete(key);
-  values.forEach((value) => searchParams.append(key, value));
-}
+const STATS = [
+  { n: String(PLAY_FEATURES.length), label: 'Games & tools' },
+  { n: '3', label: 'Difficulty levels' },
+  { n: String(PLAY_CATEGORY_OPTIONS.length), label: 'Categories' },
+  { n: 'Free', label: 'to play' },
+];
 
-function arrayFromParam(searchParams, key) {
-  return searchParams.getAll(key).filter(Boolean);
-}
+const LITTLE_LEARNERS = [
+  { label: 'Bible Alphabet', to: '/kids/alphabet', icon: 'type', chip: 'orange' },
+  { label: 'Bible Numbers', to: '/kids/numbers', icon: 'hash', chip: 'sky' },
+  { label: 'Bible Animals', to: '/kids/animals', icon: 'pawPrint', chip: 'leaf' },
+  { label: "God's Shapes", to: '/kids/shapes', icon: 'shapes', chip: 'grape' },
+  { label: 'Kids Stories', to: '/kids-stories', icon: 'bookOpen', chip: 'sun' },
+  { label: 'Coloring Pages', to: '/kids/coloring', icon: 'palette', chip: 'teal' },
+];
 
-function pillClass(field, active) {
-  if (!active) return styles.pill;
-  if (field === 'age') return `${styles.pill} ${styles.pillActiveAge}`;
-  if (field === 'category') return `${styles.pill} ${styles.pillActiveCategory}`;
-  return `${styles.pill} ${styles.pillActiveType}`;
-}
+const MORE = [
+  {
+    title: 'AI tools',
+    desc: 'Devotionals, Bible character chat, songs and art.',
+    to: '/devotional',
+    icon: 'chat',
+    tone: 'grape',
+  },
+  {
+    title: 'Explore the Bible',
+    desc: 'Maps, timelines and study tools.',
+    to: '/explore',
+    icon: 'compass',
+    tone: 'sky',
+  },
+  {
+    title: 'Grow in faith',
+    desc: "Keep growing in God's Word every day.",
+    to: '/grow',
+    icon: 'heartHandshake',
+    tone: 'leaf',
+  },
+];
 
-export default function PlayOverview() {
+const ctaLabel = (g) => (g.category === 'Printable' ? 'View sheets' : 'Play now');
+
+export default function PlayHub() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { streak } = useStreak();
 
@@ -46,374 +67,295 @@ export default function PlayOverview() {
       'Scripture trivia, David & Goliath, escape rooms, flashcards, printables, and daily challenges — free Bible games for kids and families.',
   });
 
-  const ageFilter = arrayFromParam(searchParams, 'age');
-  const categoryFilter = arrayFromParam(searchParams, 'category');
-  const typeFilter = arrayFromParam(searchParams, 'type');
+  const requested = searchParams.get('category');
+  const active = PLAY_CATEGORY_OPTIONS.includes(requested) ? requested : null;
+  const games = active ? PLAY_FEATURES.filter((g) => g.category === active) : PLAY_FEATURES;
+  const featured = getFeaturedPlayFeatures();
 
-  const filteredGames = useMemo(
-    () =>
-      filterPlayFeatures(PLAY_FEATURES, {
-        age: ageFilter,
-        category: categoryFilter,
-        type: typeFilter,
-      }),
-    [ageFilter, categoryFilter, typeFilter]
-  );
+  function pickCategory(cat) {
+    const next = new URLSearchParams(searchParams);
+    next.delete('age');
+    next.delete('type');
+    if (cat) next.set('category', cat);
+    else next.delete('category');
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+    trackPulseEvent('play_filter', { category: cat || 'all' });
+  }
 
-  const featured = getFeaturedPlayFeatures(filteredGames);
-  const hasFilters = ageFilter.length || categoryFilter.length || typeFilter.length;
-
-  const onToggle = (field, value) => {
-    const existing = arrayFromParam(searchParams, field);
-    const next = existing.includes(value)
-      ? existing.filter((v) => v !== value)
-      : [...existing, value];
-
-    const nextParams = new URLSearchParams(searchParams.toString());
-    syncMultiParam(nextParams, field, next);
-    setSearchParams(nextParams, { replace: true });
-  };
-
-  const clearFilters = () => {
-    const nextParams = new URLSearchParams(searchParams.toString());
-    nextParams.delete('age');
-    nextParams.delete('category');
-    nextParams.delete('type');
-    setSearchParams(nextParams, { replace: true });
-  };
+  const onPlay = (g) => () => trackPulseEvent('play_game_click', { game: g.id, destination: g.to });
 
   return (
-    <div className={styles.page}>
-      <section className={styles.hero}>
-        <div
-          className={styles.heroGlow}
-          style={{
-            width: 280,
-            height: 280,
-            background: 'radial-gradient(circle,#60A5FA30 0%,transparent 70%)',
-            top: '5%',
-            left: '8%',
-          }}
-        />
-        <div
-          className={styles.heroGlow}
-          style={{
-            width: 320,
-            height: 320,
-            background: 'radial-gradient(circle,#C084FC25 0%,transparent 70%)',
-            top: '10%',
-            right: '5%',
-          }}
-        />
-
-        <div className={styles.heroInner}>
-          <div className={styles.badge}>
-            <span className={styles.badgeDot} />
-            Bible Games · Faith-Powered Fun
-          </div>
-
-          <h1 className={styles.title}>
-            Play &amp; Learn <span className={styles.titleAccent}>God&apos;s Word</span>
+    <div className={h.page}>
+      {/* ── Hero ─────────────────────────────────────── */}
+      <section className={s.hero}>
+        <div className={`${h.container} ${s.heroCopy}`}>
+          <span className={`${h.handNote} ${s.heroNote}`}>
+            <span>
+              Play
+              <StoryIcon name="heart" filled className={h.noteHeart} />
+            </span>
+            <span>
+              Learn
+              <StoryIcon name="heart" filled className={h.noteHeart} />
+            </span>
+            <span>Grow</span>
+          </span>
+          <h1 className={`${h.heroTitle} ${s.heroTitle}`}>
+            Free Bible games for kids and families
           </h1>
-
-          <p className={styles.subtitle}>
-            Trivia, arcade games, escape rooms, flashcards, and printables — all rooted in
-            Scripture. Completely free.
+          <p className={s.heroBody}>
+            Trivia, arcade games, escape rooms, flashcards, and printables, all rooted in Scripture.
+            Pick a game and play your way through God&apos;s big story.
           </p>
-
-          <div className={styles.heroActions}>
+          <div className={s.actions}>
             <Link
               to="/play/trivia"
-              className={styles.heroBtnPrimary}
-              onClick={() => trackPulseEvent('game_started', { game: 'trivia', source: 'play_hub' })}
+              className={`${h.btn} ${h.btnPrimary} ${h.btnLg}`}
+              onClick={() =>
+                trackPulseEvent('cta_play_hero_trivia', { destination: '/play/trivia' })
+              }
             >
-              ❓ Play Trivia
+              Play trivia
             </Link>
-            <Link
-              to="/play/game/runner"
-              className={styles.heroBtnGhost}
-              onClick={() => trackPulseEvent('game_started', { game: 'ScriptureRunner', source: 'play_hub' })}
-            >
-              🏃 Scripture Runner
-            </Link>
-            <button
-              type="button"
-              className={styles.heroBtnGhost}
-              onClick={() => scrollToSection('play-games')}
-            >
-              🎮 All Games ↓
-            </button>
+            <a href="#games" className={`${h.btn} ${h.btnSecondary} ${h.btnLg}`}>
+              See all games
+            </a>
           </div>
+          <dl className={s.stats}>
+            {STATS.map((st) => (
+              <div key={st.label} className={s.stat}>
+                <dt className={s.srOnly}>{st.label}</dt>
+                <dd className={s.statN}>{st.n}</dd>
+                <dd aria-hidden="true" className={s.statLabel}>
+                  {st.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {streak > 0 && (
+            <Link to="/play/trivia" className={s.streak}>
+              <StoryIcon name="flame" size={18} />
+              You&apos;re on a {streak}-day streak! Play a game today to keep it going.
+            </Link>
+          )}
+        </div>
+        <div className={s.heroArt}>
+          <img
+            src="/home/play-hero-board-game-world.webp"
+            alt="Storybook illustration of kids playing on a giant rainbow board-game path with Noah's ark, a prize wheel and David with his sling"
+            width="1600"
+            height="688"
+            fetchpriority="high"
+            className={s.heroImage}
+          />
+        </div>
+      </section>
 
-          <div className={styles.stats}>
-            {PLAY_STATS.map(({ n, label }) => (
-              <div key={label}>
-                <div className={styles.statNum}>{n}</div>
-                <div className={styles.statLabel}>{label}</div>
+      {/* ── Most popular ─────────────────────────────── */}
+      <section className={h.section}>
+        <div className={h.container}>
+          <div className={s.center}>
+            <h2 className={h.h2}>Most popular right now</h2>
+            <p className={`${h.lead} ${s.narrowLead}`}>
+              The two games families play most. Jump straight in.
+            </p>
+          </div>
+          <div className={s.featuredGrid}>
+            {featured.map((g) => (
+              <div key={g.id} className={`${h.card} ${s[`top_${g.tone}`]}`}>
+                <div className={s.featuredMedia}>
+                  <img src={g.image} alt={g.imageAlt} width="800" height="600" loading="lazy" />
+                  <span className={s.popular}>
+                    <StoryIcon name="flame" size={14} />
+                    Popular · {g.tag}
+                  </span>
+                </div>
+                <div className={s.featuredBody}>
+                  <div>
+                    <span className={`${h.handNote} ${s.verse}`}>{g.verse}</span>
+                    <h3 className={`${h.h3} ${h.left} ${s.featuredTitle}`}>{g.title}</h3>
+                    <p className={s.desc}>{g.desc}</p>
+                  </div>
+                  <Link
+                    to={g.to}
+                    aria-label={`Play ${g.title}`}
+                    className={`${h.btn} ${h.btnPrimary} ${h.btnLg} ${s.noShrink}`}
+                    onClick={onPlay(g)}
+                  >
+                    <StoryIcon name="play" size={16} filled />
+                    Play now
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {streak > 0 && (
-        <div className={styles.streakBar}>
-          <span>🔥</span>
-          <span className={styles.streakText}>
-            You&apos;re on a {streak}-day streak! Keep it going — play a game today.
-          </span>
-          <Link to="/play/trivia" className={styles.streakLink}>
-            Play Now →
-          </Link>
-        </div>
-      )}
-
-      <div className={styles.body}>
-        <div className={styles.quickJump}>
-          {PLAY_FEATURES.map((g) => (
+      {/* ── Browse all ───────────────────────────────── */}
+      <section className={`${h.section} ${s.finder}`} id="games">
+        <div className={h.container}>
+          <div className={s.center}>
+            <h2 className={`${h.h2} ${s.finderTitle}`}>Browse every Bible game &amp; activity</h2>
+            <p className={`${h.lead} ${s.narrowLead}`}>
+              Arcade games, quizzes, puzzles, memory tools and printables. Filter by what your kids
+              love most.
+            </p>
+          </div>
+          <div className={s.tabs} role="group" aria-label="Filter games by category">
             <button
-              key={g.id}
               type="button"
-              className={styles.quickPill}
-              style={{ '--pill-color': g.color }}
-              onClick={() => scrollToSection(g.id)}
+              aria-pressed={!active}
+              className={`${s.tab} ${!active ? s.tabOn : ''}`}
+              onClick={() => pickCategory(null)}
             >
-              {g.icon} {g.title}
+              All games
             </button>
-          ))}
-        </div>
-
-        {featured.length > 0 && (
-          <section style={{ marginBottom: 48 }}>
-            <div className={styles.sectionHeader}>
-              <div>
-                <span className={`${styles.sectionEyebrow} ${styles.sectionEyebrowFeatured}`}>
-                  ⭐ Featured
-                </span>
-                <h2 className={styles.sectionTitle}>Most Popular Right Now</h2>
-              </div>
+            {PLAY_CATEGORY_OPTIONS.map((cat) => (
               <button
+                key={cat}
                 type="button"
-                className={styles.scrollLink}
-                onClick={() => scrollToSection('play-games')}
+                aria-pressed={active === cat}
+                className={`${s.tab} ${active === cat ? s.tabOn : ''}`}
+                onClick={() => pickCategory(cat)}
               >
-                See all games →
+                {cat}
               </button>
-            </div>
-
-            <div className={styles.featuredGrid}>
-              {featured.map((g) => (
-                <Link
-                  key={g.id}
-                  to={g.to}
-                  className={styles.card}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <article
-                    className={styles.featuredCard}
-                    style={{
-                      borderColor: `${g.color}30`,
-                      background: `linear-gradient(135deg,${g.color}12,${g.color}04)`,
-                      boxShadow: `0 8px 32px ${g.color}15`,
-                    }}
-                  >
-                    <span className={styles.hotBadge}>🔥 HOT</span>
-                    <div
-                      className={styles.cardBanner}
-                      style={{ background: `linear-gradient(135deg,${g.color}20,transparent)` }}
+            ))}
+          </div>
+          <p className={s.count} aria-live="polite">
+            Showing {games.length} of {PLAY_FEATURES.length}
+          </p>
+          <div className={s.gameGrid}>
+            {games.map((g) => (
+              <div key={g.id} className={`${h.card} ${s[`top_${g.tone}`]}`}>
+                <div className={s.gameMedia}>
+                  <img src={g.image} alt={g.imageAlt} width="800" height="600" loading="lazy" />
+                  <span className={s.badge}>{g.tag}</span>
+                </div>
+                <div className={s.gameBody}>
+                  <span className={`${h.handNote} ${s.verse}`}>{g.verse}</span>
+                  <h3 className={`${h.h3} ${h.left} ${s.gameTitle}`}>{g.title}</h3>
+                  <p className={s.desc}>{g.desc}</p>
+                  <div className={s.gameCta}>
+                    <Link
+                      to={g.to}
+                      aria-label={`${ctaLabel(g)}: ${g.title}`}
+                      className={`${h.btn} ${h.btnPrimary} ${h.btnMd}`}
+                      onClick={onPlay(g)}
                     >
-                      <div className={styles.cardIcon}>{g.icon}</div>
-                      <span
-                        className={styles.cardTag}
-                        style={{ background: g.color }}
-                      >
-                        {g.tag}
-                      </span>
-                    </div>
-                    <div className={styles.cardBody}>
-                      <h3 className={styles.cardTitle}>{g.title}</h3>
-                      <p className={styles.cardDesc}>{g.desc}</p>
-                      <div className={styles.cardVerse} style={{ color: g.color }}>
-                        📖 {g.verse}
-                      </div>
-                      <span
-                        className={styles.cardCta}
-                        style={{
-                          background: g.color,
-                          boxShadow: `0 4px 14px ${g.color}40`,
-                        }}
-                      >
-                        ▶ Play Now
-                      </span>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className={styles.filters} aria-label="Filter games">
-          <div className={styles.filtersHeader}>
-            <h2 className={styles.filtersTitle}>Find the right game</h2>
-            <span className={styles.filtersCount}>
-              {filteredGames.length} of {PLAY_FEATURES.length}
-            </span>
-            {hasFilters && (
-              <button type="button" className={styles.clearBtn} onClick={clearFilters}>
-                ✕ Clear filters
-              </button>
-            )}
-          </div>
-
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>👶 Age group</span>
-            <div className={styles.pillRow}>
-              {PLAY_AGE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={pillClass('age', ageFilter.includes(opt.value))}
-                  onClick={() => onToggle('age', opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>🎮 Category</span>
-            <div className={styles.pillRow}>
-              {PLAY_CATEGORY_OPTIONS.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={pillClass('category', categoryFilter.includes(cat))}
-                  onClick={() => onToggle('category', cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <span className={styles.filterLabel}>🎯 Type</span>
-            <div className={styles.pillRow}>
-              {PLAY_TYPE_OPTIONS.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  className={pillClass('type', typeFilter.includes(type))}
-                  onClick={() => onToggle('type', type)}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <div id="play-games">
-          <span className={`${styles.sectionEyebrow} ${styles.sectionEyebrowGames}`}>
-            🎮 All Games
-          </span>
-          <h2 className={styles.sectionTitle}>Browse every Bible game &amp; activity</h2>
-
-          <div className={styles.grid}>
-            {filteredGames.length === 0 ? (
-              <div className={styles.empty}>
-                No games match your filters.{' '}
-                <button type="button" className={styles.clearBtn} onClick={clearFilters}>
-                  Clear filters
-                </button>
+                      {ctaLabel(g)}
+                      <StoryIcon name="arrowRight" size={16} />
+                    </Link>
+                  </div>
+                </div>
               </div>
-            ) : (
-              filteredGames.map((g) => (
-                <Link key={g.id} to={g.to} className={styles.card} id={g.id}>
-                  <article className={styles.cardInner}>
-                    <div
-                      className={styles.cardBanner}
-                      style={{
-                        background: `linear-gradient(135deg,${g.color}18,${g.color}06)`,
-                      }}
-                    >
-                      <div className={styles.cardIcon}>{g.icon}</div>
-                      <span
-                        className={styles.cardTag}
-                        style={{ background: g.color }}
-                      >
-                        {g.tag}
-                      </span>
-                    </div>
-                    <div className={styles.cardBody}>
-                      <h3 className={styles.cardTitle}>{g.title}</h3>
-                      <p className={styles.cardDesc}>{g.desc}</p>
-                      <div className={styles.cardVerse} style={{ color: g.color }}>
-                        📖 {g.verse}
-                      </div>
-                      <span
-                        className={styles.cardCta}
-                        style={{
-                          background: g.color,
-                          boxShadow: `0 4px 14px ${g.color}35`,
-                        }}
-                      >
-                        {g.type === 'Printable' ? '🖨️ View Sheets' : '▶ Play Now'}
-                      </span>
-                    </div>
-                  </article>
-                </Link>
-              ))
-            )}
+            ))}
           </div>
         </div>
+      </section>
 
-        <section className={styles.banner}>
-          <p className={styles.bannerQuote}>
-            &ldquo;Your word is a lamp for my feet, a light on my path.&rdquo;
-          </p>
-          <div className={styles.bannerRef}>— Psalm 119:105</div>
-          <Link to="/explore/bible" className={styles.bannerLink}>
-            📖 Read the Bible →
+      {/* ── Verse band ───────────────────────────────── */}
+      <section className={`${h.section} ${s.verseBand}`}>
+        <div className={`${h.container} ${s.verseInner}`}>
+          <Chip icon="bookOpen" tone="grape" size="lg" />
+          <blockquote className={s.quote}>
+            “Your word is a lamp for my feet, a light on my path.”
+          </blockquote>
+          <span className={`${h.handNote} ${h.underlined} ${s.quoteRef}`}>Psalm 119:105</span>
+          <Link to="/explore/bible" className={`${h.btn} ${h.btnPrimary} ${h.btnLg} ${s.quoteBtn}`}>
+            Read the Bible
           </Link>
-        </section>
+        </div>
+      </section>
 
-        <section className={styles.kidsCorner}>
-          <div className={styles.kidsHeader}>
-            <span style={{ fontSize: '2.5rem' }}>🐣</span>
-            <div>
-              <div className={styles.kidsTitle}>Little Learners Corner</div>
-              <div className={styles.kidsSubtitle}>Ages 3–8 · Safe · Fun · Faith-filled</div>
+      {/* ── Little learners ──────────────────────────── */}
+      <section className={`${h.section} ${s.learners}`}>
+        <div className={`${h.container} ${s.learnersGrid}`}>
+          <img
+            src="/home/play-little-learners.webp"
+            alt="Two toddlers playing with a wooden Noah's ark, toy animals and shape blocks"
+            width="1200"
+            height="900"
+            loading="lazy"
+            className={s.learnersImg}
+          />
+          <div>
+            <span className={`${h.handNote} ${h.underlined} ${s.learnersNote}`}>
+              Ages 3–8 · Safe · Fun · Faith-filled
+            </span>
+            <h2 className={`${h.h2} ${h.left} ${s.learnersTitle}`}>Little Learners Corner</h2>
+            <p className={`${h.lead} ${s.learnersLead}`}>
+              Gentle first steps into God&apos;s Word for preschoolers and early readers: letters,
+              numbers, animals, shapes, stories and coloring.
+            </p>
+            <div className={s.learnerLinks}>
+              {LITTLE_LEARNERS.map((l) => (
+                <Link key={l.to} to={l.to} className={s.learnerLink}>
+                  <Chip icon={l.icon} tone={l.chip} />
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </div>
-          <div className={styles.kidsLinks}>
-            {KIDS_LEARNING_LINKS.map(({ label, to }) => (
-              <Link key={to} to={to} className={styles.kidsLink}>
-                {label}
+        </div>
+      </section>
+
+      {/* ── Games kids love + parents ────────────────── */}
+      <section className={h.section}>
+        <div className={`${h.container} ${s.loveGrid}`}>
+          <div>
+            <h2 className={`${h.h2} ${h.left}`}>Bible games kids love</h2>
+            <p className={s.loveBody}>
+              Play Scripture Runner, David &amp; Goliath, Spin the Verse, Bible Trivia, Parable
+              Escape Room, and dozens more arcade-style games rooted in Scripture. Each activity
+              reinforces Bible stories, heroes, and themes from Genesis through Revelation while
+              keeping kids motivated with streaks, badges, and friendly competition on the
+              leaderboard.
+            </p>
+          </div>
+          <div className={`${h.card} ${s.top_leaf} ${s.parentsCard}`}>
+            <Chip icon="shield" tone="leaf" size="lg" />
+            <h3 className={`${h.h3} ${h.left} ${s.parentsTitle}`}>
+              Built for parents &amp; teachers
+            </h3>
+            <p className={s.desc}>
+              The Parents &amp; Teachers Hub includes child profiles, parental controls,
+              PIN-protected Kids Mode, progress tracking, weekly email digests, and classroom tools.
+              Set safe time limits, filter content by age, and celebrate milestones as your family
+              grows in faith together.
+            </p>
+            <Link to="/parents" className={`${h.btn} ${h.btnPrimary} ${h.btnMd} ${s.parentsBtn}`}>
+              Visit the Parents &amp; Teachers Hub
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Want more? ───────────────────────────────── */}
+      <section className={`${h.section} ${s.moreSection}`}>
+        <div className={h.container}>
+          <h2 className={h.h2}>Want more?</h2>
+          <div className={s.moreGrid}>
+            {MORE.map((m) => (
+              <Link
+                key={m.to}
+                to={m.to}
+                className={`${h.card} ${s[`top_${m.tone}`]} ${s.moreCard}`}
+              >
+                <Chip icon={m.icon} tone={m.tone} size="lg" />
+                <div className={s.moreText}>
+                  <h3 className={`${h.h3} ${h.left}`}>{m.title}</h3>
+                  <p className={s.desc}>{m.desc}</p>
+                </div>
+                <span className={h.arrow}>
+                  <StoryIcon name="arrowRight" size={18} />
+                </span>
               </Link>
             ))}
           </div>
-        </section>
-
-        <div className={styles.bottomCta}>
-          <div className={styles.bottomTitle}>
-            Want more? Explore AI tools, Bible study, and community features.
-          </div>
-          <div className={styles.bottomLinks}>
-            <Link to="/ai" className={styles.bottomLinkPrimary}>
-              🤖 AI Tools →
-            </Link>
-            <Link to="/explore" className={styles.bottomLink}>
-              🔍 Explore →
-            </Link>
-            <Link to="/grow" className={styles.bottomLink}>
-              🌱 Grow →
-            </Link>
-          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
